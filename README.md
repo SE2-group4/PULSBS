@@ -1,5 +1,5 @@
 # PULSBS
-Pandemic University Lecture Seat Booking System
+Pandemic University Lecture Seat Booking System.
 
 ## Calendar
 [Sprint meetings](https://calendar.google.com/calendar/u/0/r?cid=N3A0ZzhsMjRydWtpazJtdjZya2M3NGFzYm9AZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&pli=1)
