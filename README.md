@@ -1,5 +1,5 @@
 # PULSBS
-Pandemic University Lecture Seat Booking System
+Pandemic University Lecture Seat Booking System.
 
 ## Installation
 
