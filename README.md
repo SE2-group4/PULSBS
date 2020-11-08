@@ -9,8 +9,7 @@ Pandemic University Lecture Seat Booking System.
 ## Design
 [Database interface](https://app.creately.com/diagram/v2I2OxU6KJl/view)
 
-[public API skeleton](https://docs.google.com/document/d/1g7rZGhk2GJU-NiFqanrXhGMsG0u4hMfa0yhNFl68EPw/edit)
-
+~~[Public API skeleton](https://docs.google.com/document/d/1g7rZGhk2GJU-NiFqanrXhGMsG0u4hMfa0yhNFl68EPw/edit)~~ USE instead the openapi.yaml file as reference
 ## Installation
 
 ## Usage
