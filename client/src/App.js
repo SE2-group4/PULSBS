@@ -7,7 +7,7 @@ import Container from "react-bootstrap/Container";
 import StudentPage from "./pages/StudentPage";
 import TeacherPage from "./pages/TeacherPage";
 import LoginPage from "./pages/LoginPage";
-import API from "./api/Api";
+import API from "./api/API";
 import Header from "./components/Header";
 
 import LoginForm from "./components/LoginForm";
