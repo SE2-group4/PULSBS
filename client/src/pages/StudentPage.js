@@ -2,7 +2,7 @@ import React from 'react';
 import Container from "react-bootstrap/Container"
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import API from "../api/API";
+import API from "../api/Api";
 
 class StudentPage extends React.Component {
 
@@ -18,7 +18,7 @@ class StudentPage extends React.Component {
      * componentDidMount fetch the all courses of the student 
      */
     componentDidMount(){
-        API.getCoursesByStudentId()
+        API.getCoursesByStudentId(user.userId)
         .then((courses) =>{
             this.setState ({courses : courses});
         })
@@ -38,7 +38,7 @@ class StudentPage extends React.Component {
                     <InfoPanel user={this.state.user}/>
                 </Col>
                 <Col sm='8'>
-                    <BookingLectureForm courses={this.state.courses} bookALecture={this.bookALecture}/>
+                    <BookingLectureForm courses={this.state.courses} bookALecture={this.bookALecture} user = {this.state.user}/>
                 </Col>
                 </Row>
             </Container>

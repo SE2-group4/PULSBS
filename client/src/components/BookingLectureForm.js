@@ -12,11 +12,11 @@ import Button from 'react-bootstrap/Button';
 class BookingLectureForm extends React.Component {
     constructor(props){
         super(props);
-        this.state = {courses : props.courses, lectures : null,course : null,lecture : null};
+        this.state = {courses : props.courses, lectures : null,course : null,lecture : null,user : props.user};
     }
     
     getLecturesByCourseId = (course) =>{
-        API.getLecturesByCourseId(course.courseId)
+        API.getLecturesByCourseId(this.state.user.userId,course.courseId)
         .then((lectures)=>{
             this.setState({lectures : lectures,course : course})
         })
