@@ -5,13 +5,20 @@
  */
 'use strict';
 
-class Teacher {
+const User = require('./User.js');
+
+class Teacher extends User {
+    /**
+     * class constructor
+     * @param {Number} teacherId 
+     * @param {String} firstName 
+     * @param {String} lastName 
+     * @param {String} email 
+     * @param {String} password 
+     */
     constructor(teacherId = -1, firstName = null, lastName = null, email = null, password = null) {
+        super(teacherId, firstName, lastName, email, password);
         this.teacherId = teacherId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
     }
 
     /**
