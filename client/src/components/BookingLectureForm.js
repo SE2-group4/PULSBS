@@ -8,6 +8,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import API from '../api/Api';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
+import APIfake from '../tests/APIfake';
 
 class BookingLectureForm extends React.Component {
     constructor(props){
@@ -16,7 +17,7 @@ class BookingLectureForm extends React.Component {
     }
     
     getLecturesByCourseId = (course) =>{
-        API.getLecturesByCourseId(this.state.user.userId,course.courseId)
+        APIfake.getLecturesByCourseId(this.state.user.userId,course.courseId)
         .then((lectures)=>{
             this.setState({lectures : lectures,course : course})
         })
@@ -32,13 +33,13 @@ class BookingLectureForm extends React.Component {
         return (
             <>
             <Row>
-            <Col><DropdownMenu courses={props.courses} getLectures={props.getLecturesByCourseId}/></Col>
-            <Col><DropdownMenu lectures={props.lectures}/></Col>
+            <Col><DropdownMenu courses={this.props.courses} getLectures={this.props.getLecturesByCourseId}/></Col>
+            <Col><DropdownMenu lectures={this.props.lectures}/></Col>
             </Row>
             <Row>
                 <ListGroup>
-                {course && <Col><ListGroup.Item>Course : {course.description}</ListGroup.Item></Col>}
-                {lecture && <Col><ListGroup.Item>Lecture : {lecture.lectureId}</ListGroup.Item></Col>}
+                {this.state.course && <Col><ListGroup.Item>Course : {this.state.course.description}</ListGroup.Item></Col>}
+                {this.state.lecture && <Col><ListGroup.Item>Lecture : {this.state.lecture.lectureId}</ListGroup.Item></Col>}
                 </ListGroup>
             </Row>
             <br/>
@@ -68,7 +69,7 @@ function DropdownMenu(props) {
                 Choose a lecture
             </Dropdown.Toggle>
             <Dropdown.Menu>
-            {props.lectures.map((lecture)=><Dropdown.Item onClick={()=>props.getLectures(course)}>{course.desription}</Dropdown.Item>)}
+            {props.lectures.map((lecture)=><Dropdown.Item onClick={()=>props.getLectures(lecture)}>{lecture.lectureId}</Dropdown.Item>)}
             </Dropdown.Menu>
             </>
             }

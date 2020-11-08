@@ -7,10 +7,8 @@ import Container from "react-bootstrap/Container";
 import StudentPage from "./pages/StudentPage";
 import TeacherPage from "./pages/TeacherPage";
 import LoginPage from "./pages/LoginPage";
-import API from "./api/API";
 import Header from "./components/Header";
-
-import LoginForm from "./components/LoginForm";
+import { withRouter } from 'react-router-dom';
 
 class App extends React.Component {
   /**
@@ -46,12 +44,6 @@ class App extends React.Component {
           userLogout={this.userLogout}
         />
         <Container fluid id="containerMainContent">
-          <Row className="vheight-100">
-            <Col sm={4}></Col>
-            <Col sm={4} className="below-nav">
-              <LoginForm />
-            </Col>
-          </Row>
           <Switch>
             <Route
               path="/studentPage"
@@ -70,22 +62,21 @@ class App extends React.Component {
             <Route
               path="/login"
               render={() => {
-                if (this.state.isAuth) return <Redirect to="/login" />;
+                if (this.state.isAuth) return <Redirect to="/" />;
                 else
                   return <LoginPage setLoggedInUser={this.setLoggedInUser} />;
               }}
             >
-              <Row className="vheight-100">
-                <Col sm={4}></Col>
-                <Col sm={4} className="below-nav">
-                  <LoginForm />
-                </Col>
-              </Row>
             </Route>
             <Route
               path="/"
               render={() => {
-                return <Redirect to="/login" />;
+                if (this.state.isAuth && this.state.authUser.type==="Student")
+                  return <Redirect to="/studentPage" />;
+                if (this.state.isAuth && this.state.authUser.type==="Teacher")
+                  return <Redirect to="/teacherPage" />;
+                if(!this.state.isAuth)
+                  return <Redirect to="/login"/>
               }}
             ></Route>
           </Switch>
@@ -95,5 +86,5 @@ class App extends React.Component {
   }
 }
 
-//export default withRouter(App);
-export default App;
+export default withRouter(App);
+//export default App;

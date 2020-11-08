@@ -83,4 +83,5 @@ async function bookALecture(Uid,Cid,Lid) {
     });
 }
 
-export {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture};
+const API= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture};
+export default API;

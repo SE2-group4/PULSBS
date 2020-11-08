@@ -3,6 +3,9 @@ import Container from "react-bootstrap/Container"
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import API from "../api/Api";
+import APIfake from '../tests/APIfake';
+import InfoPanel from '../components/InfoPanel'
+import BookingLectureForm from '../components/BookingLectureForm'
 
 class StudentPage extends React.Component {
 
@@ -18,14 +21,14 @@ class StudentPage extends React.Component {
      * componentDidMount fetch the all courses of the student 
      */
     componentDidMount(){
-        API.getCoursesByStudentId(user.userId)
+        APIfake.getCoursesByStudentId(this.state.user.userId)
         .then((courses) =>{
             this.setState ({courses : courses});
         })
         .catch()
     }
     bookALecture = (course,lecture) =>{
-        API.bookALecture(course.courseId,lecture.lectureId)
+        APIfake.bookALecture(course.courseId,lecture.lectureId)
         .then()
         .catch()
     }
@@ -35,6 +38,7 @@ class StudentPage extends React.Component {
             <Container fluid>
                 <Row>
                 <Col sm='4'>
+                    {console.log(this.state.user)}
                     <InfoPanel user={this.state.user}/>
                 </Col>
                 <Col sm='8'>
