@@ -7,9 +7,9 @@ import Container from "react-bootstrap/Container";
 import StudentPage from "./pages/StudentPage";
 import TeacherPage from "./pages/TeacherPage";
 import LoginPage from "./pages/LoginPage";
-import API from "./api/API";
+import API from "./api/Api";
 import Header from "./components/Header";
-import { withRouter } from "react-router-dom";
+
 import LoginForm from "./components/LoginForm";
 
 class App extends React.Component {
@@ -74,7 +74,14 @@ class App extends React.Component {
                 else
                   return <LoginPage setLoggedInUser={this.setLoggedInUser} />;
               }}
-            ></Route>
+            >
+              <Row className="vheight-100">
+                <Col sm={4}></Col>
+                <Col sm={4} className="below-nav">
+                  <LoginForm />
+                </Col>
+              </Row>
+            </Route>
             <Route
               path="/"
               render={() => {
