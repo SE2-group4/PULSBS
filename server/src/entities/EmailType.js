@@ -1,8 +1,9 @@
 /**
  * EmailType enumeration
  * @author Gastaldi Paolo
- * @version 1.0
+ * @version 1.0.0
  */
+'use strict';
 
 const EmailType = {
     ERROR : -1,

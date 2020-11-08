@@ -1,8 +1,9 @@
 /**
  * Lecture entity
  * @author Gastaldi Paolo
- * @version 1.0
+ * @version 1.0.0
  */
+'use strict';
 
 class Lecture {
     /**

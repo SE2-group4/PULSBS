@@ -1,8 +1,9 @@
 /**
  * Student entity
  * @author Gastaldi Paolo
- * @version 1.0
+ * @version 1.0.0
  */
+'use strict';
 
 class Student {
     constructor(studenId = -1, firstName = null, lastName = null, email = null, password = null) {
@@ -25,4 +26,4 @@ class Student {
     }
 }
 
-module.exports = Lecture;
+module.exports = Student;
