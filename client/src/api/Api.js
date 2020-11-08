@@ -63,19 +63,17 @@ async function getLecturesByCourseId(Uid,Cid){
 /**
  * bookALecture sends to server the course, student and lecture IDs in order to book the lecture
  */
-async function bookALecture() {
+async function bookALecture(Uid,Cid,Lid) {
     return new Promise((resolve, reject) => {
-        fetch(baseURL + '/login', {
+        fetch(baseURL + `/student/${Uid}/courses/${Cid}/lectures/${Lid}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({email: email, password: password}),
+            body: JSON.stringify({studentId: Uid}),
         }).then((response) => {
             if (response.ok) {
-                response.json().then((user) => {
-                    resolve(User.from(user));
-                });
+               resolve()
             } else{
                 response.json()
                     .then((obj) => { reject(obj); }) // error msg in the response body
@@ -84,3 +82,6 @@ async function bookALecture() {
         }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
     });
 }
+
+const API= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture};
+export default API;
