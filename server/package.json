@@ -10,5 +10,8 @@
     "test": "mocha ./tests/test_suite.js"
   },
   "author": "group4",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "sqlite3": "^5.0.0"
+  }
 }
