@@ -14,14 +14,16 @@ const Lecture = require('./../entities/Lecture.js');
 const EmailType = require('./../entities/EmailType.js');
 
 let dbpath = './PULSBS.db'; // default
-let db = null;
+let db = new sqlite.Database(dbpath, (err) => {
+    if (err) throw err;
+});
 
 /**
  * open a new database connection
  * it closes existing connections before creating the new one
  * @param {string} dbpath
  */
-exports.openConn = function(dbpath) {
+const openConn = function openConn(dbpath) {
     if(!(db == undefined || db == null))
         db.close();
     db = new sqlite.Database(dbpath, (err) => {
@@ -29,17 +31,19 @@ exports.openConn = function(dbpath) {
     });
     return;
 }
+exports.openConn = openConn;
 
 /**
  * perform login
  * @param {Teacher | Student} user - email and password needed
  * @returns {Promise} promise
  */
-exports.login = function(user) {
+const login = function(user) {
     return new Promise((resolve, reject) => {
 
     })
 }
+exports.login = login;
 
 /**
  * record a booking in the system
@@ -47,7 +51,7 @@ exports.login = function(user) {
  * @param {Lecture} lecture
  * @returns {Promise} promise
  */
-exports.addBooking = function(student, lecture) {
+const addBooking = function(student, lecture) {
     return new Promise((resolve, reject) => {
         const sql = 'INSERT INTO Booking(studentId, lectureId) VALUES (?, ?)';
 
@@ -61,6 +65,7 @@ exports.addBooking = function(student, lecture) {
         })
     })
 }
+exports.addBooking = addBooking;
 
 /**
  * get the list of lectures a student can attend to
@@ -68,7 +73,7 @@ exports.addBooking = function(student, lecture) {
  * @param {Student} student - studentId needed
  * @returns {Promise} promise
  */
-exports.getLecturesByStudent = function(student) {
+const getLecturesByStudent = function(student) {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM Lecture \
             JOIN Course ON Lecture.lectureId = Course.courseId \
@@ -86,6 +91,7 @@ exports.getLecturesByStudent = function(student) {
         });
     })
 }
+exports.getLecturesByStudent = getLecturesByStudent;
 
 /**
  * get the list of courses a student is enrolled to
@@ -93,7 +99,7 @@ exports.getLecturesByStudent = function(student) {
  * @param {Student} student - studentId needed
  * @returns {Promise} promise
  */
-exports.getCoursesByStudent = function(student) {
+const getCoursesByStudent = function(student) {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM Course \
         JOIN Enrollment ON Enrollment.courseId = Course.courseId \
@@ -110,6 +116,7 @@ exports.getCoursesByStudent = function(student) {
         });
     })
 }
+exports.getCoursesByStudent = getCoursesByStudent;
 
 /**
  * get a list of lectures related to a specific course
@@ -117,7 +124,7 @@ exports.getCoursesByStudent = function(student) {
  * @param {Course} course - courseId needed
  * @returns {Promise} promise
  */
-exports.getLecturesByCourse = function(course) {
+const getLecturesByCourse = function(course) {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM Lecture \
             WHERE Lecture.courseId = ? AND DATE(Lecture.date) > DATE(?)';
@@ -133,13 +140,14 @@ exports.getLecturesByCourse = function(course) {
         });
     })
 }
+exports.getLecturesByCourse = getLecturesByCourse;
 
 /**
  * get a list of students booked for a specific lecture
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} promise
  */
-exports.getStudentsByLecture = function(lecture) {
+const getStudentsByLecture = function(lecture) {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM User \
             JOIN Booking on User.userId = Booking.studentId \
@@ -156,6 +164,7 @@ exports.getStudentsByLecture = function(lecture) {
         });
     })
 }
+exports.getStudentsByLecture = getStudentsByLecture;
 
 /**
  * get a list of students enrolled in a specific course
@@ -163,7 +172,7 @@ exports.getStudentsByLecture = function(lecture) {
  * @param {Course} course - courseId needed
  * @returns {Promise} promise
  */
-exports.getStudentsByCourse = function(course) {
+const getStudentsByCourse = function(course) {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM User \
         JOIN Enrollment ON User.userId = Enrollment.studentId \
@@ -181,6 +190,7 @@ exports.getStudentsByCourse = function(course) {
         });
     })
 }
+exports.getStudentsByCourse = getStudentsByCourse;
 
 /**
  * get a list of lectures a teacher will give
@@ -188,7 +198,7 @@ exports.getStudentsByCourse = function(course) {
  * @param {Teacher} teacher 
  * @returns {Promise} promise
  */
-exports.getLecturesByTeacher = function(teacher) {
+const getLecturesByTeacher = function(teacher) {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM Lecture \
             JOIN Course ON Lecture.courseId = Course.courseId \
@@ -206,6 +216,7 @@ exports.getLecturesByTeacher = function(teacher) {
         });
     })
 }
+exports.getLecturesByTeacher = getLecturesByTeacher;
 
 /**
  * get a list of courses a teacher is holding
@@ -213,7 +224,7 @@ exports.getLecturesByTeacher = function(teacher) {
  * @param {Teacher} teacher 
  * @returns {Promise} promise
  */
-exports.getCoursesByTeacher = function(teacher) {
+const getCoursesByTeacher = function(teacher) {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM Course \
         JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId \
@@ -230,6 +241,7 @@ exports.getCoursesByTeacher = function(teacher) {
         });
     })
 }
+exports.getCoursesByTeacher = getCoursesByTeacher;
 
 /**
  * crea a new booking email for a student
@@ -237,28 +249,30 @@ exports.getCoursesByTeacher = function(teacher) {
  * @param {Lecture} lecture - lectureId, description and date needed
  * @returns {Promise} promise
  */
-exports._createStudentBookingEmail = function(student, lecture) {
+const _createStudentBookingEmail = function(student, lecture) {
     return new Promise((resolve, reject) => {
     })
 }
+exports._createStudentBookingEmail = _createStudentBookingEmail;
 
 /**
  * create a new email to inform a teacher about students that will attend his/her lecture
  * @param {Lecture} lecture 
  * @returns {Promise} promise
  */
-exports._createTeacherBookingsEmail = function(lecture) {
+const _createTeacherBookingsEmail = function(lecture) {
     return new Promise((resolve, reject) => {
 
     })
 }
+exports._createTeacherBookingsEmail = _createTeacherBookingsEmail;
 
 /**
  * get the current academic year
  * based on the server time
  * @returns {Number} year
  */
-exports._getCurrentAcademicYear = function() {
+const _getCurrentAcademicYear = function() {
     const now = moment();
 
     let year = now.year();
@@ -268,6 +282,7 @@ exports._getCurrentAcademicYear = function() {
 
     return(year);
 }
+exports._getCurrentAcademicYear = _getCurrentAcademicYear;
 
 /**
  * create a log in the database of an email
@@ -275,7 +290,7 @@ exports._getCurrentAcademicYear = function() {
  * @param {Teacher | Student} to - teacherId or studentId neeeded
  * @param {EmailType} emailType - emailTypeId needed
  */
-exports.addEmail = function(from, to, emailType) {
+const addEmail = function(from, to, emailType) {
     return new Promise((resolve, reject) => {
         const sql = 'INSERT INTO Email(from, to, emailTypeId) VALUES(?, ?, ?)';
 
@@ -292,3 +307,4 @@ exports.addEmail = function(from, to, emailType) {
         });
     })
 }
+exports.addEmail = addEmail;
