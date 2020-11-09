@@ -15,22 +15,27 @@ class StudentPage extends React.Component {
      */
     constructor(props){
         super(props);
-        this.state = {user : props.user,courses : null};
+        this.state = {user : props.user,courses : null,booked : false};
     }
     /**
      * componentDidMount fetch the all courses of the student 
      */
     componentDidMount(){
-        APIfake.getCoursesByStudentId(this.state.user.userId)
+        API.getCoursesByStudentId(this.state.user.userId)
         .then((courses) =>{
+            console.log(courses);
             this.setState ({courses : courses});
         })
         .catch()
     }
     bookALecture = (course,lecture) =>{
-        APIfake.bookALecture(course.courseId,lecture.lectureId)
-        .then()
+        console.log(lecture.lectureId);
+        API.bookALecture(this.state.user.userId,course.courseId,lecture.lectureId)
+        .then(()=>this.setState({booked : true}))
         .catch()
+    }
+    handleFinishBooking = ()=>{
+        this.setState({booked : false});
     }
     render(){
         return(
@@ -38,11 +43,11 @@ class StudentPage extends React.Component {
             <Container fluid>
                 <Row>
                 <Col sm='4'>
-                    {console.log(this.state.user)}
                     <InfoPanel user={this.state.user}/>
                 </Col>
                 <Col sm='8'>
-                    <BookingLectureForm courses={this.state.courses} bookALecture={this.bookALecture} user = {this.state.user}/>
+                    {this.state.courses && <BookingLectureForm courses={this.state.courses} bookALecture={this.bookALecture} user = {this.state.user} isBookedDone={this.state.booked} 
+                    handleFinishBooking={this.handleFinishBooking}></BookingLectureForm>}
                 </Col>
                 </Row>
             </Container>

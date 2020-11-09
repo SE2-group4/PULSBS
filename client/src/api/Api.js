@@ -39,7 +39,7 @@ async function getCoursesByStudentId(id){
     return new Promise((resolve,reject)=>{
         fetch(baseURL + `/students/${id}/courses`).then((response)=>{
             if(response.ok)
-                resolve(Course.from(response.json()));
+                resolve(response.json());
             else reject((obj) => { reject(obj); });
         }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
     });
@@ -51,7 +51,7 @@ async function getCoursesByStudentId(id){
  */
 async function getLecturesByCourseId(Uid,Cid){
     return new Promise((resolve,reject)=>{
-        fetch(baseURL + `/students/${Uid}/courses/${Cid}`).then((response)=>{
+        fetch(baseURL + `/students/${Uid}/courses/${Cid}/lectures`).then((response)=>{
             if(response.ok)
                 resolve(response.json());
             else reject((obj) => { reject(obj); });
@@ -65,7 +65,7 @@ async function getLecturesByCourseId(Uid,Cid){
  */
 async function bookALecture(Uid,Cid,Lid) {
     return new Promise((resolve, reject) => {
-        fetch(baseURL + `/student/${Uid}/courses/${Cid}/lectures/${Lid}`, {
+        fetch(baseURL + `/students/${Uid}/courses/${Cid}/lectures/${Lid}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -73,6 +73,7 @@ async function bookALecture(Uid,Cid,Lid) {
             body: JSON.stringify({studentId: Uid}),
         }).then((response) => {
             if (response.ok) {
+                console.log("ok prenotato");
                resolve()
             } else{
                 response.json()

@@ -11,7 +11,7 @@ import APIfake from "../tests/APIfake"
 class LoginPage extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { username: "", password: "", submitted: false };
+    this.state = { username: "", password: "" };
   }
 
   onChangeUsername = (event) => {
@@ -26,17 +26,17 @@ class LoginPage extends React.Component {
     event.preventDefault();
     //this.props.setLoggedInUser(this.state.username, this.state.password);
     //this.setState({ submitted: true });
-    APIfake.userLogin(this.state.username,this.state.password)
+    API.userLogin(this.state.username,this.state.password)
     .then((user)=>this.userLogin(user))
     .catch()
   };
   userLogin = (user) =>{
       this.props.setLoggedInUser(user);
-      this.setState({submitted : true});
+
   }
 
   render() {
-    if (this.state.submitted) return <Redirect to="/" />;
+    
     return (
             <Container fluid>
               <Row>
