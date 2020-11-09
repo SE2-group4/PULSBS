@@ -21,6 +21,10 @@
     {
       "name": "teacher",
       "description": "Everything about the teachers"
+    },
+    {
+      "name": "general",
+      "description": "General services"
     }
   ],
   "externalDocs": {
@@ -30,8 +34,11 @@
   "paths": {
     "/login": {
       "post": {
+        "tags": [
+          "general"
+        ],
         "summary": "User request to sign in system",
-        "operationId": "loginUser",
+        "operationId": "userLogin",
         "requestBody": {
           "description": "The credetials needed are email and password",
           "content": {
@@ -85,8 +92,11 @@
     },
     "/students/{studentId}/courses": {
       "get": {
-        "tags": ["student"],
+        "tags": [
+          "student"
+        ],
         "summary": "get all enrolled courses in this academic year",
+        "operationId": "studentGetCourses",
         "parameters": [
           {
             "in": "path",
@@ -130,9 +140,12 @@
     },
     "/students/{studentId}/courses/{courseId}/lectures": {
       "get": {
-        "tags": ["student"],
+        "tags": [
+          "student"
+        ],
         "summary": "get all active lectures of a particular course",
         "description": "Get all active lectures, which are still not delivered, for a course enrolled by a particular student",
+        "operationId": "studentGetCourseLectures",
         "parameters": [
           {
             "in": "path",
@@ -185,9 +198,11 @@
     },
     "/students/{studentId}/courses/{courseId}/lectures/{lectureId}": {
       "post": {
-        "tags": ["student"],
+        "tags": [
+          "student"
+        ],
         "summary": "book a particular lecture",
-        "operationId": "bookLectureStudent",
+        "operationId": "studentBookLecture",
         "parameters": [
           {
             "in": "path",
@@ -218,7 +233,7 @@
           }
         ],
         "requestBody": {
-          "description": "The credetials needed are email and password",
+          "description": "The id of the student that want to book a lecture",
           "content": {
             "application/json": {
               "schema": {
@@ -257,8 +272,11 @@
     },
     "/teachers/{teacherId}/courses": {
       "get": {
-        "tags": ["teacher"],
+        "tags": [
+          "teacher"
+        ],
         "summary": "get all taught courses of this academic year",
+        "operationId": "teacherGetCourses",
         "parameters": [
           {
             "in": "path",
@@ -302,9 +320,12 @@
     },
     "/teachers/{teacherId}/courses/{courseId}/lectures": {
       "get": {
-        "tags": ["teacher"],
+        "tags": [
+          "teacher"
+        ],
         "summary": "get all active lectures for a particular course",
         "description": "Get all active lectures, which are stil not delivered, for a course taught by a particular professor",
+        "operationId": "teacherGetCourseLectures",
         "parameters": [
           {
             "in": "path",
@@ -357,8 +378,11 @@
     },
     "/teachers/{teacherId}/courses/{courseId}/lectures/{lectureId}/students": {
       "get": {
-        "tags": ["teacher"],
+        "tags": [
+          "teacher"
+        ],
         "summary": "get all the students that have an active booking for a particular lecture",
+        "operationId": "teacherGetCourseLectureStudents",
         "parameters": [
           {
             "in": "path",
@@ -476,7 +500,10 @@
           "type": {
             "type": "string",
             "description": "this field defines what kind of user he/she is",
-            "enum": ["Student", "Teacher"]
+            "enum": [
+              "Student",
+              "Teacher"
+            ]
           },
           "firstName": {
             "type": "string"
