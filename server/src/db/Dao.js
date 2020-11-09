@@ -141,9 +141,9 @@ exports.getLecturesByCourse = function(course) {
  */
 exports.getStudentsByLecture = function(lecture) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM Student \
-            JOIN Booking on Student.studentId = Booking.bookingId \
-            WHERE Booking.lectureId = ?';
+        const sql = 'SELECT * FROM User \
+            JOIN Booking on User.userId = Booking.studentId \
+            WHERE Booking.lectureId = ? AND User.type = STUDENT';
 
         db.all(sql, [lecture.lectureId], (err, rows) => {
             if(err) {
@@ -165,10 +165,10 @@ exports.getStudentsByLecture = function(lecture) {
  */
 exports.getStudentsByCourse = function(course) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM Student \
-        JOIN Enrollment ON Student.studentId = Enrollment.studentId \
+        const sql = 'SELECT * FROM User \
+        JOIN Enrollment ON User.userId = Enrollment.studentId \
         JOIN Course ON Enrollment.courseId = Course.courseId \
-        WHERE Course.courseId = ? AND Course.year = ?';
+        WHERE Course.courseId = ? AND Course.year = ? AND User.type = STUDENT';
 
         db.all(sql, [course.courseId, _getCurrentAcademicYear()], (err, rows) => {
             if(err) {
