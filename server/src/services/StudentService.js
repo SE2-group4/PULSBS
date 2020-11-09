@@ -9,7 +9,8 @@
  * lectureId Integer lecture id
  * no response value expected for this operation
  **/
-exports.studentBookLecture = function (body, studentId, courseId, lectureId) {
+exports.studentBookLecture = function (studentId, courseId, lectureId) {
+  // TODO update the openapi docs. We shoudl return something in case of status code 200
   return new Promise(function (resolve, reject) {
     resolve("Lecture Booked");
   });
@@ -28,16 +29,16 @@ exports.studentGetCourseLectures = function (studentId, courseId) {
     let examples = {};
     examples["application/json"] = [
       {
-        date: "2000-01-23T04:56:07.000+00:00",
+        date: "2000-01-22T10:00:00.000+00:00",
         classId: 1,
-        courseId: 6,
-        lectureId: 0,
+        courseId: 2,
+        lectureId: 10,
       },
       {
-        date: "2000-01-23T04:56:07.000+00:00",
+        date: "2000-01-23T12:00:00.000+00:00",
         classId: 1,
-        courseId: 6,
-        lectureId: 0,
+        courseId: 2,
+        lectureId: 11,
       },
     ];
     if (Object.keys(examples).length > 0) {
@@ -60,12 +61,12 @@ exports.studentGetCourses = function (studentId) {
     examples["application/json"] = [
       {
         year: 2020,
-        description: "description",
+        description: "software enginnering",
         courseId: 0,
       },
       {
         year: 2020,
-        description: "description",
+        description: "yoga",
         courseId: 0,
       },
     ];

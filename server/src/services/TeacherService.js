@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * get all the students that have an active booking for a particular lecture
+ * Get all the students that have an active booking for a particular lecture
  *
  * teacherId Integer teacher id
  * courseId Integer course id
@@ -13,20 +13,20 @@ exports.teacherGetCourseLectureStudents = function (teacherId, courseId, lecture
     let examples = {};
     examples["application/json"] = [
       {
-        firstName: "firstName",
-        lastName: "lastName",
-        password: "password",
+        firstName: "fooFirst",
+        lastName: "fooLast",
+        password: "fooPassword",
         type: "Student",
         userId: 1,
-        email: "fake@email.com",
+        email: "foo@email.com",
       },
       {
-        firstName: "firstName",
-        lastName: "lastName",
-        password: "password",
+        firstName: "barFirst",
+        lastName: "barLast",
+        password: "barPassword",
         type: "Student",
         userId: 2,
-        email: "fake@email.com",
+        email: "bar@email.com",
       },
     ];
     if (Object.keys(examples).length > 0) {
@@ -50,16 +50,16 @@ exports.teacherGetCourseLectures = function (teacherId, courseId) {
     let examples = {};
     examples["application/json"] = [
       {
-        date: "2000-01-23T04:56:07.000+00:00",
+        date: "2000-01-23T10:00:00.000+00:00",
         classId: 1,
-        courseId: 6,
+        courseId: 1,
         lectureId: 0,
       },
       {
-        date: "2000-01-23T04:56:07.000+00:00",
-        classId: 1,
-        courseId: 6,
-        lectureId: 0,
+        date: "2000-01-24T12:00:00.000+00:00",
+        classId: 2,
+        courseId: 1,
+        lectureId: 1,
       },
     ];
     if (Object.keys(examples).length > 0) {
@@ -82,13 +82,13 @@ exports.teacherGetCourses = function (teacherId) {
     examples["application/json"] = [
       {
         year: 2020,
-        description: "description",
-        courseId: 0,
+        description: "geometry",
+        courseId: 1,
       },
       {
         year: 2020,
-        description: "description",
-        courseId: 0,
+        description: "algebra",
+        courseId: 2,
       },
     ];
     if (Object.keys(examples).length > 0) {
