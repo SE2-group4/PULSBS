@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "mocha ./tests/test_suite.js"
+    "test": "mocha ./tests/Test_suite.js"
   },
   "author": "group4",
   "license": "ISC",
