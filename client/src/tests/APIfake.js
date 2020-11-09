@@ -29,6 +29,17 @@ const lectures = [
  */
 const booked =[];
 
+/** 
+ * All courses of teacher[0] (Monica Gialli)
+*/
+const teacherCourses = [
+                        new Course(1,"Web Application 1","2020"),
+                        new Course(3,"Web Application 2","2020"),
+                        new Course(4,"Mobile Application","2020"),
+                        new Course(5,"Machine Learning and AI","2020"),
+                        new Course(6,"Distributed Systems","2020")
+                       ]
+
 /**
  * userLogin sends to server the user credentials and it returns success or failure (and the description of them)
  */
@@ -57,7 +68,6 @@ async function getCoursesByStudentId(id){
     });
 };
 
-
 /**
  *  getLecturesByCourseId performs a GET request towards the server to gain the all the lectures of a certain course of a certain student
  */
@@ -69,8 +79,9 @@ async function getLecturesByCourseId(Uid,Cid){
             else reject((obj) => { reject(obj); });
         }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
     */
-        resolve(lectures.filter((l)=>l.courseId===Cid));
+       resolve(lectures.filter((l)=>l.courseId===Cid));
    });
+   
 };
 
 
@@ -83,5 +94,26 @@ async function bookALecture(Uid,Cid,Lid) {
         })
 }
 
-const APIfake= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture};
+/**
+ * getCoursesByTeacherId performs a GET request towards the server to gain the all courses of a certain teacher
+ */
+async function getCoursesByTeacherId(id){
+    return teacherCourses;
+};
+
+/**
+ *  getLecturesByCourseId performs a GET request towards the server to gain the all the lectures of a certain course of a certain teacher
+ */
+async function getLecturesByCourseIdT(Uid,Cid){
+    return lectures.filter(l => l.courseId==Cid);
+};
+
+/**
+ * getStudentsByLectureId performs a GET request towards the server to gain the all students of a certain lecture
+ */
+async function getStudentsByLectureId(id){
+    return students;
+};
+
+const APIfake= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,getCoursesByTeacherId,getLecturesByCourseIdT,getStudentsByLectureId};
 export default APIfake;
