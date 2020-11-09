@@ -6,6 +6,8 @@
 'use strict';
 
 const sqlite = require('sqlite3');
+const moment = require('moment');
+
 const Teacher = require('./../entities/Teacher.js');
 const Student = require('./../entities/Student.js');
 const Lecture = require('./../entities/Lecture.js');
@@ -47,7 +49,16 @@ exports.login = function(user) {
  */
 exports.addBooking = function(student, lecture) {
     return new Promise((resolve, reject) => {
+        const sql = 'INSERT INTO Booking(studentId, lectureId) VALUES (?, ?)';
 
+        db.run(sql, [student.studentId, lecture.lectureId], function(err) {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            resolve(this.lastID);
+        })
     })
 }
 
@@ -59,7 +70,20 @@ exports.addBooking = function(student, lecture) {
  */
 exports.getLecturesByStudent = function(student) {
     return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM Lecture \
+            JOIN Course ON Lecture.lectureId = Course.courseId \
+            JOIN Enrollment ON Enrollment.courseId = Course.courseId \
+            WHERE Enrollment.studentId = ? AND DATE(Lecture.date) > DATE(?)';
 
+        db.all(sql, [student.studentId, (new Date()).toISOString()], (err, rows) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            const lectures = rows.forEach(row => Lecture.from(row));
+            resolve(lectures);
+        });
     })
 }
 
@@ -71,7 +95,19 @@ exports.getLecturesByStudent = function(student) {
  */
 exports.getCoursesByStudent = function(student) {
     return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM Course \
+        JOIN Enrollment ON Enrollment.courseId = Course.courseId \
+        WHERE Enrollment.studentId = ? AND year = ?';
 
+        db.all(sql, [student.studentId, _getCurrentAcademicYear()], (err, rows) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            const courses = rows.forEach(courses => Course.from(row));
+            resolve(courses);
+        });
     })
 }
 
@@ -83,7 +119,18 @@ exports.getCoursesByStudent = function(student) {
  */
 exports.getLecturesByCourse = function(course) {
     return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM Lecture \
+            WHERE Lecture.courseId = ? AND DATE(Lecture.date) > DATE(?)';
 
+        db.all(sql, [course.courseId, (new Date()).toISOString()], (err, rows) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            const lectures = rows.forEach(row => Lecture.from(row));
+            resolve(lectures);
+        });
     })
 }
 
@@ -94,7 +141,19 @@ exports.getLecturesByCourse = function(course) {
  */
 exports.getStudentsByLecture = function(lecture) {
     return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM Student \
+            JOIN Booking on Student.studentId = Booking.bookingId \
+            WHERE Booking.lectureId = ?';
 
+        db.all(sql, [lecture.lectureId], (err, rows) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            const students = rows.forEach(row => Student.from(row));
+            resolve(students);
+        });
     })
 }
 
@@ -106,7 +165,20 @@ exports.getStudentsByLecture = function(lecture) {
  */
 exports.getStudentsByCourse = function(course) {
     return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM Student \
+        JOIN Enrollment ON Student.studentId = Enrollment.studentId \
+        JOIN Course ON Enrollment.courseId = Course.courseId \
+        WHERE Course.courseId = ? AND Course.year = ?';
 
+        db.all(sql, [course.courseId, _getCurrentAcademicYear()], (err, rows) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            const students = rows.forEach(row => Student.from(row));
+            resolve(students);
+        });
     })
 }
 
@@ -118,7 +190,20 @@ exports.getStudentsByCourse = function(course) {
  */
 exports.getLecturesByTeacher = function(teacher) {
     return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM Lecture \
+            JOIN Course ON Lecture.courseId = Course.courseId \
+            JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId \
+            WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.date) > DATE(?)';
 
+        db.all(sql, [teacher.teacherId, (new Date()).toISOString()], (err, rows) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            const lectures = rows.forEach(row => Lecture.from(row));
+            resolve(lectures);
+        });
     })
 }
 
@@ -130,19 +215,30 @@ exports.getLecturesByTeacher = function(teacher) {
  */
 exports.getCoursesByTeacher = function(teacher) {
     return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM Course \
+        JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId \
+        WHERE TeacherCourse.teacherId = ? AND Course.year = ?';
 
+        db.all(sql, [teacher.teacherId, _getCurrentAcademicYear()], (err, rows) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            const courses = rows.forEach(row => Course.from(row));
+            resolve(courses);
+        });
     })
 }
 
 /**
  * crea a new booking email for a student
- * @param {Student} student 
- * @param {Lecture} lecture 
+ * @param {Student} student - studentId and email needed
+ * @param {Lecture} lecture - lectureId, description and date needed
  * @returns {Promise} promise
  */
 exports._createStudentBookingEmail = function(student, lecture) {
     return new Promise((resolve, reject) => {
-
     })
 }
 
@@ -163,19 +259,36 @@ exports._createTeacherBookingsEmail = function(lecture) {
  * @returns {Number} year
  */
 exports._getCurrentAcademicYear = function() {
-    return new Promise((resolve, reject) => {
+    const now = moment();
 
-    })
+    let year = now.year();
+    // academic year: from October YYYY to September (YYYY +1)
+    if(now.month() <= 8) // 8 = September (base 0)
+        year--; // still the previous academic year
+
+    return(year);
 }
 
 /**
  * create a log in the database of an email
- * @param {Teacher | Student} user - teacherId or studentId neeeded
- * @param {Teacher | Student} user - teacherId or studentId neeeded
- * @param {EmailType} emailType 
+ * @param {Teacher | Student} from - teacherId or studentId neeeded
+ * @param {Teacher | Student} to - teacherId or studentId neeeded
+ * @param {EmailType} emailType - emailTypeId needed
  */
-exports.addEmail = function(user, user, emailType) {
+exports.addEmail = function(from, to, emailType) {
     return new Promise((resolve, reject) => {
+        const sql = 'INSERT INTO Email(from, to, emailTypeId) VALUES(?, ?, ?)';
 
+        const fromId = from instanceof Teacher ? from.teacherId : from.studentId;
+        const toId = to instanceof Teacher ? to.teacherId : to.studentId;
+
+        db.run(sql, [fromId, toId, emailType.emailTypeId], function(err) {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            resolve(this.lastID);
+        });
     })
 }
