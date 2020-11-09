@@ -11,7 +11,7 @@ const Student = require('./../entities/Student.js');
 const Lecture = require('./../entities/Lecture.js');
 const EmailType = require('./../entities/EmailType.js');
 
-let dbpath = './pulsbs.db'; // default
+let dbpath = './PULSBS.db'; // default
 let db = null;
 
 /**
