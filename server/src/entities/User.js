@@ -15,7 +15,7 @@ class User {
      * @param {String} password 
      */
     constructor(userId = -1, firstName = null, lastName = null, email = null, password = null) {
-        this.userId = teacherId;
+        this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
