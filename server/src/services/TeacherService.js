@@ -1,29 +1,51 @@
 "use strict";
 
 /**
- * book a particular lecture
+ * get all the students that have an active booking for a particular lecture
  *
- * body Body The id of the student that want to book a lecture
- * studentId Integer student id
+ * teacherId Integer teacher id
  * courseId Integer course id
  * lectureId Integer lecture id
- * no response value expected for this operation
+ * returns List
  **/
-exports.studentBookLecture = function (body, studentId, courseId, lectureId) {
+exports.teacherGetCourseLectureStudents = function (teacherId, courseId, lectureId) {
   return new Promise(function (resolve, reject) {
-    resolve("Lecture Booked");
+    let examples = {};
+    examples["application/json"] = [
+      {
+        firstName: "firstName",
+        lastName: "lastName",
+        password: "password",
+        type: "Student",
+        userId: 1,
+        email: "fake@email.com",
+      },
+      {
+        firstName: "firstName",
+        lastName: "lastName",
+        password: "password",
+        type: "Student",
+        userId: 2,
+        email: "fake@email.com",
+      },
+    ];
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
   });
 };
 
 /**
- * get all active lectures of a particular course
- * Get all active lectures, which are still not delivered, for a course enrolled by a particular student
+ * get all active lectures for a particular course
+ * Get all active lectures, which are stil not delivered, for a course taught by a particular professor
  *
- * studentId Integer student id
+ * teacherId Integer teacher id
  * courseId Integer course id
  * returns List
  **/
-exports.studentGetCourseLectures = function (studentId, courseId) {
+exports.teacherGetCourseLectures = function (teacherId, courseId) {
   return new Promise(function (resolve, reject) {
     let examples = {};
     examples["application/json"] = [
@@ -49,12 +71,12 @@ exports.studentGetCourseLectures = function (studentId, courseId) {
 };
 
 /**
- * get all enrolled courses in this academic year
+ * get all taught courses of this academic year
  *
- * studentId Integer student id
+ * teacherId Integer teacher id
  * returns List
  **/
-exports.studentGetCourses = function (studentId) {
+exports.teacherGetCourses = function (teacherId) {
   return new Promise(function (resolve, reject) {
     let examples = {};
     examples["application/json"] = [
