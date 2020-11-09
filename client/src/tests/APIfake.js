@@ -112,7 +112,7 @@ async function getLecturesByCourseIdT(Uid,Cid){
  * getStudentsByLectureId performs a GET request towards the server to gain the all students of a certain lecture
  */
 async function getStudentsByLectureId(id){
-    return students;
+    return students.filter(s => s.type=="Student");
 };
 
 const APIfake= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,getCoursesByTeacherId,getLecturesByCourseIdT,getStudentsByLectureId};

@@ -15,7 +15,8 @@ class TeacherPage extends React.Component {
      */
     constructor(props){
         super(props);
-        this.state = {user : props.user,courses : [],lectures : [],students : []};
+        this.state = {user : props.user,courses : [],lectures : [],students : [],
+                        selectedCourse: null,selectedLecture: null};
     }
     /**
      * componentDidMount fetch the all courses of the teacher 
@@ -36,7 +37,7 @@ class TeacherPage extends React.Component {
     updateLectures = (courseId) =>{
         APIfake.getLecturesByCourseIdT(this.state.user.userId,courseId)
         .then((lectures)=>{
-            this.setState({lectures : lectures})
+            this.setState({selectedCourse: courseId,selectedLecture: null,students: [],lectures : lectures})
         })
         .catch();
     }
@@ -44,7 +45,7 @@ class TeacherPage extends React.Component {
     updateStudents = (lectureId) =>{
         APIfake.getStudentsByLectureId(lectureId)
         .then((students)=>{
-            this.setState({students : students})
+            this.setState({selectedLecture: lectureId,students : students})
         })
         .catch();
     }
@@ -58,12 +59,12 @@ class TeacherPage extends React.Component {
                     <InfoPanel user={this.state.user}/>
                 </Col>
                 <Col sm='8'>
-                    <CoursePanel courses={this.state.courses} update={this.updateLectures}/>
+                    <CoursePanel courses={this.state.courses} sCourse={this.state.selectedCourse} update={this.updateLectures}/>
                 </Col>
                 </Row>
                 <Row>
                 <Col sm='6'>
-                    <LecturePanel lectures={this.state.lectures} update={this.updateStudents}/>
+                    <LecturePanel lectures={this.state.lectures} sLecture={this.state.selectedLecture} update={this.updateStudents}/>
                 </Col>
                 <Col sm='6'>
                     <StudentPanel students={this.state.students}/>

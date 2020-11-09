@@ -12,18 +12,17 @@ class CoursePanel extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {courseId : null,checkedOne : null};
+        this.state = {};
     }
 
     handler = (e) =>{
             this.props.update(e.target.name);
-            this.setState({courseId : e.target.name,checkedOne: e.target.name});
     }
 
     render(){
         return <>
                 <Container fluid>
-                    <strong>Courses list:</strong><br/>
+                    <strong>Course list:</strong><br/>
                     <Table striped bordered hover>
                         <thead>
                             <tr>
@@ -34,11 +33,11 @@ class CoursePanel extends React.Component {
                         </thead>
                         <tbody>
                         {
-                            this.props.courses.map((course) => (<CoursePanelRow key={course.courseId} checkedOne={this.state.checkedOne} course={course} handler={this.handler}/>))
+                            this.props.courses.map((course) => (<CoursePanelRow key={course.courseId} checkedOne={this.props.sCourse} course={course} handler={this.handler}/>))
                         }
                         </tbody>
                     </Table>
-                    selected course: {this.state.courseId}
+                    selected course: {this.props.sCourse}
                 </Container>
                 </>;
     }
@@ -56,12 +55,11 @@ class LecturePanel extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {lectureId : null,checkedOne : null};
+        this.state = {};
     }
 
     handler = (e) =>{
         this.props.update(e.target.name);
-        this.setState({lectureId : e.target.name,checkedOne: e.target.name});
     }
 
     render(){
@@ -78,11 +76,11 @@ class LecturePanel extends React.Component {
                     </thead>
                     <tbody>
                     {
-                        this.props.lectures.map((lecture) => (<LecturePanelRow key={lecture.lectureId} checkedOne={this.state.checkedOne} lecture={lecture} handler={this.handler}/>))
+                        this.props.lectures.map((lecture) => (<LecturePanelRow key={lecture.lectureId} checkedOne={this.props.sLecture} lecture={lecture} handler={this.handler}/>))
                     }
                     </tbody>
                 </Table>
-                selected lecture: {this.state.lectureId}
+                selected lecture: {this.props.sLecture}
             </Container>
         </>;
     }
