@@ -9,8 +9,8 @@ function Header(props){
     <Navbar bg="dark" variant="dark">
         <Navbar.Brand>PULSeBS</Navbar.Brand>
         <Nav className="mr-auto">
-        {   props.user && props.user.type==="STUDENT" && <Navbar.Brand>Lesson Booking</Navbar.Brand> }
-        {   props.user && props.user.type==="TEACHER" && <Navbar.Brand>Your Lessons</Navbar.Brand> }
+        {   props.user && props.user.type==="Student" && <Navbar.Brand>Lesson Booking</Navbar.Brand> }
+        {   props.user && props.user.type==="Teacher" && <Navbar.Brand>Your Lessons</Navbar.Brand> }
         {   props.isAuth && <Nav.Link href="/login">Logout</Nav.Link> } 
         </Nav>
     </Navbar>

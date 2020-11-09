@@ -49,14 +49,14 @@ class App extends React.Component {
               path="/studentPage"
               render={() => {
                 if (!this.state.isAuth) return <Redirect to="/login" />;
-                else return <StudentPage user={this.state.user} />;
+                else return <StudentPage user={this.state.authUser} />;
               }}
             ></Route>
             <Route
               path="/teacherPage"
               render={() => {
                 if (!this.state.isAuth) return <Redirect to="/login" />;
-                else return <TeacherPage user={this.state.user} />;
+                else return <TeacherPage user={this.state.authUser} />;
               }}
             ></Route>
             <Route
