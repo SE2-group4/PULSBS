@@ -5,9 +5,9 @@ const utils = require("../utils/writer");
 
 // TODO
 module.exports.studentBookLecture = function studentBookLecture(req, res, next) {
-  const studentId = parseInt(req.params.studentId);
-  const courseId = parseInt(req.params.courseId);
-  const lectureId = parseInt(req.params.lectureId);
+  const studentId = req.params.studentId;
+  const courseId = req.params.courseId;
+  const lectureId = req.params.lectureId;
 
   Student.studentBookLecture(studentId, courseId, lectureId)
     .then(function (response) {
@@ -20,8 +20,8 @@ module.exports.studentBookLecture = function studentBookLecture(req, res, next) 
 
 // TODO
 module.exports.studentGetCourseLectures = function studentGetCourseLectures(req, res, next) {
-  const courseId = parseInt(req.params.courseId);
-  const studentId = parseInt(req.params.studentId);
+  const courseId = req.params.courseId;
+  const studentId = req.params.studentId;
 
   Student.studentGetCourseLectures(studentId, courseId)
     .then(function (response) {
@@ -34,7 +34,7 @@ module.exports.studentGetCourseLectures = function studentGetCourseLectures(req,
 
 // TODO
 module.exports.studentGetCourses = function studentGetCourses(req, res, next) {
-  const studentId = parseInt(req.params.studentId);
+  const studentId = req.params.studentId;
 
   Student.studentGetCourses(studentId)
     .then(function (response) {

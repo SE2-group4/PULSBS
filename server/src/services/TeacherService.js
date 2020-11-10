@@ -9,6 +9,18 @@
  * returns List
  **/
 exports.teacherGetCourseLectureStudents = function (teacherId, courseId, lectureId) {
+  if (isNaN(teacherId)) {
+    return new Promise((resolved, reject) => reject({ error: `'teacherId' parameter is not a number: ${teacherId}` }));
+  } else if (isNaN(courseId)) {
+    return new Promise((resolved, reject) => reject({ error: `'courseId' parameter is not a number: ${courseId}` }));
+  } else if (isNaN(lectureId)) {
+    return new Promise((resolved, reject) => reject({ error: `'lectureId' parameter is not a number: ${lectureId}` }));
+  }
+
+  const tId = parseInt(teacherId);
+  const cId = parseInt(courseId);
+  const lId = parseInt(lectureId);
+
   return new Promise(function (resolve, reject) {
     let examples = {};
     examples["application/json"] = [
@@ -46,6 +58,15 @@ exports.teacherGetCourseLectureStudents = function (teacherId, courseId, lecture
  * returns List
  **/
 exports.teacherGetCourseLectures = function (teacherId, courseId) {
+  if (isNaN(teacherId)) {
+    return new Promise((resolved, reject) => reject({ error: `'teacherId' parameter is not a number: ${teacherId}` }));
+  } else if (isNaN(courseId)) {
+    return new Promise((resolved, reject) => reject({ error: `'courseId' parameter is not a number: ${courseId}` }));
+  }
+
+  const tId = parseInt(teacherId);
+  const cId = parseInt(courseId);
+
   return new Promise(function (resolve, reject) {
     let examples = {};
     examples["application/json"] = [
@@ -77,6 +98,12 @@ exports.teacherGetCourseLectures = function (teacherId, courseId) {
  * returns List
  **/
 exports.teacherGetCourses = function (teacherId) {
+  if (isNaN(teacherId)) {
+    return new Promise((resolved, reject) => reject({ error: `'teacherId' parameter is not a number: ${teacherId}` }));
+  }
+  
+  const tId = parseInt(teacherId);
+  
   return new Promise(function (resolve, reject) {
     let examples = {};
     examples["application/json"] = [

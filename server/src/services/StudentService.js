@@ -10,7 +10,19 @@
  * no response value expected for this operation
  **/
 exports.studentBookLecture = function (studentId, courseId, lectureId) {
-  // TODO update the openapi docs. We shoudl return something in case of status code 200
+  // TODO update the openapi docs. We should return something in case of status code 200
+  if (isNaN(studentId)) {
+    return new Promise((resolve, reject) => reject({error: `'studentId parameter is not a number: ${studentId}`}));
+  } else if (isNaN(courseId)) {
+    return new promise((resolve, reject) => reject({error: `'courseid parameter is not a number: ${courseid}`}));
+  } else if (isNaN(lectureId)) {
+    return new promise((resolve, reject) => reject({error: `'lectureId parameter is not a number: ${lectureId}`}));
+  }
+
+  const sId = studentId;
+  const cId = courseId;
+  const lId = lectureId;
+  
   return new Promise(function (resolve, reject) {
     resolve("Lecture Booked");
   });
@@ -25,6 +37,15 @@ exports.studentBookLecture = function (studentId, courseId, lectureId) {
  * returns List
  **/
 exports.studentGetCourseLectures = function (studentId, courseId) {
+  if (isNaN(studentId)) {
+    return new Promise((resolve, reject) => reject({error: `'studentId parameter is not a number: ${studentId}`}));
+  } else if (isNaN(courseId)) {
+    return new Promise((resolve, reject) => reject({error: `'courseId parameter is not a number: ${courseId}`}));
+  }
+
+  const sId = studentId;
+  const cId = courseId;
+
   return new Promise(function (resolve, reject) {
     let examples = {};
     examples["application/json"] = [
@@ -56,6 +77,12 @@ exports.studentGetCourseLectures = function (studentId, courseId) {
  * returns List
  **/
 exports.studentGetCourses = function (studentId) {
+  if (isNaN(studentId)) {
+    return new Promise((resolve, reject) => reject({error: `'studentId parameter is not a number: ${studentId}`}));
+  }
+
+  const sId = studentId;
+
   return new Promise(function (resolve, reject) {
     let examples = {};
     examples["application/json"] = [

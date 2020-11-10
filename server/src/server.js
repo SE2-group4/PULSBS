@@ -21,11 +21,11 @@ app.get(`${baseRoute}/students/:studentId/courses`, Student.studentGetCourses);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Teacher routes
 app.get(
-  `${baseRoute}/teachers/:teacherId/courses/:coursesId/lectures/:lectureId/students`,
+  `${baseRoute}/teachers/:teacherId/courses/:courseId/lectures/:lectureId/students`,
   Teacher.teacherGetCourseLectureStudents
 );
 
-app.get(`${baseRoute}/teachers/:teacherId/courses/:coursesId/lectures`, Teacher.teacherGetCourseLectures);
+app.get(`${baseRoute}/teachers/:teacherId/courses/:courseId/lectures`, Teacher.teacherGetCourseLectures);
 
 app.get(`${baseRoute}/teachers/:teacherId/courses`, Teacher.teacherGetCourses);
 
