@@ -28,6 +28,8 @@ class Teacher extends User {
      */
     static from(obj){
         const teacher = Object.assign(new Teacher(), obj);
+        if(obj.userId)
+            teacher.studentId = obj.userId;
         teacher.password = null; // default security option
         return teacher;
     }

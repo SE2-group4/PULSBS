@@ -49,12 +49,12 @@ const login = function(user) {
     return new Promise((resolve, reject) => {
         // more specific type checks
         let userType = '';
-        userType = user instanceof Teacher ? 'TEACHER' : type;
-        userType = user instanceof Student ? 'STUDENT' : type;
+        userType = user instanceof Teacher ? 'TEACHER' : userType;
+        userType = user instanceof Student ? 'STUDENT' : userType;
 
         const sql = 'SELECT * FROM User WHERE userId = ? AND password = ? AND type = ?';
         db.get(sql, [user.userId, user.password, userType], (err, row) => {
-            if(err) {
+            if(err || !row) {
                 reject('incorrect userId or password'); // no more info for security reasons
                 return;
             }
@@ -73,7 +73,7 @@ const login = function(user) {
             }
             
             resolve(user);
-        })
+        });
     })
 }
 exports.login = login;
@@ -95,7 +95,7 @@ const addBooking = function(student, lecture) {
             }
 
             resolve(this.lastID);
-        })
+        });
     })
 }
 exports.addBooking = addBooking;

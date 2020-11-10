@@ -28,6 +28,8 @@ class Student extends User {
      */
     static from(obj){
         const student = Object.assign(new Student(), obj);
+        if(obj.userId)
+            student.studentId = obj.userId;
         student.password = null; // default security option
         return student;
     }
