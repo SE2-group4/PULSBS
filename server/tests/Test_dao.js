@@ -22,7 +22,7 @@ const suite = describe('Dao.js', function() {
     let course3;
 
     before(function(done) {
-        student1 = new Student(1);
+        student1 = new Student(1, 'Aldo', 'Baglio', 'aldo.baglio@agg.it', 'aldo');
         teacher4 = new Teacher(4);
         lecture2 = new Lecture(2);
         lecture3 = new Lecture(3);
@@ -41,11 +41,20 @@ const suite = describe('Dao.js', function() {
 
     describe('login', function() {
         it('correct data should perform login', function(done) {
-            done();
+            dao.login(student1)
+                .then((retStudent) => {
+                    assert.strictEqual(retStudent.studentId, student1.studentId, 'Wrong user retrieved');
+                    done()
+                })
+                .catch((err) => done(err));
         });
 
         it('incorrect data should not perform login', function(done) {
-            done();
+            dao.login(new Student(-1, 'invalid', 'invalid', 'invalid', 'invalid'))
+                .then((retStudent) => {
+                    done('No user should be retrieved');
+                })
+                .catch((err) => done()); // correct case
         });
     });
 
