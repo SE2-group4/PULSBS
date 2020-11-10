@@ -3,7 +3,6 @@ import Container from "react-bootstrap/Container";
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-//import API from '../api/Api';
 
 const Checkbox = ({ name, checked = false, onChange }) => (
     <Form.Check name={name} checked={checked} onChange={onChange} />

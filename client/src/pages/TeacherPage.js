@@ -7,6 +7,10 @@ import APIfake from '../tests/APIfake';
 import {CoursePanel,LecturePanel,StudentPanel} from '../components/TeacherComp';
 import InfoPanel from '../components/InfoPanel';
 
+/**
+ *  elementForPage is a configuration parameter to limit the number of entries of the tables showing courses/lectures/students
+ *  in the same instance (min value: 2)
+ */
 const elementForPage=2;
 
 class TeacherPage extends React.Component {
@@ -23,17 +27,16 @@ class TeacherPage extends React.Component {
                         lectureMap: new Map(),lPages: 1,
                         studentMap: new Map(),sPages: 1};
     }
+    
     /**
      * componentDidMount fetch the all courses of the teacher 
      */
     componentDidMount(){
-        //to_do
-        this.getCoursesByTeacherId(this.state.user.userId);
-
+        this.getCoursesByTeacher(this.state.user.userId);
     }
     
-    getCoursesByTeacherId = (teacher) =>{
-        APIfake.getCoursesByTeacherId(teacher)
+    getCoursesByTeacher = (teacherId) =>{
+        API.getCoursesByTeacherId(teacherId)
         .then((courses)=>{
             let i=0;
             let nMap=new Map(); 
@@ -47,7 +50,7 @@ class TeacherPage extends React.Component {
     }
 
     updateLectures = (courseId) =>{
-        APIfake.getLecturesByCourseIdT(this.state.user.userId,courseId)
+        API.getLecturesByCourseIdByTeacherId(this.state.user.userId,courseId)
         .then((lectures)=>{
             let i=0;
             let nMap=new Map(); 
@@ -61,7 +64,7 @@ class TeacherPage extends React.Component {
     }
 
     updateStudents = (lectureId) =>{
-        APIfake.getStudentsByLectureId(lectureId)
+        API.getStudentsByLecture(this.state.user.userId,this.state.selectedCourse,lectureId)
         .then((students)=>{
             let i=0;
             let nMap=new Map(); 
