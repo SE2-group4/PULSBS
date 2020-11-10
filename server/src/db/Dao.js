@@ -13,7 +13,11 @@ const Teacher = require('./../entities/Teacher.js');
 const Student = require('./../entities/Student.js');
 const Lecture = require('./../entities/Lecture.js');
 const Course = require('./../entities/Course.js');
+const Email = require('./../entities/Email.js');
 const EmailType = require('./../entities/EmailType.js');
+const { resolve } = require('path');
+const { rejects } = require('assert');
+const Teacher = require('./../entities/Teacher.js');
 
 let db = null;
 /*
@@ -284,25 +288,66 @@ const getCoursesByTeacher = function(teacher) {
 exports.getCoursesByTeacher = getCoursesByTeacher;
 
 /**
+ * get the course corrisponding to a specific lecture
+ * @param {Lecture} lecture - lectureId needed
+ * @returns {Promise} promise
+ */
+const getCourseByLecture = function(lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM Course \
+            JOIN Lecture ON Course.courseId = Lecture.courseId \
+            WHERE Lecture.lectureId = ?';
+        db.get(sql, [lecture.lectureId], (err, row) => {
+            if(err || !row) {
+                reject(err);
+                return
+            }
+
+            resolve(Course.from(row));
+        });
+    })
+}
+exports.getCourseByLecture = getCourseByLecture;
+
+/**
  * crea a new booking email for a student
  * @param {Student} student - studentId and email needed
- * @param {Lecture} lecture - lectureId, description and date needed
+ * @param {Lecture} lecture - lectureId, courseId and date needed
  * @returns {Promise} promise
  */
 const _createStudentBookingEmail = function(student, lecture) {
     return new Promise((resolve, reject) => {
+        getCourseByLecture(lecture)
+            .then((course) => {
+                const email = new Email(undefined, systemUser, student, new Date(), EmailType.STUDENT_NEW_BOOKING,
+                    `New booking`,
+                    `You booked a seat for the lecture of ${course.description} on ${lecture.date}`);
+                
+                _emailSender(email).then(resolve());
+            });
     })
 }
 exports._createStudentBookingEmail = _createStudentBookingEmail;
 
 /**
  * create a new email to inform a teacher about students that will attend his/her lecture
+ * @param {Teacher} teacher
  * @param {Lecture} lecture 
  * @returns {Promise} promise
  */
-const _createTeacherBookingsEmail = function(lecture) {
+const _createTeacherBookingsEmail = function(teacher, lecture) {
     return new Promise((resolve, reject) => {
-
+        getCourseByLecture(lecture)
+            .then((course) => {
+                getStudentsByLecture(lecture)
+                    .then((students) => {
+                        const email = new Email(undefined, systemUser, teacher, new Date(), EmailType.TEACHER_ATTENDING_STUDENTS,
+                            `Attending students`,
+                            `${students.length} students will attend you lecture of the course ${course.description} on ${lecture.date}`);
+                        
+                        _emailSender(email).then(resolve());
+                    });
+            });
     })
 }
 exports._createTeacherBookingsEmail = _createTeacherBookingsEmail;
@@ -325,19 +370,29 @@ const _getCurrentAcademicYear = function() {
 exports._getCurrentAcademicYear = _getCurrentAcademicYear;
 
 /**
- * create a log in the database of an email
- * @param {Teacher | Student} from - teacherId or studentId neeeded
- * @param {Teacher | Student} to - teacherId or studentId neeeded
- * @param {EmailType} emailType - emailTypeId needed
+ * email service adapter/interface
+ * @param {Email} email 
+ * @returns {Promise} promise
  */
-const addEmail = function(from, to, emailType) {
+const _emailSender = function(email) {
+    return new Promise((resolve, reject) => {
+        addEmail(email).then(resolve());
+    });
+}
+exports._emailSender = _emailSender;
+
+/**
+ * create a log in the database of an email
+ * @param {Email} email
+ */
+const addEmail = function(email) {
     return new Promise((resolve, reject) => {
         const sql = 'INSERT INTO Email(fromId, toId, emailTypeId) VALUES(?, ?, ?)';
 
-        const fromId = from instanceof Teacher ? from.teacherId : from.studentId;
-        const toId = to instanceof Teacher ? to.teacherId : to.studentId;
+        const fromId = email.from instanceof Teacher ? email.from.teacherId : email.from.studentId;
+        const toId = email.to instanceof Teacher ? email.to.teacherId : email.to.studentId;
 
-        db.run(sql, [fromId, toId, emailType.emailTypeId], function(err) {
+        db.run(sql, [fromId, toId, email.emailType], function(err) {
             if(err) {
                 reject(err);
                 return;
