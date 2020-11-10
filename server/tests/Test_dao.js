@@ -16,23 +16,27 @@ const EmailType = require('../src/entities/EmailType.js');
 const prepare = require('../src/db/Preparedb.js');
 
 const suite = describe('Dao.js', function() {
-    let student;
-    let teacher;
-    let lecture;
-    let course;
+    let student1;
+    let teacher4;
+    let lecture2, lecture3;
+    let course3;
 
     before(function(done) {
-        student = new Student(1);
-        teacher = new Teacher(4);
-        lecture = new Lecture(3);
-        course = new Course(3);
+        student1 = new Student(1);
+        teacher4 = new Teacher(4);
+        lecture2 = new Lecture(2);
+        lecture3 = new Lecture(3);
+        course3 = new Course(3);
+
+        dao.openConn('/src/db/testing.db');
 
         done();
     });
 
     beforeEach(function(done) {
-        prepare(undefined, undefined, false)
-            .then(() => done());
+        prepare('/src/db/testing.db', '/src/db/testing.sql', false)
+            .then(() => done())
+            .catch((err) => done(err));
     });
 
     describe('login', function() {
@@ -47,7 +51,7 @@ const suite = describe('Dao.js', function() {
 
     describe('addBooking', function() {
         it('correct data should insert a new booking', function(done) {
-            dao.addBooking(student, lecture)
+            dao.addBooking(student1, lecture2)
                 .then((retVal) => {
                     assert.ok(retVal > 0, 'Booking not added');
                     done();
@@ -58,8 +62,9 @@ const suite = describe('Dao.js', function() {
 
     describe('getLecturesByStudent', function() {
         it('non empty lecture should get the list of students', function(done) {
-            dao.getLecturesByStudent(student)
+            dao.getLecturesByStudent(student1)
                 .then((lectures) => {
+                    assert.ok(lectures, 'No returned valued received');
                     assert.ok(lectures.length === 3, 'Wrong number of lectures');
                     done();
                 })
@@ -69,8 +74,9 @@ const suite = describe('Dao.js', function() {
 
     describe('getCoursesByStudent', function() {
         it('non empty course should get the list of students', function(done) {
-            dao.getCoursesByStudent(student)
+            dao.getCoursesByStudent(student1)
                 .then((courses) => {
+                    assert.ok(courses, 'No returned valued received');
                     assert.ok(courses.length === 3, 'Wrong number of courses');
                     done();
                 })
@@ -80,8 +86,9 @@ const suite = describe('Dao.js', function() {
 
     describe('getLecturesByCourse', function() {
         it('non empty course should get the list of lectures', function(done) {
-            dao.getLecturesByCourse(course)
+            dao.getLecturesByCourse(course3)
                 .then((lectures) => {
+                    assert.ok(lectures, 'No returned valued received');
                     assert.ok(lectures.length === 1, 'Wrong number of lectures');
                     done();
                 })
@@ -91,8 +98,9 @@ const suite = describe('Dao.js', function() {
 
     describe('getStudentsByLecture', function() {
         it('non empty lecture should get the list of students', function(done) {
-            dao.getStudentsByLecture(lecture)
+            dao.getStudentsByLecture(lecture3)
                 .then((students) => {
+                    assert.ok(students, 'No returned valued received');
                     assert.ok(students.length === 3, 'Wrong number of students');
                     done();
                 })
@@ -102,8 +110,9 @@ const suite = describe('Dao.js', function() {
 
     describe('getStudentsByCourse', function() {
         it('non empty coure should get the list of students', function(done) {
-            dao.getStudentsByCourse(course)
+            dao.getStudentsByCourse(course3)
                 .then((students) => {
+                    assert.ok(students, 'No returned valued received');
                     assert.ok(students.length === 3, 'Wrong number of students');
                     done();
                 })
@@ -113,8 +122,9 @@ const suite = describe('Dao.js', function() {
 
     describe('getLecturesByTeacher', function() {
         it('non empty teacher should get the list of lectures', function(done) {
-            dao.getLecturesByTeacher(teacher)
+            dao.getLecturesByTeacher(teacher4)
                 .then((lectures) => {
+                    assert.ok(lectures, 'No returned valued received');
                     assert.ok(lectures.length === 2, 'Wrong number of lectures');
                     done();
                 })
@@ -124,8 +134,9 @@ const suite = describe('Dao.js', function() {
 
     describe('getCoursesByTeacher', function() {
         it('non empty teacher should get the list of courses', function(done) {
-            dao.getCoursesByTeacher(teacher)
+            dao.getCoursesByTeacher(teacher4)
                 .then((courses) => {
+                    assert.ok(courses, 'No returned valued received');
                     assert.ok(courses.length == 2, 'Wrong number of courses');
                     done();
                 })
@@ -160,7 +171,7 @@ const suite = describe('Dao.js', function() {
     describe('addEmail', function() {
         it('correct data should insert a new email', function(done) {
             const emailType = EmailType.STUDENT_NEW_BOOKING;
-            dao.addEmail(teacher, student, emailType)
+            dao.addEmail(teacher4, student1, emailType)
                 .then((retVal) => {
                     assert.ok(retVal > 0, 'Email not inserted');
                     done();
