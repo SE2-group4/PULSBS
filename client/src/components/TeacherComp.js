@@ -48,11 +48,7 @@ class CoursePanel extends React.Component {
                         }
                         </tbody>
                     </Table>
-                    { this.props.nPages!=1 && <Button name="prev" size="sm" disabled={this.state.currentPage==0 ? true : false} onClick={this.onClick}>Previous</Button>}
-                    { this.props.nPages!=1 && this.state.currentPage+1} 
-                    { this.props.nPages!=1 && "/"}  
-                    { this.props.nPages!==1 && this.props.nPages}
-                    { this.props.nPages!=1 && <Button name="next" size="sm" disabled={this.state.currentPage==this.props.nPages-1 ? true : false} onClick={this.onClick}>Next</Button>}<br/>
+                    { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
                     selected course: {this.props.sCourse}
                 </Container>
                 </>;
@@ -60,7 +56,7 @@ class CoursePanel extends React.Component {
 };
 
 function CoursePanelRow(props) {
-    if(props.nPages==1 || (props.nPages!=1 && props.pMap.get(props.course.courseId)==props.current))
+    if(props.nPages==1 || (props.nPages>1 && props.pMap.get(props.course.courseId)==props.current))
         return <tr>
             <td>{props.course.courseId}</td>
             <td>{props.course.description}</td>
@@ -105,11 +101,7 @@ class LecturePanel extends React.Component {
                     }
                     </tbody>
                 </Table>
-                    { this.props.nPages!=1 && <Button name="prev" size="sm" disabled={this.state.currentPage==0 ? true : false} onClick={this.onClick}>Previous</Button>}
-                    { this.props.nPages!=1 && this.state.currentPage+1} 
-                    { this.props.nPages!=1 && "/"}  
-                    {this.props.nPages!==1 && this.props.nPages}
-                    { this.props.nPages!=1 && <Button name="next" size="sm" disabled={this.state.currentPage==this.props.nPages-1 ? true : false} onClick={this.onClick}>Next</Button>}<br/>
+                { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
                 selected lecture: {this.props.sLecture}
             </Container>
         </>;
@@ -117,7 +109,7 @@ class LecturePanel extends React.Component {
 }
 
 function LecturePanelRow(props) {
-    if(props.nPages==1 || (props.nPages!=1 && props.pMap.get(props.lecture.lectureId)==props.current))
+    if(props.nPages==1 || (props.nPages>1 && props.pMap.get(props.lecture.lectureId)==props.current))
         return <tr>
             <td>{props.lecture.lectureId}</td>
             <td>{props.lecture.date}</td>
@@ -158,18 +150,14 @@ class StudentPanel extends React.Component {
                         }
                         </tbody>
                     </Table>
-                    { this.props.nPages!=1 && <Button name="prev" size="sm" disabled={this.state.currentPage==0 ? true : false} onClick={this.onClick}>Previous</Button>}
-                    { this.props.nPages!=1 && this.state.currentPage+1} 
-                    { this.props.nPages!=1 && "/"}  
-                    {this.props.nPages!==1 && this.props.nPages}
-                    { this.props.nPages!=1 && <Button name="next" size="sm" disabled={this.state.currentPage==this.props.nPages-1 ? true : false} onClick={this.onClick}>Next</Button>}<br/>
+                    { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
                 </Container>
                 </>;
     }
 };
 
 function StudentPanelRow(props) {
-    if(props.nPages==1 || (props.nPages!=1 && props.pMap.get(props.student.userId)==props.current))
+    if(props.nPages==1 || (props.nPages>1 && props.pMap.get(props.student.userId)==props.current))
         return <tr>
             <td>{props.student.lastName}</td>
             <td>{props.student.firstName}</td>
@@ -178,6 +166,13 @@ function StudentPanelRow(props) {
     return <></>;
 }
 
+function NavButtons(props){
+    return <>
+        <Button name="prev" size="sm" disabled={props.currentPage==0 ? true : false} onClick={props.onClick}>Previous</Button>
+        { props.currentPage+1 } / {props.nPages }
+        <Button name="next" size="sm" disabled={props.currentPage==props.nPages-1 ? true : false} onClick={props.onClick}>Next</Button>
+    </>;
+}
 export {CoursePanel,LecturePanel,StudentPanel};
 
 
