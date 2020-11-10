@@ -6,7 +6,10 @@ import Lecture from '../entities/lecture'
  */
 const students =[
                 new User(1,"Student","Francesco", "Rossi","fr@email.com","ciao1"),
-                new User(3,"Teacher","Monica","Gialli","mg@email.com","ciao2")
+                new User(3,"Teacher","Monica","Gialli","mg@email.com","ciao2"),
+                new User(2,"Student","Gianni", "Verdi","gn@email.com","ciao3"),
+                new User(4,"Student","Mario", "Blu","mr@email.com","ciao4"),
+                new User(5,"Student","Luca", "Bianchi","lc@email.com","ciao5")
                 ]
 /** 
  * All the courses of stedent[0] (Francesco Rossi)
@@ -22,7 +25,8 @@ const courses = [
 const lectures = [
                 new Lecture(1,1,1,"10-11-2020 12:00"),
                 new Lecture(2,1,1,"25-11-2020 13:00"),
-                new Lecture(3,2,2,"12-12-2020 09:00")
+                new Lecture(3,2,2,"12-12-2020 09:00"),
+                new Lecture(4,1,2,"13-12-2020 09:00")
                 ]
 /**
  * All the lessons booked
@@ -112,7 +116,7 @@ async function getLecturesByCourseIdT(Uid,Cid){
  * getStudentsByLectureId performs a GET request towards the server to gain the all students of a certain lecture
  */
 async function getStudentsByLectureId(id){
-    return students;
+    return students.filter(s => s.type=="Student");
 };
 
 const APIfake= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,getCoursesByTeacherId,getLecturesByCourseIdT,getStudentsByLectureId};

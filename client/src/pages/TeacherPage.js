@@ -7,6 +7,8 @@ import APIfake from '../tests/APIfake';
 import {CoursePanel,LecturePanel,StudentPanel} from '../components/TeacherComp';
 import InfoPanel from '../components/InfoPanel';
 
+const elementForPage=2;
+
 class TeacherPage extends React.Component {
 
     /**
@@ -15,7 +17,11 @@ class TeacherPage extends React.Component {
      */
     constructor(props){
         super(props);
-        this.state = {user : props.user,courses : [],lectures : [],students : []};
+        this.state = {user : props.user,courses : [],lectures : [],students : [],
+                        selectedCourse: null,selectedLecture: null,
+                        courseMap: new Map(),cPages: 1,
+                        lectureMap: new Map(),lPages: 1,
+                        studentMap: new Map(),sPages: 1};
     }
     /**
      * componentDidMount fetch the all courses of the teacher 
@@ -23,12 +29,19 @@ class TeacherPage extends React.Component {
     componentDidMount(){
         //to_do
         this.getCoursesByTeacherId(this.state.user.userId);
+
     }
     
     getCoursesByTeacherId = (teacher) =>{
         APIfake.getCoursesByTeacherId(teacher)
         .then((courses)=>{
-            this.setState({courses : courses})
+            let i=0;
+            let nMap=new Map(); 
+            courses.map((c)=>{
+            nMap.set(c.courseId,Math.floor(i/elementForPage));
+            i++;})
+            let nPages=Math.ceil(i/elementForPage);
+            this.setState({courses : courses,courseMap: nMap,cPages: nPages});
         })
         .catch();
     }
@@ -36,7 +49,13 @@ class TeacherPage extends React.Component {
     updateLectures = (courseId) =>{
         APIfake.getLecturesByCourseIdT(this.state.user.userId,courseId)
         .then((lectures)=>{
-            this.setState({lectures : lectures})
+            let i=0;
+            let nMap=new Map(); 
+            lectures.map((l)=>{
+            nMap.set(l.lectureId,Math.floor(i/elementForPage));
+            i++;})
+            let nPages=Math.ceil(i/elementForPage);
+            this.setState({lectures : lectures,lectureMap: nMap,lPages: nPages,selectedCourse: courseId,selectedLecture: null,students: [],studentMap: new Map(),sPages: 1});
         })
         .catch();
     }
@@ -44,7 +63,13 @@ class TeacherPage extends React.Component {
     updateStudents = (lectureId) =>{
         APIfake.getStudentsByLectureId(lectureId)
         .then((students)=>{
-            this.setState({students : students})
+            let i=0;
+            let nMap=new Map(); 
+            students.map((s)=>{
+            nMap.set(s.userId,Math.floor(i/elementForPage));
+            i++;})
+            let nPages=Math.ceil(i/elementForPage);
+            this.setState({students : students,studentMap: nMap,sPages: nPages,selectedLecture: lectureId})
         })
         .catch();
     }
@@ -58,15 +83,15 @@ class TeacherPage extends React.Component {
                     <InfoPanel user={this.state.user}/>
                 </Col>
                 <Col sm='8'>
-                    <CoursePanel courses={this.state.courses} update={this.updateLectures}/>
+                    <CoursePanel courses={this.state.courses} sCourse={this.state.selectedCourse} pageMap={this.state.courseMap} nPages={this.state.cPages} update={this.updateLectures}/>
                 </Col>
                 </Row>
                 <Row>
                 <Col sm='6'>
-                    <LecturePanel lectures={this.state.lectures} update={this.updateStudents}/>
+                    <LecturePanel lectures={this.state.lectures} sLecture={this.state.selectedLecture} pageMap={this.state.lectureMap} nPages={this.state.lPages} update={this.updateStudents}/>
                 </Col>
                 <Col sm='6'>
-                    <StudentPanel students={this.state.students}/>
+                    <StudentPanel students={this.state.students} pageMap={this.state.studentMap} nPages={this.state.sPages}/>
                 </Col>
                 </Row>
             </Container>

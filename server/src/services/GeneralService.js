@@ -10,8 +10,8 @@ exports.userLogin = function (body) {
   return new Promise(function (resolve, reject) {
     let examples = {};
     examples["application/json"] = {
-      firstName: "firstName",
-      lastName: "lastName",
+      firstName: "foo",
+      lastName: "bar",
       password: "password",
       type: "Student",
       userId: 1,

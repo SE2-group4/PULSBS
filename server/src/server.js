@@ -12,32 +12,28 @@ const baseRoute = "/api/v1";
 app.use(express.json());
 
 // Student routes
-app.get(
-  `${baseRoute}/students/:studentId/courses/:courseId/lectures/:lectureId`,
-  Student.studentBookLecture
-);
+app.post(`${baseRoute}/students/:studentId/courses/:courseId/lectures/:lectureId`, Student.studentBookLecture);
 
-app.get(
-  `${baseRoute}/students/:studentId/courses/:courseId/lectures`,
-  Student.studentGetCourseLectures
-);
+app.get(`${baseRoute}/students/:studentId/courses/:courseId/lectures`, Student.studentGetCourseLectures);
 
 app.get(`${baseRoute}/students/:studentId/courses`, Student.studentGetCourses);
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Teacher routes
 app.get(
-  `${baseRoute}/teachers/:teacherId/courses/:coursesId/lectures/:lectureId/students`,
+  `${baseRoute}/teachers/:teacherId/courses/:courseId/lectures/:lectureId/students`,
   Teacher.teacherGetCourseLectureStudents
 );
 
-app.get(
-  `${baseRoute}/teachers/:teacherId/courses/:coursesId/lectures`,
-  Teacher.teacherGetCourseLectures
-);
+app.get(`${baseRoute}/teachers/:teacherId/courses/:courseId/lectures`, Teacher.teacherGetCourseLectures);
 
 app.get(`${baseRoute}/teachers/:teacherId/courses`, Teacher.teacherGetCourses);
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // General handlers
-app.get(`${baseRoute}/login`, General.userLogin);
+app.post(`${baseRoute}/login`, General.userLogin);
 
-console.log(`Server running on http://localhost:${baseRoute}:${PORT}`);
+// every other routes get handled by this handler
+app.all(`${baseRoute}`, () => console.log("the route is not supported. Check the openapi doc"));
+
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}${baseRoute}`));
