@@ -7,25 +7,32 @@
 
 const sqlite = require('sqlite3');
 const moment = require('moment');
+const path = require('path');
 
 const Teacher = require('./../entities/Teacher.js');
 const Student = require('./../entities/Student.js');
 const Lecture = require('./../entities/Lecture.js');
+const Course = require('./../entities/Course.js');
 const EmailType = require('./../entities/EmailType.js');
 
-let dbpath = './PULSBS.db'; // default
+let db = null;
+/*
 let db = new sqlite.Database(dbpath, (err) => {
     if (err) throw err;
 });
+*/
 
 /**
  * open a new database connection
  * it closes existing connections before creating the new one
  * @param {string} dbpath
  */
-const openConn = function openConn(dbpath) {
-    if(!(db == undefined || db == null))
+const openConn = function openConn(dbpath = 'src/db/PULSBS.db') {
+    if(db)
         db.close();
+
+    const cwd = process.cwd();
+    dbpath = path.join(cwd, dbpath);
     db = new sqlite.Database(dbpath, (err) => {
         if (err) throw err;
     });
@@ -86,7 +93,8 @@ const getLecturesByStudent = function(student) {
                 return;
             }
 
-            const lectures = rows.forEach(row => Lecture.from(row));
+            const lectures = [];
+            rows.forEach(row => lectures.push(Lecture.from(row)));
             resolve(lectures);
         });
     })
@@ -111,7 +119,8 @@ const getCoursesByStudent = function(student) {
                 return;
             }
 
-            const courses = rows.forEach(courses => Course.from(row));
+            const courses = [];
+            rows.forEach(row => courses.push(Course.from(row)));
             resolve(courses);
         });
     })
@@ -135,7 +144,8 @@ const getLecturesByCourse = function(course) {
                 return;
             }
 
-            const lectures = rows.forEach(row => Lecture.from(row));
+            const lectures = [];
+            rows.forEach(row => lectures.push(Lecture.from(row)));
             resolve(lectures);
         });
     })
@@ -151,15 +161,16 @@ const getStudentsByLecture = function(lecture) {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM User \
             JOIN Booking on User.userId = Booking.studentId \
-            WHERE Booking.lectureId = ? AND User.type = STUDENT';
+            WHERE Booking.lectureId = ? AND User.type = ?';
 
-        db.all(sql, [lecture.lectureId], (err, rows) => {
+        db.all(sql, [lecture.lectureId, 'STUDENT'], (err, rows) => {
             if(err) {
                 reject(err);
                 return;
             }
 
-            const students = rows.forEach(row => Student.from(row));
+            const students = [];
+            rows.forEach(row => students.push(Student.from(row)));
             resolve(students);
         });
     })
@@ -177,15 +188,16 @@ const getStudentsByCourse = function(course) {
         const sql = 'SELECT * FROM User \
         JOIN Enrollment ON User.userId = Enrollment.studentId \
         JOIN Course ON Enrollment.courseId = Course.courseId \
-        WHERE Course.courseId = ? AND Course.year = ? AND User.type = STUDENT';
+        WHERE Course.courseId = ? AND Course.year = ? AND User.type = ?';
 
-        db.all(sql, [course.courseId, _getCurrentAcademicYear()], (err, rows) => {
+        db.all(sql, [course.courseId, _getCurrentAcademicYear(), 'STUDENT'], (err, rows) => {
             if(err) {
                 reject(err);
                 return;
             }
 
-            const students = rows.forEach(row => Student.from(row));
+            const students = [];
+            rows.forEach(row => students.push(Student.from(row)));
             resolve(students);
         });
     })
@@ -211,7 +223,8 @@ const getLecturesByTeacher = function(teacher) {
                 return;
             }
 
-            const lectures = rows.forEach(row => Lecture.from(row));
+            const lectures = [];
+            rows.forEach(row => lectures.push(Lecture.from(row)));
             resolve(lectures);
         });
     })
@@ -236,7 +249,8 @@ const getCoursesByTeacher = function(teacher) {
                 return;
             }
 
-            const courses = rows.forEach(row => Course.from(row));
+            const courses = [];
+            rows.forEach(row => courses.push(Course.from(row)));
             resolve(courses);
         });
     })
@@ -292,7 +306,7 @@ exports._getCurrentAcademicYear = _getCurrentAcademicYear;
  */
 const addEmail = function(from, to, emailType) {
     return new Promise((resolve, reject) => {
-        const sql = 'INSERT INTO Email(from, to, emailTypeId) VALUES(?, ?, ?)';
+        const sql = 'INSERT INTO Email(fromId, toId, emailTypeId) VALUES(?, ?, ?)';
 
         const fromId = from instanceof Teacher ? from.teacherId : from.studentId;
         const toId = to instanceof Teacher ? to.teacherId : to.studentId;

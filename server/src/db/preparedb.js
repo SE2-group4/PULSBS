@@ -19,21 +19,27 @@ const { rejects } = require('assert');
  */
 function prepare(dbpath = './testing.db', dbscript = './testing.sql', flag = true) {
     return new Promise((resolve, reject) => {
+        const cwd = process.cwd();
+        dbpath = path.join(cwd, dbpath);
+        dbscript = path.join(cwd, dbscript);
+
         if(flag) {
-            console.log(`Working on ${__dirname}`);
+            console.log(`Working on ${cwd}`);
             console.log(`Opening database connection on ${dbpath} to execute the script ${dbscript}`);
         }
 
-        const db = new sqlite.Database(path.resolve(__dirname, dbpath), (err) => {
-            if(err) 
+        const db = new sqlite.Database(dbpath, (err) => {
+            if(err) {
                 console.log("Error creating DB connection!");
+                reject(err);
+            }
         });
 
         let count = 0; // line counter
 
         if(flag) console.log("Preparing your DB...");
 
-        const dataSql = fs.readFileSync(path.resolve(__dirname, dbscript)).toString();
+        const dataSql = fs.readFileSync(dbscript).toString();
         const dataArr = dataSql.toString().split(';');
 
         db.serialize(() => {
