@@ -7,14 +7,18 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "mocha ./tests/Test_suite.js"
+    "test": "mocha ./tests/Test_suite.js",
+    "coverage": "./node_modules/.bin/nyc npm test"
   },
   "author": "group4",
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "mocha": "^8.2.1",
     "moment": "^2.29.1",
     "sqlite3": "^5.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^8.2.1",
+    "nyc": "^15.1.0"
   }
 }
