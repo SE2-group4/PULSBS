@@ -1,8 +1,11 @@
 "use strict";
 
 const express = require("express");
+const morgan = require("morgan");
+
 const Student = require("./controllers/StudentController");
 const Teacher = require("./controllers/TeacherController");
+
 const General = require("./controllers/GeneralController");
 
 const app = express();
@@ -10,6 +13,11 @@ const PORT = 3001;
 const baseRoute = "/api/v1";
 
 app.use(express.json());
+
+morgan.token("host", function (req, res) {
+  return "src: " + req.hostname;
+});
+app.use(morgan(":method :url :host code: :status :res[content-length] - :response-time ms"));
 
 // Student routes
 app.post(`${baseRoute}/students/:studentId/courses/:courseId/lectures/:lectureId`, Student.studentBookLecture);
