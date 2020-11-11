@@ -10,6 +10,8 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
 import APIfake from '../tests/APIfake';
 import Modal from 'react-bootstrap/Modal'
+import Jumbotron from 'react-bootstrap/Jumbotron';
+
 class BookingLectureForm extends React.Component {
     constructor(props){
         super(props);
@@ -17,7 +19,7 @@ class BookingLectureForm extends React.Component {
     }
     
     getLecturesByCourseId = (course) =>{
-        API.getLecturesByCourseId(this.state.user.userId,course.courseId)
+        APIfake.getLecturesByCourseId(this.state.user.userId,course.courseId)
         .then((lectures)=>{
             console.log(lectures);
             this.setState({lectures : lectures,course : course,lecture:null})
@@ -51,20 +53,28 @@ class BookingLectureForm extends React.Component {
                     </Modal.Dialog>
                 </Modal>
                 }
+            <Jumbotron>
+            <strong>Welcome to the Lesson booking System!</strong>
+            <br></br>
+            <br></br>
             <Row>
-            <Col><DropdownMenu  mode="courses" courses={this.props.courses} getLectures={this.getLecturesByCourseId}/></Col>
-            <Col><DropdownMenu  mode="lectures" lectures={this.state.lectures} chooseLecture = {this.chooseLecture}/></Col>
+            <Col sm="2"><DropdownMenu  mode="courses" courses={this.props.courses} getLectures={this.getLecturesByCourseId}/></Col>
+            <Col sm="2"><DropdownMenu  mode="lectures" lectures={this.state.lectures} chooseLecture = {this.chooseLecture}/></Col>
             </Row>
+            <br></br>
+            <br></br>
+            {this.state.course && <strong>Your choice: </strong>}
+            <br></br>
+            <br></br>
             <Row>
-                <ListGroup>
                 {this.state.course && <Col><ListGroup.Item>Course : {this.state.course.description}</ListGroup.Item></Col>}
-                {this.state.lecture && <Col><ListGroup.Item>Lecture : {this.state.lecture.lectureId}</ListGroup.Item></Col>}
-                </ListGroup>
+                {this.state.lecture && <Col><ListGroup.Item>Lecture : {this.state.lecture.date}</ListGroup.Item></Col>}
             </Row>
             <br/>
             {this.state.course && this.state.lecture &&
                 <Button variant="success" onClick={()=>this.bookALecture()}>Book now!</Button>
             }
+            </Jumbotron>
             </>
         );
     }
@@ -88,7 +98,7 @@ function DropdownMenu(props) {
                 Choose a lecture
             </Dropdown.Toggle>
             <Dropdown.Menu>
-            {props.lectures.map((lecture)=><Dropdown.Item key={lecture.lectureId} onClick={()=>props.chooseLecture(lecture)}>{lecture.lectureId}</Dropdown.Item>)}
+            {props.lectures.map((lecture)=><Dropdown.Item key={lecture.lectureId} onClick={()=>props.chooseLecture(lecture)}>{lecture.date}</Dropdown.Item>)}
             </Dropdown.Menu>
             </>
             }
