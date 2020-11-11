@@ -164,7 +164,7 @@ exports.getCoursesByStudent = getCoursesByStudent;
 const getLecturesByCourse = function(course) {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM Lecture \
-            WHERE Lecture.courseId = ? AND DATE(Lecture.date) > DATE(?)';
+            WHERE Lecture.courseId = ? AND DATE(Lecture.date) >= DATE(?)';
 
         db.all(sql, [course.courseId, (new Date()).toISOString()], (err, rows) => {
             if(err) {
@@ -262,7 +262,7 @@ exports.getLecturesByTeacher = getLecturesByTeacher;
 /**
  * get a list of courses a teacher is holding
  * only courses in the current academic year are considered
- * @param {Teacher} teacher 
+ * @param {Teacher} teacher - teacherId needed 
  * @returns {Promise} promise
  */
 const getCoursesByTeacher = function(teacher) {
