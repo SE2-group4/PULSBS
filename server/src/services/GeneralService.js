@@ -3,10 +3,11 @@
 /**
  * User request to sign in system
  *
- * body Login The credetials needed are email and password
- * returns Student
+ * body Body { email: 'fake@email.com', password: 'password' } 
+ * returns a Student
  **/
 exports.userLogin = function (body) {
+  console.log(body);
   return new Promise(function (resolve, reject) {
     let examples = {};
     examples["application/json"] = {

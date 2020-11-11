@@ -1,24 +1,32 @@
 "use strict";
 
+const Lecture = require("../entities/Lecture");
+const Course = require("../entities/Course");
+const Student = require("../entities/Student");
+
+const { ResponseError } = require("../utils/ResponseError");
+
+const db = require("../db/Dao");
+
 /**
  * book a particular lecture
  *
- * body Body The id of the student that want to book a lecture
- * studentId Integer student id
- * courseId Integer course id
- * lectureId Integer lecture id
+ * studentId Integer
+ * courseId Integer
+ * lectureId Integer
  * no response value expected for this operation
  **/
+// TODO we should also update the openapi docs. Right now in case of 200, we return nothing => we should return a confirmation
 exports.studentBookLecture = function (studentId, courseId, lectureId) {
-  // TODO update the openapi docs. We should return something in case of status code 200
   if (isNaN(studentId)) {
-    return new Promise((resolve, reject) => reject({error: `'studentId parameter is not a number: ${studentId}`}));
+    return new ResponseError("StudentService", `'studentId' parameter is not a number: ${studentId}`, 400);
   } else if (isNaN(courseId)) {
-    return new promise((resolve, reject) => reject({error: `'courseid parameter is not a number: ${courseid}`}));
+    return new ResponseError("StudentService", `'courseId' parameter is not a number: ${courseId}`, 400);
   } else if (isNaN(lectureId)) {
-    return new promise((resolve, reject) => reject({error: `'lectureId parameter is not a number: ${lectureId}`}));
+    return new ResponseError("StudentService", `'lectureId' parameter is not a number: ${lectureId}`, 400);
   }
 
+  // TODO: implement db call
   const sId = studentId;
   const cId = courseId;
   const lId = lectureId;
@@ -26,81 +34,52 @@ exports.studentBookLecture = function (studentId, courseId, lectureId) {
   return new Promise(function (resolve, reject) {
     resolve("Lecture Booked");
   });
+
 };
 
 /**
- * get all active lectures of a particular course
- * Get all active lectures, which are still not delivered, for a course enrolled by a particular student
+ * Get all active lectures, which have not yet been delivered, for a given course
  *
- * studentId Integer student id
- * courseId Integer course id
- * returns List
+ * studentId Integer 
+ * courseId Integer 
+ * returns array of lectures. In case of error an ResponseError
  **/
-exports.studentGetCourseLectures = function (studentId, courseId) {
+// TODO: we should do a check of whether the student is enrolled in this course.
+exports.studentGetCourseLectures = async function (studentId, courseId) {
   if (isNaN(studentId)) {
-    return new Promise((resolve, reject) => reject({error: `'studentId parameter is not a number: ${studentId}`}));
+    return new ResponseError("StudentService", `'studentId' parameter is not a number: ${studentId}`, 400);
   } else if (isNaN(courseId)) {
-    return new Promise((resolve, reject) => reject({error: `'courseId parameter is not a number: ${courseId}`}));
+    return new ResponseError("StudentService", `'courseId' parameter is not a number: ${courseId}`, 400);
   }
 
-  const sId = studentId;
+  // const sId = studentId;
   const cId = courseId;
+  // I also put the other fields in as a reminder
+  const course = new Course(cId, undefined, undefined);
 
-  return new Promise(function (resolve, reject) {
-    let examples = {};
-    examples["application/json"] = [
-      {
-        date: "2000-01-22T10:00:00.000+00:00",
-        classId: 1,
-        courseId: 2,
-        lectureId: 10,
-      },
-      {
-        date: "2000-01-23T12:00:00.000+00:00",
-        classId: 1,
-        courseId: 2,
-        lectureId: 11,
-      },
-    ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+  db.openConn();
+
+  const courseLectures = await db.getLecturesByCourse(course);
+  return courseLectures;
 };
 
 /**
- * get all enrolled courses in this academic year
+ * Get all courses enrolled in this academic year by a given student
  *
- * studentId Integer student id
- * returns List
+ * studentId Integer
+ * returns array of courses. In case of error an ResponseError
  **/
-exports.studentGetCourses = function (studentId) {
+exports.studentGetCourses = async function (studentId) {
   if (isNaN(studentId)) {
-    return new Promise((resolve, reject) => reject({error: `'studentId parameter is not a number: ${studentId}`}));
+    return new ResponseError("StudentService", `'studentId' parameter is not a number: ${studentId}`, 400);
   }
 
   const sId = studentId;
+  // I also put the other fields in as a reminder
+  const student = new Student(sId, undefined, undefined, undefined, undefined);
 
-  return new Promise(function (resolve, reject) {
-    let examples = {};
-    examples["application/json"] = [
-      {
-        year: 2020,
-        description: "software enginnering",
-        courseId: 0,
-      },
-      {
-        year: 2020,
-        description: "yoga",
-        courseId: 0,
-      },
-    ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+  db.openConn();
+
+  const studentCourses = await db.getCoursesByStudent(student);
+  return studentCourses;
 };

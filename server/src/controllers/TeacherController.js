@@ -38,11 +38,9 @@ module.exports.teacherGetCourses = function teacherGetCourses(req, res, next) {
 
   Teacher.teacherGetCourses(teacherId)
     .then(function (response) {
-      console.log("resolved");
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      console.log("rejected");
       utils.writeJson(res, response);
     });
 };

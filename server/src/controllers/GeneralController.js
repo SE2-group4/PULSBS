@@ -5,9 +5,7 @@ const utils = require("../utils/writer");
 
 // TODO
 module.exports.userLogin = function userLogin(req, res, next) {
-  const email = req.body.email;
-  const password = req.body.password;
-  General.userLogin(email, password)
+  General.userLogin(req.body)
     .then(function (response) {
       utils.writeJson(res, response);
     })
