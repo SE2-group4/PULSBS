@@ -16,8 +16,6 @@ const Course = require('./../entities/Course.js');
 const Email = require('./../entities/Email.js');
 const EmailType = require('./../entities/EmailType.js');
 const { resolve } = require('path');
-const { rejects } = require('assert');
-const Teacher = require('./../entities/Teacher.js');
 
 let db = null;
 /*

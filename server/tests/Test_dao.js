@@ -13,6 +13,7 @@ const Teacher = require('../src/entities/Teacher.js');
 const Lecture = require('../src/entities/Lecture.js');
 const Course = require('../src/entities/Course.js');
 const EmailType = require('../src/entities/EmailType.js');
+const Email = require('../src/entities/Email.js');
 const prepare = require('../src/db/Preparedb.js');
 
 const suite = describe('Dao.js', function() {
@@ -180,7 +181,8 @@ const suite = describe('Dao.js', function() {
     describe('addEmail', function() {
         it('correct data should insert a new email', function(done) {
             const emailType = EmailType.STUDENT_NEW_BOOKING;
-            dao.addEmail(teacher4, student1, emailType)
+            const email = new Email(undefined, teacher4, student1, new Date(), emailType, 'test subject', 'test body');
+            dao.addEmail(email)
                 .then((retVal) => {
                     assert.ok(retVal > 0, 'Email not inserted');
                     done();
