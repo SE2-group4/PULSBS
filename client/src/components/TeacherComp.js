@@ -48,7 +48,8 @@ class CoursePanel extends React.Component {
                         </tbody>
                     </Table>
                     { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
-                    selected course: {this.props.sCourse}
+                    { this.props.sCourse && <>selected course: {this.props.sCourse}</>}
+                    { this.props.courses.length==0 && "no courses available." }
                 </Container>
                 </>;
     }
@@ -101,7 +102,8 @@ class LecturePanel extends React.Component {
                     </tbody>
                 </Table>
                 { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
-                selected lecture: {this.props.sLecture}
+                { this.props.sLecture && <>selected lecture: {this.props.sLecture}</>}
+                { this.props.lectures.length==0 && "no lectures available." }
             </Container>
         </>;
     }
@@ -150,6 +152,7 @@ class StudentPanel extends React.Component {
                         </tbody>
                     </Table>
                     { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
+                    { this.props.students.length==0 && "no students listed." }
                 </Container>
                 </>;
     }
