@@ -29,7 +29,6 @@ class StudentPage extends React.Component {
         .catch()
     }
     bookALecture = (course,lecture) =>{
-        console.log(lecture.lectureId);
         API.bookALecture(this.state.user.userId,course.courseId,lecture.lectureId)
         .then(()=>this.setState({booked : true}))
         .catch()
