@@ -15,7 +15,7 @@ INSERT INTO Course(courseId, description, year) VALUES(2, 'Computer system secur
 INSERT INTO Course(courseId, description, year) VALUES(3, 'Machine learning and artificial intelligence', 2020);
 
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'giacomo.poretti@agg.it', 'giacomo');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'marina.massironi@agg.i t', 'marina');
+INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'marina.massironi@agg.it', 'marina');
 
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 1, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 2, 1);
@@ -38,3 +38,5 @@ INSERT INTO Lecture(lectureId, courseId, classId, date) VALUES(3, 3, 3, DATE('no
 INSERT INTO Booking(studentId, lectureId) VALUES(1, 3);
 INSERT INTO Booking(studentId, lectureId) VALUES(2, 3);
 INSERT INTO Booking(studentId, lectureId) VALUES(3, 3);
+
+INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(6, 'TEACHER', 'Fake', 'User', 'fakeStudent.se2@gmail.com', 'anvzRPuDd1mvCXJBfn');
