@@ -27,17 +27,18 @@ let db = new sqlite.Database(dbpath, (err) => {
 /**
  * open a new database connection
  * it closes existing connections before creating the new one
- * @param {string} dbpath
+ * @param {String} dbpath
  */
-const openConn = function openConn(dbpath = 'src/db/PULSBS.db') {
+const openConn = function openConn(dbpath = './PULSBS.db') {
     if(db)
         db.close();
 
-    const cwd = process.cwd();
+    const cwd = __dirname;
     dbpath = path.join(cwd, dbpath);
     db = new sqlite.Database(dbpath, (err) => {
-        if (err) throw err;
+        if (err) throw(err);
     });
+
     return;
 }
 exports.openConn = openConn;

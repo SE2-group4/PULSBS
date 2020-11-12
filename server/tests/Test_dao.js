@@ -6,6 +6,7 @@
 'use strict'
 
 const assert = require('assert');
+const path = require('path');
 
 const dao = require('../src/db/Dao.js');
 const Student = require('../src/entities/Student.js');
@@ -29,13 +30,13 @@ const suite = describe('Dao.js', function() {
         lecture3 = new Lecture(3);
         course3 = new Course(3);
 
-        dao.openConn('/src/db/testing.db');
+        dao.openConn('testing.db');
 
         done();
     });
 
     beforeEach(function(done) {
-        prepare('/src/db/testing.db', '/src/db/testing.sql', false)
+        prepare(undefined, undefined, true)
             .then(() => done())
             .catch((err) => done(err));
     });
