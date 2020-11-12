@@ -5,12 +5,19 @@ const morgan = require("morgan");
 const Student = require("./controllers/StudentController");
 const Teacher = require("./controllers/TeacherController");
 const General = require("./controllers/GeneralController");
+//const EmailService = require('../src/services/EmailService');
 
 const app = express();
 const PORT = 3001;
 const baseRoute = "/api/v1";
 
 app.use(express.json());
+
+/* Email service example 
+
+EmailService.sendConfirmationBookingEmail("fakeStudent.se2866755766@gmail.com", "SE2", "13:00")
+  .then(() => console.log("Email sent"))
+  .catch((info) => console.log(info))*/
 
 morgan.token("host", function (req, res) {
   return "src: " + req.hostname;
