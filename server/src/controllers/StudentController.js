@@ -23,7 +23,7 @@ controller.post('/:studentId/courses/:courseId/lectures/:lectureId', [
     const lectureId = req.params.lectureId;
     const errors = validationResult(studentId, courseId, lectureId);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors).end();
+        res.status(400).json(errors[0]).end();
         return;
     }
     
@@ -46,7 +46,7 @@ controller.get('/:studentId/courses/:courseId/lectures', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors).end();
+        res.status(400).json(errors[0]).end();
         return;
     }
 
@@ -57,7 +57,7 @@ controller.get('/:studentId/courses/:courseId/lectures', [
             res.json(lectures).status(200).end();
         })
         .catch((err) => {
-            res.json(err).status(401).end();
+            res.json(err).status(400).end();
         });
 
 });
@@ -71,7 +71,7 @@ controller.get(':studentId/courses', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors).end();
+        res.status(400).json(errors[0]).end();
         return;
     }
 
@@ -81,7 +81,7 @@ controller.get(':studentId/courses', [
             res.json(courses).status(200).end();
         })
         .catch((err) => {
-            res.json(err).status(401).end();
+            res.json(err).status(400).end();
         });
 });
 

@@ -24,7 +24,7 @@ controller.post('/login', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors).end();
+        res.status(401).json(errors[0]).end();
         return;
     }
 
@@ -37,7 +37,7 @@ controller.post('/login', [
             res.status(200).json(user).end;
         })
         .catch((error) => {
-            res.status(400).json(errors).end();
+            res.status(401).json(error).end();
         });
 });
 
