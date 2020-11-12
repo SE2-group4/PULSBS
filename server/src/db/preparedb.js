@@ -17,13 +17,12 @@ const { rejects } = require('assert');
  * @param {Boolean} flag 
  * @returns {Promise} promise
  */
-function prepare(dbpath = './testing.db', dbscript = './testing.sql', flag = true) {
+function prepare(dbpath = 'testing.db', dbscript = 'testing.sql', flag = true) {
     return new Promise((resolve, reject) => {
-        const cwd = process.cwd();
-        dbpath = path.join(cwd, dbpath);
-        dbscript = path.join(cwd, dbscript);
-
         if(flag) {
+            const cwd = __dirname;
+            dbpath = path.join(cwd, dbpath);
+            dbscript = path.join(cwd, dbscript);
             console.log(`Working on ${cwd}`);
             console.log(`Opening database connection on ${dbpath} to execute the script ${dbscript}`);
         }
@@ -73,9 +72,12 @@ function prepare(dbpath = './testing.db', dbscript = './testing.sql', flag = tru
     });
 }
 
-if(require.main === module) // if called from command line
-    prepare().then(() => {
+if(require.main === module) { // if called from command line
+    const args = process.argv.slice(2);
+    console.log(args);
+    prepare(args[0], args[2], args[3]).then(() => {
         console.log("The testing DB is ready, enjoy! :)");
     });
+}
 
 module.exports = prepare;
