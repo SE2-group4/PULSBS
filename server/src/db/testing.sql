@@ -39,4 +39,5 @@ INSERT INTO Booking(studentId, lectureId) VALUES(1, 3);
 INSERT INTO Booking(studentId, lectureId) VALUES(2, 3);
 INSERT INTO Booking(studentId, lectureId) VALUES(3, 3);
 
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(6, 'TEACHER', 'Fake', 'User', 'fakeStudent.se2@gmail.com', 'anvzRPuDd1mvCXJBfn');
+INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(6, 'STUDENT', 'Fake', 'Student', 'fakeTeacher.se2@gmail.com', 'anvzRPuDd1mvCXJBfn');
+INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(7, 'TEACHER', 'Fake', 'Teacher', 'fakeStudent.se2@gmail.com', 'anvzRPuDd1mvCXJBfn');
