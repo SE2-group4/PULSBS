@@ -11,7 +11,7 @@ import APIfake from "../tests/APIfake"
 class LoginPage extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { username: "", password: "" };
+    this.state = { username: "", password: "" ,fetchError : false};
   }
 
   onChangeUsername = (event) => {
@@ -32,7 +32,7 @@ class LoginPage extends React.Component {
   };
   userLogin = (user) =>{
       this.props.setLoggedInUser(user);
-
+    
   }
 
   render() {

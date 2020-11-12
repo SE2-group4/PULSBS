@@ -84,6 +84,7 @@ async function getLecturesByCourseId(Uid,Cid){
         }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
     */
        resolve(lectures.filter((l)=>l.courseId===Cid));
+       //reject()
    });
    
 };

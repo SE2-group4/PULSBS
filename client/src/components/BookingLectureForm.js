@@ -11,20 +11,21 @@ import Button from 'react-bootstrap/Button';
 import APIfake from '../tests/APIfake';
 import Modal from 'react-bootstrap/Modal'
 import Jumbotron from 'react-bootstrap/Jumbotron';
-
+import Alert from 'react-bootstrap/Alert';
 class BookingLectureForm extends React.Component {
     constructor(props){
         super(props);
-        this.state = {courses : props.courses, lectures : null,course : null,lecture : null,user : props.user};
+        this.state = {courses : props.courses, lectures : null,course : null,lecture : null,user : props.user,fetchError : false};
     }
     
     getLecturesByCourseId = (course) =>{
         APIfake.getLecturesByCourseId(this.state.user.userId,course.courseId)
         .then((lectures)=>{
-            console.log(lectures);
-            this.setState({lectures : lectures,course : course,lecture:null})
+            this.setState({lectures : lectures,course : course,lecture:null,fetchError : false})
         })
-        .catch()
+        .catch(()=>{
+            this.setState({fetchError : true});
+        })
     }
     chooseLecture = (lecture) =>{
         this.setState({lecture : lecture});
@@ -39,7 +40,7 @@ class BookingLectureForm extends React.Component {
     render(){
         return (
             <>
-                {this.props.isBookedDone &&
+            {this.props.isBookedDone &&
                 <Modal show={true}>
                     <Modal.Dialog>
                         <Modal.Body>
@@ -67,6 +68,7 @@ class BookingLectureForm extends React.Component {
             <br></br>
             <br></br>
             <Row>
+            {this.state.fetchError && <Alert variant="danger">Error during server communication</Alert>}
                 {this.state.course && <Col><ListGroup.Item>Course : {this.state.course.description}</ListGroup.Item></Col>}
                 {this.state.lecture && <Col><ListGroup.Item>Lecture : {this.state.lecture.date}</ListGroup.Item></Col>}
             </Row>
