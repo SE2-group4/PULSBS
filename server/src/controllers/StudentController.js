@@ -18,7 +18,10 @@ controller.post('/:studentId/courses/:courseId/lectures/:lectureId', [
         check('lectureId').isInt()
     ], (req, res) => {
 
-    const errors = validationResult(req);
+    const studentId = req.params.studentId;
+    const courseId = req.params.courseId;
+    const lectureId = req.params.lectureId;
+    const errors = validationResult(studentId, courseId, lectureId);
     if (!errors.isEmpty()) {
         res.status(400).json(errors).end();
         return;
@@ -47,7 +50,9 @@ controller.get('/:studentId/courses/:courseId/lectures', [
         return;
     }
 
-    service.studentGetCourseLectures(req.body)
+    const studentId = req.params.studentId;
+    const courseId = req.params.courseId;
+    service.studentGetCourseLectures(studentId, courseId)
         .then((lectures) => {
             res.json(lectures).status(200).end();
         })
@@ -70,7 +75,8 @@ controller.get(':studentId/courses', [
         return;
     }
 
-    service.studentGetCourses(req.body)
+    const studentId = req.params.studentId;
+    service.studentGetCourses(studentId)
         .then((courses) => {
             res.json(courses).status(200).end();
         })

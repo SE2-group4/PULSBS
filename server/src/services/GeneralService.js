@@ -10,13 +10,14 @@ const User = require('../entities/User.js');
 
 /**
  * perform login
- * @param {Object} body - email and password needed
+ * @param {String} email
+ * @param {String} password
  * @returns {Promise<Teacher|Student>} promise
  */
-exports.userLogin = function(body) {
+exports.userLogin = function(email, password) {
     const user = new User();
-    user.email = body.email;
-    user.password = body.password;
+    user.email = email;
+    user.password = password;
 
     return dao.login(user);
 };

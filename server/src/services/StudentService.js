@@ -13,13 +13,15 @@ const dao = require("../db/Dao.js");
 
 /**
  * record a new booking
- * @param {Object} body
+ * @param {Number} studentId
+ * @param {Number} courseId
+ * @param {Number} lectureId
  * @returns {Promise} promise
  */
-exports.studentBookLecture = async function(body) {
-    const student = new Student(body.studentId);
-    const course = new Lecture(body.courseId);
-    const lecture = new Lecture(body.lectureId);
+exports.studentBookLecture = async function(studentId, courseId, lectureId) {
+    const student = new Student(studentId);
+    const course = new Course(courseId);
+    const lecture = new Lecture(lectureId);
 
     return new Promise((resolve, reject) => {
         // logical checks
@@ -48,13 +50,13 @@ exports.studentBookLecture = async function(body) {
 
 /**
  * get the list of lectures given a student and a course
- * @param {Object} body
+ * @param {Number} studentId
+ * @param {Number} courseId
  * @returns {Promise} promise
  */
-exports.studentGetCourseLectures = function(body) {
-    const student = new Student(body.studentId);
-    const course = new Lecture(body.courseId);
-    const lecture = new Lecture(body.lectureId);
+exports.studentGetCourseLectures = function(studentId, courseId) {
+    const student = new Student(studentId);
+    const course = new Course(courseId);
 
     return new Promise((resolve, reject) => {
         // logical checks
@@ -74,11 +76,11 @@ exports.studentGetCourseLectures = function(body) {
 
 /**
  * get a list of courses given a student
- * @param {Object} body
+ * @param {Number} studentId
  * @returns {Promise} promise
  */
-exports.studentGetCourses = function(body) {
-    const student = new Student(body.studentId);
+exports.studentGetCourses = function(studentId) {
+    const student = new Student(studentId);
 
     return dao.getCoursesByStudent(student);
 };

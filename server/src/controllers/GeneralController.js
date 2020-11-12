@@ -28,7 +28,9 @@ controller.post('/login', [
         return;
     }
 
-    service.userLogin(req.body)
+    const email = req.params.email;
+    const password = req.params.password;
+        service.userLogin(email, password)
         .then((user) => {
             const token = jsonwebtoken.sign({ userId: user.userId }, jwtSecret, { expiresIn: expireTime });
             res.cookie('token', token, { httpOnly: true, sameSite: true, maxAge: expireTime });
