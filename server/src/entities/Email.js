@@ -17,8 +17,10 @@ class Email {
      * @param {Date} date
      * @param {String} subject 
      * @param {String} body 
+     * @param {Number} courseId
+     * @param {Number} lectureId
      */
-    constructor(emailId = -1, from = null, to = null, date = new Date(), emailType = EmailType.UNDEFINED, subject = '', body = '') {
+    constructor(emailId = -1, from = null, to = null, date = new Date(), emailType = EmailType.UNDEFINED, subject = '', body = '', courseId = -1, lectureId = -1) {
         this.emailId = emailId;
         this.from = from;
         this.to = to;
@@ -26,6 +28,8 @@ class Email {
         this.emailType = emailType;
         this.subject = subject;
         this.body = body;
+        this.courseId = courseId;
+        this.lectureId = lectureId;
     }
 
     /**
