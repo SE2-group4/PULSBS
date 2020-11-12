@@ -1,85 +1,84 @@
+/**
+ * Student dao accesses
+ * @author Gastaldi Paolo
+ * @version 1.0.0
+ */
 "use strict";
 
-const Lecture = require("../entities/Lecture");
-const Course = require("../entities/Course");
-const Student = require("../entities/Student");
+const Student = require("../entities/Student.js");
+const Course = require("../entities/Course.js");
+const Lecture = require("../entities/Lecture.js");
 
-const { ResponseError } = require("../utils/ResponseError");
-
-const db = require("../db/Dao");
+const dao = require("../db/Dao.js");
 
 /**
- * book a particular lecture
- *
- * studentId Integer
- * courseId Integer
- * lectureId Integer
- * no response value expected for this operation
- **/
-// TODO we should also update the openapi docs. Right now in case of 200, we return nothing => we should return a confirmation
-exports.studentBookLecture = function (studentId, courseId, lectureId) {
-  if (isNaN(studentId)) {
-    return new ResponseError("StudentService", `'studentId' parameter is not a number: ${studentId}`, 400);
-  } else if (isNaN(courseId)) {
-    return new ResponseError("StudentService", `'courseId' parameter is not a number: ${courseId}`, 400);
-  } else if (isNaN(lectureId)) {
-    return new ResponseError("StudentService", `'lectureId' parameter is not a number: ${lectureId}`, 400);
-  }
+ * record a new booking
+ * @param {Object} body
+ * @returns {Promise} promise
+ */
+exports.studentBookLecture = async function(body) {
+    const student = new Student(body.studentId);
+    const course = new Lecture(body.courseId);
+    const lecture = new Lecture(body.lectureId);
 
-  // TODO: implement db call
-  const sId = studentId;
-  const cId = courseId;
-  const lId = lectureId;
-  
-  return new Promise(function (resolve, reject) {
-    resolve("Lecture Booked");
-  });
+    return new Promise((resolve, reject) => {
+        // logical checks
+        dao.getLecturesByCourse(course)
+            .then((currLectures) => {
+                if(!currLectures.filter(l => l.lectureId === lecture.lectureId)) {
+                    reject({ error : 'The lecture is not related to this course' });
+                    return;
+                }
 
+                dao.getCoursesByStudent(student)
+                    .then((currStudents) => {
+                        if(!currCourses.filter(c => c.courseId === course.courseId)) {
+                            reject({ error : 'The student is not enrolled in this course' });
+                            return;
+                        }
+                
+                        dao.addBooking(student, Lecture)
+                            .then(resolve)
+                            .catch(reject);
+                    });
+            });
+        
+    });
 };
 
 /**
- * Get all active lectures, which have not yet been delivered, for a given course
- *
- * studentId Integer 
- * courseId Integer 
- * returns array of lectures. In case of error an ResponseError
- **/
-// TODO: we should do a check of whether the student is enrolled in this course.
-exports.studentGetCourseLectures = async function (studentId, courseId) {
-  if (isNaN(studentId)) {
-    return new ResponseError("StudentService", `'studentId' parameter is not a number: ${studentId}`, 400);
-  } else if (isNaN(courseId)) {
-    return new ResponseError("StudentService", `'courseId' parameter is not a number: ${courseId}`, 400);
-  }
+ * get the list of lectures given a student and a course
+ * @param {Object} body
+ * @returns {Promise} promise
+ */
+exports.studentGetCourseLectures = function(body) {
+    const student = new Student(body.studentId);
+    const course = new Lecture(body.courseId);
+    const lecture = new Lecture(body.lectureId);
 
-  // const sId = studentId;
-  const cId = courseId;
-  // I also put the other fields in as a reminder
-  const course = new Course(cId, undefined, undefined);
-
-  db.openConn();
-
-  const courseLectures = await db.getLecturesByCourse(course);
-  return courseLectures;
+    return new Promise((resolve, reject) => {
+        // logical checks
+        dao.getCoursesByStudent(student)
+            .then((currCourses) => {
+                if(!currCourses.filter(c => c.courseId === course.courseId)) {
+                    reject({ error : 'The student is not enrolled in this course' });
+                    return;
+                }
+        
+                dao.getLecturesByCourse(course)
+                    .then(resolve)
+                    .catch(reject);
+            });
+    });
 };
 
 /**
- * Get all courses enrolled in this academic year by a given student
- *
- * studentId Integer
- * returns array of courses. In case of error an ResponseError
- **/
-exports.studentGetCourses = async function (studentId) {
-  if (isNaN(studentId)) {
-    return new ResponseError("StudentService", `'studentId' parameter is not a number: ${studentId}`, 400);
-  }
+ * get a list of courses given a student
+ * @param {Object} body
+ * @returns {Promise} promise
+ */
+exports.studentGetCourses = function(body) {
+    const student = new Student(body.studentId);
 
-  const sId = studentId;
-  // I also put the other fields in as a reminder
-  const student = new Student(sId, undefined, undefined, undefined, undefined);
-
-  db.openConn();
-
-  const studentCourses = await db.getCoursesByStudent(student);
-  return studentCourses;
+    return dao.getCoursesByStudent(student);
 };
