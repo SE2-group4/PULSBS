@@ -12,6 +12,7 @@ const jwt = require('express-jwt');
 const Student = require("./controllers/StudentController");
 const Teacher = require("./controllers/TeacherController");
 const General = require("./controllers/GeneralController");
+//const EmailService = require('../src/services/EmailService');
 const dao = require('./db/Dao.js');
 
 const app = express();
@@ -24,6 +25,12 @@ dao.openConn();
 app.use(express.json());
 app.use(cookieParser());
 
+/* Email service example 
+
+EmailService.sendConfirmationBookingEmail("fakeStudent.se2866755766@gmail.com", "SE2", "13:00")
+  .then(() => console.log("Email sent"))
+  .catch((info) => console.log(info))*/
+
 morgan.token("host", function (req, res) {
   return "src: " + req.hostname;
 });
@@ -34,7 +41,7 @@ app.use(morgan(":method :url :host code: :status :res[content-length] - :respons
 app.use(`${baseRoute}`, General);
 
 // require login for all the following routes
-app.use(jwt({ secret: jwtSecret, getToken: req => req.cookies.token, algorithms: ['RS256']}));
+app.use(jwt({ secret: jwtSecret, getToken: req => req.cookies.token, algorithms: ['RS256'] }));
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Student routes
