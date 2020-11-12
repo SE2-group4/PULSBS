@@ -2,10 +2,8 @@
 
 const express = require("express");
 const morgan = require("morgan");
-
 const Student = require("./controllers/StudentController");
 const Teacher = require("./controllers/TeacherController");
-
 const General = require("./controllers/GeneralController");
 
 const app = express();
