@@ -32,11 +32,8 @@ class TeacherPage extends React.Component {
      * componentDidMount fetch the all courses of the teacher 
      */
     componentDidMount(){
-        this.getCoursesByTeacher(this.state.user.userId);
-    }
-    
-    getCoursesByTeacher = (teacherId) =>{
-        API.getCoursesByTeacherId(teacherId)
+        //this.getCoursesByTeacher(this.state.user.userId);
+        API.getCoursesByTeacherId(this.state.user.userId)
         .then((courses)=>{
             let i=0;
             let nMap=new Map(); 
@@ -48,6 +45,20 @@ class TeacherPage extends React.Component {
         })
         .catch();
     }
+    
+    /*getCoursesByTeacher = (teacherId) =>{
+        API.getCoursesByTeacherId(teacherId)
+        .then((courses)=>{
+            let i=0;
+            let nMap=new Map(); 
+            courses.map((c)=>{
+            nMap.set(c.courseId,Math.floor(i/elementForPage));
+            i++;})
+            let nPages=Math.ceil(i/elementForPage);
+            this.setState({courses : courses,courseMap: nMap,cPages: nPages});
+        })
+        .catch();
+    }*/
 
     updateLectures = (courseId) =>{
         API.getLecturesByCourseIdByTeacherId(this.state.user.userId,courseId)
@@ -69,7 +80,7 @@ class TeacherPage extends React.Component {
             let i=0;
             let nMap=new Map(); 
             students.map((s)=>{
-            nMap.set(s.userId,Math.floor(i/elementForPage));
+            nMap.set(s.studentId,Math.floor(i/elementForPage));
             i++;})
             let nPages=Math.ceil(i/elementForPage);
             this.setState({students : students,studentMap: nMap,sPages: nPages,selectedLecture: lectureId})

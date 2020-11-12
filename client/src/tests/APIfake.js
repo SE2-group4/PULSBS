@@ -6,9 +6,9 @@ import Lecture from '../entities/lecture'
  */
 const students =[
                 new User(1,"Student","Francesco", "Rossi","fr@email.com","ciao1"),
-                new User(3,"Teacher","Monica","Gialli","mg@email.com","ciao2"),
+                new User(4,"Teacher","Monica","Gialli","mg@email.com","ciao2"),
                 new User(2,"Student","Gianni", "Verdi","gn@email.com","ciao3"),
-                new User(4,"Student","Mario", "Blu","mr@email.com","ciao4"),
+                new User(6,"Student","Mario", "Blu","mr@email.com","ciao4"),
                 new User(5,"Student","Luca", "Bianchi","lc@email.com","ciao5")
                 ]
 /** 
