@@ -147,7 +147,7 @@ class StudentPanel extends React.Component {
                         </thead>
                         <tbody>
                         {
-                            this.props.students.map((student) => (<StudentPanelRow key={student.userId} student={student} pMap={this.props.pageMap} nPages={this.props.nPages} current={this.state.currentPage}/>))
+                            this.props.students.map((student) => (<StudentPanelRow key={student.studentId} student={student} pMap={this.props.pageMap} nPages={this.props.nPages} current={this.state.currentPage}/>))
                         }
                         </tbody>
                     </Table>
@@ -159,11 +159,11 @@ class StudentPanel extends React.Component {
 };
 
 function StudentPanelRow(props) {
-    if(props.nPages==1 || (props.nPages>1 && props.pMap.get(props.student.userId)==props.current))
+    if(props.nPages==1 || (props.nPages>1 && props.pMap.get(props.student.studentId)==props.current))
         return <tr>
             <td>{props.student.lastName}</td>
             <td>{props.student.firstName}</td>
-            <td>{props.student.userId}</td>
+            <td>{props.student.studentId}</td>
         </tr>
     return <></>;
 }

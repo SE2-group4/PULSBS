@@ -21,7 +21,7 @@ class StudentPage extends React.Component {
      * componentDidMount fetch the all courses of the student 
      */
     componentDidMount(){
-        API.getCoursesByStudentId(this.state.user.userId)
+        APIfake.getCoursesByStudentId(this.state.user.userId)
         .then((courses) =>{
             console.log(courses);
             this.setState ({courses : courses});
@@ -29,7 +29,7 @@ class StudentPage extends React.Component {
         .catch()
     }
     bookALecture = (course,lecture) =>{
-        API.bookALecture(this.state.user.userId,course.courseId,lecture.lectureId)
+        APIfake.bookALecture(this.state.user.userId,course.courseId,lecture.lectureId)
         .then(()=>this.setState({booked : true}))
         .catch()
     }
@@ -41,10 +41,10 @@ class StudentPage extends React.Component {
             <>
             <Container fluid>
                 <Row>
-                <Col sm='4'>
+                <Col sm='2'>
                     <InfoPanel user={this.state.user}/>
                 </Col>
-                <Col sm='8'>
+                <Col sm='10'>
                     {this.state.courses && <BookingLectureForm courses={this.state.courses} bookALecture={this.bookALecture} user = {this.state.user} isBookedDone={this.state.booked} 
                     handleFinishBooking={this.handleFinishBooking}></BookingLectureForm>}
                 </Col>
