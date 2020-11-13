@@ -3,7 +3,6 @@
 const Teacher = require("../services/TeacherService");
 const utils = require("../utils/writer");
 
-// TODO
 module.exports.teacherGetCourseLectureStudents = function teacherGetCourseLectureStudents(req, res, next) {
   const teacherId = req.params.teacherId;
   const courseId = req.params.courseId;
@@ -18,7 +17,6 @@ module.exports.teacherGetCourseLectureStudents = function teacherGetCourseLectur
     });
 };
 
-// TODO
 module.exports.teacherGetCourseLectures = function teacherGetCourseLectures(req, res, next) {
   const teacherId = req.params.teacherId;
   const courseId = req.params.courseId;
@@ -32,10 +30,10 @@ module.exports.teacherGetCourseLectures = function teacherGetCourseLectures(req,
     });
 };
 
-// TODO
 module.exports.teacherGetCourses = function teacherGetCourses(req, res, next) {
   const teacherId = req.params.teacherId;
 
+  console.log(req.body);
   Teacher.teacherGetCourses(teacherId)
     .then(function (response) {
       utils.writeJson(res, response);

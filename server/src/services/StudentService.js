@@ -30,21 +30,19 @@ exports.studentBookLecture = function (studentId, courseId, lectureId) {
   const sId = studentId;
   const cId = courseId;
   const lId = lectureId;
-  
+
   return new Promise(function (resolve, reject) {
     resolve("Lecture Booked");
   });
-
 };
 
 /**
  * Get all active lectures, which have not yet been delivered, for a given course
  *
- * studentId Integer 
- * courseId Integer 
+ * studentId Integer
+ * courseId Integer
  * returns array of lectures. In case of error an ResponseError
  **/
-// TODO: we should do a check of whether the student is enrolled in this course.
 exports.studentGetCourseLectures = async function (studentId, courseId) {
   if (isNaN(studentId)) {
     return new ResponseError("StudentService", `'studentId' parameter is not a number: ${studentId}`, 400);
@@ -52,14 +50,31 @@ exports.studentGetCourseLectures = async function (studentId, courseId) {
     return new ResponseError("StudentService", `'courseId' parameter is not a number: ${courseId}`, 400);
   }
 
-  // const sId = studentId;
-  const cId = courseId;
-  // I also put the other fields in as a reminder
-  const course = new Course(cId, undefined, undefined);
+  const sId = Number(studentId);
+  const cId = Number(courseId);
 
-  db.openConn();
+  // checking whether the student is in enrolled in this course during this academic year
+  let isEnrolledIn = await isStudentEnrolledCourse(sId, cId);
 
+  if (!isEnrolledIn) {
+    return new ResponseError("StudentService", ResponseError.COURSE_NOT_ENROLLED_AA, { studentId, courseId }, 400);
+  }
+
+  // checking whether the teacher is in charge of this course during this academic year
+  let doesLectureBelong = await doesLectureBelongCourse(cId, lId);
+
+  if (!doesLectureBelong) {
+    return new ResponseError(
+      "TeacherService",
+      `lecture (lectureId = ${lectureId}) does not belong to this course (courseId = ${courseId}). ` +
+        `Or the lecture has already been given`,
+      400
+    );
+  }
+
+  const course = new Course(cId, undefined, undefined); // I also put the other fields in as a reminder
   const courseLectures = await db.getLecturesByCourse(course);
+
   return courseLectures;
 };
 
@@ -75,11 +90,49 @@ exports.studentGetCourses = async function (studentId) {
   }
 
   const sId = studentId;
-  // I also put the other fields in as a reminder
-  const student = new Student(sId, undefined, undefined, undefined, undefined);
 
-  db.openConn();
-
+  const student = new Student(sId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
   const studentCourses = await db.getCoursesByStudent(student);
+
   return studentCourses;
+};
+
+/**
+ * Check whether a student is in enrolled in a course during this academic year
+ *
+ * student Integer
+ * courseId Integer
+ * returns boolean
+ **/
+const isStudentEnrolledCourse = async (studentId, courseId) => {
+  let isEnrolledIn = false;
+
+  const studentCourses = await db.getCoursesByStudent(
+    new Student(studentId, undefined, undefined, undefined, undefined)
+  );
+
+  if (studentCourses.length > 0) {
+    isEnrolledIn = studentCourses.some((course) => course.courseId === courseId);
+  }
+
+  return isEnrolledIn;
+};
+
+/**
+ * Check whether this lecture belongs to this course
+ *
+ * courseId Integer
+ * lectureId Integer
+ * returns boolean
+ **/
+const doesLectureBelongCourse = async (courseId, lectureId) => {
+  let doesBelong = false;
+
+  const courseLectures = await db.getLecturesByCourse(new Course(courseId, undefined, undefined));
+
+  if (courseLectures.length > 0) {
+    doesBelong = courseLectures.some((lecture) => lecture.lectureId === lectureId);
+  }
+
+  return doesBelong;
 };

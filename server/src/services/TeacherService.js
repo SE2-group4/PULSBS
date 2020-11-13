@@ -11,52 +11,72 @@ const db = require("../db/Dao");
 /**
  * Get all the students that have an active booking for a given lecture
  *
- * teacherId Integer 
- * courseId Integer 
+ * teacherId Integer
+ * courseId Integer
  * lectureId Integer
  * returns array of Students + Booking. In case of error an ResponseError
  **/
 exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, lectureId) {
   if (isNaN(teacherId)) {
-    return new ResponseError("TeacherService", `'teacherId' parameter is not a number: ${teacherId}`, 400);
+    return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
   } else if (isNaN(courseId)) {
-    return new ResponseError("TeacherService", `'courseId' parameter is not a number: ${courseId}`, 400);
+    return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { courseId }, 400);
   } else if (isNaN(lectureId)) {
-    return new ResponseError("TeacherService", `'lectureId' parameter is not a number: ${lectureId}`, 400);
+    return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { lectureId }, 400);
   }
 
+  const tId = Number(teacherId);
+  const cId = Number(courseId);
   const lId = Number(lectureId);
-  // I also put the other fields in as a reminder
-  const lecture = new Lecture(lId, undefined, undefined, undefined);
 
-  db.openConn();
+  // checking whether the teacher is in charge of this course during this academic year
+  let isTeachingThisCourse = await isCourseTeachedBy(tId, cId);
 
+  if (!isTeachingThisCourse) {
+    return new ResponseError("TeacherService", ResponseError.TEACHER_COURSE_MISMATCH_AA, { courseId, teacherId }, 400);
+  }
+
+  // checking whether the teacher is in charge of this course during this academic year
+  let doesLectureBelong = await doesLectureBelongCourse(cId, lId);
+
+  if (!doesLectureBelong) {
+    return new ResponseError("TeacherService", ResponseError.COURSE_LECTURE_MISMATCH_AA, { lectureId, courseId }, 400);
+  }
+
+  const lecture = new Lecture(lId, undefined, undefined, undefined); // I also put the other fields in as a reminder
   const lectureStudents = await db.getStudentsByLecture(lecture);
+
   return lectureStudents;
 };
 
 /**
  * Get all active lectures, which have not yet been delivered, for a course taught by a given professor
  *
- * teacherId Integer 
+ * teacherId Integer
  * courseId Integer
  * returns array of lectures. In case of error an ResponseError
  **/
-// TODO: we should do a check of whether the teacher is teaching this course.
 exports.teacherGetCourseLectures = async function (teacherId, courseId) {
   if (isNaN(teacherId)) {
-    return new ResponseError("TeacherService", `'teacherId' parameter is not a number: ${teacherId}`, 400);
+    return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
   } else if (isNaN(courseId)) {
-    return new ResponseError("TeacherService", `'courseId' parameter is not a number: ${courseId}`, 400);
+    return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { courseId }, 400);
   }
 
-  const cId = parseInt(courseId);
-  // I also put the other fields in as a reminder
+  const tId = Number(teacherId);
+  const cId = Number(courseId);
+
+  // checking whether the teacher is in charge of this course during this academic year
+  let isTeachingThisCourse = await isCourseTeachedBy(tId, cId);
+
+  if (!isTeachingThisCourse) {
+    return new ResponseError("TeacherService", ResponseError.TEACHER_COURSE_MISMATCH_AA, { courseId, teacherId }, 400);
+  }
+
+  // I put the other fields in as a reminder
   const course = new Course(cId, undefined, undefined);
-
-  db.openConn();
-
   const courseLectures = await db.getLecturesByCourse(course);
+
   return courseLectures;
 };
 
@@ -68,15 +88,52 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId) {
  **/
 exports.teacherGetCourses = async function (teacherId) {
   if (isNaN(teacherId)) {
-    return new ResponseError("TeacherService", `'teacherId' parameter is not a number: ${teacherId}`, 400);
+    return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
   }
 
-  const tId = parseInt(teacherId);
-  // I also put the other fields in as a reminder
-  const teacher = new Teacher(tId, undefined, undefined, undefined, undefined);
-
-  db.openConn();
-
+  const tId = Number(teacherId);
+  const teacher = new Teacher(tId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
   const teacherCourses = await db.getCoursesByTeacher(teacher);
+
   return teacherCourses;
+};
+
+/**
+ * Check whether a teacher is in charge of a course during this academic year
+ *
+ * teacherId Integer
+ * courseId Integer
+ * returns boolean
+ **/
+const isCourseTeachedBy = async (teacherId, courseId) => {
+  let isTeachingThisCourse = false;
+
+  const teacherCourses = await db.getCoursesByTeacher(
+    new Teacher(teacherId, undefined, undefined, undefined, undefined)
+  );
+
+  if (teacherCourses.length > 0) {
+    isTeachingThisCourse = teacherCourses.some((course) => course.courseId === courseId);
+  }
+
+  return isTeachingThisCourse;
+};
+
+/**
+ * Check whether this lecture belongs to this course
+ *
+ * courseId Integer
+ * lectureId Integer
+ * returns boolean
+ **/
+const doesLectureBelongCourse = async (courseId, lectureId) => {
+  let doesBelong = false;
+
+  const courseLectures = await db.getLecturesByCourse(new Course(courseId, undefined, undefined));
+
+  if (courseLectures.length > 0) {
+    doesBelong = courseLectures.some((lecture) => lecture.lectureId === lectureId);
+  }
+
+  return doesBelong;
 };
