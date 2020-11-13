@@ -50,7 +50,7 @@ exports.openConn = openConn;
  * init db 
  * @param {string} dbpath
  */
-const init = async function init(dbpath = 'src/db/PULSBS.db') {
+const init = async function init(dbpath = './PULSBS.db') {
     openConn(dbpath);
 }
 exports.init = init;

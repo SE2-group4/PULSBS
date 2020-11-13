@@ -39,19 +39,19 @@ app.use(morgan(":method :url :host code: :status :res[content-length] - :respons
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // General handlers (no login needed)
-app.use(`${baseRoute}`, General);
+app.use(`${BASE_ROUTE}`, General);
 
 // require login for all the following routes
-app.use(jwt({ secret: jwtSecret, getToken: req => req.cookies.token, algorithms: ['RS256'] }));
+//app.use(jwt({ secret: jwtSecret, getToken: req => req.cookies.token, algorithms: ['RS256'] }));
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Student routes
-app.use(`${baseRoute}/students/`, Student);
+app.use(`${BASE_ROUTE}/students/`, Student);
 
 /*
-app.post(`${baseRoute}/students/:studentId/courses/:courseId/lectures/:lectureId`, Student.studentBookLecture);
-app.get(`${baseRoute}/students/:studentId/courses/:courseId/lectures`, Student.studentGetCourseLectures);
-app.get(`${baseRoute}/students/:studentId/courses`, Student.studentGetCourses);
+app.post(`${BASE_ROUTE}/students/:studentId/courses/:courseId/lectures/:lectureId`, Student.studentBookLecture);
+app.get(`${BASE_ROUTE}/students/:studentId/courses/:courseId/lectures`, Student.studentGetCourseLectures);
+app.get(`${BASE_ROUTE}/students/:studentId/courses`, Student.studentGetCourses);
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
