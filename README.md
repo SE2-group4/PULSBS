@@ -11,8 +11,13 @@ Pandemic University Lecture Seat Booking System.
 
 ~~[Public API skeleton](https://docs.google.com/document/d/1g7rZGhk2GJU-NiFqanrXhGMsG0u4hMfa0yhNFl68EPw/edit)~~ USE instead the openapi.yaml file as reference
 ## Installation
-
-## Usage
+There are two main modes to run the PULSBS application. Using Nodejs installed locally or using the Docker image from DockerHub
+### Nodejs
+Firstly, you have to install nodeJs (https://nodejs.org/it/download/).
+Clone this repository :
+'''
+fff
+'''
 
 ## Description
 
