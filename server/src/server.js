@@ -42,7 +42,7 @@ app.use(morgan(":method :url :host code: :status :res[content-length] - :respons
 app.use(`${BASE_ROUTE}`, General);
 
 // require login for all the following routes
-//app.use(jwt({ secret: jwtSecret, getToken: req => req.cookies.token, algorithms: ['RS256'] }));
+app.use(jwt({ secret: jwtSecret, getToken: req => req.cookies.token, algorithms: ['RS256'] }));
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Student routes
