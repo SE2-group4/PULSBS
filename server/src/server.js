@@ -19,7 +19,6 @@ const app = express();
 
 const PORT = 3001;
 const BASE_ROUTE = "/api/v1";
-
 const jwtSecret = "1234567890";
 
 app.use(express.json());
@@ -46,7 +45,7 @@ app.use(jwt({ secret: jwtSecret, getToken: req => req.cookies.token, algorithms:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Student routes
-app.use(`${BASE_ROUTE}/students/`, Student);
+app.use(`${BASE_ROUTE}/students`, Student);
 
 /*
 app.post(`${BASE_ROUTE}/students/:studentId/courses/:courseId/lectures/:lectureId`, Student.studentBookLecture);
