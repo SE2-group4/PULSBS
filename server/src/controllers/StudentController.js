@@ -5,7 +5,7 @@
  */
 "use strict";
 
-const controller = require('express').Router();
+const controller = require('express').Router({ mergeParams : true });
 const service = require("../services/StudentService.js");
 const { check, validationResult } = require('express-validator');
 

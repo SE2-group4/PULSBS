@@ -7,7 +7,7 @@
 const express = require("express");
 const morgan = require("morgan");
 const cookieParser = require('cookie-parser');
-const jwt = require('express-jwt');
+const jwt = require('jsonwebtoken');
 const db = require("./db/Dao");
 
 const Student = require("./controllers/StudentController");
@@ -41,7 +41,16 @@ app.use(morgan(":method :url :host code: :status :res[content-length] - :respons
 app.use(`${BASE_ROUTE}`, General);
 
 // require login for all the following routes
-// app.use(jwt({ secret: jwtSecret, getToken: req => req.cookies.token, algorithms: ['RS256'] }));
+app.use((err, req, res, next) => {
+    /*console.log('---- cookies');
+    console.log(req.cookies);*/
+    if(!req.cookies)
+        res.status(401).json('login must be performed before this action');
+    jwt.verify(req.cookies.token, { key: jwtSecret }, (err, decoded) => {
+        if (err)
+            res.status(401).json('invalid login token');
+    });
+})
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Student routes
