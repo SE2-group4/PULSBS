@@ -13,11 +13,11 @@ Pandemic University Lecture Seat Booking System.
 ## Installation
 There are two main modes to run the PULSBS application. Using Nodejs installed locally or using the Docker image from DockerHub
 ### Nodejs
-Firstly, you have to install nodeJs (https://nodejs.org/it/download/).
-Clone this repository :
-'''
-fff
-'''
+- Install nodeJs (https://nodejs.org/it/download/).
+- Clone this repository :  
+```
+git clone https://github.com/SE2-group4/PULSBS.git
+```
 
 ## Description
 
