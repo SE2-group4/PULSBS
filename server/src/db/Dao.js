@@ -18,6 +18,9 @@ const EmailType = require('./../entities/EmailType.js');
 const { resolve } = require('path');
 
 let db = null;
+
+
+
 /*
 let db = new sqlite.Database(dbpath, (err) => {
     if (err) throw err;
@@ -41,6 +44,15 @@ const openConn = function openConn(dbpath = 'src/db/PULSBS.db') {
     return;
 }
 exports.openConn = openConn;
+
+/**
+ * init db 
+ * @param {string} dbpath
+ */
+const init = async function init(dbpath = 'src/db/PULSBS.db') {
+    openConn(dbpath);
+}
+exports.init = init;
 
 /**
  * perform login
