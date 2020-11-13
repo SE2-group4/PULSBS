@@ -30,6 +30,16 @@ cd client
 npm start
 ```
 From this point you could interact with the application visiting http://localhost:3000
+### Docker
+- Install Docker (https://www.docker.com/get-started)
+- Import the DockerHub Image of the application writing in the terminal : (NOT AVAILABLE!)
+```
+docker pull se2group4/pulsbs
+```
+- Run the application writing in the terminal : 
+```
+docker run se2group4/pulsbs
+```
 ## Description
 
 ### Client
