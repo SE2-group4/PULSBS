@@ -1,5 +1,7 @@
-import User from "../entities/user";
+import User from '../entities/user';
 import Course from '../entities/course';
+import Lecture from '../entities/lecture';
+import Student from '../entities/student';
 /**
  * API.js contains all the API for server communications
  */
@@ -91,10 +93,18 @@ async function bookALecture(Uid,Cid,Lid) {
 async function getCoursesByTeacherId(id){
     return new Promise((resolve,reject)=>{
         fetch(baseURL + `/teachers/${id}/courses`).then((response)=>{
-            if(response.ok)
-                resolve(response.json());
-            else reject((obj) => { reject(obj); });
-        }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
+            const status = response.status;
+            if (response.ok) {
+                response.json()
+                .then((obj) => { resolve(obj.map((c) => Course.from(c))); }) 
+                .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+            } else {
+                // analyze the cause of error
+                response.json()
+                    .then((obj) => { obj.status = status; reject(obj); }) // error msg in the response body
+                    .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+            }
+        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
     });
 };
 
@@ -105,10 +115,18 @@ async function getCoursesByTeacherId(id){
 async function getLecturesByCourseIdByTeacherId(Uid,Cid){
     return new Promise((resolve,reject)=>{
         fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures`).then((response)=>{
-            if(response.ok)
-                resolve(response.json());
-            else reject((obj) => { reject(obj); });
-        }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
+            const status = response.status;
+            if (response.ok) {
+                response.json()
+                .then((obj) => { resolve(obj.map((l) => Lecture.from(l))); }) 
+                .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+            } else {
+                // analyze the cause of error
+                response.json()
+                    .then((obj) => { obj.status = status; reject(obj); }) // error msg in the response body
+                    .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+            }
+        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
     });
 };
 
@@ -119,10 +137,18 @@ async function getLecturesByCourseIdByTeacherId(Uid,Cid){
 async function getStudentsByLecture(Uid,Cid,Lid) {
     return new Promise((resolve,reject)=>{
         fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures/${Lid}/students`).then((response)=>{
-            if(response.ok)
-                resolve(response.json());
-            else reject((obj) => { reject(obj); });
-        }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
+            const status = response.status;
+            if (response.ok) {
+                response.json()
+                .then((obj) => { resolve(obj.map((s) => Student.from(s))); }) 
+                .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+            } else {
+                // analyze the cause of error
+                response.json()
+                    .then((obj) => { obj.status = status; reject(obj); }) // error msg in the response body
+                    .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+            }
+        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
     });
 };
 

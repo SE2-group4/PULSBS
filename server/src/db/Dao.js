@@ -15,7 +15,7 @@ const Lecture = require('./../entities/Lecture.js');
 const Course = require('./../entities/Course.js');
 const Email = require('./../entities/Email.js');
 const EmailType = require('./../entities/EmailType.js');
-const { resolve } = require('path');
+const emailService = require('./../services/EmailService.js');
 
 let db = null;
 
@@ -30,17 +30,18 @@ let db = new sqlite.Database(dbpath, (err) => {
 /**
  * open a new database connection
  * it closes existing connections before creating the new one
- * @param {string} dbpath
+ * @param {String} dbpath
  */
-const openConn = function openConn(dbpath = 'src/db/PULSBS.db') {
+const openConn = function openConn(dbpath = './PULSBS.db') {
     if(db)
         db.close();
 
-    const cwd = process.cwd();
+    const cwd = __dirname;
     dbpath = path.join(cwd, dbpath);
     db = new sqlite.Database(dbpath, (err) => {
-        if (err) throw err;
+        if (err) throw(err);
     });
+
     return;
 }
 exports.openConn = openConn;
@@ -329,11 +330,13 @@ const _createStudentBookingEmail = function(student, lecture) {
     return new Promise((resolve, reject) => {
         getCourseByLecture(lecture)
             .then((course) => {
-                const email = new Email(undefined, systemUser, student, new Date(), EmailType.STUDENT_NEW_BOOKING,
-                    `New booking`,
-                    `You booked a seat for the lecture of ${course.description} on ${lecture.date}`);
-                
-                _emailSender(email).then(resolve());
+                const email = new Email(undefined, systemUser, student, new Date(), EmailType.STUDENT_NEW_BOOKING);
+
+                emailService.sendConfirmationBookingEmail(student.email, course.description, lectures.date.toISOString())
+                    .then(addEmail(email)
+                        .then(() => resolve)
+                        .catch((err) => reject(err)))
+                    .catch((err) => reject(err));
             });
     })
 }
@@ -351,11 +354,13 @@ const _createTeacherBookingsEmail = function(teacher, lecture) {
             .then((course) => {
                 getStudentsByLecture(lecture)
                     .then((students) => {
-                        const email = new Email(undefined, systemUser, teacher, new Date(), EmailType.TEACHER_ATTENDING_STUDENTS,
-                            `Attending students`,
-                            `${students.length} students will attend you lecture of the course ${course.description} on ${lecture.date}`);
+                        const email = new Email(undefined, systemUser, teacher, new Date(), EmailType.TEACHER_ATTENDING_STUDENTS);
                         
-                        _emailSender(email).then(resolve());
+                        emailService.sendStudentNumberEmail(teacher.email. course.description, lecture.date.toISOString(), students.length)
+                            .then(addEmail(email)
+                                .then(() => resolve)
+                                .catch((err) => reject(err)))
+                            .catch((err) => reject(err));
                     });
             });
     })
@@ -383,10 +388,20 @@ exports._getCurrentAcademicYear = _getCurrentAcademicYear;
  * email service adapter/interface
  * @param {Email} email 
  * @returns {Promise} promise
+ * 
+ * TODO: IMPLEMENT OR DELETE
  */
 const _emailSender = function(email) {
     return new Promise((resolve, reject) => {
-        addEmail(email).then(resolve());
+        const cb = () => { addEmail(email).then(resolve()) };
+        switch(email.emailType) {
+            case EmailType.STUDENT_NEW_BOOKING:
+                break;
+            case EmailType.TEACHER_ATTENDING_STUDENTS:
+                break;
+            default:
+                reject({ error : 'Unexpected email type' });
+        }
     });
 }
 exports._emailSender = _emailSender;
