@@ -18,7 +18,16 @@ There are two main modes to run the PULSBS application. Using Nodejs installed l
 ```
 git clone https://github.com/SE2-group4/PULSBS.git
 ```
-
+#### Starting server
+```
+cd server
+npm start
+```
+#### Starting client
+```
+cd client 
+npm start
+```
 ## Description
 
 ### Client
