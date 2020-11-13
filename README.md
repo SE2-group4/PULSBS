@@ -40,6 +40,7 @@ docker pull se2group4/pulsbs
 ```
 docker run se2group4/pulsbs
 ```
+- Visit http://localhost:3000 on your browser
 ## Description
 
 ### Client
