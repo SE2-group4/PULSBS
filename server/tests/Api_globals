@@ -1,0 +1,19 @@
+{
+	"id": "3c535b62-b7b5-4e48-8bba-139c57448cc7",
+	"values": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3001/api",
+			"enabled": true
+		},
+		{
+			"key": "base_url",
+			"value": "http://localhost:3001/api/v1",
+			"enabled": true
+		}
+	],
+	"name": "My Workspace Globals",
+	"_postman_variable_scope": "globals",
+	"_postman_exported_at": "2020-11-14T18:25:09.162Z",
+	"_postman_exported_using": "Postman/7.35.0"
+}
