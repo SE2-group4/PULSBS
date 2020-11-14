@@ -172,7 +172,7 @@ exports.getCoursesByStudent = getCoursesByStudent;
 const getLecturesByCourse = function(course) {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM Lecture \
-            WHERE Lecture.courseId = ? AND DATE(Lecture.date) >= DATE(?)';
+            WHERE Lecture.courseId = ? AND DATETIME(Lecture.date) >= DATETIME(?)';
 
         db.all(sql, [course.courseId, (new Date()).toISOString()], (err, rows) => {
             if(err) {
