@@ -33,20 +33,23 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
   let isTeachingThisCourse = await isCourseTeachedBy(tId, cId);
 
   if (!isTeachingThisCourse) {
-    return new ResponseError("TeacherService", ResponseError.TEACHER_COURSE_MISMATCH_AA, { courseId, teacherId }, 400);
+    return new ResponseError("TeacherService", ResponseError.TEACHER_COURSE_MISMATCH_AA, { courseId, teacherId }, 404);
   }
 
   // checking whether the teacher is in charge of this course during this academic year
   let doesLectureBelong = await doesLectureBelongCourse(cId, lId);
 
   if (!doesLectureBelong) {
-    return new ResponseError("TeacherService", ResponseError.COURSE_LECTURE_MISMATCH_AA, { lectureId, courseId }, 400);
+    return new ResponseError("TeacherService", ResponseError.COURSE_LECTURE_MISMATCH_AA, { lectureId, courseId }, 404);
   }
 
   const lecture = new Lecture(lId, undefined, undefined, undefined); // I also put the other fields in as a reminder
-  const lectureStudents = await db.getStudentsByLecture(lecture);
-
-  return lectureStudents;
+  try {
+    const lectureStudents = await db.getStudentsByLecture(lecture);
+    return lectureStudents;
+  } catch (err) {
+    return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+  }
 };
 
 /**
@@ -70,14 +73,17 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId) {
   let isTeachingThisCourse = await isCourseTeachedBy(tId, cId);
 
   if (!isTeachingThisCourse) {
-    return new ResponseError("TeacherService", ResponseError.TEACHER_COURSE_MISMATCH_AA, { courseId, teacherId }, 400);
+    return new ResponseError("TeacherService", ResponseError.TEACHER_COURSE_MISMATCH_AA, { courseId, teacherId }, 404);
   }
 
-  // I put the other fields in as a reminder
-  const course = new Course(cId, undefined, undefined);
-  const courseLectures = await db.getLecturesByCourse(course);
-
-  return courseLectures;
+  try {
+    // I put the other fields in as a reminder
+    const course = new Course(cId, undefined, undefined);
+    const courseLectures = await db.getLecturesByCourse(course);
+    return courseLectures;
+  } catch (err) {
+    return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+  }
 };
 
 /**
@@ -93,9 +99,13 @@ exports.teacherGetCourses = async function (teacherId) {
 
   const tId = Number(teacherId);
   const teacher = new Teacher(tId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
-  const teacherCourses = await db.getCoursesByTeacher(teacher);
 
-  return teacherCourses;
+  try {
+    const teacherCourses = await db.getCoursesByTeacher(teacher);
+    return teacherCourses;
+  } catch (err) {
+    return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+  }
 };
 
 /**
