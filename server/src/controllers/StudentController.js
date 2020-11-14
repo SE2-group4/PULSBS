@@ -21,19 +21,16 @@ controller.post('/:studentId/courses/:courseId/lectures/:lectureId', [
     const studentId = Number(req.params.studentId);
     const courseId = Number(req.params.courseId);
     const lectureId = Number(req.params.lectureId);
-    const errors = validationResult(studentId, courseId, lectureId);
+
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors[0]).end();
+        res.status(400).json(errors.errors).end();
         return;
     }
     
-    service.studentBookLecture(req.body)
-        .then(() => {
-            res.status(200).end();
-        })
-        .catch((err) => {
-            res.status(400).json(err).end();
-        });
+    service.studentBookLecture(studentId, courseId, lectureId)
+        .then(() => res.status(200).json({msg: 'Lecture booked'}).end())
+        .catch((err) => res.status(400).json(err).end());
 });
 
 /**
@@ -46,7 +43,7 @@ controller.get('/:studentId/courses/:courseId/lectures', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors[0]).end();
+        res.status(400).json(errors.errors).end();
         return;
     }
 
@@ -54,10 +51,10 @@ controller.get('/:studentId/courses/:courseId/lectures', [
     const courseId = Number(req.params.courseId);
     service.studentGetCourseLectures(studentId, courseId)
         .then((lectures) => {
-            res.json(lectures).status(200).end();
+            res.status(200).json(lectures).end();
         })
         .catch((err) => {
-            res.json(err).status(400).end();
+            res.status(400).json(err).end();
         });
 
 });
@@ -71,17 +68,17 @@ controller.get('/:studentId/courses', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors[0]).end();
+        res.status(400).json(errors.errors).end();
         return;
     }
 
     const studentId = Number(req.params.studentId);
     service.studentGetCourses(studentId)
         .then((courses) => {
-            res.json(courses).status(200).end();
+            res.status(200).json(courses).end();
         })
         .catch((err) => {
-            res.json(err).status(400).end();
+            res.status(500).json(err).end();
         });
 });
 

@@ -33,7 +33,6 @@ module.exports.teacherGetCourseLectures = function teacherGetCourseLectures(req,
 module.exports.teacherGetCourses = function teacherGetCourses(req, res, next) {
   const teacherId = req.params.teacherId;
 
-  console.log(req.body);
   Teacher.teacherGetCourses(teacherId)
     .then(function (response) {
       utils.writeJson(res, response);
