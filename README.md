@@ -1,4 +1,13 @@
-[![codecov](https://codecov.io/gh/SE2-group4/PULSBS/branch/main/graph/badge.svg)](https://https://codecov.io/gh/SE2-group4/PULSBS)  
+[![codecov](https://codecov.io/gh/SE2-group4/PULSBS/branch/main/graph/badge.svg)](https://codecov.io/gh/SE2-group4/PULSBS)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=SE2-group4_PULSBS&metric=bugs)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=SE2-group4_PULSBS&metric=code_smells)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=SE2-group4_PULSBS&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=SE2-group4_PULSBS&metric=ncloc)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=SE2-group4_PULSBS&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=SE2-group4_PULSBS&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=SE2-group4_PULSBS&metric=security_rating)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=SE2-group4_PULSBS&metric=sqale_index)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=SE2-group4_PULSBS&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
 # PULSBS
 Pandemic University Lecture Seat Booking System.
 ## Calendar
