@@ -9,6 +9,7 @@ const db = require("./db/Dao");
 const express = require("express");
 const jwt = require("express-jwt");
 const morgan = require("morgan");
+const prepareDb = require("./db/preparedb");
 
 const General = require("./controllers/GeneralController");
 const Student = require("./controllers/StudentController");
@@ -45,11 +46,9 @@ app.use(`${BASE_ROUTE}`, General);
 
 // The following routes needs authentication
 app.use((err, req, res, next) => {
-  if (!req.cookies) 
-    res.status(401).json("login must be performed before this action");
+  if (!req.cookies) res.status(401).json("login must be performed before this action");
   jwt.verify(req.cookies.token, { key: JWT_SECRET }, (err, decoded) => {
-    if (err) 
-      res.status(401).json("invalid login token");
+    if (err) res.status(401).json("invalid login token");
   });
 });
 
@@ -74,6 +73,16 @@ app.get(`${BASE_ROUTE}/teachers/:teacherId/courses`, Teacher.teacherGetCourses);
 app.all(`${BASE_ROUTE}`, () => console.log("This route is not supported. Check the openapi doc"));
 
 ////////////////////////////////////////////////////////////////////////////////
+
+app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
+  try {
+    const path = "./testing.db";
+    await prepareDb(path);
+    res.status(200).send("Success Reset");
+  } catch (err) {
+    res.status(400).send("Failed Reset");
+  }
+});
 
 function printConfig() {
   console.log(`Server running on http://localhost:${PORT}${BASE_ROUTE}\n`);
