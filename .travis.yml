@@ -5,22 +5,12 @@ install:
   - npm install -g codecov
 jobs:
   include:
-  - stage: build dependencies
+  - stage: Tests & Coverage
     script:
     - cd client ; npm install
+    - npm run coverage
     - cd ..
     - cd server ; npm install
+    - npm run coverage
     - cd ..
-  - stage: test 
-    script: 
-    - cd client ; npm test 
-    - cd ..
-    - cd server ; npm test 
-    - cd ..
-  - stage: coverage 
-    script:
-    - cd client ; npm run coverage
-    - cd ..
-    - cd server ; npm run coverage
-    - cd .. 
     - codecov
