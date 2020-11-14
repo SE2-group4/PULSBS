@@ -8,6 +8,6 @@ script:
   - npm run coverage
   - cd ..
   - cd server ; npm install
-  - npm test
+  - npm run coverage
   - cd ..
   - codecov
