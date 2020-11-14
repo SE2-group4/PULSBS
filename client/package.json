@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^12.2.0",
     "auth-context": "^1.0.6",
     "jest-fetch-mock": "^3.0.3",
+    "jest-junit": "^12.0.0",
     "nyc": "^15.1.0",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.0",
@@ -22,8 +23,15 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "report": "react-script test --reporters=jest-junit",
     "eject": "react-scripts eject",
-    "coverage" : "./node_modules/.bin/nyc npm test"
+    "coverage": "./node_modules/.bin/nyc npm test"
+  },
+  "jest-junit": {
+    "outputDirectory": "../test_reports/",
+    "outputName": "reportClient.xml",
+    "uniqueOutputName": "false"
+    
   },
   "eslintConfig": {
     "extends": [

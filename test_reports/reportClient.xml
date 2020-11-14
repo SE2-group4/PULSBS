@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="8" failures="0" errors="0" time="8.318">
+  <testsuite name="Booking Lecture Form suite" errors="0" failures="0" skipped="0" timestamp="2020-11-14T12:20:10" time="3.737" tests="1">
+    <testcase classname="Booking Lecture Form suite Render InfoPanel component" name="Booking Lecture Form suite Render InfoPanel component" time="0.089">
+    </testcase>
+  </testsuite>
+  <testsuite name="Booking Lecture Form suite" errors="0" failures="0" skipped="0" timestamp="2020-11-14T12:20:10" time="4.885" tests="5">
+    <testcase classname="Booking Lecture Form suite render BookingLectureForm component" name="Booking Lecture Form suite render BookingLectureForm component" time="0.116">
+    </testcase>
+    <testcase classname="Booking Lecture Form suite Courses DropdownMenu display" name="Booking Lecture Form suite Courses DropdownMenu display" time="0.045">
+    </testcase>
+    <testcase classname="Booking Lecture Form suite Lectures DropdownMenu display" name="Booking Lecture Form suite Lectures DropdownMenu display" time="0.027">
+    </testcase>
+    <testcase classname="Booking Lecture Form suite Lectures DropdownMenu disabled" name="Booking Lecture Form suite Lectures DropdownMenu disabled" time="0.025">
+    </testcase>
+    <testcase classname="Booking Lecture Form suite Courses DropdownItems display" name="Booking Lecture Form suite Courses DropdownItems display" time="0.358">
+    </testcase>
+  </testsuite>
+  <testsuite name="Student Page suite" errors="0" failures="0" skipped="0" timestamp="2020-11-14T12:20:14" time="1.272" tests="1">
+    <testcase classname="Student Page suite render StudentPage component" name="Student Page suite render StudentPage component" time="0.1">
+    </testcase>
+  </testsuite>
+  <testsuite name="Student Page" errors="0" failures="0" skipped="0" timestamp="2020-11-14T12:20:15" time="0.838" tests="1">
+    <testcase classname="Student Page tautology" name="Student Page tautology" time="0.001">
+    </testcase>
+  </testsuite>
+</testsuites>

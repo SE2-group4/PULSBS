@@ -9,6 +9,7 @@
   "scripts": {
     "start": "node ./src/server.js",
     "test": "mocha ./tests/Test_suite.js",
+    "report" :  "mocha ./tests/Test_suite.js --reporter mocha-junit-reporter --reporter-options mochaFile=../test_reports/reportServer.xml",
     "coverage": "./node_modules/.bin/nyc npm test"
   },
   "author": "group4",
@@ -16,10 +17,11 @@
   "dependencies": {
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
-    "mockery": "^2.1.0",
     "express-jwt": "^6.0.0",
     "express-validator": "^6.6.1",
     "jsonwebtoken": "^8.5.1",
+    "mocha-junit-reporter": "^2.0.0",
+    "mockery": "^2.1.0",
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
     "nodemailer": "^6.4.16",
