@@ -1,4 +1,6 @@
-[![codecov](https://codecov.io/gh/SE2-group4/PULSBS/branch/main/graph/badge.svg)](https://https://codecov.io/gh/SE2-group4/PULSBS)  
+[![codecov](https://codecov.io/gh/SE2-group4/PULSBS/branch/main/graph/badge.svg)](https://https://codecov.io/gh/SE2-group4/PULSBS)
+[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-orange.svg)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=SE2-group4_PULSBS)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
 # PULSBS
 Pandemic University Lecture Seat Booking System.
 ## Calendar
