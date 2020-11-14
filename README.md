@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/SE2-group4/PULSBS/branch/main/graph/badge.svg)](https://https://codecov.io/gh/SE2-group4/PULSBS)
+[![codecov](https://codecov.io/gh/SE2-group4/PULSBS/branch/main/graph/badge.svg)](https://codecov.io/gh/SE2-group4/PULSBS)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=SE2-group4_PULSBS&metric=bugs)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=SE2-group4_PULSBS&metric=code_smells)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=SE2-group4_PULSBS&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=SE2-group4_PULSBS)
