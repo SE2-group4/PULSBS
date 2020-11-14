@@ -3,11 +3,14 @@ node_js:
   - 14
 install:
   - npm install -g codecov
-script:
-  - cd client ; npm install
-  - npm test
-  - cd ..
-  - cd server ; npm install
-  - npm test
-  - cd ..
-  - codecov
+jobs:
+  include:
+  - stage: Tests & Coverage
+    script:
+    - cd client ; npm install
+    - npm run coverage
+    - cd ..
+    - cd server ; npm install
+    - npm run coverage
+    - cd ..
+    - codecov
