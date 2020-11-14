@@ -15,7 +15,7 @@ const Lecture = require('../src/entities/Lecture.js');
 const Course = require('../src/entities/Course.js');
 const EmailType = require('../src/entities/EmailType.js');
 const Email = require('../src/entities/Email.js');
-const prepare = require('../src/db/Preparedb.js');
+const prepare = require('../src/db/preparedb.js');
 
 const suite = describe('Dao.js', function() {
     let student1;

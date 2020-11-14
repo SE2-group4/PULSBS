@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^12.2.0",
     "auth-context": "^1.0.6",
     "jest-fetch-mock": "^3.0.3",
+    "nyc": "^15.1.0",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.0",
     "react-dom": "^17.0.1",
@@ -21,7 +22,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "coverage" : "./node_modules/.bin/nyc npm test"
   },
   "eslintConfig": {
     "extends": [
