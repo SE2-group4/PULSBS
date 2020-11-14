@@ -25,7 +25,7 @@
     "test": "react-scripts test",
     "report": "react-script test --reporters=jest-junit",
     "eject": "react-scripts eject",
-    "coverage": "./node_modules/.bin/nyc npm test"
+    "coverage": "react-scripts test --ci --coverage --watchAll=false"
   },
   "jest-junit": {
     "outputDirectory": "../test_reports/",
