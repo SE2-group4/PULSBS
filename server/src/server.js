@@ -4,23 +4,24 @@
  */
 "use strict";
 
-const express = require("express");
-const morgan = require("morgan");
-const cookieParser = require('cookie-parser');
-const jwt = require('express-jwt');
+const cookieParser = require("cookie-parser");
 const db = require("./db/Dao");
+const express = require("express");
+const jwt = require("express-jwt");
+const morgan = require("morgan");
 
+const General = require("./controllers/GeneralController");
 const Student = require("./controllers/StudentController");
 const Teacher = require("./controllers/TeacherController");
-const General = require("./controllers/GeneralController");
 //const EmailService = require('../src/services/EmailService');
 
 const app = express();
 
-const PORT = 3001;
 const BASE_ROUTE = "/api/v1";
+const JWT_SECRET = "1234567890";
+const PORT = 3001;
 
-const jwtSecret = "1234567890";
+let dbPath = "./PULSBS.db";
 
 app.use(express.json());
 app.use(cookieParser());
@@ -37,15 +38,17 @@ morgan.token("host", function (req) {
 });
 app.use(morgan(":method :url :host code: :status :res[content-length] - :response-time ms"));
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// General handlers (no login needed)
+////////////////////////////////////////////////////////////////////////////////
+
+// GENERAL HANDLERS (NO LOGIN NEEDED)
 app.use(`${BASE_ROUTE}`, General);
 
 // require login for all the following routes
-app.use(jwt({ secret: jwtSecret, getToken: req => req.cookies.token, algorithms: ['RS256'] }));
+app.use(jwt({ secret: JWT_SECRET, getToken: (req) => req.cookies.token, algorithms: ["RS256"] }));
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Student routes
+////////////////////////////////////////////////////////////////////////////////
+
+// STUDENT ROUTES
 app.use(`${BASE_ROUTE}/students/`, Student);
 
 /*
@@ -54,8 +57,9 @@ app.get(`${BASE_ROUTE}/students/:studentId/courses/:courseId/lectures`, Student.
 app.get(`${BASE_ROUTE}/students/:studentId/courses`, Student.studentGetCourses);
 */
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Teacher routes
+////////////////////////////////////////////////////////////////////////////////
+
+// TEACHER ROUTES
 app.get(
   `${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures/:lectureId/students`,
   Teacher.teacherGetCourseLectureStudents
@@ -66,9 +70,27 @@ app.get(`${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures`, Teacher.
 app.get(`${BASE_ROUTE}/teachers/:teacherId/courses`, Teacher.teacherGetCourses);
 
 // every other routes get handled by this handler
-app.all(`${BASE_ROUTE}`, () => console.log("the route is not supported. Check the openapi doc"));
+app.all(`${BASE_ROUTE}`, () => console.log("This route is not supported. Check the openapi doc"));
 
-( async () => {
-  await db.init();
-  app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}${BASE_ROUTE}`));
-})()
+////////////////////////////////////////////////////////////////////////////////
+
+function printConfig() {
+  console.log(`Server running on http://localhost:${PORT}${BASE_ROUTE}\n`);
+  console.log("System parameters:");
+  console.log(`DB path: ${dbPath}`);
+}
+
+// "Main"
+(async () => {
+  try {
+    console.log("INITIALIZING the system");
+    if (process.argv[2] === "--test") {
+      dbPath = "./testing.db";
+    }
+    await db.init(dbPath);
+    app.listen(PORT, printConfig);
+  } catch (err) {
+    console.log(err, "FAILED initializing the system");
+    return process.exit(-1);
+  }
+})();
