@@ -28,21 +28,27 @@ exports.studentBookLecture = async function(studentId, courseId, lectureId) {
         // logical checks
         dao.getLecturesByCourse(course)
             .then((currLectures) => {
-                if(!currLectures.filter(l => l.lectureId === lecture.lectureId)) {
+                if(currLectures.filter(l => l.lectureId === lecture.lectureId).length === 0) {
                     reject({ error : 'The lecture is not related to this course' });
                     return;
                 }
 
                 dao.getCoursesByStudent(student)
-                    .then((currStudents) => {
-                        if(!currCourses.filter(c => c.courseId === course.courseId)) {
+                    .then((currCourses) => {
+                        if(currCourses.filter(c => c.courseId === course.courseId).length === 0) {
                             reject({ error : 'The student is not enrolled in this course' });
                             return;
                         }
                 
-                        dao.addBooking(student, Lecture)
+                        dao.addBooking(student, lecture)
                             .then(resolve)
-                            .catch(reject);
+                            .catch((err) => {
+                                if (err.errno === 19) {
+                                    reject({ error: 'The lecture was already booked'});
+                                    return;
+                                }
+                                reject(err);
+                            });
                     });
             });
         
@@ -63,11 +69,11 @@ exports.studentGetCourseLectures = function(studentId, courseId) {
         // logical checks
         dao.getCoursesByStudent(student)
             .then((currCourses) => {
-                if(!currCourses.filter(c => c.courseId === course.courseId)) {
+                if(currCourses.filter(c => c.courseId === course.courseId).length === 0) {
                     reject({ error : 'The student is not enrolled in this course' });
                     return;
                 }
-        
+                
                 dao.getLecturesByCourse(course)
                     .then(resolve)
                     .catch(reject);
