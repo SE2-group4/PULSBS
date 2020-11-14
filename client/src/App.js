@@ -71,9 +71,9 @@ class App extends React.Component {
             <Route
               path="/"
               render={() => {
-                if (this.state.isAuth && this.state.authUser.type==="Student")
+                if (this.state.isAuth && this.state.authUser.type==="STUDENT")
                   return <Redirect to="/studentPage" />;
-                if (this.state.isAuth && this.state.authUser.type==="Teacher")
+                if (this.state.isAuth && this.state.authUser.type==="TEACHER")
                   return <Redirect to="/teacherPage" />;
                 if(!this.state.isAuth)
                   return <Redirect to="/login"/>

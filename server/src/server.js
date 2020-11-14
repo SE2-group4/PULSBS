@@ -43,19 +43,20 @@ app.use(morgan(":method :url :host code: :status :res[content-length] - :respons
 // GENERAL HANDLERS (NO LOGIN NEEDED)
 app.use(`${BASE_ROUTE}`, General);
 
-// require login for all the following routes
-app.use(jwt({ secret: JWT_SECRET, getToken: (req) => req.cookies.token, algorithms: ["RS256"] }));
+// The following routes needs authentication
+app.use((err, req, res, next) => {
+  if (!req.cookies) 
+    res.status(401).json("login must be performed before this action");
+  jwt.verify(req.cookies.token, { key: JWT_SECRET }, (err, decoded) => {
+    if (err) 
+      res.status(401).json("invalid login token");
+  });
+});
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // STUDENT ROUTES
-app.use(`${BASE_ROUTE}/students/`, Student);
-
-/*
-app.post(`${BASE_ROUTE}/students/:studentId/courses/:courseId/lectures/:lectureId`, Student.studentBookLecture);
-app.get(`${BASE_ROUTE}/students/:studentId/courses/:courseId/lectures`, Student.studentGetCourseLectures);
-app.get(`${BASE_ROUTE}/students/:studentId/courses`, Student.studentGetCourses);
-*/
+app.use(`${BASE_ROUTE}/students`, Student);
 
 ////////////////////////////////////////////////////////////////////////////////
 

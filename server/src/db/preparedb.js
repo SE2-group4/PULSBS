@@ -7,8 +7,6 @@
 const sqlite = require('sqlite3');
 const fs = require('fs');
 const path = require('path');
-const { resolve } = require('path');
-const { rejects } = require('assert');
 
 /**
  * prepare the DB with default values
@@ -31,6 +29,7 @@ function prepare(dbpath = 'testing.db', dbscript = 'testing.sql', flag = true) {
             if(err) {
                 console.log("Error creating DB connection!");
                 reject(err);
+                return;
             }
         });
 
@@ -48,7 +47,7 @@ function prepare(dbpath = 'testing.db', dbscript = 'testing.sql', flag = true) {
             // Loop through the `dataArr` and db.run each query
             dataArr.forEach((query) => {
                 count++;
-                if(query) {
+                if(query && (query.trim() !== '')) {
                     db.run(query, (err) => {
                         if(err && flag){
                             console.error(`> Error in line ${count}`);
@@ -74,7 +73,6 @@ function prepare(dbpath = 'testing.db', dbscript = 'testing.sql', flag = true) {
 
 if(require.main === module) { // if called from command line
     const args = process.argv.slice(2);
-    console.log(args);
     prepare(args[0], args[2], args[3]).then(() => {
         console.log("The testing DB is ready, enjoy! :)");
     });

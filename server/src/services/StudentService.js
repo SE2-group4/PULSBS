@@ -8,6 +8,7 @@
 const Student = require("../entities/Student.js");
 const Course = require("../entities/Course.js");
 const Lecture = require("../entities/Lecture.js");
+const emailSender = require('./EmailService.js');
 
 const dao = require("../db/Dao.js");
 

@@ -31,13 +31,13 @@ INSERT INTO Class(classId, description) VALUES(1, '1A');
 INSERT INTO Class(classId, description) VALUES(2, '2B');
 INSERT INTO Class(classId, description) VALUES(3, '3C');
 
-INSERT INTO Lecture(lectureId, courseId, classId, date) VALUES(1, 1, 1, DATE('now', '+1 day'));
-INSERT INTO Lecture(lectureId, courseId, classId, date) VALUES(2, 2, 2, DATE('now', '+1 day'));
-INSERT INTO Lecture(lectureId, courseId, classId, date) VALUES(3, 3, 3, DATE('now', '+1 day'));
+INSERT INTO Lecture(lectureId, courseId, classId, date) VALUES(1, 1, 1, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'));
+INSERT INTO Lecture(lectureId, courseId, classId, date) VALUES(2, 2, 2, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'));
+INSERT INTO Lecture(lectureId, courseId, classId, date) VALUES(3, 3, 3, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'));
 
-INSERT INTO Booking(studentId, lectureId) VALUES(1, 3);
-INSERT INTO Booking(studentId, lectureId) VALUES(2, 3);
-INSERT INTO Booking(studentId, lectureId) VALUES(3, 3);
+INSERT INTO Booking(studentId, lectureId) VALUES(1, 1);
+INSERT INTO Booking(studentId, lectureId) VALUES(2, 1);
+INSERT INTO Booking(studentId, lectureId) VALUES(3, 1);
 
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(6, 'STUDENT', 'Fake', 'Student', 'fakeStudent.se2@gmail.com', 'anvzRPuDd1mvCXJBfn');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(7, 'TEACHER', 'Fake', 'Teacher', 'fakeTeacher.se2@gmail.com', 'anvzRPuDd1mvCXJBfn');
