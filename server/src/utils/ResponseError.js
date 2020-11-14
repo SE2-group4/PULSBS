@@ -16,6 +16,7 @@ class ResponseError {
       statusCode: statusCode,
     };
     this.statusCode = statusCode;
+    console.log(ResponseError);
     console.log(this.payload, this.statusCode);
   }
 
@@ -24,6 +25,9 @@ class ResponseError {
   }
   static get COURSE_LECTURE_MISMATCH_AA() {
     return 11;
+  }
+  static get DB_GENERIC_ERROR() {
+    return 40;
   }
   static get LECTURE_GIVEN() {
     return 20;
@@ -42,14 +46,14 @@ class ResponseError {
   }
 
   getErrorMessage(errno, args) {
-    console.log("i am here");
-    console.log(errno, args);
     switch (errno) {
       case ResponseError.COURSE_NOT_ENROLLED_AA:
         return `student (student = ${args.studentId}) is not enrolled in this course (courseId = ${args.courseId}) during this AA`;
       case ResponseError.COURSE_LECTURE_MISMATCH_AA:
         return `lecture (lectureId = ${args.lectureId}) does not belong to this course (courseId = ${args.courseId}).\
           Or the lecture has already been given`;
+      case ResponseError.DB_GENERIC_ERROR:
+        return args;
       case ResponseError.LECTURE_GIVEN:
         return "message not implemented";
       case ResponseError.LECTURE_NOT_EXIST:
@@ -62,9 +66,8 @@ class ResponseError {
       case ResponseError.ROUTE_FORBIDDEN:
         return "message not implemented";
       default:
-        console.log("default");
+        return "No message (case default)";
     }
-    console.log("out");
   }
 }
 
