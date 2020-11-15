@@ -4,8 +4,8 @@ import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-const Checkbox = ({ name, checked = false, onChange }) => (
-    <Form.Check name={name} checked={checked} onChange={onChange} />
+const Checkbox = ({ name, checked = false, onChange, type }) => (
+    <Form.Check name={name} checked={checked} onChange={onChange} data-testid={type+"-"+name}/>
 );
 
 
@@ -57,10 +57,10 @@ class CoursePanel extends React.Component {
 
 function CoursePanelRow(props) {
     if(props.nPages==1 || (props.nPages>1 && props.pMap.get(props.course.courseId)==props.current))
-        return <tr>
+        return <tr data-testid="course-row">
             <td>{props.course.courseId}</td>
             <td>{props.course.description}</td>
-            <td><Checkbox name={props.course.courseId} checked={props.checkedOne==props.course.courseId ? true : false} onChange={props.handler}/></td>
+            <td><Checkbox name={props.course.courseId} checked={props.checkedOne==props.course.courseId ? true : false} onChange={props.handler} type={"c"}/></td>
         </tr>
     return <></>;
 }
@@ -111,10 +111,10 @@ class LecturePanel extends React.Component {
 
 function LecturePanelRow(props) {
     if(props.nPages==1 || (props.nPages>1 && props.pMap.get(props.lecture.lectureId)==props.current))
-        return <tr>
+        return <tr data-testid="lecture-row">
             <td>{props.lecture.lectureId}</td>
             <td>{props.lecture.date}</td>
-            <td><Checkbox name={props.lecture.lectureId} checked={props.checkedOne==props.lecture.lectureId ? true : false} onChange={props.handler}/></td>
+            <td><Checkbox name={props.lecture.lectureId} checked={props.checkedOne==props.lecture.lectureId ? true : false} onChange={props.handler} type={"l"}/></td>
         </tr>
     return <></>;
 }
@@ -160,7 +160,7 @@ class StudentPanel extends React.Component {
 
 function StudentPanelRow(props) {
     if(props.nPages==1 || (props.nPages>1 && props.pMap.get(props.student.studentId)==props.current))
-        return <tr>
+        return <tr data-testid="student-row">
             <td>{props.student.lastName}</td>
             <td>{props.student.firstName}</td>
             <td>{props.student.studentId}</td>

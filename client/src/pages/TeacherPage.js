@@ -41,6 +41,7 @@ class TeacherPage extends React.Component {
             nMap.set(c.courseId,Math.floor(i/elementForPage));
             i++;})
             let nPages=Math.ceil(i/elementForPage);
+            console.log(courses);
             this.setState({courses : courses,courseMap: nMap,cPages: nPages});
         })
         .catch();
