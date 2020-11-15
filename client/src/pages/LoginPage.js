@@ -5,9 +5,9 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import { Redirect } from "react-router-dom";
-import API from '../api/Api'
-import APIfake from "../tests/APIfake"
-
+import API from '../api/Api';
+import APIfake from "../tests/APIfake";
+import ErrorMsg from "../components/ErrorMsg";
 class LoginPage extends React.Component {
   constructor(props) {
     super(props);
@@ -28,11 +28,13 @@ class LoginPage extends React.Component {
     //this.setState({ submitted: true });
     API.userLogin(this.state.username,this.state.password)
     .then((user)=>this.userLogin(user))
-    .catch()
+    .catch((err)=>this.setState({fetchError : err}));
   };
   userLogin = (user) =>{
       this.props.setLoggedInUser(user);
-    
+    }
+  onClose = ()=>{
+    this.setState({fetchError : false});
   }
 
   render() {
@@ -80,7 +82,9 @@ class LoginPage extends React.Component {
                       Login
                     </Button>
                   </Form>
-
+                  {this.state.fetchError &&
+                    <ErrorMsg msg={this.state.fetchError} onClose = {this.onClose}/>
+                  }
                 </Col>
               </Row>
             </Container>
