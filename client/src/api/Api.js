@@ -116,6 +116,7 @@ async function getLecturesByCourseIdByTeacherId(Uid,Cid){
     return new Promise((resolve,reject)=>{
         fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures`).then((response)=>{
             const status = response.status;
+            console.log(response);
             if (response.ok) {
                 response.json()
                 .then((obj) => { resolve(obj.map((l) => Lecture.from(l))); }) 

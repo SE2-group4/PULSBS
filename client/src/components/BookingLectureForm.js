@@ -12,6 +12,7 @@ import APIfake from '../tests/APIfake';
 import Modal from 'react-bootstrap/Modal'
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Alert from 'react-bootstrap/Alert';
+
 class BookingLectureForm extends React.Component {
     constructor(props){
         super(props);
@@ -19,7 +20,7 @@ class BookingLectureForm extends React.Component {
     }
     
     getLecturesByCourseId = (course) =>{
-        APIfake.getLecturesByCourseId(this.state.user.userId,course.courseId)
+        API.getLecturesByCourseId(this.state.user.userId,course.courseId)
         .then((lectures)=>{
             this.setState({lectures : lectures,course : course,lecture:null,fetchError : false})
         })
@@ -90,7 +91,7 @@ function DropdownMenu(props) {
                 Choose a course
             </Dropdown.Toggle>
             <Dropdown.Menu>
-            {props.courses.map((course)=><Dropdown.Item key={course.courseId} onClick={()=>props.getLectures(course)}>{course.description}</Dropdown.Item>)}
+            {props.courses.length===0 ? <Dropdown.Item disabled="true">No courses available</Dropdown.Item> : props.courses.map((course)=><Dropdown.Item key={course.courseId} onClick={()=>props.getLectures(course)}>{course.description}</Dropdown.Item>)}
             </Dropdown.Menu>
             </>
             }
@@ -100,7 +101,7 @@ function DropdownMenu(props) {
                 Choose a lecture
             </Dropdown.Toggle>
             <Dropdown.Menu>
-            {props.lectures.map((lecture)=><Dropdown.Item key={lecture.lectureId} onClick={()=>props.chooseLecture(lecture)}>{lecture.date}</Dropdown.Item>)}
+            {props.lectures.length===0 ? <Dropdown.Item disabled="true">No lectures available</Dropdown.Item> : props.lectures.map((lecture)=><Dropdown.Item key={lecture.lectureId} onClick={()=>props.chooseLecture(lecture)}>{lecture.date}</Dropdown.Item>)}
             </Dropdown.Menu>
             </>
             }

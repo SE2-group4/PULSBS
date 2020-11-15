@@ -7,11 +7,11 @@ import Nav from 'react-bootstrap/Nav';
 function Header(props){
     return <>
     <Navbar id="navbar">
-        <Navbar.Brand>PULSeBS</Navbar.Brand>
+        <Navbar.Brand><strong>PULSeBS</strong></Navbar.Brand>
         <Nav className="mr-auto">
-        {   props.user && props.user.type==="Student" && <Nav.Link>Lesson Booking</Nav.Link> }
-        {   props.user && props.user.type==="Teacher" && <Navbar.Brand>Your Lessons</Navbar.Brand> }
-        {   props.isAuth && <Nav.Link id="logout" href="/login">Logout</Nav.Link> } 
+        {   props.user && props.user.type==="STUDENT" && <Nav.Link><strong>Lesson Booking</strong></Nav.Link> }
+        {   props.user && props.user.type==="TEACHER" && <Navbar.Brand><strong>Your Lessons</strong></Navbar.Brand> }
+        {   props.isAuth && <Nav.Link id="logout" href="/login"><strong>Logout</strong></Nav.Link> } 
         </Nav>
     </Navbar>
     </>;
