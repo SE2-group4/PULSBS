@@ -31,7 +31,6 @@
     "outputDirectory": "../test_reports/",
     "outputName": "reportClient.xml",
     "uniqueOutputName": "false"
-    
   },
   "eslintConfig": {
     "extends": [
