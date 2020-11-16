@@ -18,6 +18,9 @@ class CoursePanel extends React.Component {
     }
 
     handler = (e) =>{
+        if(this.props.sCourse==e.target.name)
+            this.props.reset("course");
+        else
             this.props.update(e.target.name);
     }
 
@@ -37,7 +40,7 @@ class CoursePanel extends React.Component {
                             <tr>
                                 <th>CourseId</th>
                                 <th>Name</th>
-                                <th></th>
+                                <th>Choose</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,7 +78,10 @@ class LecturePanel extends React.Component {
     }
 
     handler = (e) =>{
-        this.props.update(e.target.name);
+        if(this.props.sLecture==e.target.name)
+            this.props.reset("lecture");
+        else
+            this.props.update(e.target.name);
     }
 
     onClick = (e) =>{
@@ -94,7 +100,7 @@ class LecturePanel extends React.Component {
                         <tr>
                             <th>LectureId</th>
                             <th>Date</th>
-                            <th></th>
+                            <th>Choose</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -113,10 +119,11 @@ class LecturePanel extends React.Component {
 }
 
 function LecturePanelRow(props) {
+    let date=new Date(props.lecture.date);
     if(props.nPages==1 || (props.nPages>1 && props.pMap.get(props.lecture.lectureId)==props.current))
         return <tr data-testid="lecture-row">
             <td>{props.lecture.lectureId}</td>
-            <td>{props.lecture.date}</td>
+            <td>{date.toLocaleDateString()}{","+(date.toLocaleTimeString()).slice(0,5)}</td>
             <td><Checkbox name={props.lecture.lectureId} checked={props.checkedOne==props.lecture.lectureId ? true : false} onChange={props.handler} type={"l"}/></td>
         </tr>
     return <></>;
@@ -143,8 +150,8 @@ class StudentPanel extends React.Component {
                     <Table striped bordered hover>
                         <thead>
                             <tr>
-                                <th>LastName</th>
-                                <th>FirstName</th>
+                                <th>Last Name</th>
+                                <th>First Name</th>
                                 <th>StudentId</th>
                             </tr>
                         </thead>

@@ -75,6 +75,19 @@ class TeacherPage extends React.Component {
         .catch(() =>{ this.setState({selectedLecture: lectureId,students: [],sPages: 1,fetchErrorS: true}); });
     }
 
+    resetSelected = (type) =>{
+        switch(type){
+            case "course":
+                this.setState({selectedCourse: null,lectures: [],selectedLecture: null,lPages: 1,fetchErrorL: false,students: [],sPages: 1,fetchErrorS: false})
+            break;
+            case "lecture":
+                this.setState({selectedLecture: null,students: [],sPages: 1,fetchErrorS: false});
+            break;
+            default:
+            break;
+        }
+    }
+
     render(){
         return(
             <>
@@ -84,12 +97,12 @@ class TeacherPage extends React.Component {
                     <InfoPanel user={this.state.user}/>
                 </Col>
                 <Col sm='8'>
-                    <CoursePanel courses={this.state.courses} sCourse={this.state.selectedCourse} pageMap={this.state.courseMap} nPages={this.state.cPages} update={this.updateLectures} fetchError={this.state.fetchErrorC}/>
+                    <CoursePanel courses={this.state.courses} sCourse={this.state.selectedCourse} pageMap={this.state.courseMap} nPages={this.state.cPages} update={this.updateLectures} reset={this.resetSelected} fetchError={this.state.fetchErrorC}/>
                 </Col>
                 </Row>
                 <Row>
                 <Col sm='6'>
-                    <LecturePanel lectures={this.state.lectures} sLecture={this.state.selectedLecture} pageMap={this.state.lectureMap} nPages={this.state.lPages} update={this.updateStudents} fetchError={this.state.fetchErrorL}/>
+                    <LecturePanel lectures={this.state.lectures} sLecture={this.state.selectedLecture} pageMap={this.state.lectureMap} nPages={this.state.lPages} update={this.updateStudents} reset={this.resetSelected} fetchError={this.state.fetchErrorL}/>
                 </Col>
                 <Col sm='6'>
                     <StudentPanel students={this.state.students} pageMap={this.state.studentMap} nPages={this.state.sPages} fetchError={this.state.fetchErrorS}/>
