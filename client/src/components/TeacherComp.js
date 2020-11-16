@@ -3,6 +3,7 @@ import Container from "react-bootstrap/Container";
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
 
 const Checkbox = ({ name, checked = false, onChange, type }) => (
     <Form.Check name={name} checked={checked} onChange={onChange} data-testid={type+"-"+name}/>
@@ -49,7 +50,8 @@ class CoursePanel extends React.Component {
                     </Table>
                     { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
                     { this.props.sCourse && <>selected course: {this.props.sCourse}</>}
-                    { this.props.courses.length==0 && "no courses available." }
+                    { this.props.courses.length==0 && !this.props.fetchError && "no courses available." }
+                    { this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
                 </Container>
                 </>;
     }
@@ -103,7 +105,8 @@ class LecturePanel extends React.Component {
                 </Table>
                 { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
                 { this.props.sLecture && <>selected lecture: {this.props.sLecture}</>}
-                { this.props.lectures.length==0 && "no lectures available." }
+                { this.props.lectures.length==0 && !this.props.fetchError && "no lectures available." }
+                { this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
             </Container>
         </>;
     }
@@ -152,7 +155,8 @@ class StudentPanel extends React.Component {
                         </tbody>
                     </Table>
                     { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
-                    { this.props.students.length==0 && "no students listed." }
+                    { this.props.students.length==0 && !this.props.fetchError && "no students listed." }
+                    { this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
                 </Container>
                 </>;
     }
