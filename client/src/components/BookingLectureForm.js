@@ -78,7 +78,9 @@ class BookingLectureForm extends React.Component {
             {this.state.course && this.state.lecture &&
                 <Button variant="success" onClick={()=>this.bookALecture()}>Book now!</Button>
             }
-            {this.props.bookingError && <ErrorMsg msg={this.props.bookingError} onClose={this.props.onClose}/>}
+            {this.props.bookingError && 
+            <ErrorMsg msg={this.props.bookingError} onClose={this.props.onClose}/>
+            }
             </Jumbotron>
             </>
         );
