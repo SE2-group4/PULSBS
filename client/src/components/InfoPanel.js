@@ -9,24 +9,19 @@ function InfoPanel(props) {
         <Container fluid>
             <Jumbotron>
                 <Row>
-                    <strong>ID : </strong>
-                    <p> {props.user.userId}</p>
+                    <label><strong>ID :</strong> {props.user.userId}</label>
                 </Row>
                 <Row>
-                    <strong>Type : </strong>
-                    <p> {props.user.type}</p>
+                    <label><strong>Type :</strong> {props.user.type}</label>
                 </Row>
                 <Row>
-                    <strong>First Name : </strong>
-                    <p> {props.user.firstName}</p>
+                    <label><strong>First Name :</strong> {props.user.firstName}</label>
                 </Row>
                 <Row>
-                    <strong>Last Name : </strong>
-                    <p> {props.user.lastName}</p>
+                    <label><strong>Last Name :</strong> {props.user.lastName}</label>
                 </Row>
                 <Row>
-                    <strong>Email : </strong>
-                    <p> {props.user.email}</p>
+                    <label><strong>Email :</strong> {props.user.email}</label>
                 </Row>
             </Jumbotron>
         </Container>

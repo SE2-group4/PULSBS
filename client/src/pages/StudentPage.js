@@ -44,10 +44,10 @@ class StudentPage extends React.Component {
             <>
             <Container fluid>
                 <Row>
-                <Col sm='2'>
+                <Col sm='3'>
                     <InfoPanel user={this.state.user}/>
                 </Col>
-                <Col sm='10'>
+                <Col sm='9'>
                     {this.state.courses && <BookingLectureForm courses={this.state.courses} bookALecture={this.bookALecture} user = {this.state.user} isBookedDone={this.state.booked} 
                     handleFinishBooking={this.handleFinishBooking} bookingError={this.state.bookingError} onClose={this.onClose}></BookingLectureForm>}
                 </Col>

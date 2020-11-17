@@ -10,7 +10,7 @@ function Header(props){
         <Navbar.Brand><strong>PULSeBS</strong></Navbar.Brand>
         <Nav className="mr-auto">
         {   props.user && props.user.type==="STUDENT" && <Nav.Link><strong>Lesson Booking</strong></Nav.Link> }
-        {   props.user && props.user.type==="TEACHER" && <Navbar.Brand><strong>Your Lessons</strong></Navbar.Brand> }
+        {   props.user && props.user.type==="TEACHER" && <Nav.Link><strong>Your Lessons</strong></Nav.Link> }
         {   props.isAuth && <Nav.Link id="logout" href="/login"><strong>Logout</strong></Nav.Link> } 
         </Nav>
     </Navbar>

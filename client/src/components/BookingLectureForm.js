@@ -13,7 +13,7 @@ import Modal from 'react-bootstrap/Modal'
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Alert from 'react-bootstrap/Alert';
 import ErrorMsg from '../components/ErrorMsg';
-
+const moment = require("moment");
 class BookingLectureForm extends React.Component {
     constructor(props){
         super(props);
@@ -46,7 +46,7 @@ class BookingLectureForm extends React.Component {
                 <Modal show={true}>
                     <Modal.Dialog>
                         <Modal.Body>
-                        <p>Lecture (Id : {this.state.lecture.lectureId}, Course : {this.state.course.description}) at {this.state.lecture.date} was booked correctly. </p>
+                        <p>Lecture (Id : {this.state.lecture.lectureId}, Course : {this.state.course.description}) at {moment(this.state.lecture.date).format("DD/MM/YYYY HH:mm")} was booked correctly. </p>
                         <p>You will receive the confirmation email very soon</p>
                         </Modal.Body>
 
@@ -72,13 +72,15 @@ class BookingLectureForm extends React.Component {
             <Row>
             {this.state.fetchError && <Alert variant="danger">Error during server communication</Alert>}
                 {this.state.course && <Col><ListGroup.Item>Course : {this.state.course.description}</ListGroup.Item></Col>}
-                {this.state.lecture && <Col><ListGroup.Item>Lecture : {this.state.lecture.date}</ListGroup.Item></Col>}
+                {this.state.lecture && <Col><ListGroup.Item>Lecture : {moment(this.state.lecture.date).format("DD/MM/YYYY HH:mm")}</ListGroup.Item></Col>}
             </Row>
             <br/>
             {this.state.course && this.state.lecture &&
                 <Button variant="success" onClick={()=>this.bookALecture()}>Book now!</Button>
             }
-            {this.props.bookingError && <ErrorMsg msg={this.props.bookingError} onClose={this.props.onClose}/>}
+            {this.props.bookingError && 
+            <ErrorMsg msg={this.props.bookingError} onClose={this.props.onClose}/>
+            }
             </Jumbotron>
             </>
         );
@@ -103,7 +105,7 @@ function DropdownMenu(props) {
                 Choose a lecture
             </Dropdown.Toggle>
             <Dropdown.Menu>
-            {props.lectures.length===0 ? <Dropdown.Item disabled="true">No lectures available</Dropdown.Item> : props.lectures.map((lecture)=><Dropdown.Item key={lecture.lectureId} onClick={()=>props.chooseLecture(lecture)}>{lecture.date}</Dropdown.Item>)}
+            {props.lectures.length===0 ? <Dropdown.Item disabled="true">No lectures available</Dropdown.Item> : props.lectures.map((lecture)=><Dropdown.Item key={lecture.lectureId} onClick={()=>props.chooseLecture(lecture)}>{moment(lecture.date).format("DD/MM/YYYY HH:mm")}</Dropdown.Item>)}
             </Dropdown.Menu>
             </>
             }
