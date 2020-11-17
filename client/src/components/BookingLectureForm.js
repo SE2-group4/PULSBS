@@ -72,11 +72,27 @@ class BookingLectureForm extends React.Component {
             <Row>
             {this.state.fetchError && <Alert variant="danger">Error during server communication</Alert>}
                 {this.state.course && <Col><ListGroup.Item>Course : {this.state.course.description}</ListGroup.Item></Col>}
-                {this.state.lecture && <Col><ListGroup.Item>Lecture : {moment(this.state.lecture.date).format("DD/MM/YYYY HH:mm")}</ListGroup.Item></Col>}
+                {this.state.lecture && 
+                <>
+                <Col>
+                    <ListGroup.Item>Lecture : {moment(this.state.lecture.date).format("DD/MM/YYYY HH:mm")}</ListGroup.Item>
+                </Col>
+                <Col>
+                    <ListGroup.Item>Booking Deadline : {moment(this.state.lecture.bookingDeadline).format("DD/MM/YYYY HH:mm")}</ListGroup.Item>
+                </Col>
+                </>
+                }
             </Row>
             <br/>
-            {this.state.course && this.state.lecture &&
+            {this.state.course && this.state.lecture && moment(this.state.lecture.bookingDeadline).isAfter(moment()) && 
                 <Button variant="success" onClick={()=>this.bookALecture()}>Book now!</Button>
+            }
+            {this.state.course && this.state.lecture && moment(this.state.lecture.bookingDeadline).isBefore(moment()) && 
+             <OverlayTrigger overlay={<Tooltip>Booking Date Expired</Tooltip>}>
+                 <span className="d-inline-block">
+                <Button variant="success" style={{ pointerEvents: 'none' }} disabled>Book now!</Button>
+                </span>
+            </OverlayTrigger>
             }
             {this.props.bookingError && 
             <ErrorMsg msg={this.props.bookingError} onClose={this.props.onClose}/>
@@ -102,7 +118,7 @@ function DropdownMenu(props) {
             {props.mode==="lectures" && props.lectures &&
             <>
             <Dropdown.Toggle variant="info">
-                Choose a lecture
+                Choose a lesson
             </Dropdown.Toggle>
             <Dropdown.Menu>
             {props.lectures.length===0 ? <Dropdown.Item disabled="true">No lectures available</Dropdown.Item> : props.lectures.map((lecture)=><Dropdown.Item key={lecture.lectureId} onClick={()=>props.chooseLecture(lecture)}>{moment(lecture.date).format("DD/MM/YYYY HH:mm")}</Dropdown.Item>)}
@@ -113,7 +129,7 @@ function DropdownMenu(props) {
             <OverlayTrigger overlay={<Tooltip>Firstly choose a course!</Tooltip>}>
             <span className="d-inline-block">
               <Button disabled style={{ pointerEvents: 'none' }}>
-                Choose a lecture
+                Choose a lesson
               </Button>
             </span>
             </OverlayTrigger>
