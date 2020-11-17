@@ -43,7 +43,7 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
     return new ResponseError("TeacherService", ResponseError.COURSE_LECTURE_MISMATCH_AA, { lectureId, courseId }, 404);
   }
 
-  const lecture = new Lecture(lId, undefined, undefined, undefined); // I also put the other fields in as a reminder
+  const lecture = new Lecture(lId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
   try {
     const lectureStudents = await db.getStudentsByLecture(lecture);
     return lectureStudents;
