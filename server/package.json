@@ -9,9 +9,9 @@
   "scripts": {
     "start": "node ./src/server.js",
     "test": "mocha ./tests/Test_suite.js",
+    "prepare": "node ./src/db/Preparedb.js",
     "report": "mocha ./tests/Test_suite.js --reporter mocha-junit-reporter --reporter-options mochaFile=../test_reports/reportServer.xml",
-    "coverage": "./node_modules/.bin/nyc --reporter=lcov mocha ./tests/Test_suite.js  --exit",
-    "prepare": "node ./src/db/preparedb.js"
+    "coverage": "./node_modules/.bin/nyc --reporter=lcov mocha ./tests/Test_suite.js  --exit"
   },
   "author": "group4",
   "license": "ISC",
@@ -21,18 +21,18 @@
     "express-jwt": "^6.0.0",
     "express-validator": "^6.6.1",
     "jsonwebtoken": "^8.5.1",
-    "mocha-junit-reporter": "^2.0.0",
-    "mockery": "^2.1.0",
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
     "nodemailer": "^6.4.16",
-    "nodemailer-mock": "^1.5.3",
-    "nodemailer-mock-transport": "^1.3.0",
-    "should": "^13.2.3",
     "sqlite3": "^5.0.0"
   },
   "devDependencies": {
     "mocha": "^8.2.1",
-    "nyc": "^15.1.0"
+    "mocha-junit-reporter": "^2.0.0",
+    "nyc": "^15.1.0",
+    "mockery": "^2.1.0",
+    "should": "^13.2.3",
+    "nodemailer-mock": "^1.5.3",
+    "nodemailer-mock-transport": "^1.3.0"
   }
 }
