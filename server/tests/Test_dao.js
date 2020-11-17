@@ -30,7 +30,7 @@ const suite = describe('Dao.js', function() {
         lecture3 = new Lecture(3);
         course3 = new Course(3);
 
-        dao.openConn('testing.db');
+        dao.openConn('testing.db', 'testing.sql');
 
         done();
     });
