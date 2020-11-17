@@ -353,7 +353,7 @@ const _createTeacherBookingsEmail = function(teacher, lecture) {
                     .then((students) => {
                         const email = new Email(undefined, systemUser, teacher, new Date(), EmailType.TEACHER_ATTENDING_STUDENTS);
                         
-                        emailService.sendStudentNumberEmail(teacher.email. course.description, lecture.date.toISOString(), students.length)
+                        emailService.sendStudentNumberEmail(teacher.email, course.description, lecture.date.toISOString(), students.length)
                             .then(addEmail(email)
                                 .then(() => resolve)
                                 .catch((err) => reject(err)))
@@ -403,3 +403,57 @@ const addEmail = function(email) {
     })
 }
 exports.addEmail = addEmail;
+
+/**
+ * Get all the lectures that have the booking deadline equal to date
+ * @param {Date} date 
+ */
+const getLecturesByDeadline = function(date) {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM Lecture \
+            JOIN Course ON Course.courseId = Lecture.lectureId \
+            JOIN TeacherCourse ON TeacherCourse.courseId = Course.courseId \
+            WHERE DATE(Lecture.bookingDeadline) = DATE(?)';
+
+        const now = new Date();
+        db.all(sql, [now.toISOString()], (err, rows) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+
+            const lectures = [];
+            rows.forEach(row => lectures.push(Lecture.from(row)));
+            resolve(lectures);
+        });
+    })
+}
+exports.getLecturesByDeadline = getLecturesByDeadline;
+
+/**
+ * Get the teacher given a course 
+ * @param {Course} course 
+ */
+const getTeacherByCourse = function(course) {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT User.* FROM User \
+        JOIN TeacherCourse ON User.userId = TeacherCourse.teacherId \
+        WHERE TeacherCourse.courseId = ? AND User.type = ?';
+
+        db.get(sql, [course.courseId, "TEACHER"], (err, row) => {
+            if(err) {
+                reject(err);
+                return
+            }
+            
+            if(!row) {
+                resolve({});
+                return; 
+            }
+
+            resolve(Teacher.from(row));
+        });
+    });
+}
+
+exports.getTeacherByCourse = getTeacherByCourse;

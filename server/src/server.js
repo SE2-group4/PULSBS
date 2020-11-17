@@ -14,7 +14,6 @@ const prepareDb = require("./db/preparedb");
 const General = require("./controllers/GeneralController");
 const Student = require("./controllers/StudentController");
 const Teacher = require("./controllers/TeacherController");
-//const EmailService = require('../src/services/EmailService');
 
 const app = express();
 
@@ -26,13 +25,6 @@ let dbPath = "./PULSBS.db";
 
 app.use(express.json());
 app.use(cookieParser());
-
-/* 
- * Email service example 
-EmailService.sendConfirmationBookingEmail("fakeStudent.se2866755766@gmail.com", "SE2", "13:00")
-  .then(() => console.log("Email sent"))
-  .catch((info) => console.log(info))
-*/
 
 morgan.token("host", function (req) {
     return "src: " + req.hostname;
@@ -86,11 +78,16 @@ app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
     }
 });
 
-function printConfig() {
+const printConfig  = () => {
     console.log(`Server running on http://localhost:${PORT}${BASE_ROUTE}\n`);
     console.log("System parameters:");
     console.log(`DB path: ${dbPath}`);
-}
+};
+
+// description: for demo purposes we are sending the email right now instead of waiting 23:59; alternatively call Teacher.nextCheck() for setting the time correctly)
+const autoRun = () => {
+    setTimeout(() => Teacher.checkForExpiredLectures(), 0);
+};
 
 // "Main"
 (async () => {
@@ -102,6 +99,7 @@ function printConfig() {
         }
 
         await db.init(dbPath);
+        autoRun();
 
         app.listen(PORT, printConfig);
     } catch (err) {

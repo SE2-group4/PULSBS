@@ -41,3 +41,12 @@ module.exports.teacherGetCourses = function teacherGetCourses(req, res, next) {
       utils.writeJson(res, response);
     });
 };
+
+module.exports.checkForExpiredLectures = function checkForExpiredLectures() {
+  Teacher.checkForExpiredLectures();
+  return;
+}
+
+module.exports.nextCheck = function checkForExpiredLectures() {
+  return Teacher.nextCheck();
+}
