@@ -1,9 +1,10 @@
 class Lecture{
-    constructor(lectureId,courseId,classId,date){
+    constructor(lectureId,courseId,classId,date,bookingDeadline){
         this.lectureId=lectureId;
         this.courseId=courseId;
         this.classId=classId;
         this.date=date;
+        this.bookingDeadline=bookingDeadline;
     }
 
     static from(json){

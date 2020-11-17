@@ -6,7 +6,7 @@ info:
     system)
   contact:
     email: s276509@studenti.polito.it
-  version: 0.1.0
+  version: 0.2.0
 servers:
   - url: 'http://localhost:3001/api/v1'
 tags:
@@ -35,11 +35,31 @@ paths:
         required: true
       responses:
         '200':
-          description: Login was successful
+          description: "Login was successful. Note:there are 2 extra fields (studentId and type)"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Student'
+        '400':
+          description: "Email/password are not lexical valid"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                        msg:
+                          type: string
+                        param:
+                          type: string
+                        location:
+                          type: string
         '401':
           description: Credetials are invalid
           content:
@@ -47,15 +67,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                error: invalid credentials
-        '500':
-          description: Generic server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                error: internal server error
+                error: "incorrect userId or password"
   /students/{studentId}/courses:
     get:
       tags:
@@ -78,14 +90,34 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Course'
+        '400':
+          description: "Parameter studentId is not an integer"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                        msg:
+                          type: string
+                        param:
+                          type: string
+                        location:
+                          type: string
         '500':
-          description: Generic server error
+          description: Generic server error. 
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                error: internal server error
+                error: "string"
   /students/{studentId}/courses/{courseId}/lectures:
     get:
       tags:
@@ -115,8 +147,28 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Lecture'
+        '400':
+          description: "Parameter/s are not lexical correct. Another possibilities: the student is not enrolled in this course; db generic error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                        msg:
+                          type: string
+                        param:
+                          type: string
+                        location:
+                          type: string
         '500':
-          description: Generic server error
+          description: Generic server error. Not implemented
           content:
             application/json:
               schema:
@@ -163,8 +215,28 @@ paths:
           '200':
             description: The booking was successful
             content: {}
+          '400':
+            description: "Parameter/s are not lexical correct. Another possibilities: the student is not enrolled in this course; the lecture is not related to this course; the lecture was already booked; db generic error"
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    errors:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          value:
+                            type: string
+                          msg:
+                            type: string
+                          param:
+                            type: string
+                          location:
+                            type: string
           '500':
-            description: Generic server error
+            description: "Generic server error. Not implemented"
             content:
               application/json:
                 schema:
@@ -175,7 +247,7 @@ paths:
     get:
       tags:
         - teacher
-      summary: get all taught courses of this academic year
+      summary:  "Get all courses taught in this academic year by a given professor"
       operationId: teacherGetCourses 
       parameters:
       - in: path
@@ -192,21 +264,30 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Course'
+                  $ref: '#/components/schemas/CourseJTeacherCourse'
+        '400':
+          description: "'teacherId' parameter is not valid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                source: "TeacherService"
+                errno: 1
+                error: "'teacherId' parameter is not an integer: fail"
+                statusCode: 400
         '500':
           description: Generic server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: internal server error
   /teachers/{teacherId}/courses/{courseId}/lectures:
     get:
       tags:
         - teacher
-      summary: get all active lectures for a particular course
-      description: Get all active lectures, which are stil not delivered, for a course taught by a particular professor
+      summary: "Get all active lectures of a given course"
+      description: "Get all active lectures, which have not yet been delivered, for a course taught by a given professor"
       operationId: teacherGetCourseLectures
       parameters:
       - in: path
@@ -230,19 +311,39 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Lecture'
+        '400':
+          description: "'teacherId' parameter is not valid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                source: "TeacherService"
+                errno: 1
+                error: "'teacherId' parameter is not an integer: fail"
+                statusCode: 400
+        '404':
+          description: "'teacherId' parameter is not valid"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                source: "TeacherService"
+                errno: 30
+                error: "course (courseId = 3) is not taught by this teacher (teacherId = 4)"
+                statusCode: 404
         '500':
           description: Generic server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: internal server error
   /teachers/{teacherId}/courses/{courseId}/lectures/{lectureId}/students:
     get:
       tags:
         - teacher
-      summary: get all the students that have an active booking for a particular lecture
+      summary: "Get all the students that have an active booking for a given lecture"
       operationId: teacherGetCourseLectureStudents
       parameters:
       - in: path
@@ -271,15 +372,35 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Student'
+                  $ref: '#/components/schemas/StudentLecture'
+        '400':
+          description: "'teacherId' parameter is not valid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                source: "TeacherService"
+                errno: 1
+                error: "'teacherId' parameter is not an integer: fail"
+                statusCode: 400
+        '404':
+          description: "'teacherId' parameter is not valid"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                source: "TeacherService"
+                errno: 30
+                error: "course (courseId = 3) is not taught by this teacher (teacherId = 4)"
+                statusCode: 404
         '500':
           description: Generic server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: internal server error
 components:
   schemas:
     Course:
@@ -292,6 +413,19 @@ components:
         year:
           type: number
           example: 2020
+    CourseJTeacherCourse:
+      type: object
+      properties:
+        courseId:
+          type: integer
+        description:
+          type: string
+        year:
+          type: number
+        teacherId:
+          type: integer
+        isValid:
+          type: integer
     Lecture:
       type: object
       properties:
@@ -313,6 +447,29 @@ components:
         password:
           type: string
           format: password
+    StudentLecture:
+      type: object
+      properties:
+        userId:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        type:
+          type: string
+          description: this field defines what kind of user he/she is
+          enum:
+            - Student
+            - Teacher
+        studentId:
+          type: integer
+        lectureId:
+          type: integer
     Student:
       type: object
       properties:
@@ -335,5 +492,11 @@ components:
     Error:
       type: object
       properties:
+        source:
+          type: string
+        errno:
+          type: integer
         error:
           type: string
+        statusCode:
+          type: integer

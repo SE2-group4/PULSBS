@@ -9,6 +9,7 @@
     "auth-context": "^1.0.6",
     "jest-fetch-mock": "^3.0.3",
     "jest-junit": "^12.0.0",
+    "moment": "^2.29.1",
     "nyc": "^15.1.0",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.0",

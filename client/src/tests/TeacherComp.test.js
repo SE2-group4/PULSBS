@@ -30,15 +30,15 @@ cMap2.set(3,1);
 cMap2.set(4,1);
 
 const lectures1 = [
-    new Lecture(1,1,1,"10-11-2020 12:00"),
-    new Lecture(2,1,1,"25-11-2020 13:00")
+    new Lecture(1,1,1,"2020-11-22T07:30:00.000Z"),
+    new Lecture(2,1,1,"2020-11-22T07:30:00.000Z")
 ];
 //lPages1=1
 const lectures2 = [
-    new Lecture(1,1,1,"10-11-2020 12:00"),
-    new Lecture(2,1,1,"25-11-2020 13:00"),
-    new Lecture(3,2,2,"12-12-2020 09:00"),
-    new Lecture(4,1,2,"13-12-2020 09:00")
+    new Lecture(1,1,1,"2020-11-22T07:30:00.000Z"),
+    new Lecture(2,1,1,"2020-11-23T07:30:00.000Z"),
+    new Lecture(3,2,2,"2020-11-24T07:30:00.000Z"),
+    new Lecture(4,1,2,"2020-11-25T07:30:00.000Z")
 ];
 //lPages2=2
 const lMap1=new Map(); //(lectureId,pageNumber[0,1])
@@ -93,6 +93,8 @@ describe('Course Panel suite', () => {
         expect(screen.getByText("Software Engineering 2")).toBeInTheDocument(); //should be in page 0
         userEvent.click(screen.getByText('Next')); //page 0 -> 1
         expect(screen.getByText("Architetture dei Sistemi di Elaborazione")).toBeInTheDocument(); //should be in page 1
+        userEvent.click(screen.getByText('Previous')); //page 1 -> 0
+        expect(screen.getByText("Information Systems Security")).toBeInTheDocument(); //should be in page 0
     });
 
     test('testing Checkbox status in CoursePanel', () => {
@@ -118,9 +120,11 @@ describe('Lecture Panel suite', () => {
 
     test('testing Navbuttons in LecturePanel', () => {
         render(<LecturePanel lectures={lectures2} pageMap={lMap2} nPages={2}/>);
-        expect(screen.getByText("10-11-2020 12:00")).toBeInTheDocument(); //should be in page 0
+        expect(screen.getByText("1")).toBeInTheDocument(); //should be in page 0
         userEvent.click(screen.getByText('Next')); //page 0 -> 1
-        expect(screen.getByText("12-12-2020 09:00")).toBeInTheDocument(); //should be in page 1
+        expect(screen.getByText("3")).toBeInTheDocument(); //should be in page 1
+        userEvent.click(screen.getByText('Previous')); //page 1 -> 0
+        expect(screen.getByText("2")).toBeInTheDocument(); //should be in page 0
     });
 
     test('testing Checkbox status in LecturePanel', () => {
@@ -149,5 +153,7 @@ describe('Student Panel suite', () => {
         expect(screen.getByText("Rossi")).toBeInTheDocument(); //should be in page 0
         userEvent.click(screen.getByText('Next')); //page 0 -> 1
         expect(screen.getByText("Verdi")).toBeInTheDocument(); //should be in page 1
+        userEvent.click(screen.getByText('Previous')); //page 1 -> 0
+        expect(screen.getByText("Gialli")).toBeInTheDocument(); //should be in page 0
     });
 });
