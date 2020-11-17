@@ -24,7 +24,8 @@ controller.post('/:studentId/courses/:courseId/lectures/:lectureId', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors.errors).end();
+        console.log(errors);
+        res.status(400).json(errors[0]).end();
         return;
     }
     
@@ -43,7 +44,8 @@ controller.get('/:studentId/courses/:courseId/lectures', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors.errors).end();
+        console.log(errors);
+        res.status(400).json(errors[0]).end();
         return;
     }
 
@@ -68,7 +70,8 @@ controller.get('/:studentId/courses', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors.errors).end();
+        console.log(errors);
+        res.status(400).json(errors[0]).end();
         return;
     }
 
