@@ -15,7 +15,7 @@ const path = require('path');
  * @param {Boolean} flag 
  * @returns {Promise} promise
  */
-function prepare(dbpath = 'testing.db', dbscript = 'testing.sql', flag = true) {
+function prepare(dbpath = 'PULSBS.db', dbscript = 'PULSBS.sql', flag = true) {
     return new Promise((resolve, reject) => {
         if(flag) {
             const cwd = __dirname;
