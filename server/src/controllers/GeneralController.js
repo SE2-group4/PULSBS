@@ -25,7 +25,7 @@ controller.post('/login', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors).end();
+        res.status(400).json(errors[0]).end();
         return;
     }
 
