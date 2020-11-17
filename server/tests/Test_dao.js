@@ -30,13 +30,13 @@ const suite = describe('Dao.js', function() {
         lecture3 = new Lecture(3);
         course3 = new Course(3);
 
-        dao.openConn('testing.db', 'testing.sql');
+        dao.openConn('testing.db');
 
         done();
     });
 
     beforeEach(function(done) {
-        prepare(undefined, undefined, true)
+        prepare('testing.db', 'testing.sql', true)
             .then(() => done())
             .catch((err) => done(err));
     });
@@ -112,7 +112,7 @@ const suite = describe('Dao.js', function() {
             dao.getStudentsByLecture(lecture3)
                 .then((students) => {
                     assert.ok(students, 'No returned valued received');
-                    assert.ok(students.length === 3, 'Wrong number of students');
+                    assert.ok(students.length === 1, 'Wrong number of students');
                     done();
                 })
                 .catch((err) => done(err));
@@ -136,7 +136,7 @@ const suite = describe('Dao.js', function() {
             dao.getLecturesByTeacher(teacher4)
                 .then((lectures) => {
                     assert.ok(lectures, 'No returned valued received');
-                    assert.ok(lectures.length === 2, 'Wrong number of lectures');
+                    assert.ok(lectures.length === 3, 'Wrong number of lectures');
                     done();
                 })
                 .catch((err) => done(err));
@@ -155,6 +155,9 @@ const suite = describe('Dao.js', function() {
         });
     });
 
+    /**
+     * @deprecated
+     */
     describe('_createStudentBookingEmail', function() {
         it('correct data should get a student email', function(done) {
             const emailType = EmailType.STUDENT_NEW_BOOKING;
@@ -163,6 +166,9 @@ const suite = describe('Dao.js', function() {
         });
     });
 
+    /**
+     * @deprecated
+     */
     describe('_createTeacherBookingsEmail', function() {
         it('correct data should get a teacher email', function(done) {
             const emailType = EmailType.TEACHER_ATTENDING_STUDENTS;
