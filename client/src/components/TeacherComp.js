@@ -18,14 +18,14 @@ class CoursePanel extends React.Component {
     }
 
     handler = (e) =>{
-        if(this.props.sCourse==e.target.name)
+        if(this.props.sCourse===e.target.name)
             this.props.reset("course");
         else
             this.props.update(e.target.name);
     }
 
     onClick = (e) =>{
-        if(e.target.name=="prev")
+        if(e.target.name==="prev")
             this.setState({currentPage: this.state.currentPage-1});
         else //next
             this.setState({currentPage: this.state.currentPage+1});
@@ -53,7 +53,7 @@ class CoursePanel extends React.Component {
                     </Table>
                     { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
                     { this.props.sCourse && <>selected course: {this.props.sCourse}</>}
-                    { this.props.courses.length==0 && !this.props.fetchError && "no courses available." }
+                    { this.props.courses.length===0 && !this.props.fetchError && "no courses available." }
                     { this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
                 </Container>
                 </>;
@@ -61,7 +61,7 @@ class CoursePanel extends React.Component {
 };
 
 function CoursePanelRow(props) {
-    if(props.nPages==1 || (props.nPages>1 && props.pMap.get(props.course.courseId)==props.current))
+    if(props.nPages===1 || (props.nPages>1 && props.pMap.get(props.course.courseId)===props.current))
         return <tr data-testid="course-row">
             <td>{props.course.courseId}</td>
             <td>{props.course.description}</td>
@@ -78,7 +78,7 @@ class LecturePanel extends React.Component {
     }
 
     handler = (e) =>{
-        if(this.props.sLecture==e.target.name)
+        if(this.props.sLecture===e.target.name)
             this.props.reset("lecture");
         else
             this.props.update(e.target.name);
@@ -111,7 +111,7 @@ class LecturePanel extends React.Component {
                 </Table>
                 { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
                 { this.props.sLecture && <>selected lecture: {this.props.sLecture}</>}
-                { this.props.lectures.length==0 && !this.props.fetchError && "no lectures available." }
+                { this.props.lectures.length===0 && !this.props.fetchError && "no lectures available." }
                 { this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
             </Container>
         </>;
@@ -120,10 +120,10 @@ class LecturePanel extends React.Component {
 
 function LecturePanelRow(props) {
     let date=new Date(props.lecture.date);
-    if(props.nPages==1 || (props.nPages>1 && props.pMap.get(props.lecture.lectureId)==props.current))
+    if(props.nPages===1 || (props.nPages>1 && props.pMap.get(props.lecture.lectureId)===props.current))
         return <tr data-testid="lecture-row">
             <td>{props.lecture.lectureId}</td>
-            <td>{date.toLocaleDateString()}{","+(date.toLocaleTimeString()).slice(0,5)}</td>
+            <td>{date.toLocaleDateString()}{" "+(date.toLocaleTimeString()).slice(0,5)}</td>
             <td><Checkbox name={props.lecture.lectureId} checked={props.checkedOne==props.lecture.lectureId ? true : false} onChange={props.handler} type={"l"}/></td>
         </tr>
     return <></>;
@@ -162,7 +162,7 @@ class StudentPanel extends React.Component {
                         </tbody>
                     </Table>
                     { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
-                    { this.props.students.length==0 && !this.props.fetchError && "no students listed." }
+                    { this.props.students.length===0 && !this.props.fetchError && "no students listed." }
                     { this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
                 </Container>
                 </>;
@@ -170,7 +170,7 @@ class StudentPanel extends React.Component {
 };
 
 function StudentPanelRow(props) {
-    if(props.nPages==1 || (props.nPages>1 && props.pMap.get(props.student.studentId)==props.current))
+    if(props.nPages===1 || (props.nPages>1 && props.pMap.get(props.student.studentId)===props.current))
         return <tr data-testid="student-row">
             <td>{props.student.lastName}</td>
             <td>{props.student.firstName}</td>
@@ -181,9 +181,9 @@ function StudentPanelRow(props) {
 
 function NavButtons(props){
     return <>
-        <Button name="prev" size="sm" disabled={props.currentPage==0 ? true : false} onClick={props.onClick}>Previous</Button>
+        <Button name="prev" size="sm" disabled={props.currentPage===0 ? true : false} onClick={props.onClick}>Previous</Button>
         { props.currentPage+1 } / {props.nPages }
-        <Button name="next" size="sm" disabled={props.currentPage==props.nPages-1 ? true : false} onClick={props.onClick}>Next</Button>
+        <Button name="next" size="sm" disabled={props.currentPage===props.nPages-1 ? true : false} onClick={props.onClick}>Next</Button>
     </>;
 }
 export {CoursePanel,LecturePanel,StudentPanel};
