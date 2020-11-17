@@ -8,7 +8,8 @@
 const Student = require("../entities/Student.js");
 const Course = require("../entities/Course.js");
 const Lecture = require("../entities/Lecture.js");
-const emailSender = require('./EmailService.js');
+const EmailType = require('./../entities/EmailType.js');
+const emailService = require('./EmailService.js');
 
 const dao = require("../db/Dao.js");
 
@@ -28,20 +29,38 @@ exports.studentBookLecture = async function(studentId, courseId, lectureId) {
         // logical checks
         dao.getLecturesByCourse(course)
             .then((currLectures) => {
-                if(currLectures.filter(l => l.lectureId === lecture.lectureId).length === 0) {
+                const actualLectures = currLectures.filter(l => l.lectureId === lecture.lectureId);
+                if(actualLectures.length === 0) {
                     reject({ error : 'The lecture is not related to this course' });
+                    return;
+                }
+
+                const actualLecture = actualLectures[0];
+                if(actualLecture.bookingDeadline.getTime() < (new Date()).getTime()){
+                    reject({ error : 'The booking time is expired' });
                     return;
                 }
 
                 dao.getCoursesByStudent(student)
                     .then((currCourses) => {
-                        if(currCourses.filter(c => c.courseId === course.courseId).length === 0) {
+                        const actualCourses = currCourses.filter(c => c.courseId === course.courseId);
+                        if(actualCourses.length === 0) {
                             reject({ error : 'The student is not enrolled in this course' });
                             return;
                         }
-                
+                        const actualCourse = actualCourses[0];
+
                         dao.addBooking(student, lecture)
-                            .then(resolve)
+                            .then(() => {
+                                dao.getUserById(student)
+                                    .then((currStudent) => {
+                                        emailService.sendConfirmationBookingEmail(
+                                                currStudent.email,
+                                                actualCourse.description,
+                                                actualLecture.date.toISOString())
+                                            .then(resolve);
+                                    })
+                            })
                             .catch((err) => {
                                 if (err.errno === 19) {
                                     reject({ error: 'The lecture was already booked'});
