@@ -15,8 +15,8 @@ INSERT INTO Course(courseId, description, year) VALUES(2, 'Computer system secur
 INSERT INTO Course(courseId, description, year) VALUES(3, 'Machine learning and artificial intelligence', 2020);
 INSERT INTO Course(courseId, description, year) VALUES(4, 'Web application', 2020);
 
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'giacomo.poretti@agg.it', 'giacomo');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'marina.massironi@agg.it', 'marina');
+INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'jamaree.bretley@extraale.com', 'giacomo');
+INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'enis.laron@extraale.com', 'marina');
 
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 1, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 2, 1);
