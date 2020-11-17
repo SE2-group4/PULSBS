@@ -62,7 +62,7 @@ exports.init = init;
  */
 const login = function(user) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM User WHERE email = ? AND password = ?';
+        const sql = 'SELECT User.* FROM User WHERE email = ? AND password = ?';
         db.get(sql, [user.email, user.password], (err, row) => {
             if(err || !row) {
                 reject('incorrect userId or password'); // no more info for security reasons
@@ -118,7 +118,7 @@ exports.addBooking = addBooking;
  */
 const getLecturesByStudent = function(student) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM Lecture \
+        const sql = 'SELECT Lecture.* FROM Lecture \
             JOIN Course ON Lecture.lectureId = Course.courseId \
             JOIN Enrollment ON Enrollment.courseId = Course.courseId \
             WHERE Enrollment.studentId = ? AND DATE(Lecture.date) > DATE(?)';
@@ -145,7 +145,7 @@ exports.getLecturesByStudent = getLecturesByStudent;
  */
 const getCoursesByStudent = function(student) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM Course \
+        const sql = 'SELECT Course.* FROM Course \
         JOIN Enrollment ON Enrollment.courseId = Course.courseId \
         WHERE Enrollment.studentId = ? AND year = ?';
 
@@ -171,7 +171,7 @@ exports.getCoursesByStudent = getCoursesByStudent;
  */
 const getLecturesByCourse = function(course) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM Lecture \
+        const sql = 'SELECT Lecture.* FROM Lecture \
             WHERE Lecture.courseId = ? AND DATETIME(Lecture.date) >= DATETIME(?)';
 
         db.all(sql, [course.courseId, (new Date()).toISOString()], (err, rows) => {
@@ -195,7 +195,7 @@ exports.getLecturesByCourse = getLecturesByCourse;
  */
 const getStudentsByLecture = function(lecture) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM User \
+        const sql = 'SELECT User.* FROM User \
             JOIN Booking on User.userId = Booking.studentId \
             WHERE Booking.lectureId = ? AND User.type = ?';
 
@@ -221,7 +221,7 @@ exports.getStudentsByLecture = getStudentsByLecture;
  */
 const getStudentsByCourse = function(course) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM User \
+        const sql = 'SELECT User.* FROM User \
         JOIN Enrollment ON User.userId = Enrollment.studentId \
         JOIN Course ON Enrollment.courseId = Course.courseId \
         WHERE Course.courseId = ? AND Course.year = ? AND User.type = ?';
@@ -248,7 +248,7 @@ exports.getStudentsByCourse = getStudentsByCourse;
  */
 const getLecturesByTeacher = function(teacher) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM Lecture \
+        const sql = 'SELECT User.* FROM Lecture \
             JOIN Course ON Lecture.courseId = Course.courseId \
             JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId \
             WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.date) > DATE(?)';
@@ -275,7 +275,7 @@ exports.getLecturesByTeacher = getLecturesByTeacher;
  */
 const getCoursesByTeacher = function(teacher) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM Course \
+        const sql = 'SELECT Course.* FROM Course \
         JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId \
         WHERE TeacherCourse.teacherId = ? AND Course.year = ?';
 
@@ -300,7 +300,7 @@ exports.getCoursesByTeacher = getCoursesByTeacher;
  */
 const getCourseByLecture = function(lecture) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM Course \
+        const sql = 'SELECT Course.* FROM Course \
             JOIN Lecture ON Course.courseId = Lecture.courseId \
             WHERE Lecture.lectureId = ?';
         db.get(sql, [lecture.lectureId], (err, row) => {
@@ -320,6 +320,7 @@ exports.getCourseByLecture = getCourseByLecture;
  * @param {Student} student - studentId and email needed
  * @param {Lecture} lecture - lectureId, courseId and date needed
  * @returns {Promise} promise
+ * @deprecated
  */
 const _createStudentBookingEmail = function(student, lecture) {
     return new Promise((resolve, reject) => {
@@ -342,6 +343,7 @@ exports._createStudentBookingEmail = _createStudentBookingEmail;
  * @param {Teacher} teacher
  * @param {Lecture} lecture 
  * @returns {Promise} promise
+ * @deprecated
  */
 const _createTeacherBookingsEmail = function(teacher, lecture) {
     return new Promise((resolve, reject) => {
@@ -378,28 +380,6 @@ const _getCurrentAcademicYear = function() {
     return(year);
 }
 exports._getCurrentAcademicYear = _getCurrentAcademicYear;
-
-/**
- * email service adapter/interface
- * @param {Email} email 
- * @returns {Promise} promise
- * 
- * TODO: IMPLEMENT OR DELETE
- */
-const _emailSender = function(email) {
-    return new Promise((resolve, reject) => {
-        const cb = () => { addEmail(email).then(resolve()) };
-        switch(email.emailType) {
-            case EmailType.STUDENT_NEW_BOOKING:
-                break;
-            case EmailType.TEACHER_ATTENDING_STUDENTS:
-                break;
-            default:
-                reject({ error : 'Unexpected email type' });
-        }
-    });
-}
-exports._emailSender = _emailSender;
 
 /**
  * create a log in the database of an email
