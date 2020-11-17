@@ -16,6 +16,7 @@ const Course = require('./../entities/Course.js');
 const Email = require('./../entities/Email.js');
 const EmailType = require('./../entities/EmailType.js');
 const emailService = require('./../services/EmailService.js');
+const { resolve } = require('path');
 
 let db = null;
 
@@ -54,6 +55,28 @@ const init = async function init(dbpath = './PULSBS.db') {
     openConn(dbpath);
 }
 exports.init = init;
+
+/**
+ * get a user by its id
+ * @param {Teacher|Student} user - teacher or student
+ */
+const getUserById = function(user) {
+    const userId = user.teacherId ? user.teacherId : user.studentId;
+
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT User.* FROM User WHERE userId = ?';
+        db.get(sql, [userId], (err, row) => {
+            if(err || !row) {
+                reject('incorrect userId');
+                return;
+            }
+
+            const fullUser = user.teacherId ? Teacher.from(row) : Student.from(row);
+            resolve(fullUser);
+        });
+    });
+}
+exports.getUserById = getUserById;
 
 /**
  * perform login
@@ -248,7 +271,7 @@ exports.getStudentsByCourse = getStudentsByCourse;
  */
 const getLecturesByTeacher = function(teacher) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT User.* FROM Lecture \
+        const sql = 'SELECT Lecture.* FROM Lecture \
             JOIN Course ON Lecture.courseId = Course.courseId \
             JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId \
             WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.date) > DATE(?)';
