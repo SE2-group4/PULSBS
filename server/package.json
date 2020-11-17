@@ -10,7 +10,8 @@
     "start": "node ./src/server.js",
     "test": "mocha ./tests/Test_suite.js",
     "report": "mocha ./tests/Test_suite.js --reporter mocha-junit-reporter --reporter-options mochaFile=../test_reports/reportServer.xml",
-    "coverage": "./node_modules/.bin/nyc --reporter=lcov mocha ./tests/Test_suite.js  --exit"
+    "coverage": "./node_modules/.bin/nyc --reporter=lcov mocha ./tests/Test_suite.js  --exit",
+    "prepare": "node ./src/db/preparedb.js"
   },
   "author": "group4",
   "license": "ISC",
