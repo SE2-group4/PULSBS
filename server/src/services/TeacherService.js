@@ -165,8 +165,7 @@ const doesLectureBelongCourse = async (courseId, lectureId) => {
 };
 
 const nextCheck = (now) => {
-    if (!now) now = new Date();
-    else if (now === "now") now = new Date();
+    if (!now || now === "now") now = new Date();
 
     const next_at_23_59 = new Date();
     if (now.getHours() >= 23 && now.getMinutes() >= 59 && now.getSeconds() >= 0)
