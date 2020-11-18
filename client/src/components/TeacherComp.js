@@ -35,12 +35,12 @@ class CoursePanel extends React.Component {
         return <>
                 <Container fluid>
                     <strong>Course list:</strong><br/>
-                    <Table striped bordered hover>
+                    <Table striped hover>
                         <thead>
                             <tr>
                                 <th>Course Id</th>
                                 <th>Name</th>
-                                <th>Choose</th>
+                                <th>Choose a course</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -49,11 +49,16 @@ class CoursePanel extends React.Component {
                             <CoursePanelRow key={course.courseId} checkedOne={this.props.sCourse} course={course} handler={this.handler} pMap={this.props.pageMap} nPages={this.props.nPages} current={this.state.currentPage}/>
                             ))
                         }
-                        </tbody>
-                    </Table>
-                    { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/> 
-                    { this.props.sCourse && <>Selected course: {this.props.sCourse}</>}
+                    <tr style={{backgroundColor: "white"}}>
+                    <td>
+                    { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}
                     { this.props.courses.length===0 && !this.props.fetchError && "no courses available." }
+                    </td>
+                    <td></td>
+                    <td>{ this.props.sCourse && <>Selected course: {this.props.sCourse}</>}</td>
+                    </tr>
+                    </tbody>
+                    </Table><br/> 
                     { this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
                 </Container>
                 </>;
@@ -95,23 +100,28 @@ class LecturePanel extends React.Component {
         return <>
             <Container fluid>
                 <strong>Lecture list:</strong><br/>
-                <Table striped bordered hover>
+                <Table striped hover>
                     <thead>
                         <tr>
                             <th>Lecture Id</th>
                             <th>Date</th>
-                            <th>Choose</th>
+                            <th>Choose a lecture</th>
                         </tr>
                     </thead>
                     <tbody>
                     {
                         this.props.lectures.map((lecture) => (<LecturePanelRow key={lecture.lectureId} checkedOne={this.props.sLecture} lecture={lecture} handler={this.handler} pMap={this.props.pageMap} nPages={this.props.nPages} current={this.state.currentPage}/>))
                     }
-                    </tbody>
-                </Table>
-                { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
-                { this.props.sLecture && <>Selected lecture: {this.props.sLecture}</>}
+                <tr style={{backgroundColor: "white"}}>
+                <td>
+                { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}
                 { this.props.lectures.length===0 && !this.props.fetchError && "no lectures available." }
+                </td>
+                <td></td>
+                <td>{ this.props.sLecture && <>Selected lecture: {this.props.sLecture}</>}</td>
+                </tr>
+                </tbody>
+                </Table><br/>
                 { this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
             </Container>
         </>;
@@ -147,7 +157,7 @@ class StudentPanel extends React.Component {
         return <>
                 <Container fluid>
                     <strong>Student list:</strong><br/>
-                    <Table striped bordered hover>
+                    <Table striped hover>
                         <thead>
                             <tr>
                                 <th>Last Name</th>
@@ -159,10 +169,16 @@ class StudentPanel extends React.Component {
                         {
                             this.props.students.map((student) => (<StudentPanelRow key={student.studentId} student={student} pMap={this.props.pageMap} nPages={this.props.nPages} current={this.state.currentPage}/>))
                         }
-                        </tbody>
-                    </Table>
-                    { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
+                    <tr style={{backgroundColor: "white"}}>
+                    <td>
+                    { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}
                     { this.props.students.length===0 && !this.props.fetchError && "no students listed." }
+                    </td>
+                    <td></td>
+                    <td></td>
+                    </tr>
+                    </tbody>
+                    </Table><br/>
                     { this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
                 </Container>
                 </>;
