@@ -14,6 +14,7 @@ INSERT INTO Course(courseId, description, year) VALUES(1, 'Software enginnering 
 INSERT INTO Course(courseId, description, year) VALUES(2, 'Computer system security', 2020);
 INSERT INTO Course(courseId, description, year) VALUES(3, 'Machine learning and artificial intelligence', 2020);
 INSERT INTO Course(courseId, description, year) VALUES(4, 'Web application', 2020);
+INSERT INTO Course(courseId, description, year) VALUES(5, 'Big data', 2020);
 
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'fakeTeacher.se2@gmail.com', 'giacomo');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'enis.laron@extraale.com', 'marina');
@@ -22,6 +23,7 @@ INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 1, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 2, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(5, 3, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(5, 4, 1);
+INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 5, 1);
 
 INSERT INTO Enrollment(studentId, courseId) VALUES(1, 1);
 INSERT INTO Enrollment(studentId, courseId) VALUES(1, 2);
@@ -38,7 +40,7 @@ INSERT INTO Lecture(lectureId, courseId, classId, date, bookingDeadline) VALUES(
 INSERT INTO Lecture(lectureId, courseId, classId, date, bookingDeadline) VALUES(4, 1, 3, DATETIME('now', '+2 day', 'start of day', '10 hours', '00 minutes'), DATETIME('now', '1 day', 'start of day', '23 hours', '59 minutes'));
 INSERT INTO Lecture(lectureId, courseId, classId, date, bookingDeadline) VALUES(2, 2, 2, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'), DATETIME('now', 'start of day', '23 hours', '59 minutes'));
 INSERT INTO Lecture(lectureId, courseId, classId, date, bookingDeadline) VALUES(3, 3, 3, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'), DATETIME('now', 'start of day', '23 hours', '59 minutes'));
-INSERT INTO Lecture(lectureId, courseId, classId, date, bookingDeadline) VALUES(5, 1, 1, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'), DATETIME('-1 day', 'start of day', '23 hours', '59 minutes'));
+INSERT INTO Lecture(lectureId, courseId, classId, date, bookingDeadline) VALUES(5, 1, 1, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'), DATETIME('now', '-1 day', 'start of day', '23 hours', '59 minutes'));
 
 INSERT INTO Booking(studentId, lectureId) VALUES(1, 1);
 INSERT INTO Booking(studentId, lectureId) VALUES(2, 2);
