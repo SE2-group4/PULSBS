@@ -9,8 +9,9 @@ const controller = require('express').Router({ mergeParams : true });
 const service = require("../services/GeneralService.js");
 const { check, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
+const utils = require('../utils/utils.js');
 
-const expireTime = 60 * 15; // 15 minutes
+const expireTime = 60 * 5; // 5 minutes
 const jwtSecret = "1234567890";
 
 /**
@@ -25,7 +26,7 @@ controller.post('/login', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors[0]).end();
+        res.status(400).json(utils.errToString(errors)).end();
         return;
     }
 

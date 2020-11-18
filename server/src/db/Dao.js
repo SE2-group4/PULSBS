@@ -61,7 +61,7 @@ const getUserById = function(user) {
     const userId = user.teacherId ? user.teacherId : user.studentId;
 
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT User.* FROM User WHERE userId = ?';
+        const sql = `SELECT User.* FROM User WHERE userId = ?`;
         db.get(sql, [userId], (err, row) => {
             if(err || !row) {
                 reject('incorrect userId');
@@ -82,7 +82,7 @@ exports.getUserById = getUserById;
  */
 const login = function(user) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT User.* FROM User WHERE email = ? AND password = ?';
+        const sql = `SELECT User.* FROM User WHERE email = ? AND password = ?`;
         db.get(sql, [user.email, user.password], (err, row) => {
             if(err || !row) {
                 reject('incorrect userId or password'); // no more info for security reasons
@@ -116,10 +116,12 @@ exports.login = login;
  */
 const addBooking = function(student, lecture) {
     return new Promise((resolve, reject) => {
-        const sql = 'INSERT INTO Booking(studentId, lectureId) VALUES (?, ?)';
+        const sql = `INSERT INTO Booking(studentId, lectureId) VALUES (?, ?)`;
 
         db.run(sql, [student.studentId, lecture.lectureId], function(err) {
             if(err) {
+                if(err.errno == 19)
+                    err = { error: 'The lecture was already booked'};
                 reject(err);
                 return;
             }
@@ -138,10 +140,10 @@ exports.addBooking = addBooking;
  */
 const getLecturesByStudent = function(student) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT Lecture.* FROM Lecture \
-            JOIN Course ON Lecture.lectureId = Course.courseId \
-            JOIN Enrollment ON Enrollment.courseId = Course.courseId \
-            WHERE Enrollment.studentId = ? AND DATE(Lecture.date) > DATE(?)';
+        const sql = `SELECT * FROM Lecture
+            JOIN Course ON Lecture.lectureId = Course.courseId
+            JOIN Enrollment ON Enrollment.courseId = Course.courseId
+            WHERE Enrollment.studentId = ? AND DATE(Lecture.date) > DATE(?)`;
 
         db.all(sql, [student.studentId, (new Date()).toISOString()], (err, rows) => {
             if(err) {
@@ -165,9 +167,9 @@ exports.getLecturesByStudent = getLecturesByStudent;
  */
 const getCoursesByStudent = function(student) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT Course.* FROM Course \
-        JOIN Enrollment ON Enrollment.courseId = Course.courseId \
-        WHERE Enrollment.studentId = ? AND year = ?';
+        const sql = `SELECT Course.* FROM Course
+        JOIN Enrollment ON Enrollment.courseId = Course.courseId
+        WHERE Enrollment.studentId = ? AND year = ?`;
 
         db.all(sql, [student.studentId, _getCurrentAcademicYear()], (err, rows) => {
             if(err) {
@@ -191,8 +193,8 @@ exports.getCoursesByStudent = getCoursesByStudent;
  */
 const getLecturesByCourse = function(course) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT Lecture.* FROM Lecture \
-            WHERE Lecture.courseId = ? AND DATETIME(Lecture.date) >= DATETIME(?)';
+        const sql = `SELECT * FROM Lecture
+            WHERE Lecture.courseId = ? AND DATETIME(Lecture.date) >= DATETIME(?)`;
 
         db.all(sql, [course.courseId, (new Date()).toISOString()], (err, rows) => {
             if(err) {
@@ -215,9 +217,9 @@ exports.getLecturesByCourse = getLecturesByCourse;
  */
 const getStudentsByLecture = function(lecture) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT User.* FROM User \
-            JOIN Booking on User.userId = Booking.studentId \
-            WHERE Booking.lectureId = ? AND User.type = ?';
+        const sql = `SELECT User.* FROM User
+            JOIN Booking on User.userId = Booking.studentId
+            WHERE Booking.lectureId = ? AND User.type = ?`;
 
         db.all(sql, [lecture.lectureId, 'STUDENT'], (err, rows) => {
             if(err) {
@@ -241,10 +243,10 @@ exports.getStudentsByLecture = getStudentsByLecture;
  */
 const getStudentsByCourse = function(course) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT User.* FROM User \
-        JOIN Enrollment ON User.userId = Enrollment.studentId \
-        JOIN Course ON Enrollment.courseId = Course.courseId \
-        WHERE Course.courseId = ? AND Course.year = ? AND User.type = ?';
+        const sql = `SELECT User.* FROM User
+        JOIN Enrollment ON User.userId = Enrollment.studentId
+        JOIN Course ON Enrollment.courseId = Course.courseId
+        WHERE Course.courseId = ? AND Course.year = ? AND User.type = ?`;
 
         db.all(sql, [course.courseId, _getCurrentAcademicYear(), 'STUDENT'], (err, rows) => {
             if(err) {
@@ -268,10 +270,10 @@ exports.getStudentsByCourse = getStudentsByCourse;
  */
 const getLecturesByTeacher = function(teacher) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT Lecture.* FROM Lecture \
-            JOIN Course ON Lecture.courseId = Course.courseId \
-            JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId \
-            WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.date) > DATE(?)';
+        const sql = `SELECT * FROM Lecture
+            JOIN Course ON Lecture.courseId = Course.courseId
+            JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId
+            WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.date) > DATE(?)`;
 
         db.all(sql, [teacher.teacherId, (new Date()).toISOString()], (err, rows) => {
             if(err) {
@@ -295,9 +297,9 @@ exports.getLecturesByTeacher = getLecturesByTeacher;
  */
 const getCoursesByTeacher = function(teacher) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT Course.* FROM Course \
-        JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId \
-        WHERE TeacherCourse.teacherId = ? AND Course.year = ?';
+        const sql = `SELECT Course.* FROM Course
+        JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId
+        WHERE TeacherCourse.teacherId = ? AND Course.year = ?`;
 
         db.all(sql, [teacher.teacherId, _getCurrentAcademicYear()], (err, rows) => {
             if(err) {
@@ -320,9 +322,9 @@ exports.getCoursesByTeacher = getCoursesByTeacher;
  */
 const getCourseByLecture = function(lecture) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT Course.* FROM Course \
-            JOIN Lecture ON Course.courseId = Lecture.courseId \
-            WHERE Lecture.lectureId = ?';
+        const sql = `SELECT Course.* FROM Course
+            JOIN Lecture ON Course.courseId = Lecture.courseId
+            WHERE Lecture.lectureId = ?`;
         db.get(sql, [lecture.lectureId], (err, row) => {
             if(err || !row) {
                 reject(err);
@@ -407,7 +409,7 @@ exports._getCurrentAcademicYear = _getCurrentAcademicYear;
  */
 const addEmail = function(email) {
     return new Promise((resolve, reject) => {
-        const sql = 'INSERT INTO Email(fromId, toId, emailTypeId) VALUES(?, ?, ?)';
+        const sql = `INSERT INTO Email(fromId, toId, emailTypeId) VALUES(?, ?, ?)`;
 
         const fromId = email.from instanceof Teacher ? email.from.teacherId : email.from.studentId;
         const toId = email.to instanceof Teacher ? email.to.teacherId : email.to.studentId;
@@ -430,10 +432,10 @@ exports.addEmail = addEmail;
  */
 const getLecturesByDeadline = function(date) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT Lecture.* FROM Lecture \
+        const sql = `SELECT Lecture.* FROM Lecture \
             JOIN Course ON Course.courseId = Lecture.lectureId \
             JOIN TeacherCourse ON TeacherCourse.courseId = Course.courseId \
-            WHERE DATE(Lecture.bookingDeadline) = DATE(?)';
+            WHERE DATE(Lecture.bookingDeadline) = DATE(?)`;
 
         const now = new Date();
         db.all(sql, [now.toISOString()], (err, rows) => {
@@ -456,9 +458,9 @@ exports.getLecturesByDeadline = getLecturesByDeadline;
  */
 const getTeacherByCourse = function(course) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT User.* FROM User \
-        JOIN TeacherCourse ON User.userId = TeacherCourse.teacherId \
-        WHERE TeacherCourse.courseId = ? AND User.type = ?';
+        const sql = `SELECT User.* FROM User
+        JOIN TeacherCourse ON User.userId = TeacherCourse.teacherId
+        WHERE TeacherCourse.courseId = ? AND User.type = ?`;
 
         db.get(sql, [course.courseId, "TEACHER"], (err, row) => {
             if(err) {

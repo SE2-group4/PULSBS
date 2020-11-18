@@ -8,6 +8,7 @@
 const controller = require('express').Router({ mergeParams : true });
 const service = require("../services/StudentService.js");
 const { check, validationResult } = require('express-validator');
+const utils = require('../utils/utils.js');
 
 /**
  * book a lecture
@@ -24,7 +25,7 @@ controller.post('/:studentId/courses/:courseId/lectures/:lectureId', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors.errors).end();
+        res.status(400).json(utils.errToString(errors)).end();
         return;
     }
     
@@ -43,7 +44,7 @@ controller.get('/:studentId/courses/:courseId/lectures', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors.errors).end();
+        res.status(400).json(utils.errToString(errors)).end();
         return;
     }
 
@@ -68,7 +69,7 @@ controller.get('/:studentId/courses', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(errors.errors).end();
+        res.status(400).json(utils.errToString(errors)).end();
         return;
     }
 

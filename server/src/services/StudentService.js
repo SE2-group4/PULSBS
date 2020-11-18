@@ -61,13 +61,7 @@ exports.studentBookLecture = async function(studentId, courseId, lectureId) {
                                             .then(resolve);
                                     })
                             })
-                            .catch((err) => {
-                                if (err.errno === 19) {
-                                    reject({ error: 'The lecture was already booked'});
-                                    return;
-                                }
-                                reject(err);
-                            });
+                            .catch(reject);
                     });
             });
         
