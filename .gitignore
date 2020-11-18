@@ -1,4 +1,5 @@
-server/node_modules/
-.nyc_output
-.vscode
+/server/node_modules/
+.nyc_output/
+.vscode/
 .coverage
+/server/coverage/
