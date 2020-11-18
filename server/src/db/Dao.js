@@ -430,7 +430,7 @@ exports.addEmail = addEmail;
  */
 const getLecturesByDeadline = function(date) {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM Lecture \
+        const sql = 'SELECT Lecture.* FROM Lecture \
             JOIN Course ON Course.courseId = Lecture.lectureId \
             JOIN TeacherCourse ON TeacherCourse.courseId = Course.courseId \
             WHERE DATE(Lecture.bookingDeadline) = DATE(?)';
