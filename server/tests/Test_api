@@ -1291,8 +1291,8 @@
 									"\r",
 									"pm.test(\"Response body of GET /students/fail/courses\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson[0].value).to.eql(\"fail\");\r",
-									"    pm.expect(responseJson[0].param).to.eql(\"studentId\");\r",
+									"    pm.expect(responseJson.value).to.eql(\"fail\");\r",
+									"    pm.expect(responseJson.param).to.eql(\"studentId\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1383,8 +1383,8 @@
 									"\r",
 									"pm.test(\"Response body of GET /students/fail/courses/1/lectures\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson[0].value).to.eql(\"fail\");\r",
-									"    pm.expect(responseJson[0].param).to.eql(\"studentId\");\r",
+									"    pm.expect(responseJson.value).to.eql(\"fail\");\r",
+									"    pm.expect(responseJson.param).to.eql(\"studentId\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1450,8 +1450,8 @@
 									"\r",
 									"pm.test(\"Response body of GET /students/1/courses/fail/lectures\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson[0].value).to.eql(\"fail\");\r",
-									"    pm.expect(responseJson[0].param).to.eql(\"courseId\");\r",
+									"    pm.expect(responseJson.value).to.eql(\"fail\");\r",
+									"    pm.expect(responseJson.param).to.eql(\"courseId\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1724,8 +1724,8 @@
 									"\r",
 									"pm.test(\"Response body of POST /students/fail/courses/1/lectures/2\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson[0].value).to.eql(\"fail\");\r",
-									"    pm.expect(responseJson[0].param).to.eql(\"studentId\");\r",
+									"    pm.expect(responseJson.value).to.eql(\"fail\");\r",
+									"    pm.expect(responseJson.param).to.eql(\"studentId\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1792,8 +1792,8 @@
 									"\r",
 									"pm.test(\"Response body of POST /students/1/courses/fail/lectures/2\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson[0].value).to.eql(\"fail\");\r",
-									"    pm.expect(responseJson[0].param).to.eql(\"courseId\");\r",
+									"    pm.expect(responseJson.value).to.eql(\"fail\");\r",
+									"    pm.expect(responseJson.param).to.eql(\"courseId\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1860,8 +1860,8 @@
 									"\r",
 									"pm.test(\"Response body of POST /students/1/courses/1/lectures/fail\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson[0].value).to.eql(\"fail\");\r",
-									"    pm.expect(responseJson[0].param).to.eql(\"lectureId\");\r",
+									"    pm.expect(responseJson.value).to.eql(\"fail\");\r",
+									"    pm.expect(responseJson.param).to.eql(\"lectureId\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2159,186 +2159,6 @@
 				}
 			],
 			"protocolProfileBehavior": {}
-		},
-		{
-			"name": "teacher -> courses",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3001/api/v1/teachers/1/courses",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"api",
-						"v1",
-						"teachers",
-						"1",
-						"courses"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "teacher -> course -> lectures",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3001/api/v1/teachers/4/courses/1/lectures",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"api",
-						"v1",
-						"teachers",
-						"4",
-						"courses",
-						"1",
-						"lectures"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "teacher -> course -> lecture -> booked students",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3001/api/v1/teachers/4/courses/1/lectures/2/students",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"api",
-						"v1",
-						"teachers",
-						"4",
-						"courses",
-						"1",
-						"lectures",
-						"2",
-						"students"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "student -> courses",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/students/1/courses",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"students",
-						"1",
-						"courses"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "student -> course -> lectures",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/students/1/courses/1/lectures",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"students",
-						"1",
-						"courses",
-						"1",
-						"lectures"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "student -> courses -> lectures -> book",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"studentId\": 1\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3001/api/v1/students/1/courses/1/lectures/1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"api",
-						"v1",
-						"students",
-						"1",
-						"courses",
-						"1",
-						"lectures",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "user -> login",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"fakeStudent.se2@gmail.com\",\r\n    \"password\": \"anvzRPuDd1mvCXJBfn\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3001/api/v1/login",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"api",
-						"v1",
-						"login"
-					]
-				}
-			},
-			"response": []
 		}
 	],
 	"protocolProfileBehavior": {}
