@@ -15,7 +15,6 @@ const errToString = function(errors) {
         return '';
 
     const err = errors.errors[0];
-    const msg = err.msg + ' ' + err.param;
-    return msg;
+    return err;
 }
 exports.errToString = errToString;

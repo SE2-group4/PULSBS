@@ -202,17 +202,21 @@ const findSummaryExpiredLectures = async (date) => {
     const expiredLectures = await db.getLecturesByDeadline(date);
 
     const mapResponse = new Map();
+
     let promises = new Map();
 
     // Get number of stundents for each expiredLectures
     expiredLectures.forEach((lecture) => {
         const promise = db.getStudentsByLecture(lecture);
         promises.set(lecture.lectureId, promise);
+        mapResponse.set(lecture.lectureId, { lecture } );
     });
 
     for (let [lectureId, promise] of promises.entries()) {
         const students = await promise;
-        mapResponse.set(lectureId, { studentsBooked: students.length });
+        let mapValue = mapResponse.get(lectureId);
+        mapValue = Object.assign(mapValue, { studentsBooked: students.length });
+        mapResponse.set(lectureId, mapValue);
     }
 
     promises.clear();
@@ -252,11 +256,20 @@ const sendSummaryToTeachers = (summaries) => {
     for (let [lectureId, summary] of summaries.entries()) {
         const teacher = summary.teacher;
         const course = summary.course;
+        const lecture = summary.lecture;
+        
+        const options = {
+            year: 'numeric', month: 'numeric', day: 'numeric',
+            hour: 'numeric', minute: 'numeric', second: 'numeric',
+            hour12: false,
+            timeZone: 'Europe/Rome'
+        }
+        const dateFormatter = new Intl.DateTimeFormat('en-GB', options);
 
         EmailService.sendStudentNumberEmail(
             teacher.email,
             course.description,
-            course.date,
+            dateFormatter.format(lecture.date),
             summary.studentsBooked
         ).then(() => console.log(`sent email to ${teacher.email} about lecture ${lectureId}`));
 

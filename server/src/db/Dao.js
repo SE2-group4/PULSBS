@@ -121,7 +121,7 @@ const addBooking = function(student, lecture) {
         db.run(sql, [student.studentId, lecture.lectureId], function(err) {
             if(err) {
                 if(err.errno == 19)
-                    err = 'The lecture was already booked'; // TODO { error: '...' }
+                    err = { error: 'The lecture was already booked'};
                 reject(err);
                 return;
             }
@@ -432,9 +432,9 @@ exports.addEmail = addEmail;
  */
 const getLecturesByDeadline = function(date) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM Lecture
-            JOIN Course ON Course.courseId = Lecture.lectureId
-            JOIN TeacherCourse ON TeacherCourse.courseId = Course.courseId
+        const sql = `SELECT Lecture.* FROM Lecture \
+            JOIN Course ON Course.courseId = Lecture.lectureId \
+            JOIN TeacherCourse ON TeacherCourse.courseId = Course.courseId \
             WHERE DATE(Lecture.bookingDeadline) = DATE(?)`;
 
         const now = new Date();

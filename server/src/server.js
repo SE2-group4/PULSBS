@@ -70,7 +70,7 @@ app.all(`${BASE_ROUTE}`, () => console.log("This route is not supported. Check t
 app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
     try {
         // TODO: add a prompt in case db == PULSB.db. Are you sure?
-        await prepareDb(dbPath);
+        await prepareDb(dbPath, "testing.sql", true);
 
         res.status(200).send("Success Reset");
     } catch (err) {
