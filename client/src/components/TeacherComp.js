@@ -4,7 +4,8 @@ import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
-
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 const Checkbox = ({ name, checked = false, onChange, type }) => (
     <Form.Check name={name} checked={checked} onChange={onChange} data-testid={type+"-"+name}/>
 );
@@ -38,7 +39,7 @@ class CoursePanel extends React.Component {
                     <Table striped bordered hover>
                         <thead>
                             <tr>
-                                <th>CourseId</th>
+                                <th>Course Id</th>
                                 <th>Name</th>
                                 <th>Choose</th>
                             </tr>
@@ -51,8 +52,8 @@ class CoursePanel extends React.Component {
                         }
                         </tbody>
                     </Table>
-                    { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
-                    { this.props.sCourse && <>selected course: {this.props.sCourse}</>}
+                    { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>} <br/> 
+                    { this.props.sCourse &&<>Selected course: {this.props.sCourse}</>}
                     { this.props.courses.length===0 && !this.props.fetchError && "no courses available." }
                     { this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
                 </Container>
@@ -98,7 +99,7 @@ class LecturePanel extends React.Component {
                 <Table striped bordered hover>
                     <thead>
                         <tr>
-                            <th>LectureId</th>
+                            <th>Lecture Id</th>
                             <th>Date</th>
                             <th>Choose</th>
                         </tr>
@@ -110,7 +111,7 @@ class LecturePanel extends React.Component {
                     </tbody>
                 </Table>
                 { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/>
-                { this.props.sLecture && <>selected lecture: {this.props.sLecture}</>}
+                { this.props.sLecture && <>Selected lecture: {this.props.sLecture}</>}
                 { this.props.lectures.length===0 && !this.props.fetchError && "no lectures available." }
                 { this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
             </Container>
@@ -152,7 +153,7 @@ class StudentPanel extends React.Component {
                             <tr>
                                 <th>Last Name</th>
                                 <th>First Name</th>
-                                <th>StudentId</th>
+                                <th>Student Id</th>
                             </tr>
                         </thead>
                         <tbody>

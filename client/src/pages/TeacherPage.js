@@ -98,13 +98,11 @@ class TeacherPage extends React.Component {
                 </Col>
                 <Col sm='8'>
                     <CoursePanel courses={this.state.courses} sCourse={this.state.selectedCourse} pageMap={this.state.courseMap} nPages={this.state.cPages} update={this.updateLectures} reset={this.resetSelected} fetchError={this.state.fetchErrorC}/>
-                </Col>
-                </Row>
-                <Row>
-                <Col sm='6'>
+                    <br></br>
+                    <br></br>
                     <LecturePanel lectures={this.state.lectures} sLecture={this.state.selectedLecture} pageMap={this.state.lectureMap} nPages={this.state.lPages} update={this.updateStudents} reset={this.resetSelected} fetchError={this.state.fetchErrorL}/>
-                </Col>
-                <Col sm='6'>
+                    <br></br>
+                    <br></br>
                     <StudentPanel students={this.state.students} pageMap={this.state.studentMap} nPages={this.state.sPages} fetchError={this.state.fetchErrorS}/>
                 </Col>
                 </Row>
