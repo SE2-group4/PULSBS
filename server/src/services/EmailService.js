@@ -53,7 +53,7 @@ exports.sendStudentNumberEmail = function (to, courseName, lessonHour, studentNu
     const emailSubject = `Summary: course ${courseName} lecture ${lessonHour}`; 
     const emailBody = `<label>Course: <b>${courseName}</b></label>\
     <div>The scheduled lesson at ${lessonHour} has ${studentNumber} ${
-        studentNumber == 1 ? "student" : "studets"
+        studentNumber == 1 ? "student" : "students"
     } booked</div>`;
 
     // send mail with defined transport object
