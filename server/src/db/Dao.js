@@ -16,11 +16,8 @@ const Course = require('./../entities/Course.js');
 const Email = require('./../entities/Email.js');
 const EmailType = require('./../entities/EmailType.js');
 const emailService = require('./../services/EmailService.js');
-const { resolve } = require('path');
 
 let db = null;
-
-
 
 /*
 let db = new sqlite.Database(dbpath, (err) => {
@@ -92,20 +89,20 @@ const login = function(user) {
                 return;
             }
 
-            let user = null;
+            let retUser = null;
             switch(row.type) {
                 case 'TEACHER':
-                    user = Teacher.from(row);
+                    retUser = Teacher.from(row);
                     break;
                 case 'STUDENT':
-                    user = Student.from(row);
+                    retUser = Student.from(row);
                     break;
                 default:
                     reject('unexpected user type');
                     return;
             }
             
-            resolve(user);
+            resolve(retUser);
         });
     })
 }
