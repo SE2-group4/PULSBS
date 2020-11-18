@@ -64,7 +64,7 @@ const getUserById = function(user) {
         const sql = `SELECT User.* FROM User WHERE userId = ?`;
         db.get(sql, [userId], (err, row) => {
             if(err || !row) {
-                reject('incorrect userId');
+                reject('incorrect userId'); // TODO { error: '...' }
                 return;
             }
 
@@ -85,7 +85,7 @@ const login = function(user) {
         const sql = `SELECT User.* FROM User WHERE email = ? AND password = ?`;
         db.get(sql, [user.email, user.password], (err, row) => {
             if(err || !row) {
-                reject('incorrect userId or password'); // no more info for security reasons
+                reject('incorrect userId or password'); // no more info for security reasons // TODO { error: '...' }
                 return;
             }
 
@@ -121,7 +121,7 @@ const addBooking = function(student, lecture) {
         db.run(sql, [student.studentId, lecture.lectureId], function(err) {
             if(err) {
                 if(err.errno == 19)
-                    err = 'The lecture was already booked';
+                    err = 'The lecture was already booked'; // TODO { error: '...' }
                 reject(err);
                 return;
             }
