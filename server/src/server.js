@@ -16,6 +16,7 @@ const Student = require("./controllers/StudentController");
 const Teacher = require("./controllers/TeacherController");
 
 const app = express();
+app.disable('x-powered-by'); // security: do not show outside the server technology which has been used
 
 const BASE_ROUTE = "/api/v1";
 const JWT_SECRET = "1234567890";

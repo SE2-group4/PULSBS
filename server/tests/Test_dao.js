@@ -155,28 +155,6 @@ const suite = describe('Dao.js', function() {
         });
     });
 
-    /**
-     * @deprecated
-     */
-    describe('_createStudentBookingEmail', function() {
-        it('correct data should get a student email', function(done) {
-            const emailType = EmailType.STUDENT_NEW_BOOKING;
-            
-            done();
-        });
-    });
-
-    /**
-     * @deprecated
-     */
-    describe('_createTeacherBookingsEmail', function() {
-        it('correct data should get a teacher email', function(done) {
-            const emailType = EmailType.TEACHER_ATTENDING_STUDENTS;
-
-            done();
-        });
-    });
-
     describe('_getCurrentAcademicYear', function() {
         it('should get this year', function(done) {
             const retVal = dao._getCurrentAcademicYear();
