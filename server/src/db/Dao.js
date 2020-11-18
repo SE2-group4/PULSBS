@@ -120,6 +120,8 @@ const addBooking = function(student, lecture) {
 
         db.run(sql, [student.studentId, lecture.lectureId], function(err) {
             if(err) {
+                if(err.errno == 19)
+                    err = 'The lecture was already booked';
                 reject(err);
                 return;
             }
