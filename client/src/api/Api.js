@@ -45,7 +45,7 @@ async function getCoursesByStudentId(id){
             else reject((obj) => { reject(obj); });
         }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
     });
-};
+}
 
 
 /**
@@ -59,7 +59,7 @@ async function getLecturesByCourseId(Uid,Cid){
             else reject((obj) => { reject(obj); });
         }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
     });
-};
+}
 
 
 /**
@@ -79,7 +79,7 @@ async function bookALecture(Uid,Cid,Lid) {
                resolve()
             } else{
                 response.json()
-                    .then((obj) => { ;reject(obj.error); }) // error msg in the response body
+                    .then((obj) => { reject(obj.error); }) // error msg in the response body
                     .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
             }
         }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
@@ -106,7 +106,7 @@ async function getCoursesByTeacherId(id){
             }
         }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
     });
-};
+}
 
 /**
  *  getLecturesByCourseIdByTeacherId performs a GET request towards the server to gain the all the lectures of 
@@ -116,7 +116,6 @@ async function getLecturesByCourseIdByTeacherId(Uid,Cid){
     return new Promise((resolve,reject)=>{
         fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures`).then((response)=>{
             const status = response.status;
-            console.log(response);
             if (response.ok) {
                 response.json()
                 .then((obj) => { resolve(obj.map((l) => Lecture.from(l))); }) 
@@ -129,7 +128,7 @@ async function getLecturesByCourseIdByTeacherId(Uid,Cid){
             }
         }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
     });
-};
+}
 
 /**
  * 	getStudentsByLecture performs a GET request towards the server to gain the all the students booked to 
@@ -151,7 +150,7 @@ async function getStudentsByLecture(Uid,Cid,Lid) {
             }
         }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
     });
-};
+}
 
 const API= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,getCoursesByTeacherId,getLecturesByCourseIdByTeacherId,getStudentsByLecture};
 export default API;

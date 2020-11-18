@@ -4,8 +4,7 @@ import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
+
 const Checkbox = ({ name, checked = false, onChange, type }) => (
     <Form.Check name={name} checked={checked} onChange={onChange} data-testid={type+"-"+name}/>
 );
@@ -52,14 +51,14 @@ class CoursePanel extends React.Component {
                         }
                         </tbody>
                     </Table>
-                    { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>} <br/> 
-                    { this.props.sCourse &&<>Selected course: {this.props.sCourse}</>}
+                    { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}<br/> 
+                    { this.props.sCourse && <>Selected course: {this.props.sCourse}</>}
                     { this.props.courses.length===0 && !this.props.fetchError && "no courses available." }
                     { this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
                 </Container>
                 </>;
     }
-};
+}
 
 function CoursePanelRow(props) {
     if(props.nPages===1 || (props.nPages>1 && props.pMap.get(props.course.courseId)===props.current))
@@ -168,7 +167,7 @@ class StudentPanel extends React.Component {
                 </Container>
                 </>;
     }
-};
+}
 
 function StudentPanelRow(props) {
     if(props.nPages===1 || (props.nPages>1 && props.pMap.get(props.student.studentId)===props.current))

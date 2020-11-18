@@ -70,7 +70,7 @@ async function getCoursesByStudentId(id){
     return new Promise((resolve,reject)=>{
         resolve(courses);
     });
-};
+}
 
 /**
  *  getLecturesByCourseId performs a GET request towards the server to gain the all the lectures of a certain course of a certain student
@@ -87,7 +87,7 @@ async function getLecturesByCourseId(Uid,Cid){
        //reject()
    });
    
-};
+}
 
 
 /**
@@ -104,21 +104,21 @@ async function bookALecture(Uid,Cid,Lid) {
  */
 async function getCoursesByTeacherId(id){
     return teacherCourses;
-};
+}
 
 /**
  *  getLecturesByCourseId performs a GET request towards the server to gain the all the lectures of a certain course of a certain teacher
  */
 async function getLecturesByCourseIdT(Uid,Cid){
     return lectures.filter(l => l.courseId==Cid);
-};
+}
 
 /**
  * getStudentsByLectureId performs a GET request towards the server to gain the all students of a certain lecture
  */
 async function getStudentsByLectureId(id){
     return students.filter(s => s.type=="Student");
-};
+}
 
 const APIfake= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,getCoursesByTeacherId,getLecturesByCourseIdT,getStudentsByLectureId};
 export default APIfake;

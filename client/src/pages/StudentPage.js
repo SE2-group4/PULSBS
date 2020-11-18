@@ -3,7 +3,6 @@ import Container from "react-bootstrap/Container"
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import API from "../api/Api";
-import APIfake from '../tests/APIfake';
 import InfoPanel from '../components/InfoPanel'
 import BookingLectureForm from '../components/BookingLectureForm'
 
