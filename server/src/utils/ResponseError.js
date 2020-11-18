@@ -16,8 +16,6 @@ class ResponseError {
       statusCode: statusCode,
     };
     this.statusCode = statusCode;
-    console.log(ResponseError);
-    console.log(this.payload, this.statusCode);
   }
 
   static get COURSE_NOT_ENROLLED_AA() {
