@@ -1,20 +1,59 @@
 import React from 'react' ;
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
-
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Button from 'react-bootstrap/Button';
+import InfoPanel from './InfoPanel'
+import DropdownButton from 'react-bootstrap/DropdownButton';
 //<Header isAuth={this.state.isAuth} user={this.state.authUser} userLogout={this.userLogout}/>
 //starting version
 function Header(props){
     return <>
     <Navbar id="navbar">
         <Navbar.Brand><strong>PULSeBS</strong></Navbar.Brand>
-        <Nav className="mr-auto">
-        {   props.user && props.user.type==="STUDENT" && <Nav.Link><strong>Lesson Booking</strong></Nav.Link> }
-        {   props.user && props.user.type==="TEACHER" && <Nav.Link><strong>Your Lessons</strong></Nav.Link> }
-        {   props.isAuth && <Nav.Link id="logout" href="/login"><strong>Logout</strong></Nav.Link> } 
-        </Nav>
+        {   props.user && props.user.type==="STUDENT" && 
+                <Nav className="mr-auto">
+                    <Nav.Link><strong>Home</strong></Nav.Link> 
+                </Nav>
+        }
+        {   props.user && props.user.type==="TEACHER" && 
+                <Nav className = "mr-auto">
+                    <Nav.Link><strong>Your Lessons</strong></Nav.Link>
+                </Nav> 
+        }
+        {   props.isAuth && 
+                <Nav className="mr-sm-2">
+                    <PopoverInfo user = {props.user}/>
+                </Nav>
+        }
+        {   props.isAuth && 
+                <Nav className="mr-sm-2">
+                    <Nav.Link  href="/login"><Button variant="light">Logout</Button></Nav.Link>
+                </Nav> 
+        } 
     </Navbar>
     </>;
 }
+
+function PopoverInfo(props){
+
+    const popover = (
+        <Popover id="popover-basic">
+          <Popover.Title as="h3">Your info</Popover.Title>
+          <Popover.Content>
+            <InfoPanel user = {props.user}/>
+          </Popover.Content>
+        </Popover>
+      );
+      
+    return (
+        <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
+          <Button variant="warning" className="dropdown-toggle">{props.user.firstName}</Button>
+        </OverlayTrigger>
+      );
+    
+}
+    
 
 export default Header;

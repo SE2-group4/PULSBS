@@ -7,7 +7,6 @@ import InfoPanel from '../components/InfoPanel'
 import BookingLectureForm from '../components/BookingLectureForm'
 
 class StudentPage extends React.Component {
-
     /**
      * StudentPage constructor
      * @param {User} props 
@@ -42,15 +41,8 @@ class StudentPage extends React.Component {
         return(
             <>
             <Container fluid>
-                <Row>
-                <Col sm='3'>
-                    <InfoPanel user={this.state.user}/>
-                </Col>
-                <Col sm='9'>
                     {this.state.courses && <BookingLectureForm courses={this.state.courses} bookALecture={this.bookALecture} user = {this.state.user} isBookedDone={this.state.booked} 
                     handleFinishBooking={this.handleFinishBooking} bookingError={this.state.bookingError} onClose={this.onClose}></BookingLectureForm>}
-                </Col>
-                </Row>
             </Container>
             </>
         );
