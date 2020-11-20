@@ -7,17 +7,42 @@ import InfoPanel from '../components/InfoPanel'
 import BookingLectureForm from '../components/BookingLectureForm'
 
 class StudentPage extends React.Component {
+    constructor(props){
+        super(props);
+        this.state={user : props.user};
+    }
+
+    async componentDidMount(){
+        const courses=await API.getCoursesByStudentId(this.state.user.userId)
+        console.log(courses);
+    }
+    
+    
+    render(){
+        return(<></>);
+    }
+}
+
+
+
+
+
+
+
+
+/*
+class StudentPage extends React.Component {
     /**
      * StudentPage constructor
      * @param {User} props 
-     */
+     
     constructor(props){
         super(props);
         this.state = {user : props.user,courses : null,booked : false,bookingError : null};
     }
     /**
      * componentDidMount fetch the all courses of the student 
-     */
+     
     componentDidMount(){
         API.getCoursesByStudentId(this.state.user.userId)
         .then((courses) =>{
@@ -47,6 +72,6 @@ class StudentPage extends React.Component {
             </>
         );
     }
-}
+}*/
 
 export default StudentPage
