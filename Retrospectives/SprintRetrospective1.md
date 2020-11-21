@@ -27,10 +27,24 @@ sections:
 
 ### Detailed statistics
 
-| Story  | # Tasks | Points | Hours est. | Hours actual |
-|--------|---------|--------|------------|--------------|
-| _#0_   |         |    -   |            |              |
-| n      |         |        |            |              |
+| Story  | # Tasks | Points | Hours est. | Hours actual | Status |
+|--------|---------|--------|------------|--------------|--------|
+| _#0_   |         |    -   |            |              |        |
+| | 26 | | 6h | 7h 30min | done | 
+| | 30 | | 3h | 3h 10min | done |
+| | 27 | | 5h | 2h 20min | done |
+| | 48 | | 6h | 2h 30min | done |
+| | 49 | | 2h | 1h 45min | done |
+| _#3_ | | 3 | | | |
+| | 37 | | 2h | 3h 30min | done |
+| | 38 | | 1h 30min | 2h | done |
+| | 44 | | 3h | 2h 50min | review |
+| | 45 | | 2h | 4h | done |
+| | 46 | | 2h | 1h 15min | done |
+| #4 | | 8 | | | |
+| | 39 | | 2h | 25min | done |
+| | 47 | | 2h | ? | review |
+
    
 
 > place technical tasks corresponding to story `#0` and leave out story points (not applicable in this case)
