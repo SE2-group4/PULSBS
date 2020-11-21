@@ -176,6 +176,49 @@ paths:
               example:
                 error: internal server error
   /students/{studentId}/courses/{courseId}/lectures/{lectureId}:
+      delete:
+        tags:
+          - student
+        summary : delete the booking of a particular lecture
+        operationId: deleteBookLecture
+        parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: integer
+          description: student id
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: integer
+          description: course id
+        - in: path
+          name: lectureId
+          required: true
+          schema:
+            type: integer
+          description: lecture id
+        responses:
+          "204":
+            description : The delete operation was successful
+            content : {}
+          "400":
+            description: Bad request, errors in path parameters
+            content : 
+              application/json : 
+                schema : 
+                  $ref : '#/components/schemas/Error'
+          "404":
+            description: Not found (e.g. the lecture to cancel doesn't exist)
+            content : {}
+          "500":
+            description : Internal Error
+            content:
+              application/json : 
+                schema : 
+                  $ref : '#/components/schemas/Error'
       post:
         tags:
         - student
@@ -243,6 +286,40 @@ paths:
                   $ref: '#/components/schemas/Error'
                 example:
                   error: internal server error
+  /students/{studentId}/bookings:
+    get:
+      tags:
+        - student
+      summary: Return the list of the future booking lectures
+      operationId: getBookingLectures
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: integer
+          description: student id
+      responses:
+        '200':
+          description: The request was successful
+          content : 
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lecture'
+        '400':
+          description: Bad request, errors in path parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /teachers/{teacherId}/courses:
     get:
       tags:
@@ -339,6 +416,95 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /teachers/{teacherId}/courses/{coursesId}/lecture/{lectureId}:
+    put:
+      tags:
+        - teacher
+      summary: Switch the lecture modality (in presence,remote)
+      operationId: switchLecture
+      parameters:
+      - in: path
+        name: teacherId
+        required: true
+        schema:
+          type: integer
+        description: teacher id
+      - in: path
+        name: courseId
+        required: true
+        schema:
+          type: integer
+        description: course id
+      - in: path
+        name: lectureId
+        required: true
+        schema:
+          type: integer
+        description: lecture id
+      - in: query
+        name: switchTo
+        schema:
+          type: string
+        description: the string to switch (only "presence" and "remote" value are permitted)
+      responses:
+        "204":
+          description: The switching process was succesful
+          content: {}
+        "400":
+            description: Bad request, errors in path parameters
+            content : 
+              application/json : 
+                schema : 
+                  $ref : '#/components/schemas/Error'
+        "500":
+            description : Internal Error
+            content:
+              application/json : 
+                schema : 
+                  $ref : '#/components/schemas/Error'
+    delete:
+      tags:
+        - teacher
+      summary: Delete a lecture
+      operationId: deleteLecture
+      parameters:
+      - in: path
+        name: teacherId
+        required: true
+        schema:
+          type: integer
+        description: teacher id
+      - in: path
+        name: courseId
+        required: true
+        schema:
+          type: integer
+        description: course id
+      - in: path
+        name: lectureId
+        required: true
+        schema:
+          type: integer
+        description: lecture id
+      responses:
+        "204":
+            description : The delete operation was successful
+            content : {}
+        "400":
+            description: Bad request, errors in path parameters
+            content : 
+              application/json : 
+                schema : 
+                  $ref : '#/components/schemas/Error'
+        "404":
+            description: Not found (e.g. the lecture to cancel doesn't exist)
+            content : {}
+        "500":
+            description : Internal Error
+            content:
+              application/json : 
+                schema : 
+                  $ref : '#/components/schemas/Error'
   /teachers/{teacherId}/courses/{courseId}/lectures/{lectureId}/students:
     get:
       tags:
