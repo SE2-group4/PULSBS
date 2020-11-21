@@ -146,6 +146,54 @@ const suite = function() {
                 err.should.be.exactly("Undefined recipient")
             })
         });
+        it('should send a custom e-mail using nodemailer-mock', async () => {
+
+            const response = EmailService.sendCustomMail("s3945734658376e@gmail.com", "Test", "This is a test"); // <-- your email code here
+            response.then((done) => {
+                //console.log(done);
+                done.response.should.be.exactly("nodemailer-mock success");
+            }).catch((err) => { 
+                console.log(err);
+            })
+        });
+
+        it('should fail to send a custom e-mail using nodemailer-mock', async () => {
+            // tell the mock class to return an error
+            const err = new Error('My custom error');
+            nodemailerMock.mock.setShouldFailOnce();
+            nodemailerMock.mock.setFailResponse(err);
+
+            // call a service that uses nodemailer
+            const response = EmailService.sendCustomMail("s3945734658376e@gmail.com", "Test", "This is a test"); // <-- your code here
+
+            // a test for our response
+            response.then((done) => {
+                response.error.should.be.exactly(err);
+            })
+        });
+
+        it('should verify using the real nodemailer transport', async () => {
+            // tell the mock class to pass verify requests to nodemailer
+            nodemailerMock.mock.setMockedVerify(false);
+
+            // call a service that uses nodemailer
+            const response = EmailService.sendCustomMail("s3945734658376e@gmail.com", "Test", "This is a test"); // <-- your code here
+
+            /* calls to transport.verify() will be passed through, 
+            transport.sendMail() is still mocked */
+            response.then((done) => {
+                //console.log(done);
+                done.response.should.be.exactly("nodemailer-mock success");
+            }).catch((err) => {
+                console.log(err);
+            })
+        });
+        it ("should verify that the custom email cannot send because the to is a nullish value", async()=>{
+            const response = EmailService.sendCustomMail("s3945734658376e@gmail.com", "Test", "This is a test"); // <-- your code here
+            response.catch((err)=>{
+                err.should.be.exactly("Undefined recipient")
+            })
+        });
     });
 }
 
