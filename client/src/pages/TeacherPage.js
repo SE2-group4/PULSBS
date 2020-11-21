@@ -40,9 +40,13 @@ class TeacherPage extends React.Component {
         .then((courses)=>{
             let i=0;
             let nMap=new Map(); 
-            courses.map((c)=>{
-            nMap.set(c.courseId,Math.floor(i/elementForPage));
-            i++;})
+            //courses.map((c)=>{
+            //nMap.set(c.courseId,Math.floor(i/elementForPage));
+            //i++;})
+            courses.forEach(function(item){
+                nMap.set(item.courseId,Math.floor(i/elementForPage));
+                i++;
+            });
             let nPages=Math.ceil(i/elementForPage);
             console.log(courses);
             this.setState({courses : courses,courseMap: nMap,cPages: nPages,fetchErrorC: false});
@@ -58,9 +62,13 @@ class TeacherPage extends React.Component {
         .then((lectures)=>{
             let i=0;
             let nMap=new Map(); 
-            lectures.map((l)=>{
-            nMap.set(l.lectureId,Math.floor(i/elementForPage));
-            i++;})
+            //lectures.map((l)=>{
+            //nMap.set(l.lectureId,Math.floor(i/elementForPage));
+            //i++;})
+            lectures.forEach(function(item){
+                nMap.set(item.lectureId,Math.floor(i/elementForPage));
+                i++;
+            });
             let nPages=Math.ceil(i/elementForPage);
             console.log(lectures);
             this.setState({lectures : lectures,lectureMap: nMap,lPages: nPages,selectedCourse: courseId,selectedLecture: null,fetchErrorL: false,students: [],sPages: 1,fetchErrorS: false});
@@ -77,9 +85,13 @@ class TeacherPage extends React.Component {
         .then((students)=>{
             let i=0;
             let nMap=new Map(); 
-            students.map((s)=>{
-            nMap.set(s.studentId,Math.floor(i/elementForPage));
-            i++;})
+            //students.map((s)=>{
+            //nMap.set(s.studentId,Math.floor(i/elementForPage));
+            //i++;})
+            students.forEach(function(item){
+                nMap.set(item.studentId,Math.floor(i/elementForPage));
+                i++;
+            });
             let nPages=Math.ceil(i/elementForPage);
             this.setState({students : students,studentMap: nMap,sPages: nPages,selectedLecture: lectureId,fetchErrorS: false})
         })
