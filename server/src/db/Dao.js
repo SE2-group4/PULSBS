@@ -140,7 +140,7 @@ exports.addBooking = addBooking;
  */
 const getLecturesByStudent = function(student) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM Lecture
+        const sql = `SELECT Lecture.* FROM Lecture
             JOIN Course ON Lecture.lectureId = Course.courseId
             JOIN Enrollment ON Enrollment.courseId = Course.courseId
             WHERE Enrollment.studentId = ? AND DATE(Lecture.date) > DATE(?)`;
@@ -193,7 +193,7 @@ exports.getCoursesByStudent = getCoursesByStudent;
  */
 const getLecturesByCourse = function(course) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM Lecture
+        const sql = `SELECT Lecture.* FROM Lecture
             WHERE Lecture.courseId = ? AND DATETIME(Lecture.date) >= DATETIME(?)`;
 
         db.all(sql, [course.courseId, (new Date()).toISOString()], (err, rows) => {
@@ -270,7 +270,7 @@ exports.getStudentsByCourse = getStudentsByCourse;
  */
 const getLecturesByTeacher = function(teacher) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM Lecture
+        const sql = `SELECT Lecture.* FROM Lecture
             JOIN Course ON Lecture.courseId = Course.courseId
             JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId
             WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.date) > DATE(?)`;
