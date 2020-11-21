@@ -119,6 +119,7 @@ paths:
               example:
                 error: "string"
   /students/{studentId}/courses/{courseId}/lectures:
+
     get:
       tags:
         - student
@@ -138,6 +139,18 @@ paths:
         schema:
           type: integer
         description: course id
+      - in: query
+        name : from
+        required: false
+        schema:
+          type: string
+        description: the start date (only string in ISO date-time format and "infinite" are supported)
+      - in: query
+        name: to
+        required: false
+        schema:
+          type: string
+        description: the end date (only string in ISO date-time format and "infinite" are supported)
       responses:
         '200':
           description: The request was successful
@@ -152,21 +165,15 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  errors:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        value:
-                          type: string
-                        msg:
-                          type: string
-                        param:
-                          type: string
-                        location:
-                          type: string
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: internal server error
         '500':
           description: Generic server error. Not implemented
           content:
@@ -417,6 +424,68 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /teachers/{teacherId}/courses/{coursesId}/lecture/{lectureId}:
+    get:
+      tags:
+        - teacher
+      summary: Return the lectures in a certain temporal interval
+      operationId: getLectures
+      parameters:
+      - in: path
+        name: teacherId
+        required: true
+        schema:
+          type: integer
+        description: teacher id
+      - in: path
+        name: courseId
+        required: true
+        schema:
+          type: integer
+        description: course id
+      - in: path
+        name: lectureId
+        required: true
+        schema:
+          type: integer
+        description: lecture id
+      - in: query
+        name: from
+        schema:
+          type: string
+        description: the start date (only string in ISO date-time format and "infinite" are supported)
+      - in: query
+        name: from
+        schema:
+          type: string
+        description: the end date (only string in ISO date-time format and "infinite" are supported)
+      responses:
+        "200":
+          description: The request was successful
+          content : 
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lecture'
+
+        "400":
+            description: Bad request, errors in path parameters
+            content : 
+              application/json : 
+                schema : 
+                  $ref : '#/components/schemas/Error'
+        "404":
+          description: Not found
+          content : 
+              application/json : 
+                schema : 
+                  $ref : '#/components/schemas/Error'
+        "500":
+            description : Internal Error
+            content:
+              application/json : 
+                schema : 
+                  $ref : '#/components/schemas/Error'
     put:
       tags:
         - teacher
