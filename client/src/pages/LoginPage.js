@@ -6,6 +6,9 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import API from '../api/Api';
 import ErrorMsg from "../components/ErrorMsg";
+
+import APIfake from "../api/APIfake";
+
 class LoginPage extends React.Component {
   constructor(props) {
     super(props);
@@ -24,7 +27,7 @@ class LoginPage extends React.Component {
     event.preventDefault();
     //this.props.setLoggedInUser(this.state.username, this.state.password);
     //this.setState({ submitted: true });
-    API.userLogin(this.state.username,this.state.password)
+    APIfake.userLogin(this.state.username,this.state.password)
     .then((user)=>this.userLogin(user))
     .catch((err)=>this.setState({fetchError : err}));
   };

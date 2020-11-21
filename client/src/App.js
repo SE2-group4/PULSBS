@@ -33,6 +33,7 @@ class App extends React.Component {
   userLogout = () => {
     this.setState({ authUser: null, isAuth: false });
   };
+
   render() {
     return (
       <Container fluid>
