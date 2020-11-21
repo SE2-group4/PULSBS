@@ -5,6 +5,9 @@
  */
 'use strict';
 
+/**
+ * @deprecated - use Email.EmailType
+ */
 const EmailType = {
     ERROR : -1,
     UNDEFINED : 0,
