@@ -1,12 +1,13 @@
 import User from "../entities/user";
 import Course from '../entities/course';
-import Lecture from '../entities/lecture'
+import Lecture from '../entities/lecture';
+import Student from '../entities/student';
 /**
  * APIfake.js contains fake API which emulates the REST API behaviours
  */
 const students =[
                 new User(1,"Student","Francesco", "Rossi","fr@email.com","ciao1"),
-                new User(4,"Teacher","Monica","Gialli","mg@email.com","ciao2"),
+                new User(4,"TEACHER","Monica","Gialli","mg@email.com","ciao2"),
                 new User(2,"Student","Gianni", "Verdi","gn@email.com","ciao3"),
                 new User(6,"Student","Mario", "Blu","mr@email.com","ciao4"),
                 new User(5,"Student","Luca", "Bianchi","lc@email.com","ciao5")
@@ -23,10 +24,10 @@ const courses = [
  * All the lectures
  */
 const lectures = [
-                new Lecture(1,1,1,"10-11-2020 12:00"),
-                new Lecture(2,1,1,"25-11-2020 13:00"),
-                new Lecture(3,2,2,"12-12-2020 09:00"),
-                new Lecture(4,1,2,"13-12-2020 09:00")
+                new Lecture(1,1,1,"10-11-2020 12:00","10-11-2020 12:01","inPresence"),
+                new Lecture(2,1,1,"11-21-2020 01:01","11-25-2020 13:01","inPresence"),
+                new Lecture(3,2,2,"12-12-2020 09:00","12-12-2020 09:01","remote"),
+                new Lecture(4,1,2,"11-24-2020 19:18","11-24-2020 19:19","remote")
                 ]
 /**
  * All the lessons booked
@@ -43,6 +44,14 @@ const teacherCourses = [
                         new Course(5,"Machine Learning and AI","2020"),
                         new Course(6,"Distributed Systems","2020")
                        ]
+
+const students2 =[
+                    new Student(1,"Francesco", "Rossi","fr@email.com","ciao1"),
+                    new Student(4,"Monica","Gialli","mg@email.com","ciao2"),
+                    new Student(2,"Gianni", "Verdi","gn@email.com","ciao3"),
+                    new Student(6,"Mario", "Blu","mr@email.com","ciao4"),
+                    new Student(5,"Luca", "Bianchi","lc@email.com","ciao5")
+                    ]
 
 /**
  * userLogin sends to server the user credentials and it returns success or failure (and the description of them)
@@ -117,7 +126,7 @@ async function getLecturesByCourseIdT(Uid,Cid){
  * getStudentsByLectureId performs a GET request towards the server to gain the all students of a certain lecture
  */
 async function getStudentsByLectureId(id){
-    return students.filter(s => s.type=="Student");
+    return students2;
 }
 
 const APIfake= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,getCoursesByTeacherId,getLecturesByCourseIdT,getStudentsByLectureId};

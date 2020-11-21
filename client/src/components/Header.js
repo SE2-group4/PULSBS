@@ -4,10 +4,9 @@ import Nav from 'react-bootstrap/Nav';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
-import InfoPanel from './InfoPanel'
+import InfoPanel from './InfoPanel';
 import DropdownButton from 'react-bootstrap/DropdownButton';
-//<Header isAuth={this.state.isAuth} user={this.state.authUser} userLogout={this.userLogout}/>
-//starting version
+
 function Header(props){
     return <>
     <Navbar id="navbar">
