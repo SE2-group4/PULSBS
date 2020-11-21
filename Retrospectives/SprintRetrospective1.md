@@ -47,7 +47,7 @@ sections:
   - Total hours spent : 17hours 9minutes
   - Nr of automated unit test cases:
     - Client-side : 28 tests
-    -Server-side : 20 tests
+    - Server-side : 20 tests
   - Coverage : 54.39 %
 - E2E testing:
   - Total hours estimated : 4 hours
