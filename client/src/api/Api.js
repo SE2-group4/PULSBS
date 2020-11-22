@@ -86,7 +86,7 @@ async function bookALecture(Uid,Cid,Lid) {
 }
 
 /**
- * 
+ * Delete the reservation for a lecture 
  * @param {*} Uid studentId
  * @param {*} Cid courseId
  * @param {*} Lid lectureId
@@ -107,6 +107,19 @@ async function cancelLectureReservation(Uid,Cid,Lid) {
     });
 }
 
+/**
+ * Fetch all the booked lectures of the student
+ * @param {*} Uid studentId
+ */
+async function getBookedLectures(Uid){
+    return new Promise((resolve,reject)=>{
+        fetch(baseURL + `/students/${Uid}/bookings`).then((response)=>{
+            if(response.ok)
+                resolve(response.json());
+            else reject((obj) => { reject(obj); });
+        }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
+    });
+}
 
 /************************** TEACHER API *****************************/
 /**
@@ -175,5 +188,5 @@ async function getStudentsByLecture(Uid,Cid,Lid) {
     });
 }
 
-const API= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,cancelLectureReservation,getCoursesByTeacherId,getLecturesByCourseIdByTeacherId,getStudentsByLecture};
+const API= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,cancelLectureReservation,getBookedLectures,getCoursesByTeacherId,getLecturesByCourseIdByTeacherId,getStudentsByLecture};
 export default API;
