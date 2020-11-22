@@ -1,11 +1,28 @@
 import React from 'react';
-import Container from "react-bootstrap/Container"
+import Container from "react-bootstrap/Container";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import API from "../api/Api";
-import InfoPanel from '../components/InfoPanel'
-import BookingLectureForm from '../components/BookingLectureForm'
-
+import InfoPanel from '../components/InfoPanel';
+import BookingLectureForm from '../components/BookingLectureForm';
+import Sidebar from '../components/Sidebar';
+import Calendar from '../components/Calendar';
+import Lecture from '../entities/lecture';
+import moment from "moment";
+const bookedLectures=[new Lecture(1,1,1,"20/20/2020 15:00","eeeee")]
+const lessons = [{
+        id:1,
+        title:"Prova",
+        start: moment().toISOString(),
+        end: moment().add("1","hour").toISOString(),
+        color : "red"
+        },{
+            id:2,
+        title:"Prova2",
+        start: moment().add("2","hour").toISOString(),
+        end: moment().add("3","hour").toISOString(),
+        color : "green"
+        }]
 class StudentPage extends React.Component {
     constructor(props){
         super(props);
@@ -13,13 +30,28 @@ class StudentPage extends React.Component {
     }
 
     async componentDidMount(){
-        const courses=await API.getCoursesByStudentId(this.state.user.userId)
+        const courses = await API.getCoursesByStudentId(this.state.user.userId);
+        //const bookedLectures = await API.getBookedLectures(this.state.user.userId);
+        //const allLectures = await API.getAllLectures(this.state.user.userId);
         console.log(courses);
+        this.setState({courses: courses, bookedLectures : bookedLectures});
     }
     
     
     render(){
-        return(<></>);
+        return(
+        <>
+            <Container fluid>
+            <Row>
+            <Col sm="4">
+                <Sidebar courses={this.state.courses} bookedLectures={this.state.bookedLectures}/>
+            </Col>
+            <Col sm="8">
+                <Calendar lessons={lessons}/>
+            </Col>
+            </Row>
+            </Container>
+        </>);
     }
 }
 

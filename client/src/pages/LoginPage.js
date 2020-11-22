@@ -27,7 +27,7 @@ class LoginPage extends React.Component {
     event.preventDefault();
     //this.props.setLoggedInUser(this.state.username, this.state.password);
     //this.setState({ submitted: true });
-    APIfake.userLogin(this.state.username,this.state.password)
+    API.userLogin(this.state.username,this.state.password)
     .then((user)=>this.userLogin(user))
     .catch((err)=>this.setState({fetchError : err}));
   };
