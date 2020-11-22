@@ -3,11 +3,13 @@ import Container from "react-bootstrap/Container";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import API from "../api/Api";
+import APIfake from "../api/APIfake";
 import InfoPanel from '../components/InfoPanel';
 import BookingLectureForm from '../components/BookingLectureForm';
 import Sidebar from '../components/Sidebar';
 import Calendar from '../components/Calendar';
 import Lecture from '../entities/lecture';
+import CalendarEvent from "../entities/calendarEvent";
 import moment from "moment";
 const bookedLectures=[new Lecture(1,1,1,"20/20/2020 15:00","eeeee")]
 const lessons = [{
@@ -32,14 +34,21 @@ class StudentPage extends React.Component {
     }
 
     async componentDidMount(){
-        const courses = await API.getCoursesByStudentId(this.state.user.userId);
-        //const bookedLectures = await API.getBookedLectures(this.state.user.userId);
-        //const allLectures = await API.getAllLectures(this.state.user.userId);
+        const courses = await APIfake.getCoursesByStudentId(this.state.user.userId);
+        const bookedLectures = await APIfake.getBookedLectures(this.state.user.userId);
+        const allLectures = await this.getAllLectures(courses);
         console.log(courses);
-        this.setState({courses: courses, bookedLectures : bookedLectures});
+        const events = buildEvents(bookedLectures,allLectures,courses);
+        this.setState({courses: courses, events : events});
     }
     
-    
+    async getAllLectures(courses){
+        let lectures = []
+        for (let c of courses)
+            lectures.push(await APIfake.getLecturesByCourseId(this.state.user.userId,c.courseId))
+        return lectures;
+    }
+
     render(){
         return(
         <>
@@ -49,7 +58,7 @@ class StudentPage extends React.Component {
                 <Sidebar courses={this.state.courses}/>
             </Col>
             <Col sm="8">
-                <Calendar lessons={lessons}/>
+                <Calendar lessons={this.state.events}/>
             </Col>
             </Row>
             </Container>
@@ -57,8 +66,26 @@ class StudentPage extends React.Component {
     }
 }
 
+function buildEvents(booked,all,courses){
+    const events =[]
+    for (let array of all)
+        for (let lecture of array){
+            if(booked.includes(lecture))
+                events.push(new CalendarEvent(events.length,courseName(courses,lecture.courseId),moment(lecture.date).toISOString(),moment(lecture.date).add("1","hour").toISOString(),"red","booked",lecture.lectureId,lecture.courseId,lecture.bookingDeadline))
+            else if(moment(lecture.date).isBefore(moment()))
+                events.push(new CalendarEvent(events.length,courseName(courses,lecture.courseId),moment(lecture.date).toISOString(),moment(lecture.date).add("1","hour").toISOString(),"black","",lecture.lectureId,lecture.courseId,lecture.bookingDeadline))
+            else if (moment(lecture.bookingDeadline).isBefore(moment()))
+                events.push(new CalendarEvent(events.length,courseName(courses,lecture.courseId),moment(lecture.date).toISOString(),moment(lecture.date).add("1","hour").toISOString(),"grey","",lecture.lectureId,lecture.courseId,lecture.bookingDeadline))
+            else events.push(new CalendarEvent(events.length,courseName(courses,lecture.courseId),moment(lecture.date).toISOString(),moment(lecture.date).add("1","hour").toISOString(),"green","bookable",lecture.lectureId,lecture.courseId,lecture.bookingDeadline))
+        }
+    return events;
+}
 
-
+function courseName(courses,courseId){
+    for (let c of courses)
+        if(c.courseId===courseId)
+            return c.description;
+}
 
 
 

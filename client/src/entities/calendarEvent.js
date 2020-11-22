@@ -1,5 +1,5 @@
 class CalendarEvent{
-    constructor(id,title,start,end,color,status,lectureId,courseId){
+    constructor(id,title,start,end,color,status,lectureId,courseId,bookingDeadline){
         this.id=id;
         this.title=title;
         this.start=start;
@@ -8,6 +8,7 @@ class CalendarEvent{
         this.status=status;
         this.lectureId=lectureId;
         this.courseId=courseId;
+        this.bookingDeadline=bookingDeadline
     }
 }
 

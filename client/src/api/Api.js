@@ -121,6 +121,7 @@ async function getBookedLectures(Uid){
     });
 }
 
+
 /************************** TEACHER API *****************************/
 /**
  * 	getCoursesByTeacherId performs a GET request towards the server to gain the all courses taught by 

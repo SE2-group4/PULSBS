@@ -11,8 +11,11 @@ class Calendar extends React.Component{
     constructor(props){
         super(props);
         this.state={};
+        console.log(props.lessons)
     }
     render(){
+        if(!this.props.lessons)
+            return <></>
         return(
             <Container fluid>
                 {

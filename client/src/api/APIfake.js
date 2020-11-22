@@ -2,6 +2,7 @@ import User from "../entities/user";
 import Course from '../entities/course';
 import Lecture from '../entities/lecture';
 import Student from '../entities/student';
+import moment from "moment";
 /**
  * APIfake.js contains fake API which emulates the REST API behaviours
  */
@@ -16,7 +17,7 @@ const students =[
  * All the courses of stedent[0] (Francesco Rossi)
  */ 
 const courses = [
-                new Course(1,"Web Aplication 1","2020"),
+                new Course(1,"Web Application 1","2020"),
                 new Course(2,"Data Science","2020")
                 ]
 
@@ -24,7 +25,7 @@ const courses = [
  * All the lectures
  */
 const lectures = [
-                new Lecture(1,1,1,"10-11-2020 12:00","10-11-2020 12:01","inPresence"),
+                new Lecture(1,1,1,"12-11-2020 12:00","12-11-2020 12:01","inPresence"),
                 new Lecture(2,1,1,"11-21-2020 01:01","11-25-2020 13:01","inPresence"),
                 new Lecture(3,2,2,"12-12-2020 09:00","12-12-2020 09:01","remote"),
                 new Lecture(4,1,2,"11-24-2020 19:18","11-24-2020 19:19","remote")
@@ -32,7 +33,9 @@ const lectures = [
 /**
  * All the lessons booked
  */
-const booked =[];
+const booked =[
+    lectures[0]
+];
 
 /** 
  * All courses of teacher[0] (Monica Gialli)
@@ -86,14 +89,7 @@ async function getCoursesByStudentId(id){
  */
 async function getLecturesByCourseId(Uid,Cid){
     return new Promise((resolve,reject)=>{
-        /*fetch(baseURL + `/students/${Uid}/courses/${Cid}`).then((response)=>{
-            if(response.ok)
-                resolve(response.json());
-            else reject((obj) => { reject(obj); });
-        }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
-    */
        resolve(lectures.filter((l)=>l.courseId===Cid));
-       //reject()
    });
    
 }
@@ -108,6 +104,10 @@ async function bookALecture(Uid,Cid,Lid) {
         })
 }
 
+async function getBookedLectures(Uid){
+    return new Promise((resolve,reject)=>
+        resolve(booked))
+}
 /**
  * getCoursesByTeacherId performs a GET request towards the server to gain the all courses of a certain teacher
  */
@@ -129,5 +129,5 @@ async function getStudentsByLectureId(id){
     return students2;
 }
 
-const APIfake= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,getCoursesByTeacherId,getLecturesByCourseIdT,getStudentsByLectureId};
+const APIfake= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,getBookedLectures,getCoursesByTeacherId,getLecturesByCourseIdT,getStudentsByLectureId};
 export default APIfake;
