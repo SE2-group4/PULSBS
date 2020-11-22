@@ -126,6 +126,7 @@ async function getBookedLectures(Uid){
 /**
  * 	getCoursesByTeacherId performs a GET request towards the server to gain the all courses taught by 
  *	a certain teacher
+ *  @param {*} id teacherId
  */
 async function getCoursesByTeacherId(id){
     return new Promise((resolve,reject)=>{
@@ -148,10 +149,19 @@ async function getCoursesByTeacherId(id){
 /**
  *  getLecturesByCourseIdByTeacherId performs a GET request towards the server to gain the all the lectures of 
  *	a certain course taught by a certain teacher
+ *  @param {*} Uid teacherId
+ *  @param {*} Cid courseId
+ *  @param {*} dateFrom date
+ *  @param {*} dateTo date
  */
-async function getLecturesByCourseIdByTeacherId(Uid,Cid){
+async function getLecturesByCourseIdByTeacherId(Uid,Cid,dateFrom,dateTo){
+    let qfrom=dateFrom ? "from="+dateFrom : "";
+    let qto=dateTo ? "to="+dateTo : "";
+    qto=qfrom ? "&"+qto : qto;                      //chiedere conferma
+    let query=qfrom || qto ? "?"+qfrom+qto : "";
+    
     return new Promise((resolve,reject)=>{
-        fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures`).then((response)=>{
+        fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures${query}`).then((response)=>{
             const status = response.status;
             if (response.ok) {
                 response.json()
@@ -170,6 +180,9 @@ async function getLecturesByCourseIdByTeacherId(Uid,Cid){
 /**
  * 	getStudentsByLecture performs a GET request towards the server to gain the all the students booked to 
  *	a certain lecture of a certain course taught by a certain teacher
+ *  @param {*} Uid teacherId
+ *  @param {*} Cid courseId
+ *  @param {*} Lid lectureId
  */
 async function getStudentsByLecture(Uid,Cid,Lid) {
     return new Promise((resolve,reject)=>{
@@ -189,5 +202,30 @@ async function getStudentsByLecture(Uid,Cid,Lid) {
     });
 }
 
-const API= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,cancelLectureReservation,getBookedLectures,getCoursesByTeacherId,getLecturesByCourseIdByTeacherId,getStudentsByLecture};
+/**
+ *  updateDeliveryByLecture performs a PUT request toward the server to update Delivery attribute of a certain lecture of
+ *  a certain course taught by a certain teacher  
+ *  @param {*} Uid teacherId
+ *  @param {*} Cid courseId
+ *  @param {*} Lid lectureId
+ *  @param {*} Delivery delivery{presence,remote}
+ */
+async function updateDeliveryByLecture(Uid,Cid,Lid,Delivery) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures/${Lid}?switchTo=${Delivery}`,{
+            method: 'PUT',
+        }).then((response) => {
+            if (response.status===204) {
+               resolve(); //delivery correctly updated
+            } else{
+                response.json()
+                    .then((obj) => { reject(obj.error); }) // error msg in the response body
+                    .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+            }
+        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
+    });
+}
+
+const API= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,cancelLectureReservation,getBookedLectures,getCoursesByTeacherId,
+    getLecturesByCourseIdByTeacherId,getStudentsByLecture,updateDeliveryByLecture};
 export default API;
