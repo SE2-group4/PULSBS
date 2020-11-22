@@ -7,7 +7,7 @@ import Student from '../entities/student';
  */
 const baseURL = "/api/v1";
 
-
+/************************ LOGIN API *******************************/
 /**
  * userLogin sends to server the user credentials and it returns success or failure (and the description of them)
  */
@@ -33,7 +33,7 @@ async function userLogin(email, password) {
     });
 }
 
-
+/************************* STUDENT API *************************************/
 /**
  * getCoursesByStudentId performs a GET request towards the server to gain the all courses of a certain student
  */
@@ -75,7 +75,6 @@ async function bookALecture(Uid,Cid,Lid) {
             body: JSON.stringify({studentId: Uid}),
         }).then((response) => {
             if (response.ok) {
-                console.log("ok prenotato");
                resolve()
             } else{
                 response.json()
@@ -86,6 +85,30 @@ async function bookALecture(Uid,Cid,Lid) {
     });
 }
 
+/**
+ * 
+ * @param {*} Uid studentId
+ * @param {*} Cid courseId
+ * @param {*} Lid lectureId
+ */
+async function cancelLectureReservation(Uid,Cid,Lid) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/students/${Uid}/courses/${Cid}/lectures/${Lid}`, {
+            method: 'DELETE'
+        }).then((response) => {
+            if (response.status===204) {
+               resolve()
+            } else{
+                response.json()
+                    .then((obj) => { reject(obj.error); }) // error msg in the response body
+                    .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+            }
+        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
+    });
+}
+
+
+/************************** TEACHER API *****************************/
 /**
  * 	getCoursesByTeacherId performs a GET request towards the server to gain the all courses taught by 
  *	a certain teacher
@@ -152,5 +175,5 @@ async function getStudentsByLecture(Uid,Cid,Lid) {
     });
 }
 
-const API= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,getCoursesByTeacherId,getLecturesByCourseIdByTeacherId,getStudentsByLecture};
+const API= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,cancelLectureReservation,getCoursesByTeacherId,getLecturesByCourseIdByTeacherId,getStudentsByLecture};
 export default API;

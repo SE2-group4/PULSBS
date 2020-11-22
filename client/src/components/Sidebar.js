@@ -11,6 +11,8 @@ class Sidebar extends React.Component{
       return(<></>)
       return (
         <Container fluid id="sidebarCalendar">
+          <h3><strong>FILTERS</strong></h3>
+          <br></br>
           <strong>Courses:</strong>
           <Select
             options={makeSelectOptions(this.props.courses)}
@@ -18,8 +20,7 @@ class Sidebar extends React.Component{
           />
           <br></br>
           <br></br>
-          <strong>Your booking lesson:</strong>
-          <ListBookingLesson lessons={this.props.bookedLectures}/>
+          <small>Ricordati di inserire la legenda!</small>
           <br></br>
         </Container>
       )
@@ -27,13 +28,6 @@ class Sidebar extends React.Component{
   }
 }
 
-function ListBookingLesson(props){
-  return(
-    <ListGroup variant="flush">
-      {props.lessons.map((l)=><ListGroup.Item>{l.courseId}</ListGroup.Item>)}
-    </ListGroup>
-  )
-}
 function makeSelectOptions(courses){
   return courses.map(function(c){
     return {

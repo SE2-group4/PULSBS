@@ -15,13 +15,15 @@ const lessons = [{
         title:"Prova",
         start: moment().toISOString(),
         end: moment().add("1","hour").toISOString(),
-        color : "red"
+        color : "red",
+        status : "booked"
         },{
             id:2,
         title:"Prova2",
         start: moment().add("2","hour").toISOString(),
         end: moment().add("3","hour").toISOString(),
-        color : "green"
+        color : "green",
+        status : "bookable"
         }]
 class StudentPage extends React.Component {
     constructor(props){
@@ -44,7 +46,7 @@ class StudentPage extends React.Component {
             <Container fluid>
             <Row>
             <Col sm="4">
-                <Sidebar courses={this.state.courses} bookedLectures={this.state.bookedLectures}/>
+                <Sidebar courses={this.state.courses}/>
             </Col>
             <Col sm="8">
                 <Calendar lessons={lessons}/>
