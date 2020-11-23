@@ -60,7 +60,7 @@ class CoursePanel extends React.Component {
                     { this.props.courses.length===0 && !this.props.fetchError && "no courses available." }
                     </td>
                     <td></td>
-                    <td>{ this.props.sCourse && <>Selected course: {this.props.sCourse}</>}</td>
+                    <td>{ this.props.sCourse && <label>Selected course: {this.props.sCourse}</label>}</td>
                     </tr>
                     </tbody>
                     </Table><br/> 
@@ -205,7 +205,7 @@ class StudentPanel extends React.Component {
                     { this.props.students.length===0 && !this.props.fetchError && "no students listed." }
                     </td>
                     <td></td>
-                    <td>{ this.props.students.length!==0 && <>Number of students: {this.props.students.length}</>}</td>
+                    <td>{ this.props.students.length!==0 && <label>Number of students: {this.props.students.length}</label>}</td>
                     </tr>
                     </tbody>
                     </Table><br/>
