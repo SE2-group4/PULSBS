@@ -29,31 +29,45 @@ sections:
 
 | Story  | # Tasks | Points | Hours est. | Hours actual | Status |
 |--------|---------|--------|------------|--------------|--------|
-| _#0_   |         |    -   |            |              |        |
-| | 26 | | 6h | 7h 30min | done | 
-| | 30 | | 3h | 3h 10min | done |
-| | 27 | | 5h | 2h 20min | done |
-| | 48 | | 6h | 2h 30min | done |
-| | 49 | | 2h | 1h 45min | done |
-| _#3_ | | 3 | | | |
-| | 37 | | 2h | 3h 30min | done |
-| | 38 | | 1h 30min | 2h | done |
-| | 44 | | 3h | 2h 50min | review |
-| | 45 | | 2h | 4h | done |
-| | 46 | | 2h | 1h 15min | done |
+| #0   |         |    -   |            |              |        |
+| | 26 | | 6h | 7h 30m | done   | 
+| | 30 | | 3h | 3h 10m | done   |
+| | 27 | | 5h | 2h 20m | done   |
+| | 48 | | 6h | 2h 30m | done   |
+| | 49 | | 2h | 1h 45m | done   |
+| #1 | | 5  |        |      | |
+| | 29 | | 2h | 2h 30m | done | 
+| | 31 | | 1h 30m | 1h 20m | done | 
+| | 32 | | 1h | 45m    | done   | 
+| | 33 | | 2h | 3h     | done   | 
+| | 40 | | 2h | 4h 20m | done   | 
+| | 41 | | 2h | 2h 20m | review | 
+| | 42 | | 2h | 3h 30m | done | 
+| #2 | | 13 | | | |
+| | 28 | | 4h | 3h     | done | 
+| | 34 | | 5h | 3h     | done | 
+| | 43 | | 6h | 6h 30m | done | 
+| | 35 | | 3h | 4h     | done | 
+| | 36 | | 3h | 1h     | done | 
+| #3 | | 3 | | |     |
+| | 37 | | 2h | 3h 30m | done |
+| | 38 | | 1h 30m | 2h | done |
+| | 44 | | 3h | 2h 50m | review |
+| | 45 | | 2h | 4h     | done |
+| | 46 | | 2h | 1h 15m | done |
 | #4 | | 8 | | | |
-| | 39 | | 2h | 25min | done |
-| | 47 | | 2h | ? | review |
-
-   
+| | 39 | | 2h | 25m    | done |
+| | 47 | | 2h | ?      | review |
 
 > place technical tasks corresponding to story `#0` and leave out story points (not applicable in this case)
 
 - Hours per task (average, standard deviation)
+  - average: 2.77 hours
+  - standard deviation: 1.74 hours 
 
 - Total task estimation error ratio: sum of total hours estimation / sum of total hours spent from previous table
+  - error ratio: 1.05 
 
-  
 ## QUALITY MEASURES 
 
 - Unit Testing:
