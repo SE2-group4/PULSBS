@@ -6,7 +6,7 @@ info:
     system)
   contact:
     email: s276509@studenti.polito.it
-  version: 0.2.0
+  version: 0.3.0
 servers:
   - url: 'http://localhost:3001/api/v1'
 tags:
@@ -35,44 +35,28 @@ paths:
         required: true
       responses:
         '200':
-          description: "Login was successful. Note:there are 2 extra fields (studentId and type)"
+          description: "Login was successful"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Student'
         '400':
-          description: "Email/password are not lexical valid"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errors:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        value:
-                          type: string
-                        msg:
-                          type: string
-                        param:
-                          type: string
-                        location:
-                          type: string
-        '401':
-          description: Credetials are invalid
+          description: "Email and/or password are not lexical valid"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: "incorrect userId or password"
+        '401':
+          description: "Credetials are invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /students/{studentId}/courses:
     get:
       tags:
         - student
-      summary: get all enrolled courses in this academic year
+      summary: "Get all enrolled courses in this academic year"
       operationId: studentGetCourses 
       parameters:
       - in: path
@@ -95,35 +79,24 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  errors:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        value:
-                          type: string
-                        msg:
-                          type: string
-                        param:
-                          type: string
-                        location:
-                          type: string
+                $ref: '#/components/schemas/Error'
+              example:
+                source: "StudentService"
+                errno: 1
+                error: "'studentId' parameter is not an integer: fail"
+                statusCode: 400
         '500':
-          description: Generic server error. 
+          description: "Generic server error."
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: "string"
   /students/{studentId}/courses/{courseId}/lectures:
     get:
       tags:
         - student
-      summary: get all active lectures of a particular course
-      description: Get all active lectures, which are still not delivered, for a course enrolled by a particular student
+      summary: "Get all active lectures of a given course of a given student"
+      description: "Get all active lectures, which are still not delivered, for a course enrolled by a particular student"
       operationId: studentGetCourseLectures 
       parameters:
       - in: path
@@ -148,38 +121,33 @@ paths:
                 items:
                   $ref: '#/components/schemas/Lecture'
         '400':
-          description: "Parameter/s are not lexical correct. Another possibilities: the student is not enrolled in this course; db generic error"
+          description: "studentId and/or courseId are not integers"
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  errors:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        value:
-                          type: string
-                        msg:
-                          type: string
-                        param:
-                          type: string
-                        location:
-                          type: string
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: "student/course mismatch"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                source: "StudentService"
+                errno: 30
+                error: "student (studentId = 3) is not enrolled in the course (courseId = 4)"
+                statusCode: 404
         '500':
           description: Generic server error. Not implemented
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: internal server error
   /students/{studentId}/courses/{courseId}/lectures/{lectureId}:
       post:
         tags:
         - student
-        summary: book a particular lecture
+        summary: Book a particular lecture
         operationId: studentBookLecture 
         parameters:
         - in: path
@@ -200,49 +168,32 @@ paths:
           schema:
             type: integer
           description: lecture id
-        requestBody:
-          description: The id of the student that want to book a lecture
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  stundetId:
-                    type: integer
-                    example: 1
-          required: true
         responses:
-          '200':
-            description: The booking was successful
-            content: {}
+          '204':
+            description: "The booking was successful"
           '400':
-            description: "Parameter/s are not lexical correct. Another possibilities: the student is not enrolled in this course; the lecture is not related to this course; the lecture was already booked; db generic error"
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    errors:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          value:
-                            type: string
-                          msg:
-                            type: string
-                          param:
-                            type: string
-                          location:
-                            type: string
-          '500':
-            description: "Generic server error. Not implemented"
+            description: "StudentId, courseId and/or lectureId are not integers"
             content:
               application/json:
                 schema:
                   $ref: '#/components/schemas/Error'
+          '404':
+            description: "'student/course' or 'course/lecture' mismatch"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
                 example:
-                  error: internal server error
+                  source: "StudentService"
+                  errno: 30
+                  error: "student (studentId = 3) is not enrolled in the course (courseId = 4)"
+                  statusCode: 404
+          '500':
+            description: "Generic server error"
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
   /teachers/{teacherId}/courses:
     get:
       tags:
@@ -264,9 +215,9 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CourseJTeacherCourse'
+                  $ref: '#/components/schemas/Course'
         '400':
-          description: "'teacherId' parameter is not valid"
+          description: "teacherId is an integer"
           content:
             application/json:
               schema:
@@ -274,7 +225,7 @@ paths:
               example:
                 source: "TeacherService"
                 errno: 1
-                error: "'teacherId' parameter is not an integer: fail"
+                error: "'teacherId' parameter is not an integer"
                 statusCode: 400
         '500':
           description: Generic server error
@@ -312,7 +263,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Lecture'
         '400':
-          description: "'teacherId' parameter is not valid"
+          description: "teacherId and/or courseId are not valid"
           content:
             application/json:
               schema:
@@ -323,7 +274,7 @@ paths:
                 error: "'teacherId' parameter is not an integer: fail"
                 statusCode: 400
         '404':
-          description: "'teacherId' parameter is not valid"
+          description: "teacher/course mismatch"
           content:
             application/json:
               schema:
@@ -372,9 +323,9 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/StudentLecture'
+                  $ref: '#/components/schemas/Student'
         '400':
-          description: "'teacherId' parameter is not valid"
+          description: "teacherId, courseId and/or lectureId are not integers"
           content:
             application/json:
               schema:
@@ -382,10 +333,10 @@ paths:
               example:
                 source: "TeacherService"
                 errno: 1
-                error: "'teacherId' parameter is not an integer: fail"
+                error: "'teacherId' parameter is not an integer"
                 statusCode: 400
         '404':
-          description: "'teacherId' parameter is not valid"
+          description: "teacher/course and/or course/lecture mismatch"
           content:
             application/json:
               schema:
@@ -496,7 +447,7 @@ components:
           type: string
         errno:
           type: integer
-        error:
+        message:
           type: string
         statusCode:
           type: integer
