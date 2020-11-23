@@ -1,9 +1,7 @@
 openapi: 3.0.1
 info:
   title: Rest API for PULSBS
-  description: >-
-    Open rest API of PULSBS server (pandemic university lecture seat booking
-    system)
+  description: Open rest API of PULSBS server (pandemic university lecture seat booking system)
   contact:
     email: s276509@studenti.polito.it
   version: 0.3.0
@@ -18,14 +16,14 @@ tags:
     description: General services
 externalDocs:
   description: Visualize the api with swagger editor
-  url: https://editor.swagger.io/
+  url: 'https://editor.swagger.io/'
 paths:
   /login:
     post:
       tags:
-      - general
+        - general
       summary: User request to sign in system
-      operationId: userLogin 
+      operationId: userLogin
       requestBody:
         description: The credetials needed are email and password
         content:
@@ -35,36 +33,36 @@ paths:
         required: true
       responses:
         '200':
-          description: "Login was successful"
+          description: Login was successful
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Student'
         '400':
-          description: "Email and/or password are not lexical valid"
+          description: Email and/or password are not lexical valid
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '401':
-          description: "Credetials are invalid"
+          description: Credetials are invalid
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /students/{studentId}/courses:
+  '/students/{studentId}/courses':
     get:
       tags:
         - student
-      summary: "Get all enrolled courses in this academic year"
-      operationId: studentGetCourses 
+      summary: Get all enrolled courses in this academic year
+      operationId: studentGetCourses
       parameters:
-      - in: path
-        name: studentId
-        required: true
-        schema:
-          type: integer
-        description: student id
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: integer
+          description: student id
       responses:
         '200':
           description: The request was successful
@@ -75,42 +73,42 @@ paths:
                 items:
                   $ref: '#/components/schemas/Course'
         '400':
-          description: "Parameter studentId is not an integer"
+          description: Parameter studentId is not an integer
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                source: "StudentService"
+                source: StudentService
                 errno: 1
-                error: "'studentId' parameter is not an integer: fail"
+                error: '''studentId'' parameter is not an integer: fail'
                 statusCode: 400
         '500':
-          description: "Generic server error."
+          description: Generic server error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /students/{studentId}/courses/{courseId}/lectures:
+  '/students/{studentId}/courses/{courseId}/lectures':
     get:
       tags:
         - student
-      summary: "Get all active lectures of a given course of a given student"
-      description: "Get all active lectures, which are still not delivered, for a course enrolled by a particular student"
-      operationId: studentGetCourseLectures 
+      summary: Get all active lectures of a given course of a given student
+      description: 'Get all active lectures, which are still not delivered, for a course enrolled by a particular student'
+      operationId: studentGetCourseLectures
       parameters:
-      - in: path
-        name: studentId
-        required: true
-        schema:
-          type: integer
-        description: student id
-      - in: path
-        name: courseId
-        required: true
-        schema:
-          type: integer
-        description: course id
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: integer
+          description: student id
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: integer
+          description: course id
       responses:
         '200':
           description: The request was successful
@@ -121,21 +119,21 @@ paths:
                 items:
                   $ref: '#/components/schemas/Lecture'
         '400':
-          description: "studentId and/or courseId are not integers"
+          description: studentId and/or courseId are not integers
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: "student/course mismatch"
+          description: student/course mismatch
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
               example:
-                source: "StudentService"
+                source: StudentService
                 errno: 30
-                error: "student (studentId = 3) is not enrolled in the course (courseId = 4)"
+                error: student (studentId = 3) is not enrolled in the course (courseId = 4)
                 statusCode: 404
         '500':
           description: Generic server error. Not implemented
@@ -143,13 +141,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /students/{studentId}/courses/{courseId}/lectures/{lectureId}:
-      post:
-        tags:
+  '/students/{studentId}/courses/{courseId}/lectures/{lectureId}':
+    post:
+      tags:
         - student
-        summary: Book a particular lecture
-        operationId: studentBookLecture 
-        parameters:
+      summary: Book a particular lecture
+      operationId: studentBookLecture
+      parameters:
         - in: path
           name: studentId
           required: true
@@ -168,45 +166,45 @@ paths:
           schema:
             type: integer
           description: lecture id
-        responses:
-          '204':
-            description: "The booking was successful"
-          '400':
-            description: "StudentId, courseId and/or lectureId are not integers"
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-          '404':
-            description: "'student/course' or 'course/lecture' mismatch"
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/Error"
-                example:
-                  source: "StudentService"
-                  errno: 30
-                  error: "student (studentId = 3) is not enrolled in the course (courseId = 4)"
-                  statusCode: 404
-          '500':
-            description: "Generic server error"
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Error'
-  /teachers/{teacherId}/courses:
+      responses:
+        '204':
+          description: The booking was successful
+        '400':
+          description: 'StudentId, courseId and/or lectureId are not integers'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: '''student/course'' or ''course/lecture'' mismatch'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                source: StudentService
+                errno: 30
+                error: student (studentId = 3) is not enrolled in the course (courseId = 4)
+                statusCode: 404
+        '500':
+          description: Generic server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/teachers/{teacherId}/courses':
     get:
       tags:
         - teacher
-      summary:  "Get all courses taught in this academic year by a given professor"
-      operationId: teacherGetCourses 
+      summary: Get all courses taught in this academic year by a given professor
+      operationId: teacherGetCourses
       parameters:
-      - in: path
-        name: teacherId
-        required: true
-        schema:
-          type: integer
-        description: teacher id
+        - in: path
+          name: teacherId
+          required: true
+          schema:
+            type: integer
+          description: teacher id
       responses:
         '200':
           description: The request was successful
@@ -217,15 +215,15 @@ paths:
                 items:
                   $ref: '#/components/schemas/Course'
         '400':
-          description: "teacherId is an integer"
+          description: teacherId is an integer
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                source: "TeacherService"
+                source: TeacherService
                 errno: 1
-                error: "'teacherId' parameter is not an integer"
+                error: '''teacherId'' parameter is not an integer'
                 statusCode: 400
         '500':
           description: Generic server error
@@ -233,26 +231,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /teachers/{teacherId}/courses/{courseId}/lectures:
+  '/teachers/{teacherId}/courses/{courseId}/lectures':
     get:
       tags:
         - teacher
-      summary: "Get all active lectures of a given course"
-      description: "Get all active lectures, which have not yet been delivered, for a course taught by a given professor"
+      summary: Get all active lectures of a given course
+      description: 'Get all active lectures, which have not yet been delivered, for a course taught by a given professor'
       operationId: teacherGetCourseLectures
       parameters:
-      - in: path
-        name: teacherId
-        required: true
-        schema:
-          type: integer
-        description: teacher id
-      - in: path
-        name: courseId
-        required: true
-        schema:
-          type: integer
-        description: course id
+        - in: path
+          name: teacherId
+          required: true
+          schema:
+            type: integer
+          description: teacher id
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: integer
+          description: course id
       responses:
         '200':
           description: The request was successful
@@ -263,26 +261,26 @@ paths:
                 items:
                   $ref: '#/components/schemas/Lecture'
         '400':
-          description: "teacherId and/or courseId are not valid"
+          description: teacherId and/or courseId are not valid
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                source: "TeacherService"
+                source: TeacherService
                 errno: 1
-                error: "'teacherId' parameter is not an integer: fail"
+                error: '''teacherId'' parameter is not an integer: fail'
                 statusCode: 400
         '404':
-          description: "teacher/course mismatch"
+          description: teacher/course mismatch
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
               example:
-                source: "TeacherService"
+                source: TeacherService
                 errno: 30
-                error: "course (courseId = 3) is not taught by this teacher (teacherId = 4)"
+                error: course (courseId = 3) is not taught by this teacher (teacherId = 4)
                 statusCode: 404
         '500':
           description: Generic server error
@@ -290,31 +288,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /teachers/{teacherId}/courses/{courseId}/lectures/{lectureId}/students:
+  '/teachers/{teacherId}/courses/{courseId}/lectures/{lectureId}/students':
     get:
       tags:
         - teacher
-      summary: "Get all the students that have an active booking for a given lecture"
+      summary: Get all the students that have an active booking for a given lecture
       operationId: teacherGetCourseLectureStudents
       parameters:
-      - in: path
-        name: teacherId
-        required: true
-        schema:
-          type: integer
-        description: teacher id
-      - in: path
-        name: courseId
-        required: true
-        schema:
-          type: integer
-        description: course id
-      - in: path
-        name: lectureId
-        required: true
-        schema:
-          type: integer
-        description: lecture id
+        - in: path
+          name: teacherId
+          required: true
+          schema:
+            type: integer
+          description: teacher id
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: integer
+          description: course id
+        - in: path
+          name: lectureId
+          required: true
+          schema:
+            type: integer
+          description: lecture id
       responses:
         '200':
           description: The request was successful
@@ -325,26 +323,26 @@ paths:
                 items:
                   $ref: '#/components/schemas/Student'
         '400':
-          description: "teacherId, courseId and/or lectureId are not integers"
+          description: 'teacherId, courseId and/or lectureId are not integers'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                source: "TeacherService"
+                source: TeacherService
                 errno: 1
-                error: "'teacherId' parameter is not an integer"
+                error: '''teacherId'' parameter is not an integer'
                 statusCode: 400
         '404':
-          description: "teacher/course and/or course/lecture mismatch"
+          description: teacher/course and/or course/lecture mismatch
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
               example:
-                source: "TeacherService"
+                source: TeacherService
                 errno: 30
-                error: "course (courseId = 3) is not taught by this teacher (teacherId = 4)"
+                error: course (courseId = 3) is not taught by this teacher (teacherId = 4)
                 statusCode: 404
         '500':
           description: Generic server error
@@ -383,9 +381,9 @@ components:
         lectureId:
           type: integer
         courseId:
-          type: integer 
+          type: integer
         classId:
-          type: integer 
+          type: integer
         date:
           type: string
           format: date-time

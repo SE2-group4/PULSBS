@@ -1,5 +1,4 @@
 import React from 'react';
-import Container from "react-bootstrap/Container";
 import Dropdown from 'react-bootstrap/Dropdown';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -8,7 +7,6 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import API from '../api/Api';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
-import APIfake from '../tests/APIfake';
 import Modal from 'react-bootstrap/Modal'
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Alert from 'react-bootstrap/Alert';

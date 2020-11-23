@@ -67,3 +67,24 @@ exports.sendStudentNumberEmail = function (to, courseName, lessonHour, studentNu
     return info;
 };
 
+/**
+ * 
+ * @param {*} to 
+ * @param {*} subject 
+ * @param {*} message 
+ * @returns Promise
+ */
+exports.sendCustomMail = function (to,subject,message) {
+    if (!to) return new Promise((resolve, reject) => reject("Undefined recipient"));
+
+    const emailBody=`<label>${message}</label>`
+    // send mail with defined transport object
+    let info = transporter.sendMail({
+        from: '"PULSeBS Email System" <PULSeBS@service.com>', // sender address
+        to: to, // list of receivers
+        subject: subject, 
+        html: emailBody,
+    });
+
+    return info;
+};

@@ -1,6 +1,5 @@
-import { render, fireEvent, waitFor, screen,act, findByText} from '@testing-library/react'
+import { render, fireEvent, screen,act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import userEvent from '@testing-library/user-event'
 import fetchMock from "jest-fetch-mock";
 import Course from "../entities/course"
 import User from "../entities/user";

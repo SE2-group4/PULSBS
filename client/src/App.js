@@ -1,6 +1,4 @@
 import React from "react";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import { Redirect, Route } from "react-router-dom";
 import { Switch } from "react-router";
 import Container from "react-bootstrap/Container";
@@ -35,6 +33,7 @@ class App extends React.Component {
   userLogout = () => {
     this.setState({ authUser: null, isAuth: false });
   };
+
   render() {
     return (
       <Container fluid>

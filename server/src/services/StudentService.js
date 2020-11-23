@@ -10,6 +10,7 @@ const Course = require("../entities/Course.js");
 const Lecture = require("../entities/Lecture.js");
 const EmailType = require('./../entities/EmailType.js');
 const emailService = require('./EmailService.js');
+const utils = require('../utils/utils.js');
 
 const dao = require("../db/Dao.js");
 
@@ -57,7 +58,7 @@ exports.studentBookLecture = async function(studentId, courseId, lectureId) {
                                         emailService.sendConfirmationBookingEmail(
                                                 currStudent.email,
                                                 actualCourse.description,
-                                                actualLecture.date.toISOString())
+                                                utils.formatDate(actualLecture.date))
                                             .then(resolve);
                                     })
                             })

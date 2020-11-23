@@ -4,10 +4,11 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
-import { Redirect } from "react-router-dom";
 import API from '../api/Api';
-import APIfake from "../tests/APIfake";
 import ErrorMsg from "../components/ErrorMsg";
+
+import APIfake from "../api/APIfake";
+
 class LoginPage extends React.Component {
   constructor(props) {
     super(props);
@@ -89,7 +90,7 @@ class LoginPage extends React.Component {
               </Row>
             </Container>
           );
-    };
+    }
 }
 
 export default LoginPage;
