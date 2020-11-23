@@ -46,16 +46,18 @@ describe('Teacher Page suite', () => {
       await act(async () =>{
         render(<TeacherPage user={teacher}/>);
       });
-      //screen.debug();
       res=JSON.stringify(lectures);
       fetch.mockResponseOnce(res);
       await act(async ()=> {
         userEvent.click(screen.getByTestId('c-1'))
       });
-      //screen.debug();
       expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
       const items = screen.getAllByTestId('lecture-row');
       expect(items).toHaveLength(2); //two lectures
+      await act(async ()=> {
+        userEvent.click(screen.getByTestId('c-1'))
+      });
+      expect(screen.getByText('no lectures available.')).toBeInTheDocument();
     });
 
     test('testing interaction between LecturePanel and StudentPanel (API works)', async() =>{
@@ -78,5 +80,9 @@ describe('Teacher Page suite', () => {
       expect(screen.getByText('Number of students: 2')).toBeInTheDocument();
       const items = screen.getAllByTestId('student-row');
       expect(items).toHaveLength(2); //two students
+      await act(async ()=> {
+        userEvent.click(screen.getByTestId('l-1'))
+      });
+      expect(screen.getByText('no students listed.')).toBeInTheDocument();
     });
   });
