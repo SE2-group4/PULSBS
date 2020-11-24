@@ -60,7 +60,7 @@ class StudentPage extends React.Component {
                 let n = await this.changeEvent(lectureId,"green","bookable")
                 resolve(n)
             })
-            .catch()
+            .catch(()=>reject())
         }
         if (status==="bookable"){
             APIfake.bookALecture(this.state.user.userID,courseId,lectureId)
@@ -70,7 +70,7 @@ class StudentPage extends React.Component {
                 console.log(n)
                 resolve(n)
             })
-            .catch()
+            .catch(()=>reject())
             }
         })
         

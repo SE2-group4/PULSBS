@@ -7,11 +7,13 @@ import listPlugin from '@fullcalendar/list'
 import Container from 'react-bootstrap/Container'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
-import {findDOMNode,unmountComponentAtNode} from 'react-dom';
+import ListGroup from 'react-bootstrap/ListGroup'
+import Spinner from 'react-bootstrap/Spinner'
+
 class Calendar extends React.Component{
     constructor(props){
         super(props);
-        this.state={};
+        this.state={success : null};
     }
     calendarRef = React.createRef()
     render(){
@@ -21,7 +23,7 @@ class Calendar extends React.Component{
             <Container fluid>
                 {
                     this.state.event && 
-                    <ModalClick event = {this.state.event} handleClose={this.handleCloseModal} handleConfirm={this.handleConfirm}/>
+                    <ModalClick event = {this.state.event} handleClose={this.handleCloseModal} handleConfirm={this.handleConfirm} loading = {this.state.loading} success={this.state.success}/>
                 }
                 <FullCalendar
                     ref={this.calendarRef}
@@ -51,44 +53,47 @@ class Calendar extends React.Component{
         )
     }
     handleEventClick = (clickInfo)=>{
-        console.log("Click");
-        console.log(clickInfo.event.extendedProps);
         this.setState({event : clickInfo.event});
     }
     handleCloseModal = ()=>{
-        this.setState({event : null});
+        this.setState({event : null,success : null});
     }
     handleConfirm = ()=>{
+        this.setState({loading : true},this.sendConfirm)
+    }
+    sendConfirm = ()=>{
         this.props.handleConfirm(this.state.event.extendedProps.status,this.state.event.extendedProps.courseId,this.state.event.extendedProps.lectureId)
         .then((n)=>{
+            this.setState({loading : false,success : true});
+            /*update Event */
             let calendarApi = this.calendarRef.current.getApi()
-            console.log(calendarApi.getEventById(this.state.event.id))
             calendarApi.getEventById(this.state.event.id).remove()
             calendarApi.addEvent(n);
-            this.setState({event:null})
-            //calendarApi.forceUpdate();
-            console.log(calendarApi)
-            //this.forceUpdate();
+            /***************** */
+            
         })
-        //.catch();
+        .catch(()=>{
+            this.setState({loading : false,success : false});
+        });
     }
 }
 
 function ModalClick(props) {
+    if (!props.loading && props.success===null)
     return (
         <Modal show={true} onHide={props.handleClose}>
             <Modal.Header closeButton>
-                <Modal.Title>Booking system</Modal.Title>
+                <Modal.Title><InfoLecture lecture = {props.event}/></Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {props.event.extendedProps.status=== "booked" &&
-                <p>Are you sure you want to cancel your reservation for this lecture?</p>}
+                <strong>Are you sure you want to cancel your reservation for this lecture?</strong>}
                 {props.event.extendedProps.status==="bookable" && 
-                <p>Are you sure you want to book for this lecture?</p>}
+                <strong>Are you sure you want to book for this lecture?</strong>}
                 {props.event.extendedProps.status==="past" && 
-                <p>This lecture is over</p>}
+                <strong>This lecture is over</strong>}
                 {props.event.extendedProps.status==="expired" && 
-                <p>This lecture was expired</p>}
+                <strong>This lecture was expired</strong>}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={props.handleClose}>
@@ -101,6 +106,40 @@ function ModalClick(props) {
                 }
             </Modal.Footer>
         </Modal>
+    )
+    if(props.loading)
+        return (
+            <Modal show={true} onHide={props.handleClose}>
+            <Modal.Header closeButton>
+                <Spinner animation="border"/>
+            </Modal.Header>
+
+        </Modal>
+    )
+    if (props.success === true || props.success === false)
+        return (
+            <Modal show={true} onHide={props.handleClose}>
+                <Modal.Header >
+                {props.success===true ? "Your operation was successfull" : "Ops, an error during server communication occurs"}
+                </Modal.Header>
+                <Modal.Footer>
+                <Button variant="secondary" onClick={props.handleClose}>
+                    Close
+                </Button>
+                </Modal.Footer>
+            </Modal>
+        )
+}
+
+function InfoLecture(props) {
+    console.log(props.lecture.start)
+    return (
+        <ListGroup variant="flush">
+            <ListGroup.Item>Lecture ID : {props.lecture.extendedProps.lectureId}</ListGroup.Item>
+            <ListGroup.Item>Course name : {props.lecture.title}</ListGroup.Item>
+            <ListGroup.Item>Start Date : {formatDate(props.lecture.start)}</ListGroup.Item>
+            <ListGroup.Item>Booking deadline : {props.lecture.extendedProps.bookingDeadline}</ListGroup.Item>
+        </ListGroup>
     )
 }
 
