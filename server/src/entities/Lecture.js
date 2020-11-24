@@ -28,7 +28,7 @@ class Lecture {
         this.bookingDeadline = bookingDeadline;
         this.delivery = delivery;
     }
-    
+
     /**
      * how the lecture will be delivered
      */
@@ -45,7 +45,7 @@ class Lecture {
      * @param {Object} obj
      * @returns {Lecture} new lecture
      */
-    static from(obj){
+    static from(obj) {
         const lecture = Object.assign(new Lecture(), obj);
         lecture.startingDate = new Date(lecture.startingDate);
         lecture.bookingDeadline = new Date(lecture.bookingDeadline);

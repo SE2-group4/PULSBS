@@ -21,6 +21,42 @@ class StandardErr {
         this.message = message;
         this.statusCode = statusCode;
     }
+
+    /**
+     * list of possible internal errors
+     */
+    static errno = {
+        GENERIC : 0,
+        FAILURE: 1,
+        PARAMS_MISMATCH : 30,
+        UNEXPECTED_VALUE : 31,
+        UNEXPECTED_TYPE : 32,
+        ALREADY_PRESENT : 33,
+        NOT_EXISTS : 34,
+        WRONG_VALUE : 35
+        // add more here
+    }
+
+    /**
+     * create a proper error object
+     * @param {String} source 
+     * @param {Number} errno 
+     * @param {String} message 
+     * @param {Number} statusCode 
+     * @returns new error object
+     */
+    static new(source, errno, message, statusCode) {
+        return { error : new StandardErr(source, errno, message, statusCode)};
+    }
+
+    /**
+     * dao errors adapter
+     * @param {Object} err - sqlite error
+     * @returns new error object
+     */
+    static fromDao(err) {
+        return StandardErr.new('Dao', StandardErr.errno.GENERIC, err.message);
+    }
 };
 exports.StandardErr = StandardErr;
 
@@ -36,7 +72,7 @@ const toStandard = function(errors, code) {
         return '';
 
     const err = errors.errors[0];
-    return new StandardErr('request ' + err.location, undefined,  err.msg + ' ' + err.location, code);
+    return StandardErr.new('request ' + err.location, undefined,  err.msg + ' ' + err.location, code);
 }
 exports.toStandard = toStandard;
 
