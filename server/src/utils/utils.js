@@ -5,24 +5,40 @@
  */
 
  /**
+  * class for the standard error format
+  */
+class StandardErr {
+    /**
+     * class constructor
+     * @param {String} source 
+     * @param {Number} errno 
+     * @param {String} message 
+     * @param {Number} statusCode 
+     */
+    constructor(source = 'none', errno = -1, message = 'none', statusCode = 500) {
+        this.source = source;
+        this.errno = errno;
+        this.message = message;
+        this.statusCode = statusCode;
+    }
+};
+exports.StandardErr = StandardErr;
+
+ /**
   * adapter for express-validator errors
   * to create a standard error object
   * @param {Array} errors
   * @param {Number} code
   * @return {Object} a standard error object
   */
-const errToRes = function(errors, code) {
+const toStandard = function(errors, code) {
     if(!(errors && errors.errors && Array.isArray(errors.errors) && errors.errors.length > 0))
         return '';
 
     const err = errors.errors[0];
-    const standardErr = {
-        msg: err.msg + ' ' + err.location,
-        status: code
-    };
-    return standardErr;
+    return new StandardErr('request ' + err.location, undefined,  err.msg + ' ' + err.location, code);
 }
-exports.errToRes = errToRes;
+exports.toStandard = toStandard;
 
 /**
  * format a date properly for the email usage
