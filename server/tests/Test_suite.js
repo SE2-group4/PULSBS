@@ -7,10 +7,10 @@
 const Test_dao = require('./Test_dao.js');
 const Test_email = require('./Test_email.js');
 
-describe('backend', function () {
-    Test_dao(); // not an error
-})
-
-describe('email', function () {
+/**
+ * all system unit test
+ */
+describe('System', function () {
+    Test_dao();
     Test_email();
 })
