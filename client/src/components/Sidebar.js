@@ -1,41 +1,24 @@
 import React from 'react';
 import Container from 'react-bootstrap/Container';
 import ListGroup from 'react-bootstrap/ListGroup';
-import Select from 'react-select';
-class Sidebar extends React.Component{
-  constructor(props){
-    super(props);
-  }
-  render() {
-    if (!this.props.courses)
+import Badge from 'react-bootstrap/Badge';
+
+function Sidebar(props){
+    if (!props.courses)
       return(<></>)
-      return (
-        <Container fluid id="sidebarCalendar">
-          <h3><strong>FILTERS</strong></h3>
-          <br></br>
-          <strong>Courses:</strong>
-          <Select
-            options={makeSelectOptions(this.props.courses)}
-            isMulti
-          />
-          <br></br>
-          <br></br>
-          <small>Ricordati di inserire la legenda!</small>
-          <br></br>
-        </Container>
-      )
-
-  }
-}
-
-function makeSelectOptions(courses){
-  return courses.map(function(c){
-    return {
-      value : c.description,
-      label : c.description
-    }
-  }
-  
+  return (
+    <Container fluid id="sidebarCalendar">
+      <strong>Legend:</strong>
+      <Badge variant="primary">Booked</Badge>
+      <br></br>
+      <Badge variant="success">Bookable</Badge>
+      <br></br>
+      <Badge variant="dark">Over</Badge>
+      <br></br>
+      <Badge variant="danger">Expired</Badge>
+      <br></br>
+    </Container>
   )
+
 }
 export default Sidebar;
