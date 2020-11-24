@@ -562,5 +562,5 @@ const getLecturesByPeriodOfTime = function(course, periodOfTime) {
             resolve(lectures);
         })
     });
-});
+};
 exports.getLecturesByPeriodOfTime = getLecturesByPeriodOfTime;
