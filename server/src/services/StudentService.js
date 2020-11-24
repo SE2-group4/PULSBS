@@ -11,6 +11,7 @@ const Lecture = require("../entities/Lecture.js");
 const EmailType = require('./../entities/EmailType.js');
 const emailService = require('./EmailService.js');
 const utils = require('../utils/utils.js');
+const { StandardErr } = require('./../utils/utils');
 
 const dao = require("../db/Dao.js");
 
@@ -21,7 +22,7 @@ const dao = require("../db/Dao.js");
  * @param {Number} lectureId
  * @returns {Promise} promise
  */
-exports.studentBookLecture = async function(studentId, courseId, lectureId) {
+exports.studentBookLecture = function(studentId, courseId, lectureId) {
     const student = new Student(studentId);
     const course = new Course(courseId);
     const lecture = new Lecture(lectureId);
@@ -32,13 +33,13 @@ exports.studentBookLecture = async function(studentId, courseId, lectureId) {
             .then((currLectures) => {
                 const actualLectures = currLectures.filter(l => l.lectureId === lecture.lectureId);
                 if(actualLectures.length === 0) {
-                    reject({ error : 'The lecture is not related to this course' });
+                    reject(StandardErr.new('Student service', StandardErr.errno.PARAMS_MISMATCH, 'The lecture is not related to this course', 404));
                     return;
                 }
 
                 const actualLecture = actualLectures[0];
                 if(actualLecture.bookingDeadline.getTime() < (new Date()).getTime()){
-                    reject({ error : 'The booking time is expired' });
+                    reject(StandardErr.new('Student service', StandardErr.errno.WRONG_VALUE, 'The booking time is expired', 404));
                     return;
                 }
 
@@ -46,7 +47,7 @@ exports.studentBookLecture = async function(studentId, courseId, lectureId) {
                     .then((currCourses) => {
                         const actualCourses = currCourses.filter(c => c.courseId === course.courseId);
                         if(actualCourses.length === 0) {
-                            reject({ error : 'The student is not enrolled in this course' });
+                            reject(StandardErr.new('Student service', StandardErr.errno.PARAMS_MISMATCH, 'The student is not enrolled in this course', 404));
                             return;
                         }
                         const actualCourse = actualCourses[0];
@@ -70,6 +71,25 @@ exports.studentBookLecture = async function(studentId, courseId, lectureId) {
 };
 
 /**
+ * remove a booking
+ * @param {Number} studentId 
+ * @param {Number} courseId 
+ * @param {Number} lectureId 
+ * @returns {Promise} promise
+ */
+exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
+    const student = new Student(studentId);
+    // const course = new Course(courseId);
+    const lecture = new Lecture(lectureId);
+
+    return new Promise((resolve, reject) => {
+        dao.deleteBooking(student, lecture)
+            .then(resolve) // TODO: send a confirmation email
+            .catch(reject);
+    });
+}
+
+/**
  * get the list of lectures given a student and a course
  * @param {Number} studentId
  * @param {Number} courseId
@@ -84,7 +104,7 @@ exports.studentGetCourseLectures = function(studentId, courseId) {
         dao.getCoursesByStudent(student)
             .then((currCourses) => {
                 if(currCourses.filter(c => c.courseId === course.courseId).length === 0) {
-                    reject({ error : 'The student is not enrolled in this course' });
+                    reject(StandardErr.new('Student service', StandardErr.errno.PARAMS_MISMATCH, 'The student is not enrolled in this course', 404));
                     return;
                 }
                 
