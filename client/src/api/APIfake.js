@@ -102,6 +102,7 @@ async function getLecturesByCourseId(Uid,Cid){
 async function bookALecture(Uid,Cid,Lid) {
     return new Promise((resolve, reject) => {
         resolve();
+        //reject()
         })
 }
 async function cancelLectureReservation(Uid,Cid,Lid){

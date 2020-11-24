@@ -122,7 +122,7 @@ class TeacherPage extends React.Component {
 
     updateDelivery = () =>{
         var deliveryToUpdate=this.state.deliveryToUpdate;
-        var newDel=deliveryToUpdate==="inPresence" ? "remote" : "inPresence";
+        var newDel=deliveryToUpdate==1 ? 2 : 1;
         //API.updateDeliveryByLecture(this.state.user.userId,this.state.selectedCourse,this.state.lectureIdToUpdate,newDel)
         //.then(())=>{
         //    
@@ -134,7 +134,7 @@ class TeacherPage extends React.Component {
         newLectures.forEach(function (item,index){
             //console.log(item.lectureId+" "+lectureIdToUpdate);
             if(item.lectureId==lectureIdToUpdate){
-                newLecture=new Lecture(item.lectureId,item.courseId,item.classId,item.date,item.bookingDeadline,newDel);
+                newLecture=new Lecture(item.lectureId,item.courseId,item.classId,item.startingDate,item.duration,item.bookingDeadline,newDel);
                 i=index;
             }
         });

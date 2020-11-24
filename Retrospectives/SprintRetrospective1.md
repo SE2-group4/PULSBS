@@ -90,32 +90,58 @@ sections:
   - Hours spent on remediation : 10 minutes
   - debt ratio (as reported by SonarQube under "Measures-Maintainability") : 0.0%
   - rating for each quality characteristic reported in SonarQube under "Measures" (namely reliability, security, maintainability ) : A, A, A
-  
-
 
 ## ASSESSMENT
 
-- What caused your errors in estimation (if any)?  
-    Task 27 :  
-    Task 48 :  
-    Task 40 :  
-    Task 42 :  
-    Task 34 :  
-    Task 36 :  
-    Task 37 :  
-    Task 45 :  
-    Task 46 (Testing: db and queries related to retrieving the students): more effort needed to integrate other modules with the whole system, no more time for this task. 
-
-    Task 39 :  
-    Task 47 :  
+- What caused your errors in estimation (if any)?
+  - Task 27 :
+  - Task 48 :
+  - Task 40 :
+  - Task 42 (Testing: back-end API related to the student/teacher/login): 
+    - there were more use cases than initially predicted, thus it required more time to write the API's tests
+  - Task 34 :
+  - Task 36 :
+  - Task 37 (Back-end: implement back-end APIs functions related to retrieving all the students booked for a lecture taught by a particular teacher): 
+    - it was tracked an additional part related to setting up the controllers and services routines
+  - Task 45 (Testing: back-end API related to retrieving students): 
+    - same reason as for task 42
+    - it took extra time to readapt the tests after changes were made midway the sprint.
+  - Task 46 (Testing: db and queries related to retrieving the students): 
+    - more effort needed to integrate other modules with the whole system, no more time for this task. 
+  - Task 39 : 
+  - Task 47 (Testing: back-end emailfunctions about seat booking): 
+    - misunderstanding between team members lead to tracking time issues, such as clocking the work log in other similar tasks.
 
 - What lessons did you learn (both positive and negative) in this sprint?
+  - POSITIVE
+    - automation is your best friend
+    - group discussions helps while developing a web application
+  - NEGATIVE
+    - working in parallel on the same file may cause frustration and annoyance. Those were caused in part by:
+      - spending extra time in understanding the code written by other people
+      - distinct structure of a problem's solution (good and bad at the same time)
+    - not having a coherent set of APIs lead to different implementation styles in some part of the system
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
-  
+  - Discuss before making any breaking changes with your
+teammates (or at least the people affected by it)
+PARTIAL
+  - Reflect more in depth about the workload needed by a
+task. It is better to divide a task in subtasks if the
+estimation it is not clear or well defined.
+DONE
+  - Define a coherent and a systematic approach for managing
+the project folder structure.
+DONE
+
 - Which ones you were not able to achieve? Why?
+  - Discuss before making any breaking changes with your
+teammates (or at least the people affected by it)
+Misunderstandings
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
+  - do more group discussions
+  - ...
 
 > Propose one or two
 
