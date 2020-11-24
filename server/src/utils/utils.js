@@ -6,16 +6,21 @@
 
  /**
   * adapter for express-validator errors
-  * to create a string error message
+  * to create a standard error object
   * @param {Array} errors
-  * @return {Object} error message
+  * @param {Number} code
+  * @return {Object} a standard error object
   */
-const errToRes = function(errors) {
+const errToRes = function(errors, code) {
     if(!(errors && errors.errors && Array.isArray(errors.errors) && errors.errors.length > 0))
         return '';
 
     const err = errors.errors[0];
-    return err;
+    const standardErr = {
+        msg: err.msg + ' ' + err.location,
+        status: code
+    };
+    return standardErr;
 }
 exports.errToRes = errToRes;
 
