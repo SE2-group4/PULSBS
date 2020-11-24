@@ -12,13 +12,13 @@ sections:
 
 ### Macro statistics
 
-- Number of stories committed vs done 
-- Total points committed vs done 
-- Nr of hours planned vs spent (as a team)
+- Number of stories committed vs done : 4 vs 1
+- Total points committed vs done : 29 vs 8
+- Nr of hours planned vs spent (as a team) : 72h vs 66h 30m
 
 **Remember**  a story is done ONLY if it fits the Definition of Done:
  
-- Unit Tests passing
+- Unit Tests passing :
 - Code review completed
 - Code present on VCS
 - End-to-End tests performed
@@ -95,8 +95,18 @@ sections:
 
 ## ASSESSMENT
 
-- What caused your errors in estimation (if any)?
-
+- What caused your errors in estimation (if any)?  
+Task 27 :  
+Task 48 :  
+Task 40 :  
+Task 42 :  
+Task 34 :  
+Task 36 :  
+Task 37 :  
+Task 45 :  
+Task 46 :  
+Task 39 :  
+Task 47 :  
 - What lessons did you learn (both positive and negative) in this sprint?
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
