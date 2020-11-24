@@ -7,7 +7,7 @@ import Student from '../entities/student';
  */
 const baseURL = "/api/v1";
 
-
+/************************ LOGIN API *******************************/
 /**
  * userLogin sends to server the user credentials and it returns success or failure (and the description of them)
  */
@@ -33,7 +33,7 @@ async function userLogin(email, password) {
     });
 }
 
-
+/************************* STUDENT API *************************************/
 /**
  * getCoursesByStudentId performs a GET request towards the server to gain the all courses of a certain student
  */
@@ -45,7 +45,7 @@ async function getCoursesByStudentId(id){
             else reject((obj) => { reject(obj); });
         }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
     });
-};
+}
 
 
 /**
@@ -59,7 +59,7 @@ async function getLecturesByCourseId(Uid,Cid){
             else reject((obj) => { reject(obj); });
         }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
     });
-};
+}
 
 
 /**
@@ -75,11 +75,10 @@ async function bookALecture(Uid,Cid,Lid) {
             body: JSON.stringify({studentId: Uid}),
         }).then((response) => {
             if (response.ok) {
-                console.log("ok prenotato");
                resolve()
             } else{
                 response.json()
-                    .then((obj) => { ;reject(obj.error); }) // error msg in the response body
+                    .then((obj) => { reject(obj.error); }) // error msg in the response body
                     .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
             }
         }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
@@ -87,8 +86,47 @@ async function bookALecture(Uid,Cid,Lid) {
 }
 
 /**
+ * Delete the reservation for a lecture 
+ * @param {*} Uid studentId
+ * @param {*} Cid courseId
+ * @param {*} Lid lectureId
+ */
+async function cancelLectureReservation(Uid,Cid,Lid) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/students/${Uid}/courses/${Cid}/lectures/${Lid}`, {
+            method: 'DELETE'
+        }).then((response) => {
+            if (response.status===204) {
+               resolve()
+            } else{
+                response.json()
+                    .then((obj) => { reject(obj.error); }) // error msg in the response body
+                    .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+            }
+        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
+    });
+}
+
+/**
+ * Fetch all the booked lectures of the student
+ * @param {*} Uid studentId
+ */
+async function getBookedLectures(Uid){
+    return new Promise((resolve,reject)=>{
+        fetch(baseURL + `/students/${Uid}/bookings`).then((response)=>{
+            if(response.ok)
+                resolve(response.json());
+            else reject((obj) => { reject(obj); });
+        }).catch((err)=>{ reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
+    });
+}
+
+
+/************************** TEACHER API *****************************/
+/**
  * 	getCoursesByTeacherId performs a GET request towards the server to gain the all courses taught by 
  *	a certain teacher
+ *  @param {*} id teacherId
  */
 async function getCoursesByTeacherId(id){
     return new Promise((resolve,reject)=>{
@@ -106,17 +144,25 @@ async function getCoursesByTeacherId(id){
             }
         }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
     });
-};
+}
 
 /**
  *  getLecturesByCourseIdByTeacherId performs a GET request towards the server to gain the all the lectures of 
  *	a certain course taught by a certain teacher
+ *  @param {*} Uid teacherId
+ *  @param {*} Cid courseId
+ *  @param {*} dateFrom date
+ *  @param {*} dateTo date
  */
-async function getLecturesByCourseIdByTeacherId(Uid,Cid){
+async function getLecturesByCourseIdByTeacherId(Uid,Cid,dateFrom,dateTo){
+    let qfrom=dateFrom ? "from="+dateFrom : "";
+    let qto=dateTo ? "to="+dateTo : "";
+    qto=qfrom ? "&"+qto : qto;                      //chiedere conferma
+    let query=qfrom || qto ? "?"+qfrom+qto : "";
+    
     return new Promise((resolve,reject)=>{
-        fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures`).then((response)=>{
+        fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures${query}`).then((response)=>{
             const status = response.status;
-            console.log(response);
             if (response.ok) {
                 response.json()
                 .then((obj) => { resolve(obj.map((l) => Lecture.from(l))); }) 
@@ -129,11 +175,14 @@ async function getLecturesByCourseIdByTeacherId(Uid,Cid){
             }
         }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
     });
-};
+}
 
 /**
  * 	getStudentsByLecture performs a GET request towards the server to gain the all the students booked to 
  *	a certain lecture of a certain course taught by a certain teacher
+ *  @param {*} Uid teacherId
+ *  @param {*} Cid courseId
+ *  @param {*} Lid lectureId
  */
 async function getStudentsByLecture(Uid,Cid,Lid) {
     return new Promise((resolve,reject)=>{
@@ -151,7 +200,32 @@ async function getStudentsByLecture(Uid,Cid,Lid) {
             }
         }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
     });
-};
+}
 
-const API= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,getCoursesByTeacherId,getLecturesByCourseIdByTeacherId,getStudentsByLecture};
+/**
+ *  updateDeliveryByLecture performs a PUT request toward the server to update Delivery attribute of a certain lecture of
+ *  a certain course taught by a certain teacher  
+ *  @param {*} Uid teacherId
+ *  @param {*} Cid courseId
+ *  @param {*} Lid lectureId
+ *  @param {*} Delivery delivery{presence,remote}
+ */
+async function updateDeliveryByLecture(Uid,Cid,Lid,Delivery) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures/${Lid}?switchTo=${Delivery}`,{
+            method: 'PUT',
+        }).then((response) => {
+            if (response.status===204) {
+               resolve(); //delivery correctly updated
+            } else{
+                response.json()
+                    .then((obj) => { reject(obj.error); }) // error msg in the response body
+                    .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+            }
+        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
+    });
+}
+
+const API= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,cancelLectureReservation,getBookedLectures,getCoursesByTeacherId,
+    getLecturesByCourseIdByTeacherId,getStudentsByLecture,updateDeliveryByLecture};
 export default API;

@@ -7,7 +7,7 @@ function InfoPanel(props) {
     return (
         <>
         <Container fluid>
-            <Jumbotron>
+            
                 <Row>
                     <label><strong>ID :</strong> {props.user.userId}</label>
                 </Row>
@@ -23,7 +23,7 @@ function InfoPanel(props) {
                 <Row>
                     <label><strong>Email :</strong> {props.user.email}</label>
                 </Row>
-            </Jumbotron>
+            
         </Container>
         </>
     );
