@@ -12,13 +12,13 @@ sections:
 
 ### Macro statistics
 
-- Number of stories committed vs done 
-- Total points committed vs done 
-- Nr of hours planned vs spent (as a team)
+- Number of stories committed vs done : 4 vs 1
+- Total points committed vs done : 29 vs 8
+- Nr of hours planned vs spent (as a team) : 72h vs 66h 30m
 
 **Remember**  a story is done ONLY if it fits the Definition of Done:
  
-- Unit Tests passing
+- Unit Tests passing :
 - Code review completed
 - Code present on VCS
 - End-to-End tests performed
