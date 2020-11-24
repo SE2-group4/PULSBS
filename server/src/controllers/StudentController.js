@@ -99,4 +99,23 @@ controller.get('/:studentId/courses', [
         .catch((err) => res.status(err.statusCode).json(err).end());
 });
 
+/**
+ * get the student list of bookings
+ */
+controller.get('/:studentId/bookings', [
+        check('studentId').isInt()
+    ], (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.status(400).json(utils.toStandard(errors)).end();
+        return;
+    }
+
+    const studentId = Number(req.params.studentId);
+    service.studentGetBookings(studentId)
+        .then((lectures) => res.status(200).json(lectures).end())
+        .catch((err) => res.status(err.statusCode).json(err).end());
+});
+
 module.exports = controller;

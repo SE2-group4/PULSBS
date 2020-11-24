@@ -9,10 +9,10 @@
  * @deprecated - use Email.EmailType
  */
 const EmailType = {
-    ERROR : -1,
-    UNDEFINED : 0,
-    STUDENT_NEW_BOOKING : 1,
-    TEACHER_ATTENDING_STUDENTS : 2
+    ERROR : 'ERROR',
+    UNDEFINED : 'UNDEFINED',
+    STUDENT_NEW_BOOKING : 'STUDENT_NEW_BOOKING',
+    TEACHER_ATTENDING_STUDENTS : 'TEACHER_ATTENDING_STUDENTS'
     // add more here
 }
 

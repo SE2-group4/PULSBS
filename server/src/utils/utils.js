@@ -59,7 +59,7 @@ class StandardErr {
     static fromDao(err) {
         return StandardErr.new('Dao', StandardErr.errno.GENERIC, err.message);
     }
-};
+}
 exports.StandardErr = StandardErr;
 
  /**

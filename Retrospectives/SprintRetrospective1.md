@@ -1,4 +1,4 @@
-TEMPLATE FOR RETROSPECTIVE (add your team name)
+SPRINT RETROSPECTIVE 1 (TEAM 4)
 =====================================
 
 The retrospective should include _at least_ the following
@@ -12,13 +12,13 @@ sections:
 
 ### Macro statistics
 
-- Number of stories committed vs done 
-- Total points committed vs done 
-- Nr of hours planned vs spent (as a team)
+- Number of stories committed vs done : 4 vs 1
+- Total points committed vs done : 29 vs 8
+- Nr of hours planned vs spent (as a team) : 72h vs 66h 30m
 
 **Remember**  a story is done ONLY if it fits the Definition of Done:
  
-- Unit Tests passing
+- Unit Tests passing :
 - Code review completed
 - Code present on VCS
 - End-to-End tests performed
@@ -57,7 +57,7 @@ sections:
 | | 46 | | 2h | 1h 15m | done |
 | #4 | | 8 | | | |
 | | 39 | | 2h | 25m    | done |
-| | 47 | | 2h | ?      | review |
+| | 47 | | 2h | 0h     | review |
 
 > place technical tasks corresponding to story `#0` and leave out story points (not applicable in this case)
 
@@ -72,35 +72,50 @@ sections:
 
 - Unit Testing:
   - Total hours estimated : 17 hours
-  - Total hours spent : 17hours 9minutes
+  - Total hours spent : 17 hours 9 minutes
   - Nr of automated unit test cases:
     - Client-side : 28 tests
     - Server-side : 20 tests
   - Coverage : 54.39 %
 - E2E testing:
   - Total hours estimated : 4 hours
-  - Total hours spent : 7hours 30minutes
+  - Total hours spent : 7 hours 30 minutes
 - Code review 
-  - Total hours estimated : 0hours
-  - Total hours spent : 0hours
+  - Total hours estimated : 0 hours
+  - Total hours spent : 0 hours
 - Technical Debt management:
-  - Total hours estimated : 0hours
-  - Total hours spent : 0hours
-  - Hours estimated for remediation by SonarQube : 1hour
-  - Hours spent on remediation : 10minutes
+  - Total hours estimated : 0 hours
+  - Total hours spent : 0 hours
+  - Hours estimated for remediation by SonarQube : 1 hour
+  - Hours spent on remediation : 10 minutes
   - debt ratio (as reported by SonarQube under "Measures-Maintainability") : 0.0%
   - rating for each quality characteristic reported in SonarQube under "Measures" (namely reliability, security, maintainability ) : A, A, A
-  
-
 
 ## ASSESSMENT
 
 - What caused your errors in estimation (if any)?
+  - Task 27 :
+  - Task 48 :
+  - Task 40 :
+  - Task 42 (Testing: back-end API related to the student/teacher/login): 
+    - there were more use cases than initially predicted, thus it required more time to write the API's tests
+  - Task 34 :
+  - Task 36 :
+  - Task 37 (Back-end: implement back-end APIs functions related to retrieving all the students booked for a lecture taught by a particular teacher): 
+    - it was tracked an additional part related to setting up the controllers and services routines
+  - Task 45 (Testing: back-end API related to retrieving students): 
+    - same reason as for task 42
+    - it took extra time to readapt the tests after changes were made midway the sprint.
+  - Task 46 (Testing: db and queries related to retrieving the students): 
+    - more effort needed to integrate other modules with the whole system, no more time for this task. 
+  - Task 39 : 
+  - Task 47 (Testing: back-end emailfunctions about seat booking): 
+    - misunderstanding between team members lead to tracking time issues, such as clocking the work log in other similar tasks.
 
 - What lessons did you learn (both positive and negative) in this sprint?
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
-  
+
 - Which ones you were not able to achieve? Why?
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
