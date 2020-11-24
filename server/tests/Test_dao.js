@@ -1,5 +1,5 @@
 /**
- * test suite for the dao module
+ * test suite for the Dao module
  * @author Gastaldi Paolo
  */
 
@@ -18,7 +18,7 @@ const Email = require('../src/entities/Email.js');
 const prepare = require('../src/db/preparedb.js');
 
 const suite = function() {
-    describe('Dao.js', function() {
+    describe('Dao', function() {
         let student1;
         let teacher4;
         let lecture2, lecture3;
@@ -178,5 +178,4 @@ const suite = function() {
         });
     });
 }
-
 module.exports = suite;
