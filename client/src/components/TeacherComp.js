@@ -147,7 +147,7 @@ class LecturePanel extends React.Component {
 }
 
 function LecturePanelRow(props) {
-    let date=new Date(props.lecture.date);
+    let date=new Date(props.lecture.startingDate);
     let now=new Date();
     let canEdit=((date.getTime()-now.getTime())/(1000*60)) > 30 ? true : false; //check to time distance (more than 30 minutes)
     if(props.nPages===1 || (props.nPages>1 && props.pMap.get(props.lecture.lectureId)===props.current))
