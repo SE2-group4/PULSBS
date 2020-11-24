@@ -143,7 +143,7 @@ const getLecturesByStudent = function(student) {
         const sql = `SELECT Lecture.* FROM Lecture
             JOIN Course ON Lecture.lectureId = Course.courseId
             JOIN Enrollment ON Enrollment.courseId = Course.courseId
-            WHERE Enrollment.studentId = ? AND DATE(Lecture.date) > DATE(?)`;
+            WHERE Enrollment.studentId = ? AND DATE(Lecture.startingDate) > DATE(?)`;
 
         db.all(sql, [student.studentId, (new Date()).toISOString()], (err, rows) => {
             if(err) {
@@ -194,7 +194,7 @@ exports.getCoursesByStudent = getCoursesByStudent;
 const getLecturesByCourse = function(course) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Lecture.* FROM Lecture
-            WHERE Lecture.courseId = ? AND DATETIME(Lecture.date) >= DATETIME(?)`;
+            WHERE Lecture.courseId = ? AND DATETIME(Lecture.startingDate) >= DATETIME(?)`;
 
         db.all(sql, [course.courseId, (new Date()).toISOString()], (err, rows) => {
             if(err) {
@@ -273,7 +273,7 @@ const getLecturesByTeacher = function(teacher) {
         const sql = `SELECT Lecture.* FROM Lecture
             JOIN Course ON Lecture.courseId = Course.courseId
             JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId
-            WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.date) > DATE(?)`;
+            WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.startingDate) > DATE(?)`;
 
         db.all(sql, [teacher.teacherId, (new Date()).toISOString()], (err, rows) => {
             if(err) {
@@ -409,7 +409,7 @@ exports._getCurrentAcademicYear = _getCurrentAcademicYear;
  */
 const addEmail = function(email) {
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO Email(fromId, toId, emailTypeId) VALUES(?, ?, ?)`;
+        const sql = `INSERT INTO Email(fromId, toId, emailType) VALUES(?, ?, ?)`;
 
         const fromId = email.from instanceof Teacher ? email.from.teacherId : email.from.studentId;
         const toId = email.to instanceof Teacher ? email.to.teacherId : email.to.studentId;
