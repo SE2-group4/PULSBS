@@ -73,7 +73,7 @@ function prepare(dbpath = 'PULSBS.db', dbscript = 'PULSBS.sql', flag = true) {
 
 if(require.main === module) { // if called from command line
     const args = process.argv.slice(2);
-    prepare(args[0], args[2], args[3]).then(() => {
+    prepare(args[0], args[1], args[2]).then(() => {
         console.log("The testing DB is ready, enjoy! :)");
     });
 }

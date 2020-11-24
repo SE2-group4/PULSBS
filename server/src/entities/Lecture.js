@@ -5,8 +5,6 @@
  */
 'use strict';
 
-const DeliveryType = require("./DeliveryType");
-
 class Lecture {
     /**
      * constructor
@@ -18,7 +16,7 @@ class Lecture {
      * @param {Date} bookingDeadline
      * @param {DeliveryType} delivery
      */
-    constructor(lectureId = -1, courseId = -1, classId = -1, startingDate = undefined, duration = -1, bookingDeadline = undefined, delivery = DeliveryType.ERROR) {
+    constructor(lectureId = -1, courseId = -1, classId = -1, startingDate = undefined, duration = -1, bookingDeadline = undefined, delivery = Lecture.DeliveryType.ERROR) {
         startingDate = new Date(startingDate);
         bookingDeadline = new Date(bookingDeadline);
 
@@ -28,8 +26,9 @@ class Lecture {
         this.startingDate = startingDate;
         this.duration = duration;
         this.bookingDeadline = bookingDeadline;
+        this.delivery = delivery;
     }
-
+    
     /**
      * how the lecture will be delivered
      */
