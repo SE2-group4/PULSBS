@@ -1,4 +1,4 @@
-TEMPLATE FOR RETROSPECTIVE (add your team name)
+SPRINT RETROSPECTIVE 1 (TEAM 4)
 =====================================
 
 The retrospective should include _at least_ the following
