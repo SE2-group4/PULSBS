@@ -96,17 +96,19 @@ sections:
 ## ASSESSMENT
 
 - What caused your errors in estimation (if any)?  
-Task 27 :  
-Task 48 :  
-Task 40 :  
-Task 42 :  
-Task 34 :  
-Task 36 :  
-Task 37 :  
-Task 45 :  
-Task 46 :  
-Task 39 :  
-Task 47 :  
+    Task 27 :  
+    Task 48 :  
+    Task 40 :  
+    Task 42 :  
+    Task 34 :  
+    Task 36 :  
+    Task 37 :  
+    Task 45 :  
+    Task 46 (Testing: db and queries related to retrieving the students): more effort needed to integrate other modules with the whole system, no more time for this task. 
+
+    Task 39 :  
+    Task 47 :  
+
 - What lessons did you learn (both positive and negative) in this sprint?
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
