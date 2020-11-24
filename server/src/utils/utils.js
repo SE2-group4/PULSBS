@@ -24,16 +24,18 @@ class StandardErr {
 
     /**
      * list of possible internal errors
+     * HTTP errors: form 1xx to 5xx
+     * please do not mix codes, even if they refer to different topics (except for the GENERIC errno)
      */
     static errno = {
         GENERIC : 0,
-        FAILURE: 1,
-        PARAMS_MISMATCH : 30,
-        UNEXPECTED_VALUE : 31,
-        UNEXPECTED_TYPE : 32,
-        ALREADY_PRESENT : 33,
-        NOT_EXISTS : 34,
-        WRONG_VALUE : 35
+        FAILURE: 700,
+        PARAMS_MISMATCH : 730,
+        UNEXPECTED_VALUE : 731,
+        UNEXPECTED_TYPE : 732,
+        ALREADY_PRESENT : 733,
+        NOT_EXISTS : 734,
+        WRONG_VALUE : 735
         // add more here
     }
 
@@ -69,10 +71,10 @@ exports.StandardErr = StandardErr;
   */
 const toStandard = function(errors, code) {
     if(!(errors && errors.errors && Array.isArray(errors.errors) && errors.errors.length > 0))
-        return '';
+        return StandardErr.new('System', StandardErr.errno.GENERIC, 'not specified');
 
     const err = errors.errors[0];
-    return StandardErr.new('request ' + err.location, undefined,  err.msg + ' ' + err.location, code);
+    return StandardErr.new('Request ' + err.location, undefined,  err.msg + ' ' + err.location, code);
 }
 exports.toStandard = toStandard;
 
