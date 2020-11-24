@@ -81,15 +81,15 @@ sections:
   - Total hours estimated : 4 hours
   - Total hours spent : 7hours 30minutes
 - Code review 
-  - Total hours estimated 
-  - Total hours spent
+  - Total hours estimated : 0hours
+  - Total hours spent : 0hours
 - Technical Debt management:
-  - Total hours estimated 
-  - Total hours spent
-  - Hours estimated for remediation by SonarQube
-  - Hours spent on remediation 
-  - debt ratio (as reported by SonarQube under "Measures-Maintainability")
-  - rating for each quality characteristic reported in SonarQube under "Measures" (namely reliability, security, maintainability )
+  - Total hours estimated : 0hours
+  - Total hours spent : 0hours
+  - Hours estimated for remediation by SonarQube : 1hour
+  - Hours spent on remediation : 10minutes
+  - debt ratio (as reported by SonarQube under "Measures-Maintainability") : 0.0%
+  - rating for each quality characteristic reported in SonarQube under "Measures" (namely reliability, security, maintainability ) : A, A, A
   
 
 
