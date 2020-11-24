@@ -31,7 +31,7 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
     const lId = Number(lectureId);
 
     // checking whether the teacher is in charge of this course during this academic year
-    let isTeachingThisCourse = await isCourseTeachedBy(tId, cId);
+    let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
 
     if (!isTeachingThisCourse) {
         return new ResponseError(
@@ -43,7 +43,7 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
     }
 
     // checking whether the teacher is in charge of this course during this academic year
-    let doesLectureBelong = await doesLectureBelongCourse(cId, lId);
+    let doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
 
     if (!doesLectureBelong) {
         return new ResponseError(
@@ -54,8 +54,8 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
         );
     }
 
-    const lecture = new Lecture(lId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
     try {
+        const lecture = new Lecture(lId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
         const lectureStudents = await db.getStudentsByLecture(lecture);
         return lectureStudents;
     } catch (err) {
@@ -81,7 +81,7 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId) {
     const cId = Number(courseId);
 
     // checking whether the teacher is in charge of this course during this academic year
-    let isTeachingThisCourse = await isCourseTeachedBy(tId, cId);
+    let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
 
     if (!isTeachingThisCourse) {
         return new ResponseError(
@@ -131,7 +131,7 @@ exports.teacherGetCourses = async function (teacherId) {
  * courseId Integer
  * returns boolean
  **/
-const isCourseTeachedBy = async (teacherId, courseId) => {
+const isCourseTaughtBy = async (teacherId, courseId) => {
     let isTeachingThisCourse = false;
 
     const teacherCourses = await db.getCoursesByTeacher(
@@ -152,7 +152,7 @@ const isCourseTeachedBy = async (teacherId, courseId) => {
  * lectureId Integer
  * returns boolean
  **/
-const doesLectureBelongCourse = async (courseId, lectureId) => {
+const doesLectureBelongToCourse = async (courseId, lectureId) => {
     let doesBelong = false;
 
     const courseLectures = await db.getLecturesByCourse(new Course(courseId, undefined, undefined));
@@ -186,7 +186,6 @@ exports.checkForExpiredLectures = async () => {
     const summaries = await findSummaryExpiredLectures();
     sendSummaryToTeachers(summaries);
     console.log("AUTORUN: Emails in queue");
-
     const time = nextCheck();
     const now = new Date();
     console.log(`AUTORUN: Next check planned for ${new Date(time + now.getTime())}`);
@@ -209,7 +208,7 @@ const findSummaryExpiredLectures = async (date) => {
     expiredLectures.forEach((lecture) => {
         const promise = db.getStudentsByLecture(lecture);
         promises.set(lecture.lectureId, promise);
-        mapResponse.set(lecture.lectureId, { lecture } );
+        mapResponse.set(lecture.lectureId, { lecture });
     });
 
     for (let [lectureId, promise] of promises.entries()) {
@@ -257,36 +256,184 @@ const sendSummaryToTeachers = (summaries) => {
         const teacher = summary.teacher;
         const course = summary.course;
         const lecture = summary.lecture;
-        
+
         const options = {
-            year: 'numeric', month: 'numeric', day: 'numeric',
-            hour: 'numeric', minute: 'numeric', second: 'numeric',
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
             hour12: false,
-            timeZone: 'Europe/Rome'
-        }
-        const dateFormatter = new Intl.DateTimeFormat('en-GB', options);
+            timeZone: "Europe/Rome",
+        };
+        const dateFormatter = new Intl.DateTimeFormat("en-GB", options);
 
         EmailService.sendStudentNumberEmail(
             teacher.email,
             course.description,
-            dateFormatter.format(lecture.date),
+            dateFormatter.format(lecture.startingDate),
             summary.studentsBooked
         ).then(() => console.log(`sent email to ${teacher.email} about lecture ${lectureId}`));
 
         // TODO: add to the db the email sent
-        //const email = new Email(
-        //    undefined,
-        //    undefined.teacher.email,
-        //    new Date(),
-        //    EmailType.TEACHER_ATTENDING_STUDENTS,
-        //    undefined,
-        //    undefined,
-        //    course.courseId,
-        //    course.lectureId
-        //);
+    }
+    return;
+};
 
-        // db.addEmail(email);
+exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId) {
+    if (isNaN(teacherId)) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
+    } else if (isNaN(courseId)) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { courseId }, 400);
+    } else if (isNaN(lectureId)) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { lectureId }, 400);
     }
 
-    return;
+    const tId = Number(teacherId);
+    const cId = Number(courseId);
+    const lId = Number(lectureId);
+
+    // checking whether the teacher is in charge of this course during this academic year
+    let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
+
+    if (!isTeachingThisCourse) {
+        return new ResponseError(
+            "TeacherService",
+            ResponseError.TEACHER_COURSE_MISMATCH_AA,
+            { courseId, teacherId },
+            404
+        );
+    }
+
+    // checking whether the teacher is in charge of this course during this academic year
+    let doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+
+    if (!doesLectureBelong) {
+        return new ResponseError(
+            "TeacherService",
+            ResponseError.COURSE_LECTURE_MISMATCH_AA,
+            { lectureId, courseId },
+            404
+        );
+    }
+
+    try {
+        const lecture = new Lecture(lId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
+        const retLecture = await db.getLectureById(lecture);
+
+        if (!retLecture) {
+            return new ResponseError("TeacherService", ResponseError.LECTURE_NOT_FOUND, { lectureId }, 404);
+        }
+
+        return retLecture;
+    } catch (err) {
+        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+    }
+};
+
+exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectureId) {
+    if (isNaN(teacherId)) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
+    } else if (isNaN(courseId)) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { courseId }, 400);
+    } else if (isNaN(lectureId)) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { lectureId }, 400);
+    }
+
+    const tId = Number(teacherId);
+    const cId = Number(courseId);
+    const lId = Number(lectureId);
+
+    // checking whether the teacher is in charge of this course during this academic year
+    let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
+
+    if (!isTeachingThisCourse) {
+        return new ResponseError(
+            "TeacherService",
+            ResponseError.TEACHER_COURSE_MISMATCH_AA,
+            { courseId, teacherId },
+            404
+        );
+    }
+
+    // checking whether the teacher is in charge of this course during this academic year
+    let doesLecture = await doesLectureBelongToCourse(cId, lId);
+
+    if (!doesLecture) {
+        return new ResponseError(
+            "TeacherService",
+            ResponseError.COURSE_LECTURE_MISMATCH_AA,
+            { lectureId, courseId },
+            404
+        );
+    }
+
+    try {
+        const lecture = new Lecture(lId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
+        const retVal = await db.deleteLecture(lecture);
+        return retVal;
+    } catch (err) {
+        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+    }
+};
+
+exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, courseId, lectureId, switchTo) {
+    if (isNaN(teacherId)) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
+    } else if (isNaN(courseId)) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { courseId }, 400);
+    } else if (isNaN(lectureId)) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { lectureId }, 400);
+    }
+    
+    if (switchTo.toUpperCase() !== Lecture.DeliveryType.PRESENCE  && switchTo.toUpperCase() !== Lecture.DeliveryType.REMOTE) {
+        return new ResponseError(
+            "TeacherService",
+            ResponseError.LECTURE_INVALID_DELIVERY_MODE,
+            { delivery: switchTo },
+            400
+        );
+    }
+
+    const tId = Number(teacherId);
+    const cId = Number(courseId);
+    const lId = Number(lectureId);
+
+    // checking whether the teacher is in charge of this course during this academic year
+    let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
+
+    if (!isTeachingThisCourse) {
+        return new ResponseError(
+            "TeacherService",
+            ResponseError.TEACHER_COURSE_MISMATCH_AA,
+            { courseId, teacherId },
+            404
+        );
+    }
+
+    // checking whether the teacher is in charge of this course during this academic year
+    let doesLecture = await doesLectureBelongToCourse(cId, lId);
+
+    if (!doesLecture) {
+        return new ResponseError(
+            "TeacherService",
+            ResponseError.COURSE_LECTURE_MISMATCH_AA,
+            { lectureId, courseId },
+            404
+        );
+    }
+    
+    // TODO: add a check that we are not switching from to the same delivery mode
+    try {
+        const lecture = new Lecture(lId, undefined, undefined, undefined, undefined, undefined, switchTo); // I also put the other fields in as a reminder
+        const retVal = await db.updateLectureDeliveryMode(lecture);
+        if (retVal) {
+            return 204;
+        }
+        else
+            return "not ok"
+    } catch (err) {
+        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+    }
 };
