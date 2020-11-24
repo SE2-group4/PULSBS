@@ -113,12 +113,35 @@ sections:
     - misunderstanding between team members lead to tracking time issues, such as clocking the work log in other similar tasks.
 
 - What lessons did you learn (both positive and negative) in this sprint?
+  - POSITIVE
+    - automation is your best friend
+    - group discussions helps while developing a web application
+  - NEGATIVE
+    - working in parallel on the same file may cause frustration and annoyance. Those were caused in part by:
+      - spending extra time in understanding the code written by other people
+      - distinct structure of a problem's solution (good and bad at the same time)
+    - not having a coherent set of APIs lead to different implementation styles in some part of the system
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
+  - Discuss before making any breaking changes with your
+teammates (or at least the people affected by it)
+PARTIAL
+  - Reflect more in depth about the workload needed by a
+task. It is better to divide a task in subtasks if the
+estimation it is not clear or well defined.
+DONE
+  - Define a coherent and a systematic approach for managing
+the project folder structure.
+DONE
 
 - Which ones you were not able to achieve? Why?
+  - Discuss before making any breaking changes with your
+teammates (or at least the people affected by it)
+Misunderstandings
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
+  - do more group discussions
+  - ...
 
 > Propose one or two
 
