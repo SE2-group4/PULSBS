@@ -48,7 +48,8 @@ class StandardErr {
      * @returns new error object
      */
     static new(source, errno, message, statusCode) {
-        return { error : new StandardErr(source, errno, message, statusCode)};
+        // return { error : new StandardErr(source, errno, message, statusCode)};
+        return new StandardErr(source, errno, message, statusCode);
     }
 
     /**

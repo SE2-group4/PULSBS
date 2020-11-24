@@ -101,6 +101,12 @@ class LecturePanel extends React.Component {
         this.props.showEditModal(e.target.name, e.target.value);
     }
 
+    //triggers DeleteModal
+    deleteOpen = (e) => {
+        //console.log(e.target.name+" "+e.target.value);
+        this.props.showDeleteModal(e.target.name);
+    }
+
     //NavButtons handler
     onClick = (e) => {
         if (e.target.name == "prev")
@@ -127,7 +133,7 @@ class LecturePanel extends React.Component {
                     <tbody>
                         {
                             this.props.lectures.map((lecture) => (<LecturePanelRow key={lecture.lectureId} checkedOne={this.props.sLecture} lecture={lecture} handler={this.handler}
-                                pMap={this.props.pageMap} nPages={this.props.nPages} current={this.state.currentPage} editOpen={this.editOpen} />))
+                                pMap={this.props.pageMap} nPages={this.props.nPages} current={this.state.currentPage} editOpen={this.editOpen} deleteOpen={this.deleteOpen} />))
                         }
                         <tr style={{ backgroundColor: "white" }}>
                             <td>
@@ -170,7 +176,7 @@ function LecturePanelRow(props) {
                     <span className="d-inline-block">
                         <Button variant="danger" disabled style={{ pointerEvents: 'none' }}>delete</Button>
                     </span></OverlayTrigger>}
-                {canDelete && <Button variant="danger" name={props.lecture.lectureId} value={props.lecture.delivery} onClick={props.editOpen}>delete</Button>}
+                {canDelete && <Button variant="danger" name={props.lecture.lectureId} onClick={props.deleteOpen}>delete</Button>}
             </td>
             <td><Checkbox name={props.lecture.lectureId} checked={props.checkedOne == props.lecture.lectureId ? true : false} onChange={props.handler} type={"l"} /></td>
         </tr>
@@ -249,7 +255,7 @@ function EditModal(props) {
             <Modal.Header closeButton>
                 <Modal.Title>Edit Delivery</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Do you want to turn lecture <b>{props.lectureId}</b> from <b>{props.delivery}</b> to <b>{props.delivery == 1 ? 2 : 1 }</b>?</Modal.Body>
+            <Modal.Body>Do you want to turn lecture <b>{props.lectureId}</b> from <b>{props.delivery}</b> to <b>{props.delivery == 1 ? 2 : 1}</b>?</Modal.Body>
             <Modal.Footer>
                 <Button name="yes" variant="secondary" onClick={props.updateDelivery}>Yes</Button><Button name="no" variant="secondary" onClick={props.editClose}>No</Button>
             </Modal.Footer>
@@ -257,7 +263,21 @@ function EditModal(props) {
     </>;
 }
 
-export { CoursePanel, LecturePanel, StudentPanel, EditModal };
+function DeleteModal(props) {
+    return <>
+        <Modal show={true} onHide={props.deleteClose}>
+            <Modal.Header closeButton>
+                <Modal.Title>Edit Delivery</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>Do you want to cancel lecture <b>{props.lectureId}</b> ?</Modal.Body>
+            <Modal.Footer>
+                <Button name="yes" variant="secondary" onClick={props.deleteLecture}>Yes</Button><Button name="no" variant="secondary" onClick={props.deleteClose}>No</Button>
+            </Modal.Footer>
+        </Modal>
+    </>;
+}
+
+export { CoursePanel, LecturePanel, StudentPanel, EditModal, DeleteModal };
 
 
 
