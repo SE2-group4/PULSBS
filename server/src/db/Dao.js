@@ -484,8 +484,8 @@ exports.getLecturesByDeadline = getLecturesByDeadline;
 const getTeacherByCourse = function(course) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User
-        JOIN TeacherCourse ON User.userId = TeacherCourse.teacherId
-        WHERE TeacherCourse.courseId = ? AND User.type = ?`;
+            JOIN TeacherCourse ON User.userId = TeacherCourse.teacherId
+            WHERE TeacherCourse.courseId = ? AND User.type = ?`;
 
         db.get(sql, [course.courseId, "TEACHER"], (err, row) => {
             if(err) {
@@ -502,5 +502,29 @@ const getTeacherByCourse = function(course) {
         });
     });
 }
-
 exports.getTeacherByCourse = getTeacherByCourse;
+
+/**
+ * get the list of lecture the student has booked
+ * @param {Student} student 
+ * @returns {Promise} promise
+ */
+const getBookingsByStudent = function(student) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT Lecture.* FROM Lecture
+            JOIN Booking ON Booking.lectureId = Lecture.lectureId
+            WHERE Booking.studentId = ?`;
+        
+        db.all(sql, [student.studentId], (err, rows) => {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return
+            }
+
+            const lectures = [];
+            rows.forEach(row => lectures.push(Lecture.from(row)));
+            resolve(lectures);
+        });
+    });
+}
+exports.getBookingsByStudent = getBookingsByStudent;

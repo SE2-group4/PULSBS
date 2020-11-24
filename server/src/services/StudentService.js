@@ -123,5 +123,22 @@ exports.studentGetCourseLectures = function(studentId, courseId) {
 exports.studentGetCourses = function(studentId) {
     const student = new Student(studentId);
 
-    return dao.getCoursesByStudent(student);
+    return new Promise((resolve, reject) => {
+        dao.getCoursesByStudent(student);
+    });
+};
+
+/**
+ * get the list of lectures booked
+ * @param {Student} studentId 
+ * @returns {Promise} promise
+ */
+exports.studentGetBookings = function(studentId) {
+    const student = new Student(studentId);
+
+    return new Promise((resolve, reject) => {
+        dao.getBookingsByStudent(student)
+            .then(resolve)
+            .catch(reject);
+    });
 };
