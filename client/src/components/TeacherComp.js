@@ -249,7 +249,7 @@ function EditModal(props) {
             <Modal.Header closeButton>
                 <Modal.Title>Edit Delivery</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Do you want to turn lecture <b>{props.lectureId}</b> from <b>{props.delivery}</b> to <b>{props.delivery == "inPresence" ? "remote" : "inPresence"}</b>?</Modal.Body>
+            <Modal.Body>Do you want to turn lecture <b>{props.lectureId}</b> from <b>{props.delivery}</b> to <b>{props.delivery == 1 ? 2 : 1 }</b>?</Modal.Body>
             <Modal.Footer>
                 <Button name="yes" variant="secondary" onClick={props.updateDelivery}>Yes</Button><Button name="no" variant="secondary" onClick={props.editClose}>No</Button>
             </Modal.Footer>
