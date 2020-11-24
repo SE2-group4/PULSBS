@@ -81,6 +81,7 @@ async function userLogin(email, password) {
 async function getCoursesByStudentId(id){
     return new Promise((resolve,reject)=>{
         resolve(courses);
+        //reject("Error");
     });
 }
 
@@ -103,7 +104,11 @@ async function bookALecture(Uid,Cid,Lid) {
         resolve();
         })
 }
-
+async function cancelLectureReservation(Uid,Cid,Lid){
+    return new Promise((resolve, reject) => {
+        resolve();
+       })
+}
 async function getBookedLectures(Uid){
     return new Promise((resolve,reject)=>
         resolve(booked))
@@ -129,5 +134,5 @@ async function getStudentsByLectureId(id){
     return students2;
 }
 
-const APIfake= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,getBookedLectures,getCoursesByTeacherId,getLecturesByCourseIdT,getStudentsByLectureId};
+const APIfake= {userLogin,getCoursesByStudentId,getLecturesByCourseId,bookALecture,cancelLectureReservation,getBookedLectures,getCoursesByTeacherId,getLecturesByCourseIdT,getStudentsByLectureId};
 export default APIfake;

@@ -4,8 +4,6 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import API from "../api/Api";
 import {CoursePanel,LecturePanel,StudentPanel,EditModal} from '../components/TeacherComp';
-
-import APIfake from '../api/APIfake';
 import Lecture from '../entities/lecture';
 
 /**
@@ -36,7 +34,7 @@ class TeacherPage extends React.Component {
      * componentDidMount fetches the all courses of the teacher 
      */
     componentDidMount(){
-        APIfake.getCoursesByTeacherId(this.state.user.userId)
+        API.getCoursesByTeacherId(this.state.user.userId)
         .then((courses)=>{
             let i=0;
             let nMap=new Map(); 
@@ -48,7 +46,7 @@ class TeacherPage extends React.Component {
                 i++;
             });
             let nPages=Math.ceil(i/elementForPage);
-            console.log(courses);
+            //console.log(courses);
             this.setState({courses : courses,courseMap: nMap,cPages: nPages,fetchErrorC: false});
         })
         .catch(() =>{ this.setState({fetchErrorC: true}); });
@@ -58,7 +56,7 @@ class TeacherPage extends React.Component {
      * updateLectures fetches all lectures of the selected teacher's course 
      */
     updateLectures = (courseId) =>{
-        APIfake.getLecturesByCourseIdT(this.state.user.userId,courseId)
+        API.getLecturesByCourseIdByTeacherId(this.state.user.userId,courseId)
         .then((lectures)=>{
             let i=0;
             let nMap=new Map(); 
@@ -70,7 +68,7 @@ class TeacherPage extends React.Component {
                 i++;
             });
             let nPages=Math.ceil(i/elementForPage);
-            console.log(lectures);
+            //console.log(lectures);
             this.setState({lectures : lectures,lectureMap: nMap,lPages: nPages,selectedCourse: courseId,selectedLecture: null,fetchErrorL: false,students: [],sPages: 1,fetchErrorS: false});
         })
         .catch(() =>{ this.setState({selectedCourse: courseId,lectures: [],selectedLecture: null,lPages: 1,fetchErrorL: true,students: [],sPages: 1,fetchErrorS: false}); });
@@ -80,8 +78,7 @@ class TeacherPage extends React.Component {
      * updateStudents fetches all students of the selected lecture of a teacher's selected course 
      */
     updateStudents = (lectureId) =>{
-        //API.getStudentsByLecture(this.state.user.userId,this.state.selectedCourse,lectureId)
-        APIfake.getStudentsByLectureId(this.state.user.userId)
+        API.getStudentsByLecture(this.state.user.userId,this.state.selectedCourse,lectureId)
         .then((students)=>{
             let i=0;
             let nMap=new Map(); 
@@ -124,16 +121,19 @@ class TeacherPage extends React.Component {
     }
 
     updateDelivery = () =>{
-        //API PUT
+        var deliveryToUpdate=this.state.deliveryToUpdate;
+        var newDel=deliveryToUpdate==="inPresence" ? "remote" : "inPresence";
+        //API.updateDeliveryByLecture(this.state.user.userId,this.state.selectedCourse,this.state.lectureIdToUpdate,newDel)
+        //.then(())=>{
+        //    
+        //}).catch(()=>{});
         var newLectures=this.state.lectures.slice();
         var newLecture,i;
         var lectureIdToUpdate=this.state.lectureIdToUpdate;
-        var deliveryToUpdate=this.state.deliveryToUpdate;
         //console.log(lectureIdToUpdate);
         newLectures.forEach(function (item,index){
             //console.log(item.lectureId+" "+lectureIdToUpdate);
             if(item.lectureId==lectureIdToUpdate){
-                let newDel=deliveryToUpdate==="inPresence" ? "remote" : "inPresence";
                 newLecture=new Lecture(item.lectureId,item.courseId,item.classId,item.date,item.bookingDeadline,newDel);
                 i=index;
             }

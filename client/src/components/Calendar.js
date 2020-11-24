@@ -7,12 +7,13 @@ import listPlugin from '@fullcalendar/list'
 import Container from 'react-bootstrap/Container'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
+import {findDOMNode,unmountComponentAtNode} from 'react-dom';
 class Calendar extends React.Component{
     constructor(props){
         super(props);
         this.state={};
-        console.log(props.lessons)
     }
+    calendarRef = React.createRef()
     render(){
         if(!this.props.lessons)
             return <></>
@@ -20,15 +21,17 @@ class Calendar extends React.Component{
             <Container fluid>
                 {
                     this.state.event && 
-                    <ModalClick event = {this.state.event} handleClose={this.handleCloseModal}/>
+                    <ModalClick event = {this.state.event} handleClose={this.handleCloseModal} handleConfirm={this.handleConfirm}/>
                 }
                 <FullCalendar
+                    ref={this.calendarRef}
                     plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin,listPlugin]}
                     headerToolbar={{
                         left: 'prev,next today',
                         center: 'title',
                         right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
                         }}
+                    aspectRatio="2"
                     initialView='listWeek'
                     slotMinTime="08:00:00"
                     slotMaxTime="19:00:00"
@@ -40,8 +43,9 @@ class Calendar extends React.Component{
                     selectMirror={true}
                     dayMaxEvents={true}
                     weekends={true}
-                    initialEvents = {this.props.lessons}
+                    events = {this.props.lessons}
                     eventClick={this.handleEventClick}
+                    
                 />
             </Container>
         )
@@ -53,6 +57,20 @@ class Calendar extends React.Component{
     }
     handleCloseModal = ()=>{
         this.setState({event : null});
+    }
+    handleConfirm = ()=>{
+        this.props.handleConfirm(this.state.event.extendedProps.status,this.state.event.extendedProps.courseId,this.state.event.extendedProps.lectureId)
+        .then((n)=>{
+            let calendarApi = this.calendarRef.current.getApi()
+            console.log(calendarApi.getEventById(this.state.event.id))
+            calendarApi.getEventById(this.state.event.id).remove()
+            calendarApi.addEvent(n);
+            this.setState({event:null})
+            //calendarApi.forceUpdate();
+            console.log(calendarApi)
+            //this.forceUpdate();
+        })
+        //.catch();
     }
 }
 
@@ -67,14 +85,20 @@ function ModalClick(props) {
                 <p>Are you sure you want to cancel your reservation for this lecture?</p>}
                 {props.event.extendedProps.status==="bookable" && 
                 <p>Are you sure you want to book for this lecture?</p>}
+                {props.event.extendedProps.status==="past" && 
+                <p>This lecture is over</p>}
+                {props.event.extendedProps.status==="expired" && 
+                <p>This lecture was expired</p>}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={props.handleClose}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={props.handleClose}>
+                {(props.event.extendedProps.status==="booked" || props.event.extendedProps.status==="bookable") && 
+                <Button variant="primary" onClick={props.handleConfirm}>
                     Yes
                 </Button>
+                }
             </Modal.Footer>
         </Modal>
     )

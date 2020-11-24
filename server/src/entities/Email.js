@@ -33,6 +33,17 @@ class Email {
     }
 
     /**
+     * type code for the email
+     */
+    static EmailType = {
+        ERROR : -1,
+        UNDEFINED : 0,
+        STUDENT_NEW_BOOKING : 1,
+        TEACHER_ATTENDING_STUDENTS : 2
+        // add more here
+    }
+
+    /**
      * create a new email from a generic object
      * @param {Object} obj
      * @returns {Course} new course

@@ -16,6 +16,7 @@ const Course = require('./../entities/Course.js');
 const Email = require('./../entities/Email.js');
 const EmailType = require('./../entities/EmailType.js');
 const emailService = require('./../services/EmailService.js');
+const { StandardErr } = require('./../utils/utils');
 
 let db = null;
 
@@ -37,7 +38,7 @@ const openConn = function openConn(dbpath = './PULSBS.db') {
     const cwd = __dirname;
     dbpath = path.join(cwd, dbpath);
     db = new sqlite.Database(dbpath, (err) => {
-        if (err) throw(err);
+        if (err) throw(StandardErr.new('Dao', StandardErr.errno.FAILURE, err.message));
     });
 
     return;
@@ -64,7 +65,7 @@ const getUserById = function(user) {
         const sql = `SELECT User.* FROM User WHERE userId = ?`;
         db.get(sql, [userId], (err, row) => {
             if(err || !row) {
-                reject('incorrect userId'); // TODO { error: '...' }
+                reject(StandardErr.new('Dao', StandardErr.errno.NOT_EXISTS, 'incorrect userId'));
                 return;
             }
 
@@ -85,7 +86,7 @@ const login = function(user) {
         const sql = `SELECT User.* FROM User WHERE email = ? AND password = ?`;
         db.get(sql, [user.email, user.password], (err, row) => {
             if(err || !row) {
-                reject('incorrect userId or password'); // no more info for security reasons // TODO { error: '...' }
+                reject(StandardErr.new('Dao', StandardErr.errno.WRONG_VALUE, 'incorrect userId or password')); // no more info for security reasons
                 return;
             }
 
@@ -98,7 +99,7 @@ const login = function(user) {
                     retUser = Student.from(row);
                     break;
                 default:
-                    reject('unexpected user type');
+                    reject(StandardErr.new('Dao', StandardErr.errno.UNEXPECTED_TYPE, 'unexpected user type'));
                     return;
             }
             
@@ -121,7 +122,9 @@ const addBooking = function(student, lecture) {
         db.run(sql, [student.studentId, lecture.lectureId], function(err) {
             if(err) {
                 if(err.errno == 19)
-                    err = { error: 'The lecture was already booked'};
+                    err = StandardErr.new('Dao', StandardErr.errno.ALREADY_PRESENT, 'The lecture was already booked');
+                else
+                    err = StandardErr.fromDao(err);
                 reject(err);
                 return;
             }
@@ -133,6 +136,28 @@ const addBooking = function(student, lecture) {
 exports.addBooking = addBooking;
 
 /**
+ * remove a booking
+ * @param {Student} student 
+ * @param {Lecture} lecture 
+ * @returns {Promise} promise
+ */
+const deleteBooking = function(student, lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `DELETE * FROM Booking WHERE studentId = ? AND lectureId = ?`;
+
+        db.run(sql, [student.studentId, lecture.lectureId], function(err) {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(this.lastID);
+        });
+    });
+}
+exports.deleteBooking = deleteBooking;
+
+/**
  * get the list of lectures a student can attend to
  * only future lectures are considered
  * @param {Student} student - studentId needed
@@ -140,14 +165,14 @@ exports.addBooking = addBooking;
  */
 const getLecturesByStudent = function(student) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM Lecture
+        const sql = `SELECT Lecture.* FROM Lecture
             JOIN Course ON Lecture.lectureId = Course.courseId
             JOIN Enrollment ON Enrollment.courseId = Course.courseId
-            WHERE Enrollment.studentId = ? AND DATE(Lecture.date) > DATE(?)`;
+            WHERE Enrollment.studentId = ? AND DATE(Lecture.startingDate) > DATE(?)`;
 
         db.all(sql, [student.studentId, (new Date()).toISOString()], (err, rows) => {
             if(err) {
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return;
             }
 
@@ -173,7 +198,7 @@ const getCoursesByStudent = function(student) {
 
         db.all(sql, [student.studentId, _getCurrentAcademicYear()], (err, rows) => {
             if(err) {
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return;
             }
 
@@ -193,12 +218,12 @@ exports.getCoursesByStudent = getCoursesByStudent;
  */
 const getLecturesByCourse = function(course) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM Lecture
-            WHERE Lecture.courseId = ? AND DATETIME(Lecture.date) >= DATETIME(?)`;
+        const sql = `SELECT Lecture.* FROM Lecture
+            WHERE Lecture.courseId = ? AND DATETIME(Lecture.startingDate) >= DATETIME(?)`;
 
         db.all(sql, [course.courseId, (new Date()).toISOString()], (err, rows) => {
             if(err) {
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return;
             }
 
@@ -223,7 +248,7 @@ const getStudentsByLecture = function(lecture) {
 
         db.all(sql, [lecture.lectureId, 'STUDENT'], (err, rows) => {
             if(err) {
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return;
             }
 
@@ -250,7 +275,7 @@ const getStudentsByCourse = function(course) {
 
         db.all(sql, [course.courseId, _getCurrentAcademicYear(), 'STUDENT'], (err, rows) => {
             if(err) {
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return;
             }
 
@@ -270,14 +295,14 @@ exports.getStudentsByCourse = getStudentsByCourse;
  */
 const getLecturesByTeacher = function(teacher) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM Lecture
+        const sql = `SELECT Lecture.* FROM Lecture
             JOIN Course ON Lecture.courseId = Course.courseId
             JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId
-            WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.date) > DATE(?)`;
+            WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.startingDate) > DATE(?)`;
 
         db.all(sql, [teacher.teacherId, (new Date()).toISOString()], (err, rows) => {
             if(err) {
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return;
             }
 
@@ -303,7 +328,7 @@ const getCoursesByTeacher = function(teacher) {
 
         db.all(sql, [teacher.teacherId, _getCurrentAcademicYear()], (err, rows) => {
             if(err) {
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return;
             }
 
@@ -327,7 +352,7 @@ const getCourseByLecture = function(lecture) {
             WHERE Lecture.lectureId = ?`;
         db.get(sql, [lecture.lectureId], (err, row) => {
             if(err || !row) {
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return
             }
 
@@ -409,14 +434,14 @@ exports._getCurrentAcademicYear = _getCurrentAcademicYear;
  */
 const addEmail = function(email) {
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO Email(fromId, toId, emailTypeId) VALUES(?, ?, ?)`;
+        const sql = `INSERT INTO Email(fromId, toId, emailType) VALUES(?, ?, ?)`;
 
         const fromId = email.from instanceof Teacher ? email.from.teacherId : email.from.studentId;
         const toId = email.to instanceof Teacher ? email.to.teacherId : email.to.studentId;
 
         db.run(sql, [fromId, toId, email.emailType], function(err) {
             if(err) {
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return;
             }
 
@@ -440,7 +465,7 @@ const getLecturesByDeadline = function(date) {
         const now = new Date();
         db.all(sql, [now.toISOString()], (err, rows) => {
             if(err) {
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return;
             }
 
@@ -464,12 +489,12 @@ const getTeacherByCourse = function(course) {
 
         db.get(sql, [course.courseId, "TEACHER"], (err, row) => {
             if(err) {
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return
             }
             
             if(!row) {
-                resolve({});
+                reject(StandardErr.new('Dao', StandardErr.errno.NOT_EXISTS, 'teacher not found'));
                 return; 
             }
 

@@ -57,10 +57,10 @@ class CoursePanel extends React.Component {
                     <tr style={{backgroundColor: "white"}}>
                     <td>
                     { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}
-                    { this.props.courses.length===0 && !this.props.fetchError && "no courses available." }
+                    { this.props.courses.length===0 && !this.props.fetchError && <label>no courses available.</label> }
                     </td>
                     <td></td>
-                    <td>{ this.props.sCourse && <>Selected course: {this.props.sCourse}</>}</td>
+                    <td>{ this.props.sCourse && <label>Selected course: {this.props.sCourse}</label>}</td>
                     </tr>
                     </tbody>
                     </Table><br/> 
@@ -97,7 +97,7 @@ class LecturePanel extends React.Component {
 
     //triggers EditModal
     editOpen = (e) =>{
-        console.log(e.target.name+" "+e.target.value);
+        //console.log(e.target.name+" "+e.target.value);
         this.props.showEditModal(e.target.name,e.target.value);
     }
 
@@ -131,12 +131,12 @@ class LecturePanel extends React.Component {
                 <tr style={{backgroundColor: "white"}}>
                 <td>
                 { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}
-                { this.props.lectures.length===0 && !this.props.fetchError && "no lectures available." }
+                { this.props.lectures.length===0 && !this.props.fetchError && <label>no lectures available.</label> }
                 </td>
                 <td></td>
                 <td></td>
                 <td></td>
-                <td>{ this.props.sLecture && <>Selected lecture: {this.props.sLecture}</>}</td>
+                <td>{ this.props.sLecture && <label>Selected lecture: {this.props.sLecture}</label>}</td>
                 </tr>
                 </tbody>
                 </Table><br/>
@@ -202,10 +202,10 @@ class StudentPanel extends React.Component {
                     <tr style={{backgroundColor: "white"}}>
                     <td>
                     { this.props.nPages>1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick}/>}
-                    { this.props.students.length===0 && !this.props.fetchError && "no students listed." }
+                    { this.props.students.length===0 && !this.props.fetchError && <label>no students listed.</label> }
                     </td>
                     <td></td>
-                    <td>{ this.props.students.length!==0 && <>Number of students: {this.props.students.length}</>}</td>
+                    <td>{ this.props.students.length!==0 && <label>Number of students: {this.props.students.length}</label>}</td>
                     </tr>
                     </tbody>
                     </Table><br/>

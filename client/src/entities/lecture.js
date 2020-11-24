@@ -3,7 +3,7 @@ class Lecture{
         this.lectureId=lectureId;
         this.courseId=courseId;
         this.classId=classId;
-        this.startingDate=date;
+        this.startingDate=startingDate;
         this.bookingDeadline=bookingDeadline;
         this.delivery=delivery;
     }

@@ -1,532 +1,681 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "title": "Rest API for PULSBS",
-    "description": "Open rest API of PULSBS server (pandemic university lecture seat booking system)",
-    "contact": {
-      "email": "s276509@studenti.polito.it"
-    },
-    "version": "0.1.0"
-  },
-  "servers": [
-    {
-      "url": "http://localhost:3001/api/v1"
-    }
-  ],
-  "tags": [
-    {
-      "name": "student",
-      "description": "Everything about the students"
-    },
-    {
-      "name": "teacher",
-      "description": "Everything about the teachers"
-    },
-    {
-      "name": "general",
-      "description": "General services"
-    }
-  ],
-  "externalDocs": {
-    "description": "Visualize the api with swagger editor",
-    "url": "https://editor.swagger.io/"
-  },
-  "paths": {
-    "/login": {
-      "post": {
-        "tags": [
-          "general"
-        ],
-        "summary": "User request to sign in system",
-        "operationId": "userLogin",
-        "requestBody": {
-          "description": "The credetials needed are email and password",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Login"
-              }
-            }
-          },
-          "required": true
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Rest API for PULSBS",
+        "description": "Open rest API of PULSBS server (pandemic university lecture seat booking system)",
+        "contact": {
+            "email": "s276509@studenti.polito.it"
         },
-        "responses": {
-          "200": {
-            "description": "Login was successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Student"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Credetials are invalid",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "error": "invalid credentials"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Generic server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "error": "internal server error"
-                }
-              }
-            }
-          }
-        }
-      }
+        "version": "0.3.0"
     },
-    "/students/{studentId}/courses": {
-      "get": {
-        "tags": [
-          "student"
-        ],
-        "summary": "get all enrolled courses in this academic year",
-        "operationId": "studentGetCourses",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "studentId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "student id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The request was successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Course"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Generic server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "error": "internal server error"
-                }
-              }
-            }
-          }
+    "servers": [
+        {
+            "url": "http://localhost:3001/api/v1"
         }
-      }
-    },
-    "/students/{studentId}/courses/{courseId}/lectures": {
-      "get": {
-        "tags": [
-          "student"
-        ],
-        "summary": "get all active lectures of a particular course",
-        "description": "Get all active lectures, which are still not delivered, for a course enrolled by a particular student",
-        "operationId": "studentGetCourseLectures",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "studentId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "student id"
-          },
-          {
-            "in": "path",
-            "name": "courseId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "course id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The request was successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Lecture"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Generic server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "error": "internal server error"
-                }
-              }
-            }
-          }
+    ],
+    "tags": [
+        {
+            "name": "student",
+            "description": "Everything about the students"
+        },
+        {
+            "name": "teacher",
+            "description": "Everything about the teachers"
+        },
+        {
+            "name": "general",
+            "description": "General services"
         }
-      }
+    ],
+    "externalDocs": {
+        "description": "Visualize the api with swagger editor",
+        "url": "https://editor.swagger.io/"
     },
-    "/students/{studentId}/courses/{courseId}/lectures/{lectureId}": {
-      "post": {
-        "tags": [
-          "student"
-        ],
-        "summary": "book a particular lecture",
-        "operationId": "studentBookLecture",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "studentId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "student id"
-          },
-          {
-            "in": "path",
-            "name": "courseId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "course id"
-          },
-          {
-            "in": "path",
-            "name": "lectureId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "lecture id"
-          }
-        ],
-        "requestBody": {
-          "description": "The id of the student that want to book a lecture",
-          "content": {
-            "application/json": {
-              "schema": {
+    "paths": {
+        "/login": {
+            "post": {
+                "tags": ["general"],
+                "summary": "User request to sign in system",
+                "operationId": "userLogin",
+                "requestBody": {
+                    "description": "The credetials needed are email and password",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Login"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login was successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Student"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Email and/or password are not lexical valid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credetials are invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/students/{studentId}/courses": {
+            "get": {
+                "tags": ["student"],
+                "summary": "Get all enrolled courses in this academic year",
+                "operationId": "studentGetCourses",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "studentId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "student id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request was successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Course"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Parameter studentId is not an integer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "source": "StudentService",
+                                    "errno": 1,
+                                    "error": "'studentId' parameter is not an integer: fail",
+                                    "statusCode": 400
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/students/{studentId}/courses/{courseId}/lectures": {
+            "get": {
+                "tags": ["student"],
+                "summary": "Get all active lectures of a given course of a given student",
+                "description": "Get all active lectures, which are still not delivered, for a course enrolled by a particular student",
+                "operationId": "studentGetCourseLectures",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "studentId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "student id"
+                    },
+                    {
+                        "in": "path",
+                        "name": "courseId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "course id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request was successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Lecture"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "studentId and/or courseId are not integers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "student/course mismatch",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "source": "StudentService",
+                                    "errno": 30,
+                                    "error": "student (studentId = 3) is not enrolled in the course (courseId = 4)",
+                                    "statusCode": 404
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic server error. Not implemented",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/students/{studentId}/courses/{courseId}/lectures/{lectureId}": {
+            "post": {
+                "tags": ["student"],
+                "summary": "Book a particular lecture",
+                "operationId": "studentBookLecture",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "studentId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "student id"
+                    },
+                    {
+                        "in": "path",
+                        "name": "courseId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "course id"
+                    },
+                    {
+                        "in": "path",
+                        "name": "lectureId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "lecture id"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The booking was successful"
+                    },
+                    "400": {
+                        "description": "StudentId, courseId and/or lectureId are not integers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "'student/course' or 'course/lecture' mismatch",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "source": "StudentService",
+                                    "errno": 30,
+                                    "error": "student (studentId = 3) is not enrolled in the course (courseId = 4)",
+                                    "statusCode": 404
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/teachers/{teacherId}/courses": {
+            "get": {
+                "tags": ["teacher"],
+                "summary": "Get all courses taught in this academic year by a given professor",
+                "operationId": "teacherGetCourses",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "teacherId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "teacher id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request was successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Course"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "teacherId is an integer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "source": "TeacherService",
+                                    "errno": 1,
+                                    "error": "'teacherId' parameter is not an integer",
+                                    "statusCode": 400
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/teachers/{teacherId}/courses/{courseId}/lectures": {
+            "get": {
+                "tags": ["teacher"],
+                "summary": "Get all active lectures of a given course",
+                "description": "Get all active lectures, which have not yet been delivered, for a course taught by a given professor",
+                "operationId": "teacherGetCourseLectures",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "teacherId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "teacher id"
+                    },
+                    {
+                        "in": "path",
+                        "name": "courseId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "course id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request was successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Lecture"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "teacherId and/or courseId are not valid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "source": "TeacherService",
+                                    "errno": 1,
+                                    "error": "'teacherId' parameter is not an integer: fail",
+                                    "statusCode": 400
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "teacher/course mismatch",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "source": "TeacherService",
+                                    "errno": 30,
+                                    "error": "course (courseId = 3) is not taught by this teacher (teacherId = 4)",
+                                    "statusCode": 404
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/teachers/{teacherId}/courses/{courseId}/lectures/{lectureId}/students": {
+            "get": {
+                "tags": ["teacher"],
+                "summary": "Get all the students that have an active booking for a given lecture",
+                "operationId": "teacherGetCourseLectureStudents",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "teacherId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "teacher id"
+                    },
+                    {
+                        "in": "path",
+                        "name": "courseId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "course id"
+                    },
+                    {
+                        "in": "path",
+                        "name": "lectureId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "lecture id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request was successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Student"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "teacherId, courseId and/or lectureId are not integers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "source": "TeacherService",
+                                    "errno": 1,
+                                    "error": "'teacherId' parameter is not an integer",
+                                    "statusCode": 400
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "teacher/course and/or course/lecture mismatch",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "source": "TeacherService",
+                                    "errno": 30,
+                                    "error": "course (courseId = 3) is not taught by this teacher (teacherId = 4)",
+                                    "statusCode": 404
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Course": {
                 "type": "object",
                 "properties": {
-                  "stundetId": {
-                    "type": "integer",
-                    "example": 1
-                  }
+                    "courseId": {
+                        "type": "integer"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "year": {
+                        "type": "number",
+                        "example": 2020
+                    }
                 }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "The booking was successful",
-            "content": {}
-          },
-          "500": {
-            "description": "Generic server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "error": "internal server error"
+            },
+            "CourseJTeacherCourse": {
+                "type": "object",
+                "properties": {
+                    "courseId": {
+                        "type": "integer"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "year": {
+                        "type": "number"
+                    },
+                    "teacherId": {
+                        "type": "integer"
+                    },
+                    "isValid": {
+                        "type": "integer"
+                    }
                 }
-              }
+            },
+            "Lecture": {
+                "type": "object",
+                "properties": {
+                    "lectureId": {
+                        "type": "integer"
+                    },
+                    "courseId": {
+                        "type": "integer"
+                    },
+                    "classId": {
+                        "type": "integer"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "Login": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password"
+                    }
+                }
+            },
+            "StudentLecture": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "integer"
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "this field defines what kind of user he/she is",
+                        "enum": ["Student", "Teacher"]
+                    },
+                    "studentId": {
+                        "type": "integer"
+                    },
+                    "lectureId": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "Student": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "number"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "this field defines what kind of user he/she is",
+                        "enum": ["Student", "Teacher"]
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "source": {
+                        "type": "string"
+                    },
+                    "errno": {
+                        "type": "integer"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "statusCode": {
+                        "type": "integer"
+                    }
+                }
             }
-          }
         }
-      }
-    },
-    "/teachers/{teacherId}/courses": {
-      "get": {
-        "tags": [
-          "teacher"
-        ],
-        "summary": "get all taught courses of this academic year",
-        "operationId": "teacherGetCourses",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "teacherId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "teacher id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The request was successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Course"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Generic server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "error": "internal server error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/teachers/{teacherId}/courses/{courseId}/lectures": {
-      "get": {
-        "tags": [
-          "teacher"
-        ],
-        "summary": "get all active lectures for a particular course",
-        "description": "Get all active lectures, which are stil not delivered, for a course taught by a particular professor",
-        "operationId": "teacherGetCourseLectures",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "teacherId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "teacher id"
-          },
-          {
-            "in": "path",
-            "name": "courseId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "course id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The request was successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Lecture"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Generic server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "error": "internal server error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/teachers/{teacherId}/courses/{courseId}/lectures/{lectureId}/students": {
-      "get": {
-        "tags": [
-          "teacher"
-        ],
-        "summary": "get all the students that have an active booking for a particular lecture",
-        "operationId": "teacherGetCourseLectureStudents",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "teacherId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "teacher id"
-          },
-          {
-            "in": "path",
-            "name": "courseId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "course id"
-          },
-          {
-            "in": "path",
-            "name": "lectureId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "lecture id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The request was successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Student"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Generic server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "error": "internal server error"
-                }
-              }
-            }
-          }
-        }
-      }
     }
-  },
-  "components": {
-    "schemas": {
-      "Course": {
-        "type": "object",
-        "properties": {
-          "courseId": {
-            "type": "integer"
-          },
-          "description": {
-            "type": "string"
-          },
-          "year": {
-            "type": "number",
-            "example": 2020
-          }
-        }
-      },
-      "Lecture": {
-        "type": "object",
-        "properties": {
-          "lectureId": {
-            "type": "integer"
-          },
-          "courseId": {
-            "type": "integer"
-          },
-          "classId": {
-            "type": "integer"
-          },
-          "date": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "Login": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string",
-            "format": "password"
-          }
-        }
-      },
-      "Student": {
-        "type": "object",
-        "properties": {
-          "userId": {
-            "type": "number"
-          },
-          "type": {
-            "type": "string",
-            "description": "this field defines what kind of user he/she is",
-            "enum": [
-              "Student",
-              "Teacher"
-            ]
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        }
-      },
-      "Error": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "string"
-          }
-        }
-      }
-    }
-  }
 }

@@ -1,7 +1,7 @@
 /**
  * Lecture entity
  * @author Gastaldi Paolo
- * @version 1.0.0
+ * @version 1.0.2
  */
 'use strict';
 
@@ -11,17 +11,33 @@ class Lecture {
      * @param {Number} lectureId 
      * @param {Number} courseId 
      * @param {Number} classId 
-     * @param {Date} date 
+     * @param {Date} startingDate 
+     * @param {Number} duration - milliseconds
+     * @param {Date} bookingDeadline
+     * @param {DeliveryType} delivery
      */
-    constructor(lectureId = -1, courseId = -1, classId = -1, date = undefined, bookingDeadline = undefined) {
-        date = new Date(date);
+    constructor(lectureId = -1, courseId = -1, classId = -1, startingDate = undefined, duration = -1, bookingDeadline = undefined, delivery = Lecture.DeliveryType.ERROR) {
+        startingDate = new Date(startingDate);
         bookingDeadline = new Date(bookingDeadline);
 
         this.lectureId = lectureId;
         this.courseId = courseId;
         this.classId = classId;
-        this.date = date;
+        this.startingDate = startingDate;
+        this.duration = duration;
         this.bookingDeadline = bookingDeadline;
+        this.delivery = delivery;
+    }
+
+    /**
+     * how the lecture will be delivered
+     */
+    static DeliveryType = {
+        ERROR : -1,
+        UNDEFINED : 0,
+        PRESENCE : 1,
+        REMOTE : 2
+        // add more here
     }
 
     /**
@@ -29,9 +45,9 @@ class Lecture {
      * @param {Object} obj
      * @returns {Lecture} new lecture
      */
-    static from(obj){
+    static from(obj) {
         const lecture = Object.assign(new Lecture(), obj);
-        lecture.date = new Date(lecture.date);
+        lecture.startingDate = new Date(lecture.startingDate);
         lecture.bookingDeadline = new Date(lecture.bookingDeadline);
         return lecture;
     }
