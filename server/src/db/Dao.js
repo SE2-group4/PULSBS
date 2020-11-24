@@ -64,7 +64,7 @@ const getUserById = function(user) {
         const sql = `SELECT User.* FROM User WHERE userId = ?`;
         db.get(sql, [userId], (err, row) => {
             if(err || !row) {
-                reject('incorrect userId'); // TODO { error: '...' }
+                reject({ error: 'incorrect userId' });
                 return;
             }
 
@@ -85,7 +85,7 @@ const login = function(user) {
         const sql = `SELECT User.* FROM User WHERE email = ? AND password = ?`;
         db.get(sql, [user.email, user.password], (err, row) => {
             if(err || !row) {
-                reject('incorrect userId or password'); // no more info for security reasons // TODO { error: '...' }
+                reject({ error : 'incorrect userId or password' }); // no more info for security reasons
                 return;
             }
 
@@ -121,7 +121,7 @@ const addBooking = function(student, lecture) {
         db.run(sql, [student.studentId, lecture.lectureId], function(err) {
             if(err) {
                 if(err.errno == 19)
-                    err = { error: 'The lecture was already booked'};
+                    err = { error: 'The lecture was already booked' };
                 reject(err);
                 return;
             }
@@ -131,6 +131,29 @@ const addBooking = function(student, lecture) {
     })
 }
 exports.addBooking = addBooking;
+
+/**
+ * remove a booking
+ * @param {Student} student 
+ * @param {Lecture} lecture 
+ * @returns {Promise} promise
+ */
+const deleteBooking = function(student, lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `DELETE * FROM Booking WHERE studentId = ? AND lectureId = ?`;
+
+        db.run(sql, [student.studentId, lecture.lectureId], function(err) {
+            if(err) {
+                // err = { error: 'Unable to remove this lecture' };
+                reject(err);
+                return;
+            }
+
+            resolve(this.lastID);
+        });
+    });
+}
+exports.deleteBooking = deleteBooking;
 
 /**
  * get the list of lectures a student can attend to
