@@ -57,7 +57,7 @@ sections:
 | | 46 | | 2h | 1h 15m | done |
 | #4 | | 8 | | | |
 | | 39 | | 2h | 25m    | done |
-| | 47 | | 2h | ?      | review |
+| | 47 | | 2h | 0h     | review |
 
 > place technical tasks corresponding to story `#0` and leave out story points (not applicable in this case)
 
@@ -72,22 +72,22 @@ sections:
 
 - Unit Testing:
   - Total hours estimated : 17 hours
-  - Total hours spent : 17hours 9minutes
+  - Total hours spent : 17 hours 9 minutes
   - Nr of automated unit test cases:
     - Client-side : 28 tests
     - Server-side : 20 tests
   - Coverage : 54.39 %
 - E2E testing:
   - Total hours estimated : 4 hours
-  - Total hours spent : 7hours 30minutes
+  - Total hours spent : 7 hours 30 minutes
 - Code review 
-  - Total hours estimated : 0hours
-  - Total hours spent : 0hours
+  - Total hours estimated : 0 hours
+  - Total hours spent : 0 hours
 - Technical Debt management:
-  - Total hours estimated : 0hours
-  - Total hours spent : 0hours
-  - Hours estimated for remediation by SonarQube : 1hour
-  - Hours spent on remediation : 10minutes
+  - Total hours estimated : 0 hours
+  - Total hours spent : 0 hours
+  - Hours estimated for remediation by SonarQube : 1 hour
+  - Hours spent on remediation : 10 minutes
   - debt ratio (as reported by SonarQube under "Measures-Maintainability") : 0.0%
   - rating for each quality characteristic reported in SonarQube under "Measures" (namely reliability, security, maintainability ) : A, A, A
   
