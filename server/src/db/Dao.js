@@ -506,7 +506,7 @@ exports.getTeacherByCourse = getTeacherByCourse;
 
 /**
  * get the list of lecture the student has booked
- * @param {Student} student 
+ * @param {Student} student - studentId needed
  * @returns {Promise} promise
  */
 const getBookingsByStudent = function(student) {
@@ -528,3 +528,39 @@ const getBookingsByStudent = function(student) {
     });
 }
 exports.getBookingsByStudent = getBookingsByStudent;
+
+/**
+ * get lectures in a specific period of time
+ * @param {Course} course - courseId needed
+ * @param {Object} periodOfTime - {Date} from (optional), {Date} to (optional)
+ * @returns {Promise} promise
+ */
+const getLecturesByPeriodOfTime = function(course, periodOfTime) {
+    return new Promise((resolve, reject) => {
+        const sqlParams = [];
+        const sql = `SELECT Lecture.* FROM Lecture WHERE Lecture.courseId = ?`;
+        sqlParams.push(course.courseId);
+
+        // composing the SQL query
+        if(periodOfTime.from && periodOfTime.from instanceof Date) {
+            sql += ` AND WHERE DATE(startingDate) >= DATE(?)`;
+            sqlParams.push(periodOfTime.from);
+        }
+        if(periodOfTime.to && periodOfTime.to instanceof Date) {
+            sql += ` AND WHERE DATE(startingDate) <= DATE(?)`;
+            sqlParams.push(periodOfTime.to);
+        }
+
+        db.all(sql, sqlParams, (err, rows) => {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return
+            }
+
+            const lectures = [];
+            rows.forEach(row => lectures.push(Lecture.from(row)));
+            resolve(lectures);
+        })
+    });
+};
+exports.getLecturesByPeriodOfTime = getLecturesByPeriodOfTime;
