@@ -33,10 +33,10 @@ class Lecture {
      * how the lecture will be delivered
      */
     static DeliveryType = {
-        ERROR : -1,
-        UNDEFINED : 0,
-        PRESENCE : 1,
-        REMOTE : 2
+        ERROR : 'ERROR',
+        UNDEFINED : 'UNDEFINED',
+        PRESENCE : 'PRESENCE',
+        REMOTE : 'REMOTE'
         // add more here
     }
 
