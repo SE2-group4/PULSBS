@@ -112,12 +112,14 @@ sections:
 - What lessons did you learn (both positive and negative) in this sprint?
   - POSITIVE
     - automation is your best friend
-    - group discussions helps while developing a web application
+    - group discussions helps while developing a web application  
+    - defining more detailed tasks was a good choice
   - NEGATIVE
     - working in parallel on the same file may cause frustration and annoyance. Those were caused in part by:
       - spending extra time in understanding the code written by other people
       - distinct structure of a problem's solution (good and bad at the same time)
-    - not having a coherent set of APIs lead to different implementation styles in some part of the system
+    - not having a coherent set of APIs lead to different implementation styles in some part of the system  
+    - testing should not be understimated because it is essential
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
   - Discuss before making any breaking changes with your
@@ -138,8 +140,11 @@ Misunderstandings
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
   - do more group discussions
-  - ...
+  - code review
+  - augment and define threshold for coverage
+  - define better APIs
 
 > Propose one or two
 
-- One thing you are proud of as a Team!!
+- One thing you are proud of as a Team!!  
+During this first sprint we built a solid base in our project in order to deploy a very good application at the end!
