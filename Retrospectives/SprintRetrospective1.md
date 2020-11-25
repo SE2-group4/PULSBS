@@ -82,9 +82,12 @@ SPRINT RETROSPECTIVE 1 (TEAM 4)
 ## ASSESSMENT
 
 - What caused your errors in estimation (if any)?
-  - Task 27 :
-  - Task 48 :
-  - Task 40 :
+  - Task 27 (Learning testing tools for the frontend)  
+    - we thought learning testing tools required a lot of effort, for this reason we overestimated this task
+  - Task 48 (frontend implement login page):
+    - There was a communication issue with the assignee of this task
+  - Task 40 (testing gui student webpage):
+    - learning the new tools was easy but implemented the tests in practice required more effort
   - Task 42 (Testing: back-end API related to the student/teacher/login): 
     - there were more use cases than initially predicted, thus it required more time to write the API's tests
   - Task 34 (Implement email sending service)
