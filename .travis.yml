@@ -11,6 +11,6 @@ jobs:
     - npm run coverage
     - cd ..
     - cd server ; npm install
-    - npm run coverage
+    - npm run coverage 
     - cd ..
     - codecov
