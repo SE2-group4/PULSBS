@@ -20,8 +20,6 @@ const prepare = require('../src/db/preparedb.js');
 
 const suite = function() {
     before(function(done) {
-        dao.openConn('testing.db');
-
         done();
     });
 

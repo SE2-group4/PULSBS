@@ -31,13 +31,11 @@ const suite = function() {
             lecture3 = new Lecture(3);
             course3 = new Course(3);
 
-            dao.openConn('testing.db');
-
             done();
         });
 
         beforeEach(function(done) {
-            prepare('testing.db', 'testing.sql', true)
+            prepare('testing.db', 'testing.sql', false)
                 .then(() => done())
                 .catch((err) => done(err));
         });

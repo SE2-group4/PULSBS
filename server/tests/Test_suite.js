@@ -11,6 +11,16 @@ const Test_services = require('./Test_services.js');
  * all system unit test
  */
 describe('System', function () {
-    Test_dao();
-    Test_services();
+    before(function(done) {
+        dao.openConn('testing.db');
+        done();
+    });
+    
+    describe('Unit tests', function() {
+        Test_dao();
+    });
+
+    describe('Integration tests', function() {
+        Test_services();
+    });
 })

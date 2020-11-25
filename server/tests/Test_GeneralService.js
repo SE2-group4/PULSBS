@@ -20,29 +20,27 @@ const prepare = require('../src/db/preparedb.js');
 
 const suite = function() {
     before(function(done) {
-        dao.openConn('testing.db');
-
         done();
     });
 
     beforeEach(function(done) {
-        prepare('testing.db', 'testing.sql', true)
+        prepare('testing.db', 'testing.sql', false)
             .then(() => done())
             .catch((err) => done(err));
     });
-    
+
     describe('GeneralService', function() {
         describe('userLogin', function() {
             it('correct params should accept the request', function(done) {
-
+                done();
             });
             
             it('incorrect username should discard the request', function(done) {
-
+                done();
             });
 
             it('incorrect password should discard the request', function(done) {
-
+                done();
             });
         })
     });

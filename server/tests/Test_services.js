@@ -12,9 +12,13 @@ const Test_email = require('./Test_email.js');
 /**
  * all system unit test
  */
-describe('Services', function () {
-    Test_GeneralService();
-    Test_StudentService();
-    Test_TeacherService();
-    Test_email();
-})
+
+const suite = function() {
+    describe('Services', function () {
+        Test_GeneralService();
+        Test_StudentService();
+        Test_TeacherService();
+        Test_email();
+    });
+}
+module.exports = suite;
