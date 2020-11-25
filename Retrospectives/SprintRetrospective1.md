@@ -100,7 +100,8 @@ sections:
   - Task 42 (Testing: back-end API related to the student/teacher/login): 
     - there were more use cases than initially predicted, thus it required more time to write the API's tests
   - Task 34 :
-  - Task 36 :
+  - Task 36 (Front-end: implement front-end APIs function):
+    - after the effort of implementing the first API, the other ones were much faster to do
   - Task 37 (Back-end: implement back-end APIs functions related to retrieving all the students booked for a lecture taught by a particular teacher): 
     - it was tracked an additional part related to setting up the controllers and services routines
   - Task 45 (Testing: back-end API related to retrieving students): 
