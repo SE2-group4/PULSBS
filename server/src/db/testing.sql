@@ -45,3 +45,5 @@ INSERT INTO Booking(studentId, lectureId) VALUES(3, 3);
 
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(6, 'STUDENT', 'Fake', 'Student', 'fakeStudent.se2@gmail.com', 'anvzRPuDd1mvCXJBfn');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(7, 'TEACHER', 'Fake', 'Teacher', 'fakeTeacher.se2@gmail.com', 'anvzRPuDd1mvCXJBfn');
+
+CREATE TRIGGER IF NOT EXISTS delete_students_bookings BEFORE DELETE ON Lecture BEGIN DELETE FROM Booking WHERE Booking.lectureId = OLD.lectureId;
