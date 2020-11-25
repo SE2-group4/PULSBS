@@ -30,7 +30,7 @@ class TeacherPage extends React.Component {
             lectureMap: new Map(), lPages: 1,                                //lecture pagination
             studentMap: new Map(), sPages: 1,                                //student pagination
             fetchErrorC: false, fetchErrorL: false, fetchErrorS: false       //fetch errors
-        };     
+        };
     }
 
     /**
@@ -41,20 +41,16 @@ class TeacherPage extends React.Component {
             .then((courses) => {
                 let i = 0;
                 let nMap = new Map();
-                //courses.map((c)=>{
-                //nMap.set(c.courseId,Math.floor(i/elementForPage));
-                //i++;})
                 courses.forEach(function (item) {
                     nMap.set(item.courseId, Math.floor(i / elementForPage));
                     i++;
                 });
                 let nPages = Math.ceil(i / elementForPage);
-                //console.log(courses);
                 this.setState({ courses: courses, courseMap: nMap, cPages: nPages, fetchErrorC: false });
             })
             .catch((error) => {
-                let errormsg=error.source+" : "+error.error; 
-                this.setState({ fetchErrorC: errormsg }); 
+                let errormsg = error.source + " : " + error.error;
+                this.setState({ fetchErrorC: errormsg });
             });
     }
 
@@ -66,20 +62,16 @@ class TeacherPage extends React.Component {
             .then((lectures) => {
                 let i = 0;
                 let nMap = new Map();
-                //lectures.map((l)=>{
-                //nMap.set(l.lectureId,Math.floor(i/elementForPage));
-                //i++;})
                 lectures.forEach(function (item) {
                     nMap.set(item.lectureId, Math.floor(i / elementForPage));
                     i++;
                 });
                 let nPages = Math.ceil(i / elementForPage);
-                //console.log(lectures);
                 this.setState({ lectures: lectures, lectureMap: nMap, lPages: nPages, selectedCourse: courseId, selectedLecture: null, fetchErrorL: false, students: [], sPages: 1, fetchErrorS: false });
             })
             .catch((error) => {
-                let errormsg=error.source+" : "+error.error;
-                this.setState({ selectedCourse: courseId, lectures: [], selectedLecture: null, lPages: 1, fetchErrorL: errormsg, students: [], sPages: 1, fetchErrorS: false }); 
+                let errormsg = error.source + " : " + error.error;
+                this.setState({ selectedCourse: courseId, lectures: [], selectedLecture: null, lPages: 1, fetchErrorL: errormsg, students: [], sPages: 1, fetchErrorS: false });
             });
     }
 
@@ -91,9 +83,6 @@ class TeacherPage extends React.Component {
             .then((students) => {
                 let i = 0;
                 let nMap = new Map();
-                //students.map((s)=>{
-                //nMap.set(s.studentId,Math.floor(i/elementForPage));
-                //i++;})
                 students.forEach(function (item) {
                     nMap.set(item.studentId, Math.floor(i / elementForPage));
                     i++;
@@ -101,9 +90,9 @@ class TeacherPage extends React.Component {
                 let nPages = Math.ceil(i / elementForPage);
                 this.setState({ students: students, studentMap: nMap, sPages: nPages, selectedLecture: lectureId, fetchErrorS: false })
             })
-            .catch((error) => { 
-                let errormsg=error.source+" : "+error.error;
-                this.setState({ selectedLecture: lectureId, students: [], sPages: 1, fetchErrorS: errormsg }); 
+            .catch((error) => {
+                let errormsg = error.source + " : " + error.error;
+                this.setState({ selectedLecture: lectureId, students: [], sPages: 1, fetchErrorS: errormsg });
             });
     }
 
@@ -122,9 +111,10 @@ class TeacherPage extends React.Component {
                 break;
         }
     }
+
     //Error handler
     closeError = (errorName) => {
-        this.setState({[errorName]: false});
+        this.setState({ [errorName]: false });
     }
 
     // EditModal handlers
@@ -148,25 +138,24 @@ class TeacherPage extends React.Component {
     updateDelivery = () => {
         var deliveryToUpdate = this.state.deliveryToUpdate;
         var newDel = deliveryToUpdate == 'PRESENCE' ? 'REMOTE' : 'PRESENCE';
-        //API.updateDeliveryByLecture(this.state.user.userId,this.state.selectedCourse,this.state.lectureIdToUpdate,newDel)
-        //.then(())=>{
-        //    
-        //}).catch(()=>{});
-        var newLectures = this.state.lectures.slice();
-        var newLecture, i;
-        var lectureIdToUpdate = this.state.lectureIdToUpdate;
-        //console.log(lectureIdToUpdate);
-        newLectures.forEach(function (item, index) {
-            //console.log(item.lectureId+" "+lectureIdToUpdate);
-            if (item.lectureId == lectureIdToUpdate) {
-                newLecture = new Lecture(item.lectureId, item.courseId, item.classId, item.startingDate, item.duration, item.bookingDeadline, newDel);
-                i = index;
-            }
-        });
-        //console.log(newLecture);
-        //console.log(i);
-        newLectures.splice(i, 1, newLecture);
-        this.setState({ lectures: newLectures, lectureIdToUpdate: null, deliveryToUpdate: null });
+        API.updateDeliveryByLecture(this.state.user.userId, this.state.selectedCourse, this.state.lectureIdToUpdate, newDel)
+            .then(() => {
+                //ok from server
+                var newLectures = this.state.lectures.slice();
+                var newLecture, i;
+                var lectureIdToUpdate = this.state.lectureIdToUpdate;
+                newLectures.forEach(function (item, index) {
+                    if (item.lectureId == lectureIdToUpdate) {
+                        newLecture = new Lecture(item.lectureId, item.courseId, item.classId, item.startingDate, item.duration, item.bookingDeadline, newDel);
+                        i = index;
+                    }
+                });
+                newLectures.splice(i, 1, newLecture);
+                this.setState({ lectures: newLectures, lectureIdToUpdate: null, deliveryToUpdate: null });
+            }).catch(() => {
+                //!ok from server
+                //...
+            });
     }
 
     deleteLecture = () => {
@@ -175,22 +164,15 @@ class TeacherPage extends React.Component {
         var newLectures = this.state.lectures.slice();
         var i;
         var lectureIdToDelete = this.state.lectureIdToDelete;
-        //console.log(lectureIdToUpdate);
         newLectures.forEach(function (item, index) {
-            //console.log(item.lectureId+" "+lectureIdToUpdate);
             if (item.lectureId == lectureIdToDelete) {
                 i = index;
             }
         });
-        //console.log(newLecture);
-        //console.log(i);
         newLectures.splice(i, 1);
-
+        //update pagination
         i = 0;
         let nMap = new Map();
-        //lectures.map((l)=>{
-        //nMap.set(l.lectureId,Math.floor(i/elementForPage));
-        //i++;})
         newLectures.forEach(function (item) {
             nMap.set(item.lectureId, Math.floor(i / elementForPage));
             i++;
@@ -221,7 +203,7 @@ class TeacherPage extends React.Component {
                             />
                             <br />
                             <br />
-                            <LecturePanel lectures={this.state.lectures}                                                 //lectures
+                            <LecturePanel lectures={this.state.lectures}                                                                                    //lectures
                                 sLecture={this.state.selectedLecture} pageMap={this.state.lectureMap} nPages={this.state.lPages}                            //lectures pagination
                                 update={this.updateStudents} reset={this.resetSelected}                                                                     //interaction with Student Panel                                                 
                                 showEditModal={this.showEditModal}                                                                                          //EditDelivery management                                                                     
