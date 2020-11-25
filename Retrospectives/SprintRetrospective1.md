@@ -15,15 +15,10 @@ sections:
 - Number of stories committed vs done : 4 vs 1
 - Total points committed vs done : 29 vs 8
 - Nr of hours planned vs spent (as a team) : 72h vs 66h 30m
-
-**Remember**  a story is done ONLY if it fits the Definition of Done:
- 
-- Unit Tests passing :
-- Code review completed
-- Code present on VCS
-- End-to-End tests performed
-
-> Please refine your DoD 
+- Unit Tests passing : 45/48
+- Code review completed : 0/0
+- Code present on VCS : 2758 lines
+- End-to-End tests performed : 31
 
 ### Detailed statistics
 
@@ -99,7 +94,8 @@ sections:
   - Task 40 :
   - Task 42 (Testing: back-end API related to the student/teacher/login): 
     - there were more use cases than initially predicted, thus it required more time to write the API's tests
-  - Task 34 :
+  - Task 34 (Implement email sending service)
+    - we didn't know how to implement mails with node but it has proved easier than expected
   - Task 36 (Front-end: implement front-end APIs function):
     - after the effort of implementing the first API, the other ones were much faster to do
   - Task 37 (Back-end: implement back-end APIs functions related to retrieving all the students booked for a lecture taught by a particular teacher): 
