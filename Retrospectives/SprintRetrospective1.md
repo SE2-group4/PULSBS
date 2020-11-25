@@ -1,13 +1,6 @@
 SPRINT RETROSPECTIVE 1 (TEAM 4)
 =====================================
 
-The retrospective should include _at least_ the following
-sections:
-
-- [process measures](#process-measures)
-- [quality measures](#quality-measures)
-- [general assessment](#assessment)
-
 ## PROCESS MEASURES 
 
 ### Macro statistics
@@ -143,8 +136,6 @@ Misunderstandings
   - code review
   - augment and define threshold for coverage
   - define better APIs
-
-> Propose one or two
 
 - One thing you are proud of as a Team!!  
 During this first sprint we built a solid base in our project in order to deploy a very good application at the end!
