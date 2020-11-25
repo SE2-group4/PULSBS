@@ -4,6 +4,7 @@
  */
 'use strict';
 
+const dao = require('../src/db/Dao.js');
 const Test_dao = require('./Test_dao.js');
 const Test_services = require('./Test_services.js');
 
@@ -15,7 +16,7 @@ describe('System', function () {
         dao.openConn('testing.db');
         done();
     });
-    
+
     describe('Unit tests', function() {
         Test_dao();
     });

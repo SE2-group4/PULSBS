@@ -22,10 +22,11 @@ const isTrigger = (query) => {
  */
 function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
     return new Promise((resolve, reject) => {
+        const cwd = __dirname;
+        dbpath = path.join(cwd, dbpath);
+        dbscript = path.join(cwd, dbscript);
+        
         if (flag) {
-            const cwd = __dirname;
-            dbpath = path.join(cwd, dbpath);
-            dbscript = path.join(cwd, dbscript);
             console.log(`Working on ${cwd}`);
             console.log(`Opening database connection on ${dbpath} to execute the script ${dbscript}`);
         }
