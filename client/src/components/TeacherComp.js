@@ -7,8 +7,6 @@ import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
-import ErrorMsg from '../components/ErrorMsg';
-
 const Checkbox = ({ name, checked = false, onChange, type }) => (
     <Form.Check name={name} checked={checked} onChange={onChange} data-testid={type + "-" + name} />
 );
@@ -58,14 +56,13 @@ class CoursePanel extends React.Component {
                         <tr style={{ backgroundColor: "white" }}>
                             <td>
                                 {this.props.nPages > 1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick} />}
-                                {this.props.courses.length === 0 && !this.props.fetchError && <label>no courses available.</label>}
+                                {this.props.courses.length === 0 && <label>no courses available.</label>}
                             </td>
                             <td></td>
                             <td>{this.props.sCourse && <label>Selected course: {this.props.sCourse}</label>}</td>
                         </tr>
                     </tbody>
                 </Table><br />
-                {this.props.fetchError && <ErrorMsg name="fetchErrorC" msg={this.props.fetchError} onClose={this.props.closeError} />}
             </Container>
         </>;
     }
@@ -139,7 +136,7 @@ class LecturePanel extends React.Component {
                         <tr style={{ backgroundColor: "white" }}>
                             <td>
                                 {this.props.nPages > 1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick} />}
-                                {this.props.lectures.length === 0 && !this.props.fetchError && <label>no lectures available.</label>}
+                                {this.props.lectures.length === 0 && <label>no lectures available.</label>}
                             </td>
                             <td></td>
                             <td></td>
@@ -149,7 +146,6 @@ class LecturePanel extends React.Component {
                         </tr>
                     </tbody>
                 </Table><br />
-                {this.props.fetchError && <ErrorMsg name="fetchErrorL" msg={this.props.fetchError} onClose={this.props.closeError} />}
             </Container>
         </>;
     }
@@ -219,14 +215,13 @@ class StudentPanel extends React.Component {
                         <tr style={{ backgroundColor: "white" }}>
                             <td>
                                 {this.props.nPages > 1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick} />}
-                                {this.props.students.length === 0 && !this.props.fetchError && <label>no students listed.</label>}
+                                {this.props.students.length === 0 && <label>no students listed.</label>}
                             </td>
                             <td></td>
                             <td>{this.props.students.length !== 0 && <label>Number of students: {this.props.students.length}</label>}</td>
                         </tr>
                     </tbody>
                 </Table><br />
-                {this.props.fetchError && <ErrorMsg name="fetchErrorS" msg={this.props.fetchError} onClose={this.props.closeError} />}
             </Container>
         </>;
     }

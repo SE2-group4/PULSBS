@@ -43,8 +43,8 @@ async function getCoursesByStudentId(id) {
             if (response.ok)
                 resolve(response.json());
             else reject((obj) => { reject(obj); });
-        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
-    });
+        }).catch((err) => { reject("Server cannot communicate")})}
+    );
 }
 
 
@@ -134,14 +134,14 @@ async function getCoursesByTeacherId(id) {
             if (response.ok) {
                 response.json()
                     .then((obj) => { resolve(obj.map((c) => Course.from(c))); })
-                    .catch((err) => { reject({ source: "Application", error: "Cannot parse server response" }) }); // something else
+                    .catch((err) => { reject({ source: "Course", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
                 response.json()
-                    .then((obj) => { reject({ source: "Server", error: "invalid parameter error" }); }) // error msg in the response body
-                    .catch((err) => { reject({ source: "Application", error: "Cannot parse server response" }) }); // something else
+                    .then((obj) => { reject({ source: "Course", error: "invalid parameter error" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Course", error: "server error" }) }); // something else
             }
-        }).catch((err) => { reject({ source: "Server", error: "Cannot communicate" }) }); // connection errors
+        }).catch((err) => { reject({ source: "Course", error: "server error" }) }); // connection errors
     });
 }
 
@@ -164,14 +164,14 @@ async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo) {
             if (response.ok) {
                 response.json()
                     .then((obj) => { resolve(obj.map((l) => Lecture.from(l))); })
-                    .catch((err) => { reject({  source: "Application", error: "Cannot parse server response" }) }); // something else
+                    .catch((err) => { reject({ source: "Lecture", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
                 response.json()
-                    .then((obj) => { reject({ source: "Server", error: "invalid parameter error" }); }) // error msg in the response body
-                    .catch((err) => { reject({ source: "Application", error: "Cannot parse server response" }) }); // something else
+                    .then((obj) => { reject({ source: "Lecture", error: "invalid parameter error" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Lecture", error: "server error" }) }); // something else
             }
-        }).catch((err) => { reject({ source: "Server", error: "Cannot communicate" }) }); // connection errors
+        }).catch((err) => { reject({ source: "Lecture", error: "server error" }) }); // connection errors
     });
 }
 
@@ -188,14 +188,14 @@ async function getStudentsByLecture(Uid, Cid, Lid) {
             if (response.ok) {
                 response.json()
                     .then((obj) => { resolve(obj.map((s) => Student.from(s))); })
-                    .catch((err) => { reject({ source: "Application", error: "Cannot parse server response" }) }); // something else
+                    .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
                 response.json()
-                    .then((obj) => { reject({ source: "Server", error: "invalid parameter error" }); }) // error msg in the response body
-                    .catch((err) => { reject({ source: "Application", error: "Cannot parse server response" }) }); // something else
+                    .then((obj) => { reject({ source: "Student", error: "invalid parameter error" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Student", error: "server error" }) }); // something else
             }
-        }).catch((err) => { reject({ source: "Server", error: "Cannot communicate" }) }); // connection errors
+        }).catch((err) => { reject({ source: "Student", error: "server error" }) }); // connection errors
     });
 }
 
@@ -216,10 +216,10 @@ async function updateDeliveryByLecture(Uid, Cid, Lid, Delivery) {
                 resolve(); //delivery correctly updated
             } else {
                 response.json()
-                    .then((obj) => { reject(obj.error); }) // error msg in the response body
-                    .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+                    .then((obj) => { reject({ source: "Lecture", error: "can't update delivery" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Lecture", error: "server error" }) }); // something else
             }
-        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
+        }).catch((err) => { reject({ source: "Lecture", error: "server error" }) }); // connection errors
     });
 }
 

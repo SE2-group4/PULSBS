@@ -14,7 +14,7 @@ describe('Header suite', () => {
 
     test('testing student Header',() => {
         render(<Header isAuth={true} user={student}/>);
-        expect(screen.getByText("Lesson Booking")).toBeInTheDocument();
+        expect(screen.getByText("Home")).toBeInTheDocument();
         expect(screen.getByText("Logout")).toBeInTheDocument();
     });
 

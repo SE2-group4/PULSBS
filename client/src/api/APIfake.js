@@ -25,10 +25,10 @@ const courses = [
  * All the lectures
  */
 const lectures = [
-                new Lecture(1,1,1,"12-11-2020 12:00","12-11-2020 12:01","inPresence"),
-                new Lecture(2,1,1,"11-21-2020 01:01","11-25-2020 13:01","inPresence"),
-                new Lecture(3,2,2,"12-12-2020 09:00","12-12-2020 09:01","remote"),
-                new Lecture(4,1,2,"11-24-2020 19:18","11-24-2020 19:19","remote")
+                new Lecture(1,1,1,"12-11-2020 12:00",600000,"12-11-2020 11:00","inPresence"),
+                new Lecture(2,1,1,"11-21-2020 09:01",600000,"11-20-2020 13:01","inPresence"),
+                new Lecture(3,2,2,"12-12-2020 09:00",600000,"12-11-2020 09:01","remote"),
+                new Lecture(4,1,2,"11-24-2020 18:18",600000,"11-23-2020 19:19","remote")
                 ]
 /**
  * All the lessons booked

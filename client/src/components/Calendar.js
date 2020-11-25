@@ -9,19 +9,21 @@ import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
 import ListGroup from 'react-bootstrap/ListGroup'
 import Spinner from 'react-bootstrap/Spinner'
-
+import moment from 'moment'
+/**
+ * Calendar component
+ */
 class Calendar extends React.Component{
     constructor(props){
         super(props);
         this.state={success : null};
     }
-    calendarRef = React.createRef()
+
+    calendarRef = React.createRef() /* The Calendar DOM reference  */
     render(){
-        if(!this.props.lessons)
-            return <></>
         return(
             <Container fluid>
-                {
+                {   
                     this.state.event && 
                     <ModalClick event = {this.state.event} handleClose={this.handleCloseModal} handleConfirm={this.handleConfirm} loading = {this.state.loading} success={this.state.success}/>
                 }
@@ -52,23 +54,39 @@ class Calendar extends React.Component{
             </Container>
         )
     }
+    /**
+     * Handle the event click 
+     * @param {CalendarEvent} clickInfo 
+     */
     handleEventClick = (clickInfo)=>{
         this.setState({event : clickInfo.event});
     }
+
+    /**
+     * Handle the modal close (click on hide or close button)
+     */
     handleCloseModal = ()=>{
         this.setState({event : null,success : null});
     }
+
+    /**
+     * Handle the user confirm after the selection of an event
+     */
     handleConfirm = ()=>{
         this.setState({loading : true},this.sendConfirm)
     }
+
+    /**
+     * Send the confirmation to StudentPage component after the pressing on the confirm button
+     */
     sendConfirm = ()=>{
         this.props.handleConfirm(this.state.event.extendedProps.status,this.state.event.extendedProps.courseId,this.state.event.extendedProps.lectureId)
-        .then((n)=>{
+        .then((event)=>{
             this.setState({loading : false,success : true});
             /*update Event */
             let calendarApi = this.calendarRef.current.getApi()
             calendarApi.getEventById(this.state.event.id).remove()
-            calendarApi.addEvent(n);
+            calendarApi.addEvent(event);
             /***************** */
             
         })
@@ -78,6 +96,10 @@ class Calendar extends React.Component{
     }
 }
 
+/**
+ * Modal component which appear after the click on an event
+ * @param {*} props 
+ */
 function ModalClick(props) {
     if (!props.loading && props.success===null)
     return (
@@ -94,6 +116,8 @@ function ModalClick(props) {
                 <strong>This lecture is over</strong>}
                 {props.event.extendedProps.status==="expired" && 
                 <strong>This lecture was expired</strong>}
+                {props.event.extendedProps.status === "remote" && 
+                <strong>This lecture will be errogated remotely</strong>}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={props.handleClose}>
@@ -130,15 +154,19 @@ function ModalClick(props) {
             </Modal>
         )
 }
-
+/**
+ * Display all the information about the lecture selected in a modal
+ * @param {*} props 
+ */
 function InfoLecture(props) {
     console.log(props.lecture.start)
     return (
         <ListGroup variant="flush">
             <ListGroup.Item>Lecture ID : {props.lecture.extendedProps.lectureId}</ListGroup.Item>
             <ListGroup.Item>Course name : {props.lecture.title}</ListGroup.Item>
-            <ListGroup.Item>Start Date : {formatDate(props.lecture.start)}</ListGroup.Item>
-            <ListGroup.Item>Booking deadline : {props.lecture.extendedProps.bookingDeadline}</ListGroup.Item>
+            <ListGroup.Item>Start: {moment(props.lecture.start).format("DD-MM-YYYY HH:mm")}</ListGroup.Item>
+            <ListGroup.Item>End: {moment(props.lecture.end).format("DD-MM-YYYY HH:mm")}</ListGroup.Item>
+            <ListGroup.Item>Booking deadline : {moment(props.lecture.extendedProps.bookingDeadline).format("DD-MM-YYYY HH:mm")}</ListGroup.Item>
         </ListGroup>
     )
 }
