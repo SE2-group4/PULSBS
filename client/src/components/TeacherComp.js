@@ -3,10 +3,11 @@ import Container from "react-bootstrap/Container";
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import Alert from 'react-bootstrap/Alert';
 import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+
+import ErrorMsg from '../components/ErrorMsg';
 
 const Checkbox = ({ name, checked = false, onChange, type }) => (
     <Form.Check name={name} checked={checked} onChange={onChange} data-testid={type + "-" + name} />
@@ -64,7 +65,7 @@ class CoursePanel extends React.Component {
                         </tr>
                     </tbody>
                 </Table><br />
-                {this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
+                {this.props.fetchError && <ErrorMsg name="fetchErrorC" msg={this.props.fetchError} onClose={this.props.closeError} />}
             </Container>
         </>;
     }
@@ -148,7 +149,7 @@ class LecturePanel extends React.Component {
                         </tr>
                     </tbody>
                 </Table><br />
-                {this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
+                {this.props.fetchError && <ErrorMsg name="fetchErrorL" msg={this.props.fetchError} onClose={this.props.closeError} />}
             </Container>
         </>;
     }
@@ -167,16 +168,16 @@ function LecturePanelRow(props) {
             <td>{!canEdit &&
                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't switch delivery if the lecture is closer than 30 mins.</Tooltip>}>
                     <span className="d-inline-block">
-                        <Button disabled style={{ pointerEvents: 'none' }}>modify</Button>
+                        <Button disabled style={{ pointerEvents: 'none' }} variant="warning">modify</Button>
                     </span></OverlayTrigger>}
-                {canEdit && <Button name={props.lecture.lectureId} value={props.lecture.delivery} onClick={props.editOpen}>modify</Button>}
+                {canEdit && <Button name={props.lecture.lectureId} value={props.lecture.delivery} onClick={props.editOpen} variant="warning">modify</Button>}
             </td>
             <td>{!canDelete &&
                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't delete lecture if the lecture is closer than 60 mins.</Tooltip>}>
                     <span className="d-inline-block">
-                        <Button variant="danger" disabled style={{ pointerEvents: 'none' }}>delete</Button>
+                        <Button disabled style={{ pointerEvents: 'none' }} variant="warning">delete</Button>
                     </span></OverlayTrigger>}
-                {canDelete && <Button variant="danger" name={props.lecture.lectureId} onClick={props.deleteOpen}>delete</Button>}
+                {canDelete && <Button variant="danger" name={props.lecture.lectureId} onClick={props.deleteOpen} variant="warning">delete</Button>}
             </td>
             <td><Checkbox name={props.lecture.lectureId} checked={props.checkedOne == props.lecture.lectureId ? true : false} onChange={props.handler} type={"l"} /></td>
         </tr>
@@ -225,7 +226,7 @@ class StudentPanel extends React.Component {
                         </tr>
                     </tbody>
                 </Table><br />
-                {this.props.fetchError && <Alert variant="danger">Error during server communication</Alert>}
+                {this.props.fetchError && <ErrorMsg name="fetchErrorS" msg={this.props.fetchError} onClose={this.props.closeError} />}
             </Container>
         </>;
     }
@@ -243,9 +244,9 @@ function StudentPanelRow(props) {
 
 function NavButtons(props) {
     return <>
-        <Button name="prev" size="sm" disabled={props.currentPage === 0 ? true : false} onClick={props.onClick}>Previous</Button>
+        <Button name="prev" size="sm" disabled={props.currentPage === 0 ? true : false} onClick={props.onClick} variant="warning">Previous</Button>
         &nbsp;<label>{props.currentPage + 1} / {props.nPages}</label>&nbsp;
-        <Button name="next" size="sm" disabled={props.currentPage === props.nPages - 1 ? true : false} onClick={props.onClick}>Next</Button>
+        <Button name="next" size="sm" disabled={props.currentPage === props.nPages - 1 ? true : false} onClick={props.onClick} variant="warning">Next</Button>
     </>;
 }
 
@@ -255,7 +256,7 @@ function EditModal(props) {
             <Modal.Header closeButton>
                 <Modal.Title>Edit Delivery</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Do you want to turn lecture <b>{props.lectureId}</b> from <b>{props.delivery}</b> to <b>{props.delivery == 1 ? 2 : 1}</b>?</Modal.Body>
+            <Modal.Body>Do you want to turn lecture <b>{props.lectureId}</b> from <b>{props.delivery}</b> to <b>{props.delivery == 'PRESENCE' ? 'REMOTE' : 'PRESENCE'}</b>?</Modal.Body>
             <Modal.Footer>
                 <Button name="yes" variant="secondary" onClick={props.updateDelivery}>Yes</Button><Button name="no" variant="secondary" onClick={props.editClose}>No</Button>
             </Modal.Footer>

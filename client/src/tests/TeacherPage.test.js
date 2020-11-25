@@ -46,7 +46,7 @@ describe('Teacher Page suite', () => {
       await act(async () =>{
         render(<TeacherPage user={teacher}/>);
       });
-      expect(screen.getByText('Error during server communication')).toBeInTheDocument();
+      expect(screen.getByText('Application : Cannot parse server response')).toBeInTheDocument();
     });
 
     test('render TeacherPage component (courses API : error)', async() => {
@@ -60,7 +60,7 @@ describe('Teacher Page suite', () => {
       await act(async () =>{
         render(<TeacherPage user={teacher}/>);
       });
-      expect(screen.getByText('Error during server communication')).toBeInTheDocument();
+      expect(screen.getByText('Server : invalid parameter error')).toBeInTheDocument();
     });
 
     test('render TeacherPage component (courses API : error parsing error)', async() => {
@@ -69,7 +69,7 @@ describe('Teacher Page suite', () => {
       await act(async () =>{
         render(<TeacherPage user={teacher}/>);
       });
-      expect(screen.getByText('Error during server communication')).toBeInTheDocument();
+      expect(screen.getByText('Application : Cannot parse server response')).toBeInTheDocument();
     });
     
     test('render TeacherPage component (courses API : server connection error)', async() => {
@@ -77,7 +77,7 @@ describe('Teacher Page suite', () => {
       await act(async () =>{
         render(<TeacherPage user={teacher}/>);
       });
-      expect(screen.getByText('Error during server communication')).toBeInTheDocument();
+      expect(screen.getByText('Server : Cannot communicate')).toBeInTheDocument();
     });
     
     test('testing interaction CoursePanel-LecturePanel (lectures API : success)', async() =>{
@@ -112,7 +112,7 @@ describe('Teacher Page suite', () => {
         userEvent.click(screen.getByTestId('c-1'))
       });
       expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
-      expect(screen.getByText('Error during server communication')).toBeInTheDocument();
+      expect(screen.getByText('Application : Cannot parse server response')).toBeInTheDocument();
     });
 
     test('testing interaction CoursePanel-LecturePanel (lectures API : error)', async() =>{
@@ -132,7 +132,7 @@ describe('Teacher Page suite', () => {
         userEvent.click(screen.getByTestId('c-1'))
       });
       expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
-      expect(screen.getByText('Error during server communication')).toBeInTheDocument();
+      expect(screen.getByText('Server : invalid parameter error')).toBeInTheDocument();
     });
 
     test('testing interaction CoursePanel-LecturePanel (lectures API : error parsing error)', async() =>{
@@ -146,7 +146,7 @@ describe('Teacher Page suite', () => {
         userEvent.click(screen.getByTestId('c-1'))
       });
       expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
-      expect(screen.getByText('Error during server communication')).toBeInTheDocument();
+      expect(screen.getByText('Application : Cannot parse server response')).toBeInTheDocument();
     });
 
     test('testing interaction CoursePanel-LecturePanel (lectures API : server connection error)', async() => {
@@ -160,7 +160,7 @@ describe('Teacher Page suite', () => {
         userEvent.click(screen.getByTestId('c-1'))
       });
       expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
-      expect(screen.getByText('Error during server communication')).toBeInTheDocument();
+      expect(screen.getByText('Server : Cannot communicate')).toBeInTheDocument();
     });
     
     test('testing interaction between LecturePanel-StudentPanel (students API : success)', async() =>{
@@ -206,7 +206,7 @@ describe('Teacher Page suite', () => {
         userEvent.click(screen.getByTestId('l-1'))
       });
       expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
-      expect(screen.getByText('Error during server communication')).toBeInTheDocument();
+      expect(screen.getByText('Application : Cannot parse server response')).toBeInTheDocument();
     });
 
     test('testing interaction between LecturePanel-StudentPanel (students API : error)', async() =>{
@@ -231,7 +231,7 @@ describe('Teacher Page suite', () => {
         userEvent.click(screen.getByTestId('l-1'))
       });
       expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
-      expect(screen.getByText('Error during server communication')).toBeInTheDocument();
+      expect(screen.getByText('Server : invalid parameter error')).toBeInTheDocument();
     });
 
     test('testing interaction between LecturePanel-StudentPanel (students API : error parsing error)', async() =>{
@@ -250,7 +250,7 @@ describe('Teacher Page suite', () => {
         userEvent.click(screen.getByTestId('l-1'))
       });
       expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
-      expect(screen.getByText('Error during server communication')).toBeInTheDocument();
+      expect(screen.getByText('Application : Cannot parse server response')).toBeInTheDocument();
     });
 
     test('testing interaction between LecturePanel-StudentPanel (students API : server connection error)', async() =>{
@@ -269,6 +269,6 @@ describe('Teacher Page suite', () => {
         userEvent.click(screen.getByTestId('l-1'))
       });
       expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
-      expect(screen.getByText('Error during server communication')).toBeInTheDocument();
+      expect(screen.getByText('Server : Cannot communicate')).toBeInTheDocument();
     });
   });

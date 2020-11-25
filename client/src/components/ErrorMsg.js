@@ -3,7 +3,7 @@ import Alert from 'react-bootstrap/Alert';
 
 function ErrorMsg(props){
     return (
-        <Alert variant="danger" onClose={()=>props.onClose()} dismissible>
+        <Alert variant="danger" onClose={()=>props.onClose(props.name)} dismissible>
             {props.msg}
         </Alert>
     )

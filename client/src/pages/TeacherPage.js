@@ -22,15 +22,15 @@ class TeacherPage extends React.Component {
         super(props);
         this.state = {
             user: props.user,
-            courses: [], lectures: [], students: [],                       //elements
+            courses: [], lectures: [], students: [],                         //elements
             selectedCourse: null, selectedLecture: null,                     //selected elements
-            lectureIdToUpdate: null, deliveryToUpdate: null,                 //change modality management
-            lectureIdToDelete: null,                                        //delete lecture
+            lectureIdToUpdate: null, deliveryToUpdate: null,                 //change delivery management
+            lectureIdToDelete: null,                                         //delete lecture
             courseMap: new Map(), cPages: 1,                                 //course pagination
             lectureMap: new Map(), lPages: 1,                                //lecture pagination
             studentMap: new Map(), sPages: 1,                                //student pagination
-            fetchErrorC: false, fetchErrorL: false, fetchErrorS: false
-        };     //fetch errors
+            fetchErrorC: false, fetchErrorL: false, fetchErrorS: false       //fetch errors
+        };     
     }
 
     /**
@@ -52,7 +52,10 @@ class TeacherPage extends React.Component {
                 //console.log(courses);
                 this.setState({ courses: courses, courseMap: nMap, cPages: nPages, fetchErrorC: false });
             })
-            .catch(() => { this.setState({ fetchErrorC: true }); });
+            .catch((error) => {
+                let errormsg=error.source+" : "+error.error; 
+                this.setState({ fetchErrorC: errormsg }); 
+            });
     }
 
     /**
@@ -74,7 +77,10 @@ class TeacherPage extends React.Component {
                 //console.log(lectures);
                 this.setState({ lectures: lectures, lectureMap: nMap, lPages: nPages, selectedCourse: courseId, selectedLecture: null, fetchErrorL: false, students: [], sPages: 1, fetchErrorS: false });
             })
-            .catch(() => { this.setState({ selectedCourse: courseId, lectures: [], selectedLecture: null, lPages: 1, fetchErrorL: true, students: [], sPages: 1, fetchErrorS: false }); });
+            .catch((error) => {
+                let errormsg=error.source+" : "+error.error;
+                this.setState({ selectedCourse: courseId, lectures: [], selectedLecture: null, lPages: 1, fetchErrorL: errormsg, students: [], sPages: 1, fetchErrorS: false }); 
+            });
     }
 
     /**
@@ -95,7 +101,10 @@ class TeacherPage extends React.Component {
                 let nPages = Math.ceil(i / elementForPage);
                 this.setState({ students: students, studentMap: nMap, sPages: nPages, selectedLecture: lectureId, fetchErrorS: false })
             })
-            .catch(() => { this.setState({ selectedLecture: lectureId, students: [], sPages: 1, fetchErrorS: true }); });
+            .catch((error) => { 
+                let errormsg=error.source+" : "+error.error;
+                this.setState({ selectedLecture: lectureId, students: [], sPages: 1, fetchErrorS: errormsg }); 
+            });
     }
 
     /**
@@ -112,6 +121,10 @@ class TeacherPage extends React.Component {
             default:
                 break;
         }
+    }
+    //Error handler
+    closeError = (errorName) => {
+        this.setState({[errorName]: false});
     }
 
     // EditModal handlers
@@ -134,7 +147,7 @@ class TeacherPage extends React.Component {
 
     updateDelivery = () => {
         var deliveryToUpdate = this.state.deliveryToUpdate;
-        var newDel = deliveryToUpdate == 1 ? 2 : 1;
+        var newDel = deliveryToUpdate == 'PRESENCE' ? 'REMOTE' : 'PRESENCE';
         //API.updateDeliveryByLecture(this.state.user.userId,this.state.selectedCourse,this.state.lectureIdToUpdate,newDel)
         //.then(())=>{
         //    
@@ -201,22 +214,25 @@ class TeacherPage extends React.Component {
                 <Container fluid>
                     <Row>
                         <Col sm={8}>
-                            <CoursePanel courses={this.state.courses} fetchError={this.state.fetchErrorC}                   //courses
+                            <CoursePanel courses={this.state.courses}                                                           //courses
                                 sCourse={this.state.selectedCourse} pageMap={this.state.courseMap} nPages={this.state.cPages}   //courses pagination
                                 update={this.updateLectures} reset={this.resetSelected}                                         //interaction with Lecture Panel
+                                fetchError={this.state.fetchErrorC} closeError={this.closeError}                                //error handling
                             />
                             <br />
                             <br />
-                            <LecturePanel lectures={this.state.lectures} fetchError={this.state.fetchErrorL}                                            //lectures
+                            <LecturePanel lectures={this.state.lectures}                                                 //lectures
                                 sLecture={this.state.selectedLecture} pageMap={this.state.lectureMap} nPages={this.state.lPages}                            //lectures pagination
                                 update={this.updateStudents} reset={this.resetSelected}                                                                     //interaction with Student Panel                                                 
-                                showEditModal={this.showEditModal}  //EditModality management                                                                     
-                                showDeleteModal={this.showDeleteModal} //Delete
+                                showEditModal={this.showEditModal}                                                                                          //EditDelivery management                                                                     
+                                showDeleteModal={this.showDeleteModal}                                                                                      //Delete
+                                fetchError={this.state.fetchErrorL} closeError={this.closeError}                                                            //error handling
                             />
                             <br />
                             <br />
-                            <StudentPanel students={this.state.students} fetchError={this.state.fetchErrorS}    //students
+                            <StudentPanel students={this.state.students}                                            //students
                                 pageMap={this.state.studentMap} nPages={this.state.sPages}                          //students pagination
+                                fetchError={this.state.fetchErrorS} closeError={this.closeError}                    //error handling
                             />
                         </Col>
                         <Col sm={4}><> </></Col>
