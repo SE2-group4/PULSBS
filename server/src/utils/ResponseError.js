@@ -12,7 +12,7 @@ class ResponseError {
     this.payload = {
       source: source,
       errno: errno,
-      error: this.getErrorMessage(errno, msgArgs),
+      message: this.getErrorMessage(errno, msgArgs),
       statusCode: statusCode,
     };
     this.statusCode = statusCode;
