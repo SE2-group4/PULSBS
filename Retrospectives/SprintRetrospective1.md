@@ -129,7 +129,7 @@ DONE
 - Which ones you were not able to achieve? Why?
   - Discuss before making any breaking changes with your
 teammates (or at least the people affected by it)
-Misunderstandings
+    - Lack of proper communication lead to misunderstandings, conflicts in the work.
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
   - do more group discussions
