@@ -58,6 +58,10 @@ app.get(
     Teacher.teacherGetCourseLectureStudents
 );
 
+app.get(`${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures/:lectureId`, Teacher.teacherGetCourseLecture);
+app.delete(`${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures/:lectureId`, Teacher.teacherDeleteCourseLecture);
+app.put(`${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures/:lectureId`, Teacher.teacherPutCourseLecture);
+
 app.get(`${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures`, Teacher.teacherGetCourseLectures);
 
 app.get(`${BASE_ROUTE}/teachers/:teacherId/courses`, Teacher.teacherGetCourses);
@@ -78,7 +82,7 @@ app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
     }
 });
 
-const printConfig  = () => {
+const printConf = () => {
     console.log(`Server running on http://localhost:${PORT}${BASE_ROUTE}\n`);
     console.log("System parameters:");
     console.log(`DB path: ${dbPath}`);
@@ -89,19 +93,34 @@ const autoRun = () => {
     setTimeout(() => Teacher.checkForExpiredLectures(), 0);
 };
 
+const systemConf = {
+    "--test": false,
+    "--no-autorun": false 
+};
+
+// prevent adding new properties. The properties's values can still be changed.
+Object.seal(systemConf);
+
 // "Main"
 (async () => {
     try {
         console.log("INITIALIZING the system");
 
-        if (process.argv[2] === "--test") {
-            dbPath = "./testing.db";
+        const args = process.argv.slice(2);
+        for(let key of args) {
+            systemConf[key.toLowerCase()] = true;
+        }
+
+        if(systemConf["--test"]) {
+            dbPath = "testing.db";
+        }
+        if(!systemConf["--no-autorun"]) {
+            autoRun();
         }
 
         await db.init(dbPath);
-        autoRun();
 
-        app.listen(PORT, printConfig);
+        app.listen(PORT, printConf);
     } catch (err) {
         console.log(err, "FAILED initializing the system");
         return process.exit(-1);

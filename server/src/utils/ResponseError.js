@@ -12,7 +12,7 @@ class ResponseError {
     this.payload = {
       source: source,
       errno: errno,
-      error: this.getErrorMessage(errno, msgArgs),
+      message: this.getErrorMessage(errno, msgArgs),
       statusCode: statusCode,
     };
     this.statusCode = statusCode;
@@ -30,8 +30,11 @@ class ResponseError {
   static get LECTURE_GIVEN() {
     return 20;
   }
-  static get LECTURE_NOT_EXIST() {
+  static get LECTURE_NOT_FOUND() {
     return 21;
+  }
+  static get LECTURE_INVALID_DELIVERY_MODE() {
+    return 22;
   }
   static get PARAM_NOT_INT() {
     return 1;
@@ -47,22 +50,32 @@ class ResponseError {
     switch (errno) {
       case ResponseError.COURSE_NOT_ENROLLED_AA:
         return `student (student = ${args.studentId}) is not enrolled in this course (courseId = ${args.courseId}) during this AA`;
+
       case ResponseError.COURSE_LECTURE_MISMATCH_AA:
-        return `lecture (lectureId = ${args.lectureId}) does not belong to this course (courseId = ${args.courseId}).\
-          Or the lecture has already been given`;
+        return `lecture (lectureId = ${args.lectureId}) does not belong to this course (courseId = ${args.courseId}) or lecture has already been taught`;
+
       case ResponseError.DB_GENERIC_ERROR:
         return args;
+
       case ResponseError.LECTURE_GIVEN:
         return "message not implemented";
-      case ResponseError.LECTURE_NOT_EXIST:
-        return "message not implemented";
+
+      case ResponseError.LECTURE_NOT_FOUND:
+        return `lecture with lectureId = ${args.lectureId} not found`;
+
+      case ResponseError.LECTURE_INVALID_DELIVERY_MODE:
+        return `Delivery mode ${args.delivery} is not a valid input`;
+
       case ResponseError.PARAM_NOT_INT:
         const keyName = Object.keys(args)[0];
         return `'${keyName}' parameter is not an integer: ${args[keyName]}`;
+
       case ResponseError.TEACHER_COURSE_MISMATCH_AA:
         return `course (courseId = ${args.courseId}) is not taught by this teacher (teacherId = ${args.teacherId})`;
+
       case ResponseError.ROUTE_FORBIDDEN:
         return "message not implemented";
+
       default:
         return "No message (case default)";
     }

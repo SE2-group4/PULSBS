@@ -41,6 +41,8 @@ const openConn = function openConn(dbpath = './PULSBS.db') {
         if (err) throw(StandardErr.new('Dao', StandardErr.errno.FAILURE, err.message));
     });
 
+    db.get("PRAGMA foreign_keys = ON")
+
     return;
 }
 exports.openConn = openConn;
@@ -564,3 +566,72 @@ const getLecturesByPeriodOfTime = function(course, periodOfTime) {
     });
 };
 exports.getLecturesByPeriodOfTime = getLecturesByPeriodOfTime;
+
+/**
+ * get a lecture given a lectureId 
+ * @param {Lecture} lecture - lectureId needed
+ * @returns {Promise} promise
+ */
+const getLectureById = function(lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM Lecture
+            WHERE Lecture.lectureId = ?`;
+
+        db.get(sql, [lecture.lectureId], (err, row) => {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+            
+            if(!row) {
+                resolve(null);
+                return;
+            }
+
+            resolve(Lecture.from(row));
+        });
+    })
+}
+exports.getLectureById = getLectureById;
+
+/**
+ * Delete a lecture given a lectureId 
+ * @param {Lecture} lecture - lectureId needed
+ * @returns {Promise} promise
+ */
+const deleteLecture = function(lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `DELETE FROM Lecture WHERE lectureId = ?`;
+
+        db.run(sql, [lecture.lectureId], function(err) {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(this.changes);
+        });
+    });
+}
+exports.deleteLecture = deleteLecture;
+
+/**
+ * update a lecture delivery mode 
+ * @param {Lecture} lecture - delivery mode needed
+ * @returns {Promise} promise
+ */
+const updateLectureDeliveryMode = function(lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `UPDATE Lecture SET delivery = ? WHERE lectureId = ?`;
+
+        db.run(sql, [lecture.delivery.toUpperCase(), lecture.lectureId], function(err) {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(this.changes);
+        });
+    });
+}
+exports.updateLectureDeliveryMode = updateLectureDeliveryMode;
