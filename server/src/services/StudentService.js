@@ -123,9 +123,7 @@ exports.studentGetCourseLectures = function(studentId, courseId) {
 exports.studentGetCourses = function(studentId) {
     const student = new Student(studentId);
 
-    return new Promise((resolve, reject) => {
-        dao.getCoursesByStudent(student);
-    });
+    return dao.getCoursesByStudent(student);
 };
 
 /**
@@ -136,9 +134,5 @@ exports.studentGetCourses = function(studentId) {
 exports.studentGetBookings = function(studentId) {
     const student = new Student(studentId);
 
-    return new Promise((resolve, reject) => {
-        dao.getBookingsByStudent(student)
-            .then(resolve)
-            .catch(reject);
-    });
+    return dao.getBookingsByStudent(student);
 };
