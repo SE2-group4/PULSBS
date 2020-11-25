@@ -3,6 +3,7 @@ import Container from "react-bootstrap/Container"
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import API from "../api/Api";
+import ErrorMsg from '../components/ErrorMsg';
 import { CoursePanel, LecturePanel, StudentPanel, EditModal, DeleteModal } from '../components/TeacherComp';
 import Lecture from '../entities/lecture';
 
@@ -152,9 +153,10 @@ class TeacherPage extends React.Component {
                 });
                 newLectures.splice(i, 1, newLecture);
                 this.setState({ lectures: newLectures, lectureIdToUpdate: null, deliveryToUpdate: null });
-            }).catch(() => {
+            }).catch((error) => {
                 //!ok from server
-                //...
+                let errormsg = error.source + " : " + error.error;
+                this.setState({ fetchErrorL: errormsg, lectureIdToUpdate: null, deliveryToUpdate: null });
             });
     }
 
@@ -196,28 +198,45 @@ class TeacherPage extends React.Component {
                 <Container fluid>
                     <Row>
                         <Col sm={8}>
-                            <CoursePanel courses={this.state.courses}                                                           //courses
+                            <CoursePanel
+                                courses={this.state.courses}                                                                    //courses
                                 sCourse={this.state.selectedCourse} pageMap={this.state.courseMap} nPages={this.state.cPages}   //courses pagination
                                 update={this.updateLectures} reset={this.resetSelected}                                         //interaction with Lecture Panel
-                                fetchError={this.state.fetchErrorC} closeError={this.closeError}                                //error handling
                             />
-                            <br />
-                            <br />
-                            <LecturePanel lectures={this.state.lectures}                                                                                    //lectures
-                                sLecture={this.state.selectedLecture} pageMap={this.state.lectureMap} nPages={this.state.lPages}                            //lectures pagination
-                                update={this.updateStudents} reset={this.resetSelected}                                                                     //interaction with Student Panel                                                 
-                                showEditModal={this.showEditModal}                                                                                          //EditDelivery management                                                                     
-                                showDeleteModal={this.showDeleteModal}                                                                                      //Delete
-                                fetchError={this.state.fetchErrorL} closeError={this.closeError}                                                            //error handling
-                            />
-                            <br />
-                            <br />
-                            <StudentPanel students={this.state.students}                                            //students
-                                pageMap={this.state.studentMap} nPages={this.state.sPages}                          //students pagination
-                                fetchError={this.state.fetchErrorS} closeError={this.closeError}                    //error handling
+
+                        </Col>
+                        <Col sm={2}>
+                            {this.state.fetchErrorC && <ErrorMsg name="fetchErrorC" msg={this.state.fetchErrorC} onClose={this.closeError} />}<> </>
+                        </Col>
+                    </Row>
+                    <br />
+                    <br />
+                    <Row>
+                        <Col sm={8}>
+                            <LecturePanel
+                                lectures={this.state.lectures}                                                                      //lectures
+                                sLecture={this.state.selectedLecture} pageMap={this.state.lectureMap} nPages={this.state.lPages}    //lectures pagination
+                                update={this.updateStudents} reset={this.resetSelected}                                             //interaction with StudentPanel                                                 
+                                showEditModal={this.showEditModal}                                                                  //EditDelivery management                                                                     
+                                showDeleteModal={this.showDeleteModal}                                                              //Delete
                             />
                         </Col>
-                        <Col sm={4}><> </></Col>
+                        <Col sm={2}>
+                            {this.state.fetchErrorL && <ErrorMsg name="fetchErrorL" msg={this.state.fetchErrorL} onClose={this.closeError} />}<> </>
+                        </Col>
+                    </Row>
+                    <br />
+                    <br />
+                    <Row>
+                        <Col sm={8}>
+                            <StudentPanel
+                                students={this.state.students}                                                      //students
+                                pageMap={this.state.studentMap} nPages={this.state.sPages}                          //students pagination
+                            />
+                        </Col>
+                        <Col sm={2}>
+                            {this.state.fetchErrorS && <ErrorMsg name="fetchErrorS" msg={this.state.fetchErrorS} onClose={this.closeError} />}<> </>
+                        </Col>
                     </Row>
                 </Container>
             </>
