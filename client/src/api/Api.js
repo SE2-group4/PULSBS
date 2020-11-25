@@ -43,8 +43,8 @@ async function getCoursesByStudentId(id) {
             if (response.ok)
                 resolve(response.json());
             else reject((obj) => { reject(obj); });
-        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
-    });
+        }).catch((err) => { reject("Server cannot communicate")})}
+    );
 }
 
 

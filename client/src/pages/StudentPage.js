@@ -23,8 +23,8 @@ class StudentPage extends React.Component {
      */
     async componentDidMount(){
         try{
-        const courses = await APIfake.getCoursesByStudentId(this.state.user.userId);
-        const bookedLectures = await APIfake.getBookedLectures(this.state.user.userId);
+        const courses = await API.getCoursesByStudentId(this.state.user.userId);
+        const bookedLectures = await API.getBookedLectures(this.state.user.userId);
         const allLectures = await this.getAllLectures(courses);
         const events = buildEvents(bookedLectures,allLectures,courses); //build the events for the calendar
         this.setState({courses: courses, events : events,loading : false});
@@ -40,7 +40,7 @@ class StudentPage extends React.Component {
         try{
         let lectures = []
         for (let c of courses)
-            lectures.push(await APIfake.getLecturesByCourseId(this.state.user.userId,c.courseId))
+            lectures.push(await API.getLecturesByCourseId(this.state.user.userId,c.courseId))
         return lectures;
         }catch (err){
             throw new Error(err);
@@ -94,7 +94,7 @@ class StudentPage extends React.Component {
             }
         });
     }
-    
+
     /**
      * Render the StudentPage component
      */
