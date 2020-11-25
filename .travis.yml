@@ -5,6 +5,10 @@ install:
   - npm install -g codecov
 jobs:
   include:
+  - stage: API tests
+    script:
+    - cd server ; npm install
+    - npm run testapi
   - stage: Tests & Coverage
     script:
     - cd client ; npm install
@@ -14,7 +18,3 @@ jobs:
     - npm run coverage 
     - cd ..
     - codecov
-  - stage: API tests
-    script:
-    - cd server ; npm install
-    - npm run testapi
