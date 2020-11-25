@@ -13,4 +13,9 @@ jobs:
     - cd server ; npm install
     - npm run coverage
     - cd ..
-    - codecov
+    - codecov 
+  - stage: API tests
+    script:
+    - cd server; npm install
+    - npm start &
+    - npm run testapi
