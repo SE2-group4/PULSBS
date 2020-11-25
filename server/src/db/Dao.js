@@ -41,6 +41,8 @@ const openConn = function openConn(dbpath = './PULSBS.db') {
         if (err) throw(StandardErr.new('Dao', StandardErr.errno.FAILURE, err.message));
     });
 
+    db.get("PRAGMA foreign_keys = ON")
+
     return;
 }
 exports.openConn = openConn;
@@ -593,13 +595,13 @@ const getLectureById = function(lecture) {
 exports.getLectureById = getLectureById;
 
 /**
- * delete a lecture given a lectureId 
+ * Delete a lecture given a lectureId 
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} promise
  */
 const deleteLecture = function(lecture) {
     return new Promise((resolve, reject) => {
-        const sql = `DELETE * FROM Lecture WHERE lectureId = ?`;
+        const sql = `DELETE FROM Lecture WHERE lectureId = ?`;
 
         db.run(sql, [lecture.lectureId], function(err) {
             if(err) {
@@ -622,7 +624,7 @@ const updateLectureDeliveryMode = function(lecture) {
     return new Promise((resolve, reject) => {
         const sql = `UPDATE Lecture SET delivery = ? WHERE lectureId = ?`;
 
-        db.run(sql, [lecture.delivery, lecture.lectureId], function(err) {
+        db.run(sql, [lecture.delivery.toUpperCase(), lecture.lectureId], function(err) {
             if(err) {
                 reject(StandardErr.fromDao(err));
                 return;
