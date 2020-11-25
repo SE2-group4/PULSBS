@@ -540,7 +540,7 @@ exports.getBookingsByStudent = getBookingsByStudent;
 const getLecturesByPeriodOfTime = function(course, periodOfTime) {
     return new Promise((resolve, reject) => {
         const sqlParams = [];
-        const sql = `SELECT Lecture.* FROM Lecture WHERE Lecture.courseId = ?`;
+        let sql = `SELECT Lecture.* FROM Lecture WHERE Lecture.courseId = ?`;
         sqlParams.push(course.courseId);
 
         // composing the SQL query
