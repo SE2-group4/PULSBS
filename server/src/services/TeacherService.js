@@ -281,6 +281,7 @@ const sendSummaryToTeachers = (summaries) => {
     return;
 };
 
+// TODO: add support for 'from' and 'to' query string
 exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId) {
     if (isNaN(teacherId)) {
         return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
@@ -296,7 +297,6 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
 
     // checking whether the teacher is in charge of this course during this academic year
     let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
-
     if (!isTeachingThisCourse) {
         return new ResponseError(
             "TeacherService",
@@ -308,7 +308,6 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
 
     // checking whether the teacher is in charge of this course during this academic year
     let doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
-
     if (!doesLectureBelong) {
         return new ResponseError(
             "TeacherService",
@@ -347,7 +346,6 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
 
     // checking whether the teacher is in charge of this course during this academic year
     let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
-
     if (!isTeachingThisCourse) {
         return new ResponseError(
             "TeacherService",
@@ -359,7 +357,6 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
 
     // checking whether the teacher is in charge of this course during this academic year
     let doesLecture = await doesLectureBelongToCourse(cId, lId);
-
     if (!doesLecture) {
         return new ResponseError(
             "TeacherService",
@@ -372,12 +369,22 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
     try {
         const lecture = new Lecture(lId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
         const retVal = await db.deleteLecture(lecture);
-        return retVal;
+        if (!retVal) {
+            return new ResponseError(
+                "TeacherService",
+                ResponseError.LECTURE_NOT_FOUND,
+                { lectureId: lecture.lectureId },
+                404
+            );
+        }
+
+        return 204;
     } catch (err) {
         return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
 };
 
+// TODO: add error when switching from the same state
 exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, courseId, lectureId, switchTo) {
     if (isNaN(teacherId)) {
         return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
@@ -386,8 +393,11 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
     } else if (isNaN(lectureId)) {
         return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { lectureId }, 400);
     }
-    
-    if (switchTo.toUpperCase() !== Lecture.DeliveryType.PRESENCE  && switchTo.toUpperCase() !== Lecture.DeliveryType.REMOTE) {
+
+    if (
+        switchTo.toUpperCase() !== Lecture.DeliveryType.PRESENCE &&
+        switchTo.toUpperCase() !== Lecture.DeliveryType.REMOTE
+    ) {
         return new ResponseError(
             "TeacherService",
             ResponseError.LECTURE_INVALID_DELIVERY_MODE,
@@ -402,7 +412,6 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 
     // checking whether the teacher is in charge of this course during this academic year
     let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
-
     if (!isTeachingThisCourse) {
         return new ResponseError(
             "TeacherService",
@@ -414,7 +423,6 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 
     // checking whether the teacher is in charge of this course during this academic year
     let doesLecture = await doesLectureBelongToCourse(cId, lId);
-
     if (!doesLecture) {
         return new ResponseError(
             "TeacherService",
@@ -423,16 +431,16 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
             404
         );
     }
-    
+
     // TODO: add a check that we are not switching from to the same delivery mode
     try {
         const lecture = new Lecture(lId, undefined, undefined, undefined, undefined, undefined, switchTo); // I also put the other fields in as a reminder
         const retVal = await db.updateLectureDeliveryMode(lecture);
-        if (retVal) {
-            return 204;
+        if (!retVal) {
+            return 400;
         }
-        else
-            return "not ok"
+
+        return 204;
     } catch (err) {
         return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }

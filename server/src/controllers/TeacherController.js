@@ -58,8 +58,10 @@ module.exports.teacherGetCourseLecture = function teacherGetCourseLecture(req, r
 
 module.exports.teacherDeleteCourseLecture = function teacherDeleteCourseLecture(req, res, next) {
     const teacherId = req.params.teacherId;
+    const courseId = req.params.courseId;
+    const lectureId = req.params.lectureId;
 
-    Teacher.teacherDeleteCourseLecture(teacherId)
+    Teacher.teacherDeleteCourseLecture(teacherId, courseId, lectureId)
         .then(function (response) {
             utils.writeJson(res, response);
         })
@@ -77,8 +79,6 @@ module.exports.teacherPutCourseLecture = function teacherPutCourseLecture(req, r
     if(req.query.switchTo) {
       switchTo = req.query.switchTo; 
     }
-
-    console.log(switchTo);
 
     Teacher.teacherUpdateCourseLectureDeliveryMode(teacherId, courseId, lectureId, switchTo)
         .then(function (response) {
