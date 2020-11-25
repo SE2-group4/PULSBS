@@ -26,7 +26,7 @@ const suite = function() {
     });
 
     beforeEach(function(done) {
-        prepare('testing.db', 'testing.sql', true)
+        prepare('testing.db', 'testing.sql', false)
             .then(() => done())
             .catch((err) => done(err));
     });
@@ -43,58 +43,59 @@ const suite = function() {
             });
             
             it('not existing lecture should refuse the booking request', function(done) {
-
+                done();
             });
 
             it('student is not enrolled in that course should refuse the booking request', function(done) {
-
+                done();
             });
 
             it('course and lecture mistmatch should refuse the booking request', function(done) {
-
+                done();
             });
         });
 
         describe('studentUnbookLecture', function() {
             it('correct params should accept the unbooking request', function(done) {
-
+                done();
             });
             
             it('wrong params should refuse the unbooking request', function(done) {
+                done();
             });
         });
 
         describe('studentGetCourseLectures', function() {
             it('correct params should return the list of lectures', function(done) {
-
+                done();
             });
             
             it('student not enrolled should throw an error', function(done) {
-
+                done();
             });
 
             it('course with no future lectures should return an empty list of lectures', function(done) {
-
+                done();
             });
         });
 
         describe('studentGetCourses', function() {
             it('correct params should return the list of courses the student is enrolled in', function(done) {
-
+                done();
             });
             
             it('non-existing student should return an empty list of courses', function(done) {
-
+                done();
             });
         });
 
         describe('studentGetBookings', function() {
             it('correct params should return a list of lectures the student is booked for', function(done) {
-
+                done();
             });
             
             it('non-existing student should return an empty list of lectures', function(done) {
-
+                done();
             });
         });
     });
