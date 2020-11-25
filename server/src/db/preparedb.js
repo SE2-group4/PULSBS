@@ -8,6 +8,11 @@ const sqlite = require("sqlite3");
 const fs = require("fs");
 const path = require("path");
 
+const isTrigger = (query) => {
+    const str = "create trigger";
+    return query.toLowerCase(query).includes(str);
+};
+
 /**
  * prepare the DB with default values
  * @param {String} dbpath
@@ -85,13 +90,8 @@ if (require.main === module) {
         })
         .catch((err) => {
             console.log("Something went wrong");
-            console.log(JSON.stringify(err));
+            console.log(err);
         });
 }
-
-const isTrigger = (query) => {
-    const str = "create trigger";
-    return query.toLowerCase(query).includes(str);
-};
 
 module.exports = prepare;
