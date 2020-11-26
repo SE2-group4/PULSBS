@@ -36,6 +36,9 @@ class ResponseError {
     static get LECTURE_INVALID_DELIVERY_MODE() {
         return 22;
     }
+    static get LECTURE_NOT_CANCELLABLE() {
+        return 23;
+    }
     static get PARAM_NOT_INT() {
         return 1;
     }
@@ -65,6 +68,9 @@ class ResponseError {
 
             case ResponseError.LECTURE_GIVEN:
                 return "message not implemented";
+
+            case ResponseError.LECTURE_NOT_CANCELLABLE:
+                return `Lecture with lectureId = ${args.lectureId} is not cancellable`;
 
             case ResponseError.LECTURE_NOT_FOUND:
                 return `lecture with lectureId = ${args.lectureId} not found`;
