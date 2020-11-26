@@ -20,8 +20,9 @@ module.exports.teacherGetCourseLectureStudents = function teacherGetCourseLectur
 module.exports.teacherGetCourseLectures = function teacherGetCourseLectures(req, res, next) {
     const teacherId = req.params.teacherId;
     const courseId = req.params.courseId;
+    const queryString = req.query;
 
-    Teacher.teacherGetCourseLectures(teacherId, courseId)
+    Teacher.teacherGetCourseLectures(teacherId, courseId, queryString)
         .then(function (response) {
             utils.writeJson(res, response);
         })

@@ -64,18 +64,29 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
 };
 
 /**
- * Get all active lectures, which have not yet been delivered, for a course taught by a given professor
+ * Get all lectures given a course and a teacher.
+ * You can filter the lecture by passing an query string.
+ * If the query string is missing, the function will return all lectures scheduled from today
+ * Otherwise is a 'from' property is passed, it will return all lectures that have startingDate >= from
+ * Similarly for 'to' property
  *
- * teacherId Integer
- * courseId Integer
+ * teacherId {Integer}
+ * courseId {Integer}
+ * queryFilter {Object} 
  * returns array of lectures. In case of error an ResponseError
  **/
-exports.teacherGetCourseLectures = async function (teacherId, courseId) {
+exports.teacherGetCourseLectures = async function (teacherId, courseId, queryFilter) {
     if (isNaN(teacherId)) {
         return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
     } else if (isNaN(courseId)) {
         return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { courseId }, 400);
     }
+
+    let dateFilter = extractDateFilters(queryFilter);
+    if (dateFilter instanceof ResponseError) return dateFilter;
+    else if (!dateFilter.from && !dateFilter.to) dateFilter.from = new Date();
+
+    console.log("GET COURSE LECTURE: date filter", dateFilter);
 
     const tId = Number(teacherId);
     const cId = Number(courseId);
@@ -95,7 +106,7 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId) {
     try {
         // I put the other fields in as a reminder
         const course = new Course(cId, undefined, undefined);
-        const courseLectures = await db.getLecturesByCourse(course);
+        const courseLectures = await db.getLecturesByPeriodOfTime(course, dateFilter);
         return courseLectures;
     } catch (err) {
         return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
@@ -445,3 +456,48 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
 };
+
+function extractDateFilters(queryString) {
+    if (!(queryString instanceof Object)) {
+        return {};
+    }
+
+    const dateFilter = {};
+    for (const key of Object.keys(queryString)) {
+        switch (key) {
+            case "from": {
+                const fromDate = new Date(queryString[key]);
+                if (isNaN(fromDate.getTime())) {
+                    console.log("INVALID");
+                    return new ResponseError(
+                        "TeacherService",
+                        ResponseError.PARAM_NOT_DATE,
+                        { date: queryString[key] },
+                        400
+                    );
+                }
+
+                dateFilter.from = fromDate;
+                break;
+            }
+            case "to": {
+                const toDate = new Date(queryString[key]);
+                if (isNaN(toDate.getTime())) {
+                    return new ResponseError(
+                        "TeacherService",
+                        ResponseError.PARAM_NOT_DATE,
+                        { date: queryString[key] },
+                        400
+                    );
+                }
+
+                dateFilter.to = toDate;
+                break;
+            }
+            default:
+                return new ResponseError("TeacherService", ResponseError.QUERY_PARAM_NOT_ACCEPTED, { param: key }, 400);
+        }
+    }
+
+    return dateFilter;
+}
