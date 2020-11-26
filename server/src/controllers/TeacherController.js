@@ -75,7 +75,7 @@ module.exports.teacherPutCourseLecture = function teacherPutCourseLecture(req, r
     const teacherId = req.params.teacherId;
     const courseId = req.params.courseId;
     const lectureId = req.params.lectureId;
-    let switchTo;
+    let switchTo = undefined;
 
     if(req.query.switchTo) {
       switchTo = req.query.switchTo; 
