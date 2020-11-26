@@ -7,11 +7,7 @@
 const sqlite = require("sqlite3");
 const fs = require("fs");
 const path = require("path");
-
-const isTrigger = (query) => {
-    const str = "create trigger";
-    return query.toLowerCase(query).includes(str);
-};
+const StandardErr = require("../utils/utils");
 
 /**
  * prepare the DB with default values
@@ -44,35 +40,34 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
         if (flag) console.log("Preparing your DB...");
 
         const dataSql = fs.readFileSync(dbscript).toString();
-        const dataArr = dataSql.toString().split(";");
-
+        const dataArr = dataSql.toString().split(/\r?\n/);
+        dataArr.forEach((query, index, array) => array[index] = query.trim());
+        
         db.serialize(() => {
             // db.run runs your SQL query against the DB
             db.run("PRAGMA foreign_keys=OFF;");
             db.run("BEGIN TRANSACTION;");
+
             // Loop through the `dataArr` and db.run each query
             dataArr.forEach((query) => {
                 count++;
-                if (query && query.trim() !== "") {
-                    if (isTrigger(query)) {
-                        query = query.concat("; END;");
-                    }
-
+                if (query) {
                     db.run(query, (err) => {
                         if (err && flag) {
                             console.error(`> Error in line ${count}`);
-                            console.error(err);
-                            console.log(query);
+                            console.log(err);
+                            reject(StandardErr.fromDao(err));
                         }
                     });
                 }
             });
+
             db.run("COMMIT;");
 
             // Close the DB connection
             db.close((err) => {
                 if (err) {
-                    rejects(StandardErr.fromDao(err));
+                    reject(StandardErr.fromDao(err));
                     return;
                 }
 
