@@ -545,12 +545,13 @@ const getLecturesByPeriodOfTime = function(course, periodOfTime) {
 
         // composing the SQL query
         if(periodOfTime.from && periodOfTime.from instanceof Date) {
-            sql += ` AND WHERE DATE(startingDate) >= DATE(?)`;
-            sqlParams.push(periodOfTime.from);
+            sql += ` AND DATETIME(startingDate) >= DATETIME(?)`;
+            sqlParams.push(periodOfTime.from.toISOString());
         }
         if(periodOfTime.to && periodOfTime.to instanceof Date) {
-            sql += ` AND WHERE DATE(startingDate) <= DATE(?)`;
-            sqlParams.push(periodOfTime.to);
+            console.log("sono to");
+            sql += ` AND DATETIME(startingDate) <= DATETIME(?)`;
+            sqlParams.push(periodOfTime.to.toISOString());
         }
 
         db.all(sql, sqlParams, (err, rows) => {
