@@ -14,6 +14,7 @@ const Student = require('./../entities/Student.js');
 const Lecture = require('./../entities/Lecture.js');
 const Course = require('./../entities/Course.js');
 const Email = require('./../entities/Email.js');
+const EmailQueue = require('./../entities/EmailQueue.js');
 const EmailType = require('./../entities/EmailType.js');
 const emailService = require('./../services/EmailService.js');
 const { StandardErr } = require('./../utils/utils');
@@ -615,6 +616,29 @@ const deleteLecture = function(lecture) {
     });
 }
 exports.deleteLecture = deleteLecture;
+
+/**
+ * Return all email in queue given a filter
+ * @param {String} filter - Email.EmailType
+ * @returns {Promise} promise
+ */
+const getEmailsInQueueByEmailType = function(emailType) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM EmailQueue WHERE emailType = ?`;
+
+        db.all(sql, [emailType], function(err, rows) {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            const res = [];
+            rows.forEach(row => res.push(EmailQueue.from(row)));
+            resolve(rows);
+        });
+    });
+}
+exports.getEmailsInQueueByEmailType = getEmailsInQueueByEmailType;
 
 /**
  * update a lecture delivery mode 
