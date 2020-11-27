@@ -5,7 +5,7 @@ const nodemailer = require("nodemailer");
 const defaultTemplates = {
     LESSON_CANCELLED: {
         subject: "Course {0} - <b>LECTURE CANCELLED</b>",
-        message: "Dear student,\nyour lecture scheduled for {0} has been cancelled."
+        message: "Dear student,\nyour lecture scheduled for {0} has been cancelled.",
     },
 };
 
@@ -93,7 +93,7 @@ exports.sendCustomMail = function (to, subject, emailBody) {
     return info;
 };
 
-exports.getDefaultEmail = function getDefaultEmail({ emailType = "", subjectArgs = [], messageArgs = [] }) {
+exports.getDefaultEmail = function getDefaultEmail(emailType = "", subjectArgs = [], messageArgs = []) {
     if (!defaultTemplates.hasOwnProperty(emailType)) {
         return {};
     }
@@ -101,7 +101,7 @@ exports.getDefaultEmail = function getDefaultEmail({ emailType = "", subjectArgs
     const subject = getDefaultEmailSubject(emailType, subjectArgs);
     const message = getDefaultEmailMessage(emailType, messageArgs);
     return { subject, message };
-}
+};
 
 function formatString(str, args) {
     let a = str;
