@@ -14,35 +14,35 @@ import Spinner from 'react-bootstrap/Spinner';
  * Student Page component
  */
 class StudentPage extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
-        this.state={user : props.user,loading : true};
+        this.state = { user: props.user, loading: true };
     }
     /**
      * At the creation of the page this component fetches all the courses, all the lectures and all the booking lectures
      */
-    async componentDidMount(){
-        try{
-        const courses = await API.getCoursesByStudentId(this.state.user.userId);
-        const bookedLectures = await API.getBookedLectures(this.state.user.userId);
-        const allLectures = await this.getAllLectures(courses);
-        const events = buildEvents(bookedLectures,allLectures,courses); //build the events for the calendar
-        this.setState({courses: courses, events : events,loading : false});
-        } catch(err){
-            this.setState({fetchError : err,loading : false})
+    async componentDidMount() {
+        try {
+            const courses = await API.getCoursesByStudentId(this.state.user.userId);
+            const bookedLectures = await API.getBookedLectures(this.state.user.userId);
+            const allLectures = await this.getAllLectures(courses);
+            const events = buildEvents(bookedLectures, allLectures, courses); //build the events for the calendar
+            this.setState({ courses: courses, events: events, loading: false });
+        } catch (err) {
+            this.setState({ fetchError: err, loading: false })
         }
     }
     /**
      * Fetch all lectures of all courses
      * @param {Course} courses 
      */
-    async getAllLectures(courses){
-        try{
-        let lectures = []
-        for (let c of courses)
-            lectures.push(await API.getLecturesByCourseId(this.state.user.userId,c.courseId))
-        return lectures;
-        }catch (err){
+    async getAllLectures(courses) {
+        try {
+            let lectures = []
+            for (let c of courses)
+                lectures.push(await API.getLecturesByCourseId(this.state.user.userId, c.courseId))
+            return lectures;
+        } catch (err) {
             throw new Error(err);
         }
 
@@ -54,27 +54,27 @@ class StudentPage extends React.Component {
      * @param {Int} lectureId 
      * @returns {Promise}
      */
-    handleConfirm = async (status,courseId,lectureId)=>{
-        return new Promise ((resolve,reject)=>{
-        if (status==="booked"){
-            APIfake.cancelLectureReservation(this.state.user.userID,courseId,lectureId)
-            .then(async()=>{
-                let changedEvent = await this.changeEvent(lectureId,"green","bookable")
-                resolve(changedEvent)
-            })
-            .catch(()=>reject())
-        }
-        if (status==="bookable"){
-            APIfake.bookALecture(this.state.user.userID,courseId,lectureId)
-            .then(async ()=>{
-                let changedEvent = await this.changeEvent(lectureId,"blue","booked")
-                resolve(changedEvent)
-            })
-            .catch(()=>reject())
+    handleConfirm = async (status, courseId, lectureId) => {
+        return new Promise((resolve, reject) => {
+            if (status === "booked") {
+                APIfake.cancelLectureReservation(this.state.user.userID, courseId, lectureId)
+                    .then(async () => {
+                        let changedEvent = await this.changeEvent(lectureId, "green", "bookable")
+                        resolve(changedEvent)
+                    })
+                    .catch(() => reject())
+            }
+            if (status === "bookable") {
+                APIfake.bookALecture(this.state.user.userID, courseId, lectureId)
+                    .then(async () => {
+                        let changedEvent = await this.changeEvent(lectureId, "blue", "booked")
+                        resolve(changedEvent)
+                    })
+                    .catch(() => reject())
             }
         })
-        
-    }   
+
+    }
 
     /**
      * Change an event into calendar events
@@ -82,40 +82,40 @@ class StudentPage extends React.Component {
      * @param {String} color 
      * @param {String} status 
      */
-    changeEvent = async (lectureId,color,status) =>{
-        return new Promise((resolve,reject)=>{
-        const events = this.state.events;
-        for (let i=0;i<events.length;i++)
-            if(events[i].lectureId===lectureId){
-                events[i].color=color;
-                events[i].status=status;
-                this.setState({events : events})
-                resolve(events[i]);
-            }
+    changeEvent = async (lectureId, color, status) => {
+        return new Promise((resolve, reject) => {
+            const events = this.state.events;
+            for (let i = 0; i < events.length; i++)
+                if (events[i].lectureId === lectureId) {
+                    events[i].color = color;
+                    events[i].status = status;
+                    this.setState({ events: events })
+                    resolve(events[i]);
+                }
         });
     }
 
     /**
      * Render the StudentPage component
      */
-    render(){
+    render() {
         if (this.state.fetchError)
-            return <ErrorMsg msg={this.state.fetchError}/>
+            return <ErrorMsg msg={this.state.fetchError} />
         if (this.state.loading)
-            return <Spinner animation="border"/>
-        return(
-        <>
-            <Container fluid>
-            <Row>
-            <Col sm="1">
-                <Sidebar/>
-            </Col>
-            <Col sm="11">
-                <Calendar lessons={this.state.events} handleConfirm={this.handleConfirm}/>
-            </Col>
-            </Row>
-            </Container>
-        </>);
+            return <Spinner animation="border" />
+        return (
+            <>
+                <Container fluid>
+                    <Row>
+                        <Col sm="1">
+                            <Sidebar />
+                        </Col>
+                        <Col sm="11">
+                            <Calendar lessons={this.state.events} handleConfirm={this.handleConfirm} />
+                        </Col>
+                    </Row>
+                </Container>
+            </>);
     }
 }
 /**
@@ -124,19 +124,19 @@ class StudentPage extends React.Component {
  * @param {Array of Lectures} all all lectures
  * @param {Array of Courses} courses all courses
  */
-function buildEvents(booked,all,courses){
-    const events =[]
+function buildEvents(booked, all, courses) {
+    const events = []
     for (let array of all)
-        for (let lecture of array){
-            if(booked.includes(lecture))
-                events.push(new CalendarEvent(events.length,courseName(courses,lecture.courseId),moment(lecture.startingDate).toISOString(),moment(lecture.startingDate).add(lecture.duration,"milliseconds").toISOString(),"blue","booked",lecture.lectureId,lecture.courseId,lecture.bookingDeadline))
-            else if(moment(lecture.startingDate).isBefore(moment()))
-                events.push(new CalendarEvent(events.length,courseName(courses,lecture.courseId),moment(lecture.startingDate).toISOString(),moment(lecture.startingDate).add(lecture.duration,"milliseconds").toISOString(),"black","past",lecture.lectureId,lecture.courseId,lecture.bookingDeadline))
+        for (let lecture of array) {
+            if (booked.includes(lecture))
+                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "blue", "booked", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
+            else if (moment(lecture.startingDate).isBefore(moment()))
+                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "black", "past", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
             else if (moment(lecture.bookingDeadline).isBefore(moment()))
-                events.push(new CalendarEvent(events.length,courseName(courses,lecture.courseId),moment(lecture.startingDate).toISOString(),moment(lecture.startingDate).add(lecture.duration,"milliseconds").toISOString(),"red","expired",lecture.lectureId,lecture.courseId,lecture.bookingDeadline))
-            else if (lecture.delivery==="remote")
-                events.push(new CalendarEvent(events.length,courseName(courses,lecture.courseId),moment(lecture.startingDate).toISOString(),moment(lecture.startingDate).add(lecture.duration,"milliseconds").toISOString(),"grey","remote",lecture.lectureId,lecture.courseId,lecture.bookingDeadline))
-            else events.push(new CalendarEvent(events.length,courseName(courses,lecture.courseId),moment(lecture.startingDate).toISOString(),moment(lecture.startingDate).add(lecture.duration,"milliseconds").toISOString(),"green","bookable",lecture.lectureId,lecture.courseId,lecture.bookingDeadline))
+                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "red", "expired", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
+            else if (lecture.delivery === "remote")
+                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "grey", "remote", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
+            else events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "green", "bookable", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
         }
     return events;
 }
@@ -145,9 +145,9 @@ function buildEvents(booked,all,courses){
  * @param {Array of Courses} courses 
  * @param {Int} courseId 
  */
-function courseName(courses,courseId){
+function courseName(courses, courseId) {
     for (let c of courses)
-        if(c.courseId===courseId)
+        if (c.courseId === courseId)
             return c.description;
 }
 

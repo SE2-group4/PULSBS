@@ -3,8 +3,7 @@ import { Redirect, Route } from "react-router-dom";
 import { Switch } from "react-router";
 import Container from "react-bootstrap/Container";
 import StudentPage from "./pages/StudentPage";
-import TeacherPage from "./pages/TeacherPage";
-import TeacherStatsPage from "./pages/TeacherStatsPage";
+import TeacherRoute from './pages/TeacherRoute';
 import LoginPage from "./pages/LoginPage";
 import Header from "./components/Header";
 import { withRouter } from 'react-router-dom';
@@ -25,7 +24,7 @@ class App extends React.Component {
    */
   setLoggedInUser = (user) => {
     this.setState({ authUser: user, isAuth: true });
-    this.props.history.push("/")
+    this.props.history.push("/");
   };
 
   /**
@@ -46,7 +45,7 @@ class App extends React.Component {
         <Container fluid id="containerMainContent">
           <Switch>
             <Route
-              path="/studentPage"
+              exact path="/studentPage"
               render={() => {
                 if (!this.state.isAuth) return <Redirect to="/login" />;
                 else return <StudentPage user={this.state.authUser} />;
@@ -56,15 +55,7 @@ class App extends React.Component {
               path="/teacherPage"
               render={() => {
                 if (!this.state.isAuth) return <Redirect to="/login" />;
-                else return <TeacherPage user={this.state.authUser} />;
-              }}
-            ></Route>
-            <Route
-              path="/teacherStatsPage"
-              render={() => {
-                //if (!this.state.isAuth) return <Redirect to="/login" />;
-                //else
-                return <TeacherStatsPage user={this.state.authUser} />;
+                else return <TeacherRoute user={this.state.authUser} />;
               }}
             ></Route>
             <Route
@@ -81,9 +72,9 @@ class App extends React.Component {
               render={() => {
                 if (this.state.isAuth && this.state.authUser.type === "STUDENT")
                   return <Redirect to="/studentPage" />;
-                if (this.state.isAuth && this.state.authUser.type === "TEACHER")
-                  return <Redirect to="/teacherPage" />;
-                if (!this.state.isAuth)
+                else if (this.state.isAuth && this.state.authUser.type === "TEACHER")
+                  return <Redirect to="/teacherPage/main" />;
+                else if (!this.state.isAuth)
                   return <Redirect to="/login" />
               }}
             ></Route>

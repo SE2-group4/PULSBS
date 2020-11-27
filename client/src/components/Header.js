@@ -6,6 +6,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 import InfoPanel from './InfoPanel';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import { Link } from "react-router-dom";
 
 function Header(props) {
   return <>
@@ -18,8 +19,8 @@ function Header(props) {
       }
       {props.user && props.user.type === "TEACHER" &&
         <Nav className="mr-auto">
-          <Nav.Link><strong>Your Lessons</strong></Nav.Link>
-          <Nav.Link><strong>Your Stats</strong></Nav.Link>
+          <Nav.Link as={Link} to={"/teacherPage/main"}><strong>Your Lessons</strong></Nav.Link>
+          <Nav.Link as={Link} to={"/teacherPage/stats"}><strong>Your Stats</strong></Nav.Link>
         </Nav>
       }
       {props.isAuth &&
