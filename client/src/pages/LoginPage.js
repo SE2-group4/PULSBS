@@ -5,6 +5,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import API from '../api/Api';
+import APIfake from '../api/APIfake';
 import ErrorMsg from "../components/ErrorMsg";
 
 class LoginPage extends React.Component {

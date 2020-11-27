@@ -29,68 +29,65 @@ beforeEach(() => {
   fetch.resetMocks();
 });
 
+async function fetchCourses(error) {
+  if (error)
+    await act(async () => {
+      render(<TeacherPage user={teacher} fetchError={error} />);
+    });
+  else
+    await act(async () => {
+      render(<TeacherPage user={teacher} courses={courses} />);
+    });
+}
+
+async function fetchLectureSuccess() {
+  await fetchCourses();
+  let res = JSON.stringify(lectures); //response > response.ok > then
+  fetch.mockResponseOnce(res);
+  await act(async () => {
+    userEvent.click(screen.getByTestId('c-1'))
+  });
+
+}
+
+async function fetchStudentSuccess() {
+  await fetchLectureSuccess();
+  let res = JSON.stringify(students); //response > response.ok > then
+  fetch.mockResponseOnce(res);
+  await act(async () => {
+    userEvent.click(screen.getByTestId('l-1'))
+  });
+}
+
 describe('Teacher Page suite', () => {
   test('render TeacherPage component (courses API : success)', async () => {
-    let res = JSON.stringify(courses); //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
+    await fetchCourses();
     let items = screen.getAllByTestId('course-row');
     expect(items).toHaveLength(2); //two courses
   });
 
   test('render TeacherPage component (courses API : json parsing error)', async () => {
-    let res = JSON.stringify(); //response > response.ok > catch
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
+    await fetchCourses('Course : application parse error');
     expect(screen.getByText('Course : application parse error')).toBeInTheDocument();
   });
 
   test('render TeacherPage component (courses API : error)', async () => {
-    //response > !response.ok > then
-    fetch.mockResponseOnce(JSON.stringify([{
-      source: "TeacherService",
-      errno: 1,
-      error: "'teacherId' parameter is not an integer: fail",
-      statusCode: 400
-    }]), { status: 400 });
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
+    await fetchCourses('Course : invalid parameter error');
     expect(screen.getByText('Course : invalid parameter error')).toBeInTheDocument();
   });
 
   test('render TeacherPage component (courses API : error parsing error)', async () => {
-    //response > !response.ok > catch
-    fetch.mockResponseOnce(JSON.stringify(), { status: 400 });
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
+    await fetchCourses('Course : server error');
     expect(screen.getByText('Course : server error')).toBeInTheDocument();
   });
 
   test('render TeacherPage component (courses API : server connection error)', async () => {
-    fetch.mockRejectOnce(); //!response
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
+    await fetchCourses('Course : server error');
     expect(screen.getByText('Course : server error')).toBeInTheDocument();
   });
 
   test('testing interaction CoursePanel-LecturePanel (lectures API : success)', async () => {
-    let res = JSON.stringify(courses);  //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
-    res = JSON.stringify(lectures); //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      userEvent.click(screen.getByTestId('c-1'))
-    });
+    await fetchLectureSuccess();
     expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
     const items = screen.getAllByTestId('lecture-row');
     expect(items).toHaveLength(2); //two lectures
@@ -101,12 +98,8 @@ describe('Teacher Page suite', () => {
   });
 
   test('testing interaction CoursePanel-LecturePanel (lectures API : json parsing error)', async () => {
-    let res = JSON.stringify(courses); //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
-    res = JSON.stringify(); //response > response.ok > catch
+    await fetchCourses();
+    let res = JSON.stringify(); //response > response.ok > catch
     fetch.mockResponseOnce(res);
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
@@ -116,11 +109,7 @@ describe('Teacher Page suite', () => {
   });
 
   test('testing interaction CoursePanel-LecturePanel (lectures API : error)', async () => {
-    let res = JSON.stringify(courses); //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
+    await fetchCourses();
     //response > !response.ok > then
     fetch.mockResponseOnce(JSON.stringify([{
       source: "TeacherService",
@@ -136,11 +125,7 @@ describe('Teacher Page suite', () => {
   });
 
   test('testing interaction CoursePanel-LecturePanel (lectures API : error parsing error)', async () => {
-    let res = JSON.stringify(courses); //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
+    await fetchCourses();
     fetch.mockResponseOnce(JSON.stringify(), { status: 400 }); //response > !response.ok > catch
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
@@ -150,11 +135,7 @@ describe('Teacher Page suite', () => {
   });
 
   test('testing interaction CoursePanel-LecturePanel (lectures API : server connection error)', async () => {
-    let res = JSON.stringify(courses); //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
+    await fetchCourses();
     fetch.mockRejectOnce(); //!response 
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
@@ -164,21 +145,7 @@ describe('Teacher Page suite', () => {
   });
 
   test('testing interaction between LecturePanel-StudentPanel (students API : success)', async () => {
-    let res = JSON.stringify(courses);  //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
-    res = JSON.stringify(lectures); //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      userEvent.click(screen.getByTestId('c-1'))
-    });
-    res = JSON.stringify(students); //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      userEvent.click(screen.getByTestId('l-1'))
-    });
+    await fetchStudentSuccess();
     expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
     expect(screen.getByText('Number of students: 2')).toBeInTheDocument();
     const items = screen.getAllByTestId('student-row');
@@ -190,17 +157,8 @@ describe('Teacher Page suite', () => {
   });
 
   test('testing interaction between LecturePanel-StudentPanel (students API : json parsing error)', async () => {
-    let res = JSON.stringify(courses);  //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
-    res = JSON.stringify(lectures); //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      userEvent.click(screen.getByTestId('c-1'))
-    });
-    res = JSON.stringify(); //response > response.ok > catch
+    await fetchLectureSuccess();
+    let res = JSON.stringify(); //response > response.ok > catch
     fetch.mockResponseOnce(res);
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))
@@ -210,16 +168,7 @@ describe('Teacher Page suite', () => {
   });
 
   test('testing interaction between LecturePanel-StudentPanel (students API : error)', async () => {
-    let res = JSON.stringify(courses);  //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
-    res = JSON.stringify(lectures); //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      userEvent.click(screen.getByTestId('c-1'))
-    });
+    await fetchLectureSuccess();
     //response > !response.ok > then
     fetch.mockResponseOnce(JSON.stringify([{
       source: "TeacherService",
@@ -235,16 +184,7 @@ describe('Teacher Page suite', () => {
   });
 
   test('testing interaction between LecturePanel-StudentPanel (students API : error parsing error)', async () => {
-    let res = JSON.stringify(courses);  //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
-    res = JSON.stringify(lectures); //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      userEvent.click(screen.getByTestId('c-1'))
-    });
+    await fetchLectureSuccess();
     fetch.mockResponseOnce(JSON.stringify(), { status: 400 }); //response > !response.ok > catch
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))
@@ -254,16 +194,7 @@ describe('Teacher Page suite', () => {
   });
 
   test('testing interaction between LecturePanel-StudentPanel (students API : server connection error)', async () => {
-    let res = JSON.stringify(courses);  //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      render(<TeacherPage user={teacher} />);
-    });
-    res = JSON.stringify(lectures); //response > response.ok > then
-    fetch.mockResponseOnce(res);
-    await act(async () => {
-      userEvent.click(screen.getByTestId('c-1'))
-    });
+    await fetchLectureSuccess();
     fetch.mockRejectOnce(); //!response
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))

@@ -24,7 +24,6 @@ class App extends React.Component {
    */
   setLoggedInUser = (user) => {
     this.setState({ authUser: user, isAuth: true });
-    this.props.history.push("/");
   };
 
   /**

@@ -43,7 +43,7 @@ async function getCoursesByStudentId(id) {
         fetch(baseURL + `/students/${id}/courses`).then((response) => {
             if (response.ok)
                 resolve(response.json());
-            else reject((obj) => { reject(obj); });
+            else reject("Server error (getCoursesByStudentId)");
         }).catch((err) => { reject("Server cannot communicate") })
     }
     );
@@ -58,8 +58,8 @@ async function getLecturesByCourseId(Uid, Cid) {
         fetch(baseURL + `/students/${Uid}/courses/${Cid}/lectures`).then((response) => {
             if (response.ok)
                 resolve(response.json());
-            else reject((obj) => { reject(obj); });
-        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
+            else reject("Server error (getLecturesByCourseId)");
+        }).catch((err) => { reject("Server cannot communicate") })
     });
 }
 
@@ -118,8 +118,8 @@ async function getBookedLectures(Uid) {
         fetch(baseURL + `/students/${Uid}/bookings`).then((response) => {
             if (response.ok)
                 resolve(response.json());
-            else reject((obj) => { reject(obj); });
-        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
+            else reject("Server error (getBookedLectures)");
+        }).catch((err) => { reject("Server cannot communicate") })
     });
 }
 
