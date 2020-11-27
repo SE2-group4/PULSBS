@@ -268,13 +268,12 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
                     subjectArgs,
                     messageArgs
                 );
-                console.log(subject, message);
 
                 emailsToBeSent.forEach((email) =>
                     EmailService.sendCustomMail(email.recipient, subject, message)
                         .then(() => {
                             console.log("CANCELLATION email sent to " + email.recipient);
-                            // db.deleteEmailQueueById(email);
+                            db.deleteEmailQueueById(email);
                         })
                         .catch((err) => console.error(err))
                 );
