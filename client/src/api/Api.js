@@ -21,15 +21,16 @@ async function userLogin(email, password) {
             body: JSON.stringify({ email: email, password: password }),
         }).then((response) => {
             if (response.ok) {
-                response.json().then((user) => {
-                    resolve(User.from(user));
-                });
+                response.json()
+                    .then((user) => {
+                        resolve(User.from(user));
+                    });
             } else {
                 response.json()
-                    .then((obj) => { reject(obj); }) // error msg in the response body
-                    .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+                    .then((obj) => { reject({ source: "Login", error: "invalid username and/or password" }) }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Login", error: "server error" }) }); // something else
             }
-        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
+        }).catch((err) => { reject({ source: "Login", error: "server error" }) }); // connection errors
     });
 }
 
@@ -43,7 +44,8 @@ async function getCoursesByStudentId(id) {
             if (response.ok)
                 resolve(response.json());
             else reject((obj) => { reject(obj); });
-        }).catch((err) => { reject("Server cannot communicate")})}
+        }).catch((err) => { reject("Server cannot communicate") })
+    }
     );
 }
 
