@@ -1,21 +1,45 @@
 import React from 'react';
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
+import moment from "moment";
 
-const Chart = () => {
-    return (
-        <div>
-            <Line
+
+class Chart extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            user: props.user,
+            lectureDates: [], bookings: [],                         //elements
+            fetchErrorC: false, fetchErrorL: false, fetchErrorS: false,       //fetch errors
+
+        };
+    }
+
+    render() {
+        const colors = [
+            'rgba(0, 222, 255, 0.6)',
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(182, 255, 108, 0.6)',
+            'green',
+            'yellow'
+        ]
+        var i = 0;
+        return (<div>
+            <Bar
                 data={
                     {
-                        labels: ['21/11/2020', '22/11/2020', '23/11/2020', '24/11/2020', '25/11/2020', '26/11/2020'], //TODO take this from server
-                        datasets: [{
-                            label: '$COURSENAME # of bookings', //TODO take course name
-                            data: [35, 27, 22, 10, 8, 8], //TODO take this from server
-                            backgroundColor: 'orange',
-                        }]
+                        labels: this.props.lectures.map((l) => moment(l.startingDate).format('DD/MM/YYYY')),
+                        datasets: this.props.courses.map((c) => {
+                            return {
+                                label: c.description,
+                                data: [35, 5, 22, 8], //TODO take this from server
+                                backgroundColor: colors[i++],
+                            }
+                        }
+                        )
                     }
                 }
-                height={400}
+                height={600}
                 width={600}
                 options={{
                     maintainAspectRatio: false,
@@ -31,8 +55,8 @@ const Chart = () => {
 
                 }}
             />
-        </div>
-    )
+        </div>)
+    }
 }
 
 export default Chart;

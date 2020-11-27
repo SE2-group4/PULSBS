@@ -44,7 +44,7 @@ class TeacherRoute extends React.Component {
                 <Route
                     path="/teacherPage/stats"
                     render={() => {
-                        return <TeacherStatsPage user={this.props.user} />;
+                        return <TeacherStatsPage user={this.props.user} courses={this.state.courses} />;
                     }}
                 ></Route>
             </>}
