@@ -61,4 +61,75 @@ describe('Student Page suite', () => {
       });
       expect(screen.getByText("Server cannot communicate")).toBeInTheDocument()
     })
+    test("render StudentPage component (getCoursesById : server error)",async ()=>{
+      let allCourses=JSON.stringify([{
+        source : "StudentService",
+        errno : 1,
+        error : "userID is not an integer",
+        statusCode : 400
+      }]);
+      fetch.mockResponses(
+        [allCourses,{status : 400}],
+        )
+      await act(async () =>{
+        render(<StudentPage  user={user}/>)
+      });
+      expect(screen.getByText("Server error (getCoursesByStudentId)")).toBeInTheDocument()
+    })
+    test("render StudentPage component (getBookedLectures : communication error)",async ()=>{
+      fetch.mockResponseOnce(JSON.stringify(courses))
+      fetch.mockReject(new Error(""))
+      await act(async () =>{
+        render(<StudentPage  user={user}/>)
+      });
+      expect(screen.getByText("Server cannot communicate")).toBeInTheDocument()
+    })
+    test("render StudentPage component (getBookedLectures : server error)",async ()=>{
+      let allCourses=JSON.stringify(courses);
+      let bookedLectures=JSON.stringify([{
+        source : "StudentService",
+        errno : 1,
+        error : "userID is not an integer",
+        statusCode : 400
+      }]);
+      fetch.mockResponses(
+        [allCourses],
+        [bookedLectures , {status : 400}]
+        )
+      await act(async () =>{
+        render(<StudentPage  user={user}/>)
+      });
+      expect(screen.getByText("Server error (getBookedLectures)")).toBeInTheDocument()
+      screen.debug()
+    })
+    test("render StudentPage component (getLecturesByCourseId : communication error)",async ()=>{
+      fetch.mockResponses(
+        [JSON.stringify(courses)],
+        [JSON.stringify(booked)],
+      ).mockReject(new Error(""))
+      await act(async () =>{
+        render(<StudentPage  user={user}/>)
+      });
+      screen.debug()
+      expect(screen.getByText("Server cannot communicate")).toBeInTheDocument()
+    })
+    test("render StudentPage component (getLecturesByCourseId : server error)",async ()=>{
+      let allCourses=JSON.stringify(courses);
+      let bookedLectures = JSON.stringify(booked);
+      let allLectures=JSON.stringify([{
+        source : "StudentService",
+        errno : 1,
+        error : "userID is not an integer",
+        statusCode : 400
+      }]);
+      fetch.mockResponses(
+        [allCourses],
+        [bookedLectures],
+        [allLectures , {status : 400}]
+        )
+      await act(async () =>{
+        render(<StudentPage  user={user}/>)
+      });
+      expect(screen.getByText("Server error (getLecturesByCourseId)")).toBeInTheDocument()
+    })
 });

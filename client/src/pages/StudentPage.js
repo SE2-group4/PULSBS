@@ -23,7 +23,8 @@ class StudentPage extends React.Component {
      */
     async componentDidMount() {
         try {
-            const courses = await API.getCoursesByStudentId(this.state.user.userId);
+            const courses = await API
+            .getCoursesByStudentId(this.state.user.userId);
             const bookedLectures = await API.getBookedLectures(this.state.user.userId);
             const allLectures = await this.getAllLectures(courses);
             const events = buildEvents(bookedLectures, allLectures, courses); //build the events for the calendar
@@ -43,7 +44,7 @@ class StudentPage extends React.Component {
                 lectures.push(await API.getLecturesByCourseId(this.state.user.userId, c.courseId))
             return lectures;
         } catch (err) {
-            throw new Error(err);
+            throw err;
         }
 
     }
