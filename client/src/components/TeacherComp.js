@@ -166,7 +166,7 @@ function LecturePanelRow(props) {
                     <span className="d-inline-block">
                         <Button disabled style={{ pointerEvents: 'none' }} variant="warning">modify</Button>
                     </span></OverlayTrigger>}
-                {canEdit && <Button name={props.lecture.lectureId} value={props.lecture.delivery} onClick={props.editOpen} variant="warning">modify</Button>}
+                {canEdit && <Button name={props.lecture.lectureId} value={props.lecture.delivery} onClick={props.editOpen} variant="warning" data-testid={"m-" + props.lecture.lectureId}>modify</Button>}
             </td>
             <td>{!canDelete &&
                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't delete lecture if the lecture is closer than 60 mins.</Tooltip>}>
@@ -253,7 +253,7 @@ function EditModal(props) {
             </Modal.Header>
             <Modal.Body>Do you want to turn lecture <b>{props.lectureId}</b> from <b>{props.delivery}</b> to <b>{props.delivery == 'PRESENCE' ? 'REMOTE' : 'PRESENCE'}</b>?</Modal.Body>
             <Modal.Footer>
-                <Button name="yes" variant="secondary" onClick={props.updateDelivery}>Yes</Button><Button name="no" variant="secondary" onClick={props.editClose}>No</Button>
+                <Button name="yes" data-testid={"yes-m-" + props.lectureId} variant="secondary" onClick={props.updateDelivery}>Yes</Button><Button name="no" data-testid={"no-m-" + props.lectureId} variant="secondary" onClick={props.editClose}>No</Button>
             </Modal.Footer>
         </Modal>
     </>;

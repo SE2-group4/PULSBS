@@ -17,8 +17,8 @@ const courses = [
   new Course(2, "Information Systems Security", 2020)
 ];
 const lectures = [
-  new Lecture(1, 1, 1, "2020-11-22T07:30:00.000Z"),
-  new Lecture(2, 1, 1, "2020-11-22T07:30:00.000Z")
+  new Lecture(1, 1, 1, "2021-11-22T07:30:00.000Z", "1000000", "2021-11-18T07:30:00.000Z", "PRESENCE"),
+  new Lecture(2, 1, 1, "2020-11-22T07:30:00.000Z", "1000000", "2020-11-18T07:30:00.000Z", "REMOTE")
 ];
 const students = [
   new Student(1, "Francesco", "Rossi", "fr@email.com", "ciao1"),
@@ -42,7 +42,7 @@ async function fetchCourses(error) {
 
 async function fetchLectureSuccess() {
   await fetchCourses();
-  let res = JSON.stringify(lectures); //response > response.ok > then
+  let res = JSON.stringify(lectures);
   fetch.mockResponseOnce(res);
   await act(async () => {
     userEvent.click(screen.getByTestId('c-1'))
@@ -52,10 +52,17 @@ async function fetchLectureSuccess() {
 
 async function fetchStudentSuccess() {
   await fetchLectureSuccess();
-  let res = JSON.stringify(students); //response > response.ok > then
+  let res = JSON.stringify(students);
   fetch.mockResponseOnce(res);
   await act(async () => {
     userEvent.click(screen.getByTestId('l-1'))
+  });
+}
+
+async function setupEditModal() {
+  await fetchLectureSuccess();
+  await act(async () => {
+    userEvent.click(screen.getByTestId('m-1'))
   });
 }
 
@@ -63,7 +70,7 @@ describe('Teacher Page suite', () => {
   test('render TeacherPage component (courses API : success)', async () => {
     await fetchCourses();
     let items = screen.getAllByTestId('course-row');
-    expect(items).toHaveLength(2); //two courses
+    expect(items).toHaveLength(2);
   });
 
   test('render TeacherPage component (courses API : json parsing error)', async () => {
@@ -90,7 +97,7 @@ describe('Teacher Page suite', () => {
     await fetchLectureSuccess();
     expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
     const items = screen.getAllByTestId('lecture-row');
-    expect(items).toHaveLength(2); //two lectures
+    expect(items).toHaveLength(2);
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
     });
@@ -99,7 +106,7 @@ describe('Teacher Page suite', () => {
 
   test('testing interaction CoursePanel-LecturePanel (lectures API : json parsing error)', async () => {
     await fetchCourses();
-    let res = JSON.stringify(); //response > response.ok > catch
+    let res = JSON.stringify();
     fetch.mockResponseOnce(res);
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
@@ -110,7 +117,6 @@ describe('Teacher Page suite', () => {
 
   test('testing interaction CoursePanel-LecturePanel (lectures API : error)', async () => {
     await fetchCourses();
-    //response > !response.ok > then
     fetch.mockResponseOnce(JSON.stringify([{
       source: "TeacherService",
       errno: 1,
@@ -126,7 +132,7 @@ describe('Teacher Page suite', () => {
 
   test('testing interaction CoursePanel-LecturePanel (lectures API : error parsing error)', async () => {
     await fetchCourses();
-    fetch.mockResponseOnce(JSON.stringify(), { status: 400 }); //response > !response.ok > catch
+    fetch.mockResponseOnce(JSON.stringify(), { status: 400 });
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
     });
@@ -136,7 +142,7 @@ describe('Teacher Page suite', () => {
 
   test('testing interaction CoursePanel-LecturePanel (lectures API : server connection error)', async () => {
     await fetchCourses();
-    fetch.mockRejectOnce(); //!response 
+    fetch.mockRejectOnce();
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
     });
@@ -149,7 +155,7 @@ describe('Teacher Page suite', () => {
     expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
     expect(screen.getByText('Number of students: 2')).toBeInTheDocument();
     const items = screen.getAllByTestId('student-row');
-    expect(items).toHaveLength(2); //two students
+    expect(items).toHaveLength(2);
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))
     });
@@ -158,7 +164,7 @@ describe('Teacher Page suite', () => {
 
   test('testing interaction between LecturePanel-StudentPanel (students API : json parsing error)', async () => {
     await fetchLectureSuccess();
-    let res = JSON.stringify(); //response > response.ok > catch
+    let res = JSON.stringify();
     fetch.mockResponseOnce(res);
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))
@@ -169,7 +175,6 @@ describe('Teacher Page suite', () => {
 
   test('testing interaction between LecturePanel-StudentPanel (students API : error)', async () => {
     await fetchLectureSuccess();
-    //response > !response.ok > then
     fetch.mockResponseOnce(JSON.stringify([{
       source: "TeacherService",
       errno: 1,
@@ -185,7 +190,7 @@ describe('Teacher Page suite', () => {
 
   test('testing interaction between LecturePanel-StudentPanel (students API : error parsing error)', async () => {
     await fetchLectureSuccess();
-    fetch.mockResponseOnce(JSON.stringify(), { status: 400 }); //response > !response.ok > catch
+    fetch.mockResponseOnce(JSON.stringify(), { status: 400 });
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))
     });
@@ -195,11 +200,56 @@ describe('Teacher Page suite', () => {
 
   test('testing interaction between LecturePanel-StudentPanel (students API : server connection error)', async () => {
     await fetchLectureSuccess();
-    fetch.mockRejectOnce(); //!response
+    fetch.mockRejectOnce();
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))
     });
     expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
     expect(screen.getByText('Student : server error')).toBeInTheDocument();
   });
+
+  test('testing EditModal component and related buttons (PUT success)', async () => {
+    await setupEditModal();
+    expect(screen.getByText("Edit Delivery")).toBeInTheDocument();
+    await act(async () => {
+      userEvent.click(screen.getByTestId("no-m-1"));
+    });
+    await act(async () => {
+      userEvent.click(screen.getByTestId('m-1'))
+    });
+    fetch.mockResponseOnce(JSON.stringify({ body: "ok" }), { status: 204 });
+    await act(async () => {
+      userEvent.click(screen.getByTestId("yes-m-1"));
+    });
+    let items = screen.getAllByText("REMOTE");
+    expect(items).toHaveLength(2);
+  });
+
+  test('testing EditModal component and related buttons (PUT failure : error)', async () => {
+    await setupEditModal();
+    fetch.mockResponseOnce(JSON.stringify({ body: "not ok" }), { status: 400 });
+    await act(async () => {
+      userEvent.click(screen.getByTestId("yes-m-1"));
+    });
+    expect(screen.getByText("Lecture : can't update delivery")).toBeInTheDocument();
+  });
+
+  test('testing EditModal component and related buttons (PUT failure : error parsing error)', async () => {
+    await setupEditModal();
+    fetch.mockResponseOnce({}, { status: 400 });
+    await act(async () => {
+      userEvent.click(screen.getByTestId("yes-m-1"));
+    });
+    expect(screen.getByText("Lecture : server error")).toBeInTheDocument();
+  });
+
+  test('testing EditModal component and related buttons (PUT failure : server connection error)', async () => {
+    await setupEditModal();
+    fetch.mockRejectOnce();
+    await act(async () => {
+      userEvent.click(screen.getByTestId("yes-m-1"));
+    });
+    expect(screen.getByText("Lecture : server error")).toBeInTheDocument();
+  });
+
 });
