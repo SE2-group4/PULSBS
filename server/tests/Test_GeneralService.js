@@ -19,7 +19,11 @@ const Email = require('../src/entities/Email.js');
 const prepare = require('../src/db/preparedb.js');
 
 const suite = function() {
+    let student2;
+
     before(function(done) {
+        this.student2 = new Student(2, 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
+        
         done();
     });
 
@@ -32,15 +36,28 @@ const suite = function() {
     describe('GeneralService', function() {
         describe('userLogin', function() {
             it('correct params should accept the request', function(done) {
-                done();
+                service.userLogin(this.student2.email, this.student2.password)
+                    .then((user) => {
+                        assert.strictEqual(user.userId, this.student2.studentId, 'different user retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
             });
             
             it('incorrect username should discard the request', function(done) {
-                done();
+                service.userLogin('franco@agg.it', this.student2.password)
+                    .then((user) => {
+                        done('This should fail');
+                    })
+                    .catch((err) => done()); // correct case
             });
 
             it('incorrect password should discard the request', function(done) {
-                done();
+                service.userLogin(this.student2.email, 'franco')
+                    .then((user) => {
+                        done('This should fail');
+                    })
+                    .catch((err) => done()); // correct case
             });
         })
     });

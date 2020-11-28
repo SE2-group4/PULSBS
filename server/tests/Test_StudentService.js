@@ -19,7 +19,15 @@ const Email = require('../src/entities/Email.js');
 const prepare = require('../src/db/preparedb.js');
 
 const suite = function() {
+    let student1;
+    let lecture1;
+    let lecture2;
+
     before(function(done) {
+        student1 = new Student(1);
+        lecture1 = new Lecture(1, 1);
+        lecture2 = new Lecture(2, 2);
+
         done();
     });
 
@@ -32,12 +40,20 @@ const suite = function() {
     describe('StudentService', function() {
         describe('studentBookLecture', function() {
             it('correct params should accept the booking request', function(done) {
-                service.studentBookLecture(student1.studentId, lecture.courseId, lecture1.lectureId)
+                service.studentBookLecture(student1.studentId, lecture2.courseId, lecture2.lectureId)
                     .then((retVal) => {
                         assert.ok(retVal > 0, 'unable to book a lecture');
-                        done()
+                        done();
                     })
                     .catch((err) => done(err));
+            });
+
+            it('already booked lecture should refuse the booking request', function(done) {
+                service.studentBookLecture(student1.studentId, lecture1.courseId, lecture1.lectureId)
+                    .then((retVal) => {
+                        done('This should fail');
+                    })
+                    .catch((err) => done());
             });
             
             it('not existing lecture should refuse the booking request', function(done) {
