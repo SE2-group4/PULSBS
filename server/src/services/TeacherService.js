@@ -63,15 +63,14 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
 /**
  * Get all lectures given a course and a teacher.
  * You can filter the lecture by passing a query string.
- * If the query string is missing, the function will return all lectures scheduled from today
- * Otherwise if a 'from' property is passed, it will return all lectures that have startingDate >= from
- * Similarly for 'to' property
- * The support for getting all lectures is not yet implemented
+ * If the query string is missing, the function will return all lectures minus the cancelled lectures
+ * Otherwise if a 'from' property is passed, it will return all lectures with startingDate >= from.fromDate
+ * Similarly, 'to' will return all lectures with startingDate <= to.fromDate 
  *
  * teacherId {Integer}
  * courseId {Integer}
  * queryFilter {Object}
- * returns array of lectures. In case of error an ResponseError
+ * returns {Array} array of lectures. In case of error an ResponseError
  **/
 exports.teacherGetCourseLectures = async function (teacherId, courseId, queryFilter) {
     const { error, teacherId: tId, courseId: cId } = convertToNumbers({ teacherId, courseId });
@@ -81,7 +80,6 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryFil
 
     let dateFilter = extractDateFilters(queryFilter);
     if (dateFilter instanceof ResponseError) return dateFilter;
-    else if (!dateFilter.from && !dateFilter.to) dateFilter.from = new Date();
 
     console.log("GET COURSE LECTURE: date filter", dateFilter);
 
@@ -370,9 +368,11 @@ function extractDateFilters(queryString) {
     for (const key of Object.keys(queryString)) {
         switch (key) {
             case "from": {
-                const fromDate = new Date(queryString[key]);
+                const value = queryString[key];
+                if(value.toLowerCase() === "inf") break;
+
+                const fromDate = new Date(value);
                 if (isNaN(fromDate.getTime())) {
-                    console.log("INVALID");
                     return new ResponseError(
                         "TeacherService",
                         ResponseError.PARAM_NOT_DATE,
@@ -385,7 +385,10 @@ function extractDateFilters(queryString) {
                 break;
             }
             case "to": {
-                const toDate = new Date(queryString[key]);
+                const value = queryString[key];
+                if(value.toLowerCase() === "inf") break;
+
+                const toDate = new Date(value);
                 if (isNaN(toDate.getTime())) {
                     return new ResponseError(
                         "TeacherService",
