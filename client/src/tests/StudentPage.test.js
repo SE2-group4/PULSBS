@@ -19,7 +19,10 @@ const user = new User(1,"Student","Lorenzo","Ceccarelli","fr@email.com","ciao");
 const courses = [
   new Course(1,"Web Application 1","2020"),
   new Course(2,"Data Science","2020"),
-  new Course(3,"Computer Systems Programming","2020")
+  new Course(3,"Computer Systems Programming","2020"),
+  new Course(4,"Elettronica","2020"),
+  new Course(5,"OS","2020"),
+  new Course(6,"Cybersecurity","2020")
   ]
 const lecturesCourse1 = [
   new Lecture(1,1,1,moment().add("1","hours").toISOString(),600000,moment().subtract("1","days").toISOString(),"inPresence"),
@@ -30,25 +33,39 @@ const lecturesCourse2 =[
 ]
 const bookedLesson = new Lecture(3,3,1,moment().add("3","hours").toISOString(),60000,moment().add("1","hours").toISOString(),"inPresence")
 const lecturesCourse3=[
-  bookedLesson
+  bookedLesson,
+]
+const lecturesCourse4 =[
+  new Lecture(5,4,4,moment().add("1","hours").toISOString(),60000,moment().subtract("1","hours").toISOString(),"inPresence")
+]
+const lecturesCourse5=[
+  new Lecture(6,5,7,moment().add("5","minutes").toISOString(),60000,moment().subtract("1","hours"),"remote")
+]
+const lecturesCourse6=[
+  new Lecture(7,6,7,moment().subtract("1","hours").toISOString(),60000,moment().subtract("1","days"),"inPresence")
 ]
 const booked =[
   bookedLesson
 ];
-console.log(booked.includes(bookedLesson))
 
 async function setupCalendar(){
   let allCourses = JSON.stringify(courses);
   let bookedLectures = JSON.stringify(booked);
   let allLecturesCourse1 = JSON.stringify(lecturesCourse1);
   let allLecturesCourse2 = JSON.stringify(lecturesCourse2);
-  let allLecturesCourse3 = JSON.stringify(lecturesCourse3)
+  let allLecturesCourse3 = JSON.stringify(lecturesCourse3);
+  let allLecturesCourse4 = JSON.stringify(lecturesCourse4);
+  let allLecturesCourse5 = JSON.stringify(lecturesCourse5);
+  let allLecturesCourse6 = JSON.stringify(lecturesCourse6)
   fetch.mockResponses(
     [allCourses],
     [bookedLectures],
     [allLecturesCourse1],
     [allLecturesCourse2],
-    [allLecturesCourse3]
+    [allLecturesCourse3],
+    [allLecturesCourse4],
+    [allLecturesCourse5],
+    [allLecturesCourse6]
   )
   await act(async () => {
     render(<StudentPage user={user} />)
@@ -57,21 +74,7 @@ async function setupCalendar(){
 
 describe('Student Page suite', () => {
     test("render StudentPage component (all API called : success)",async ()=>{
-      let allCourses=JSON.stringify(courses);
-      let bookedLectures = JSON.stringify(booked);
-      let allLecturesCourse1 = JSON.stringify(lecturesCourse1);
-      let allLecturesCourse2 = JSON.stringify(lecturesCourse2);
-      let allLecturesCourse3 = JSON.stringify(lecturesCourse3)
-      fetch.mockResponses(
-        [allCourses],
-        [bookedLectures],
-        [allLecturesCourse1],
-        [allLecturesCourse2],
-        [allLecturesCourse3]
-        )
-      await act(async () =>{
-        render(<StudentPage  user={user}/>)
-      });
+      await setupCalendar();
       expect(screen.getByText("Legend:")).toBeInTheDocument()
     })
     test("render StudentPage component (getCoursesByStudentId : communication error)",async ()=>{
@@ -249,12 +252,33 @@ describe('Calendar component', async () => {
     expect(screen.getByText("Ops, an error during server communication occurs")).toBeInTheDocument();
   })
   test('click on expired event',async()=>{
-
+    await setupCalendar();
+    await act(async () => {
+      userEvent.click(screen.getByText("Elettronica"))
+    });
+    expect(screen.getByText('This lecture was expired')).toBeInTheDocument();
   })
   test('click on remote event',async()=>{
-
+    await setupCalendar();
+    await act(async () => {
+      userEvent.click(screen.getByText("OS"))
+    });
+    expect(screen.getByText('This lecture will be errogated remotely')).toBeInTheDocument();
   })
-  test('click on over event',async()=>{
-    
+  test('click on past event',async()=>{
+    await setupCalendar();
+    await act(async () => {
+      userEvent.click(screen.getByText("Cybersecurity"))
+    });
+    expect(screen.getByText('This lecture is over')).toBeInTheDocument();
+  })
+  test('click on close modal',async()=>{
+    await setupCalendar();
+    await act(async () => {
+      userEvent.click(screen.getByText("Elettronica"))
+    });
+    await act(async () => {
+      userEvent.click(screen.getByTestId("modalClose"))
+    });
   })
 })
