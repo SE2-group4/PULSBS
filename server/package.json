@@ -10,6 +10,7 @@
     "start": "node ./src/server.js",
     "test": "mocha ./tests/Test_suite.js",
     "testapi": "forever start ./src/server.js; newman run ./tests/Test_api; forever stop ./src/server.js",
+    "testapi-coverage" : "forever start ./src/server.js; newman run ./tests/Test_api --reporters junit; forever stop ./src/server.js",
     "prepare": "node ./src/db/preparedb.js",
     "preparetest": "node ./src/db/preparedb.js testing.db testing.sql",
     "report": "mocha ./tests/Test_suite.js --reporter mocha-junit-reporter --reporter-options mochaFile=../test_reports/reportServer.xml",
