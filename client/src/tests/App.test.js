@@ -15,4 +15,13 @@ describe('App suite', () => {
         );
         expect(screen.getByText("Log-in to your account")).toBeInTheDocument();
     });
+    test('redirect to login page success',()=>{
+
+    })
+    test('redirect to teacher page success',()=>{
+
+    })
+    test('redirect to student page success',()=>{
+        
+    })
 });

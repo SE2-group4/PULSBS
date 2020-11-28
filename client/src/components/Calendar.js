@@ -159,7 +159,7 @@ function ModalClick(props) {
  * @param {*} props 
  */
 function InfoLecture(props) {
-    console.log(props.lecture.start)
+    
     return (
         <ListGroup variant="flush">
             <ListGroup.Item>Lecture ID : {props.lecture.extendedProps.lectureId}</ListGroup.Item>
