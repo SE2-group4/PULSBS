@@ -1,11 +1,7 @@
 import { render, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import StudentPage from "../pages/StudentPage"
-import TeacherPage from '../pages/TeacherPage'
 import LoginPage from '../pages/LoginPage'
-import User from '../entities/user'
 import fetchMock from "jest-fetch-mock";
-import moment from 'moment';
 import userEvent from '@testing-library/user-event';
 
 fetchMock.enableMocks();
@@ -14,24 +10,50 @@ beforeEach(() => {
   fetch.resetMocks();
 });
 
-const student = new User(1, "STUDENT", "Lorenzo", "Ceccarelli", "fr@email.com", "ciao");
-const teacher = new User(2, "TEACHER", "Lorenzo", "Appendini", "lr@email.com", "ciao");
 
+
+async function setupLogin(){
+  await act(async () => {
+    render(<LoginPage />)
+  });
+}
 describe("Login test suite", () => {
-  test('Login success (student)', async () => {
-
-  })
-  test('Login success (teacher)', async () => {
-
-  })
   test('Login incorrect credentials', async () => {
-
+    await setupLogin();
+    screen.debug()
+    await act(async () => {
+      userEvent.paste(screen.getByTestId("emailForm"),"fff@ddd.com")
+      userEvent.paste(screen.getByTestId("passwordForm"),"fffff")
+    });
+    fetch.mockResponseOnce(JSON.stringify({ body: "not ok" }), { status: 400 });
+    await act(async()=>{
+      userEvent.click(screen.getByText("Login"))
+    })
+    expect(screen.getByText("Login : invalid username and/or password")).toBeInTheDocument()
   })
   test('Login server fails', async () => {
-
+    await setupLogin();
+    await act(async () => {
+      userEvent.paste(screen.getByTestId("emailForm"),"fff@ddd.com")
+      userEvent.paste(screen.getByTestId("passwordForm"),"fffff")
+    });
+    fetch.mockResponseOnce({}, { status: 400 });
+    await act(async()=>{
+      userEvent.click(screen.getByText("Login"))
+    })
+    expect(screen.getByText("Login : server error")).toBeInTheDocument()
   })
   test('Login communication error', async () => {
-
+    await setupLogin();
+    await act(async () => {
+      userEvent.paste(screen.getByTestId("emailForm"),"fff@ddd.com")
+      userEvent.paste(screen.getByTestId("passwordForm"),"fffff")
+    });
+    fetch.mockReject();
+    await act(async()=>{
+      userEvent.click(screen.getByText("Login"))
+    })
+    expect(screen.getByText("Login : server error")).toBeInTheDocument()
   })
 
 })
