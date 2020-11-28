@@ -14,6 +14,7 @@ const Student = require('./../entities/Student.js');
 const Lecture = require('./../entities/Lecture.js');
 const Course = require('./../entities/Course.js');
 const Email = require('./../entities/Email.js');
+const EmailQueue = require('./../entities/EmailQueue.js');
 const EmailType = require('./../entities/EmailType.js');
 const emailService = require('./../services/EmailService.js');
 const { StandardErr } = require('./../utils/utils');
@@ -545,12 +546,13 @@ const getLecturesByPeriodOfTime = function(course, periodOfTime) {
 
         // composing the SQL query
         if(periodOfTime.from && periodOfTime.from instanceof Date) {
-            sql += ` AND WHERE DATE(startingDate) >= DATE(?)`;
-            sqlParams.push(periodOfTime.from);
+            sql += ` AND DATETIME(startingDate) >= DATETIME(?)`;
+            sqlParams.push(periodOfTime.from.toISOString());
         }
         if(periodOfTime.to && periodOfTime.to instanceof Date) {
-            sql += ` AND WHERE DATE(startingDate) <= DATE(?)`;
-            sqlParams.push(periodOfTime.to);
+            console.log("sono to");
+            sql += ` AND DATETIME(startingDate) <= DATETIME(?)`;
+            sqlParams.push(periodOfTime.to.toISOString());
         }
 
         db.all(sql, sqlParams, (err, rows) => {
@@ -568,7 +570,7 @@ const getLecturesByPeriodOfTime = function(course, periodOfTime) {
 exports.getLecturesByPeriodOfTime = getLecturesByPeriodOfTime;
 
 /**
- * get a lecture given a lectureId 
+ * Get a lecture given a lectureId 
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} promise
  */
@@ -595,11 +597,11 @@ const getLectureById = function(lecture) {
 exports.getLectureById = getLectureById;
 
 /**
- * Delete a lecture given a lectureId 
+ * Delete a lecture from Lecture given a lectureId 
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} promise
  */
-const deleteLecture = function(lecture) {
+const deleteLectureById = function(lecture) {
     return new Promise((resolve, reject) => {
         const sql = `DELETE FROM Lecture WHERE lectureId = ?`;
 
@@ -613,11 +615,55 @@ const deleteLecture = function(lecture) {
         });
     });
 }
-exports.deleteLecture = deleteLecture;
+exports.deleteLectureById = deleteLectureById;
 
 /**
- * update a lecture delivery mode 
- * @param {Lecture} lecture - delivery mode needed
+ * Delete a email from EmailQueue given a queueId 
+ * @param {EmailQueue} emailQueue - emailQueue needed
+ * @returns {Promise} promise
+ */
+const deleteEmailQueueById = function(emailQueue) {
+    return new Promise((resolve, reject) => {
+        const sql = `DELETE FROM EmailQueue WHERE queueId = ?`;
+
+        db.run(sql, [emailQueue.queueId], function(err) {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(this.changes);
+        });
+    });
+}
+exports.deleteEmailQueueById = deleteEmailQueueById;
+
+/**
+ * Return all email in queue given a filter
+ * @param {String} filter - Email.EmailType
+ * @returns {Promise} promise
+ */
+const getEmailsInQueueByEmailType = function(emailType) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM EmailQueue WHERE emailType = ?`;
+
+        db.all(sql, [emailType], function(err, rows) {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            const res = [];
+            rows.forEach(row => res.push(EmailQueue.from(row)));
+            resolve(rows);
+        });
+    });
+}
+exports.getEmailsInQueueByEmailType = getEmailsInQueueByEmailType;
+
+/**
+ * Update a lecture delivery mode given a lectureId
+ * @param {Lecture} lecture - lectureId, delivery needed
  * @returns {Promise} promise
  */
 const updateLectureDeliveryMode = function(lecture) {

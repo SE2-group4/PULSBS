@@ -39,7 +39,8 @@ class Email {
         ERROR : -1,
         UNDEFINED : 0,
         STUDENT_NEW_BOOKING : 1,
-        TEACHER_ATTENDING_STUDENTS : 2
+        TEACHER_ATTENDING_STUDENTS : 2,
+        LESSON_CANCELLED: "LESSON_CANCELLED"
         // add more here
     }
 

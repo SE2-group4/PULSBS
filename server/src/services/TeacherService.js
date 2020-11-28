@@ -3,6 +3,7 @@
 const Lecture = require("../entities/Lecture");
 const Course = require("../entities/Course");
 const Teacher = require("../entities/Teacher");
+const Email = require("../entities/Email");
 const EmailService = require("../services/EmailService");
 
 const { ResponseError } = require("../utils/ResponseError");
@@ -12,51 +13,47 @@ const db = require("../db/Dao");
 /**
  * Get all the students that have an active booking for a given lecture
  *
- * teacherId Integer
- * courseId Integer
- * lectureId Integer
- * returns array of Students + Booking. In case of error an ResponseError
+ * teacherId {Integer}
+ * courseId {Integer}
+ * lectureId {Integer}
+ * returns an array of Students. In case of error a ResponseError message
  **/
 exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, lectureId) {
-    if (isNaN(teacherId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
-    } else if (isNaN(courseId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { courseId }, 400);
-    } else if (isNaN(lectureId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { lectureId }, 400);
-    }
-
-    const tId = Number(teacherId);
-    const cId = Number(courseId);
-    const lId = Number(lectureId);
-
-    // checking whether the teacher is in charge of this course during this academic year
-    let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
-
-    if (!isTeachingThisCourse) {
-        return new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
-    }
-
-    // checking whether the teacher is in charge of this course during this academic year
-    let doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
-
-    if (!doesLectureBelong) {
-        return new ResponseError(
-            "TeacherService",
-            ResponseError.COURSE_LECTURE_MISMATCH_AA,
-            { lectureId, courseId },
-            404
-        );
+    const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
+        teacherId,
+        courseId,
+        lectureId,
+    });
+    if (error) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
     try {
-        const lecture = new Lecture(lId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
+        // checking if the teacher is in charge of this course during this academic year
+        const isTaughtBy = await isCourseTaughtBy(tId, cId);
+        if (!isTaughtBy) {
+            return new ResponseError(
+                "TeacherService",
+                ResponseError.TEACHER_COURSE_MISMATCH_AA,
+                { courseId, teacherId },
+                404
+            );
+        }
+
+        // checking if the lecture is associated to this course
+        const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+        if (!doesLectureBelong) {
+            return new ResponseError(
+                "TeacherService",
+                ResponseError.COURSE_LECTURE_MISMATCH_AA,
+                { lectureId, courseId },
+                404
+            );
+        }
+
+        const lecture = new Lecture(lId);
         const lectureStudents = await db.getStudentsByLecture(lecture);
+
         return lectureStudents;
     } catch (err) {
         return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
@@ -64,38 +61,45 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
 };
 
 /**
- * Get all active lectures, which have not yet been delivered, for a course taught by a given professor
+ * Get all lectures given a course and a teacher.
+ * You can filter the lecture by passing a query string.
+ * If the query string is missing, the function will return all lectures scheduled from today
+ * Otherwise if a 'from' property is passed, it will return all lectures that have startingDate >= from
+ * Similarly for 'to' property
+ * The support for getting all lectures is not yet implemented
  *
- * teacherId Integer
- * courseId Integer
+ * teacherId {Integer}
+ * courseId {Integer}
+ * queryFilter {Object}
  * returns array of lectures. In case of error an ResponseError
  **/
-exports.teacherGetCourseLectures = async function (teacherId, courseId) {
-    if (isNaN(teacherId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
-    } else if (isNaN(courseId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { courseId }, 400);
+exports.teacherGetCourseLectures = async function (teacherId, courseId, queryFilter) {
+    const { error, teacherId: tId, courseId: cId } = convertToNumbers({ teacherId, courseId });
+    if (error) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    const tId = Number(teacherId);
-    const cId = Number(courseId);
+    let dateFilter = extractDateFilters(queryFilter);
+    if (dateFilter instanceof ResponseError) return dateFilter;
+    else if (!dateFilter.from && !dateFilter.to) dateFilter.from = new Date();
 
-    // checking whether the teacher is in charge of this course during this academic year
-    let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
-
-    if (!isTeachingThisCourse) {
-        return new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
-    }
+    console.log("GET COURSE LECTURE: date filter", dateFilter);
 
     try {
-        // I put the other fields in as a reminder
-        const course = new Course(cId, undefined, undefined);
-        const courseLectures = await db.getLecturesByCourse(course);
+        // checking if the teacher is in charge of this course during this academic year
+        let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
+        if (!isTeachingThisCourse) {
+            return new ResponseError(
+                "TeacherService",
+                ResponseError.TEACHER_COURSE_MISMATCH_AA,
+                { courseId, teacherId },
+                404
+            );
+        }
+
+        const course = new Course(cId);
+        const courseLectures = await db.getLecturesByPeriodOfTime(course, dateFilter);
+
         return courseLectures;
     } catch (err) {
         return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
@@ -103,65 +107,25 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId) {
 };
 
 /**
- * Get all courses taught in this academic year by a given professor
+ * Get all courses taught by a given professor during this academic year
  *
- * teacherId Integer
+ * teacherId {Integer}
  * returns array of courses. In case of error an ResponseError
  **/
 exports.teacherGetCourses = async function (teacherId) {
-    if (isNaN(teacherId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
+    const { error, teacherId: tId } = convertToNumbers({ teacherId });
+    if (error) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    const tId = Number(teacherId);
-    const teacher = new Teacher(tId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
-
     try {
+        const teacher = new Teacher(tId);
         const teacherCourses = await db.getCoursesByTeacher(teacher);
+
         return teacherCourses;
     } catch (err) {
         return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
-};
-
-/**
- * Check whether a teacher is in charge of a course during this academic year
- *
- * teacherId Integer
- * courseId Integer
- * returns boolean
- **/
-const isCourseTaughtBy = async (teacherId, courseId) => {
-    let isTeachingThisCourse = false;
-
-    const teacherCourses = await db.getCoursesByTeacher(
-        new Teacher(teacherId, undefined, undefined, undefined, undefined)
-    );
-
-    if (teacherCourses.length > 0) {
-        isTeachingThisCourse = teacherCourses.some((course) => course.courseId === courseId);
-    }
-
-    return isTeachingThisCourse;
-};
-
-/**
- * Check whether this lecture belongs to this course
- *
- * courseId Integer
- * lectureId Integer
- * returns boolean
- **/
-const doesLectureBelongToCourse = async (courseId, lectureId) => {
-    let doesBelong = false;
-
-    const courseLectures = await db.getLecturesByCourse(new Course(courseId, undefined, undefined));
-
-    if (courseLectures.length > 0) {
-        doesBelong = courseLectures.some((lecture) => lecture.lectureId === lectureId);
-    }
-
-    return doesBelong;
 };
 
 const nextCheck = (now) => {
@@ -178,7 +142,6 @@ const nextCheck = (now) => {
 
     return next_at_23_59.getTime() - now.getTime();
 };
-
 exports.nextCheck = nextCheck;
 
 exports.checkForExpiredLectures = async () => {
@@ -195,7 +158,386 @@ exports.checkForExpiredLectures = async () => {
     }, time);
 };
 
-const findSummaryExpiredLectures = async (date) => {
+/**
+ * Get a lecture given a lectureId, courseId, teacherId
+ *
+ * teacherId {Integer}
+ * courseId {Integer}
+ * lectureId {Integer}
+ * returns {Lecture} a lecture. In case of error an ResponseError
+ **/
+exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId) {
+    const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
+        teacherId,
+        courseId,
+        lectureId,
+    });
+    if (error) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+    }
+
+    try {
+        // checking if the teacher is in charge of this course during this academic year
+        const isTaughtBy = await isCourseTaughtBy(tId, cId);
+        if (!isTaughtBy) {
+            return new ResponseError(
+                "TeacherService",
+                ResponseError.TEACHER_COURSE_MISMATCH_AA,
+                { courseId, teacherId },
+                404
+            );
+        }
+
+        // checking if the lecture belongs to this course
+        const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+        if (!doesLectureBelong) {
+            return new ResponseError(
+                "TeacherService",
+                ResponseError.COURSE_LECTURE_MISMATCH_AA,
+                { lectureId, courseId },
+                404
+            );
+        }
+
+        const lecture = new Lecture(lId);
+        const retLecture = await db.getLectureById(lecture);
+        if (!retLecture) {
+            return new ResponseError("TeacherService", ResponseError.LECTURE_NOT_FOUND, { lectureId }, 404);
+        }
+
+        return retLecture;
+    } catch (err) {
+        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+    }
+};
+
+/**
+ * Delete a lecture given a lectureId, courseId, teacherId
+ *
+ * teacherId {Integer}
+ * courseId {Integer}
+ * lectureId {Integer}
+ * returns {Integer} 204. In case of error an ResponseError
+ **/
+exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectureId) {
+    const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
+        teacherId,
+        courseId,
+        lectureId,
+    });
+    if (error) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+    }
+
+    try {
+        // checking if the teacher is in charge of this course during this academic year
+        const isTaughtBy = await isCourseTaughtBy(tId, cId);
+        if (!isTaughtBy) {
+            return new ResponseError(
+                "TeacherService",
+                ResponseError.TEACHER_COURSE_MISMATCH_AA,
+                { courseId, teacherId },
+                404
+            );
+        }
+
+        // checking if the lecture belongs to this course
+        const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+        if (!doesLectureBelong) {
+            return new ResponseError(
+                "TeacherService",
+                ResponseError.COURSE_LECTURE_MISMATCH_AA,
+                { lectureId, courseId },
+                404
+            );
+        }
+
+        let lecture = new Lecture(lId);
+        lecture = await db.getLectureById(lecture);
+
+        if (isLectureCancellable(lecture)) {
+            const isSuccess = await db.deleteLectureById(lecture);
+            if (isSuccess > 0) {
+                const emailsToBeSent = await db.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED);
+                const aEmail = emailsToBeSent[0];
+
+                const subjectArgs = [aEmail.courseName];
+                const messageArgs = [aEmail.startingDate];
+                const { subject, message } = EmailService.getDefaultEmail(
+                    Email.EmailType.LESSON_CANCELLED,
+                    subjectArgs,
+                    messageArgs
+                );
+
+                emailsToBeSent.forEach((email) =>
+                    EmailService.sendCustomMail(email.recipient, subject, message)
+                        .then(() => {
+                            console.log("CANCELLATION email sent to " + email.recipient);
+                            db.deleteEmailQueueById(email);
+                        })
+                        .catch((err) => console.error(err))
+                );
+            }
+        } else {
+            return new ResponseError(
+                "TeacherService",
+                ResponseError.LECTURE_NOT_CANCELLABLE,
+                { lectureId: lecture.lectureId },
+                409
+            );
+        }
+
+        return 204;
+    } catch (err) {
+        console.log(err);
+        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+    }
+};
+
+/**
+ * Update a lecture delivery mode given a lectureId, courseId, teacherId and a switchTo mode
+ *
+ * teacherId {Integer}
+ * courseId {Integer}
+ * lectureId {Integer}
+ * switchTo {String}
+ * returns {Integer} 204. In case of error an ResponseError
+ **/
+// TODO: add error when switching from the same state
+exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, courseId, lectureId, switchTo) {
+    const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
+        teacherId,
+        courseId,
+        lectureId,
+    });
+    if (error) {
+        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+    }
+
+    if (switchTo && !isValidDeliveryMode(switchTo)) {
+        return new ResponseError(
+            "TeacherService",
+            ResponseError.LECTURE_INVALID_DELIVERY_MODE,
+            { delivery: switchTo },
+            400
+        );
+    }
+
+    try {
+        // checking if the teacher is in charge of this course during this academic year
+        const isTaughtBy = await isCourseTaughtBy(tId, cId);
+        if (!isTaughtBy) {
+            return new ResponseError(
+                "TeacherService",
+                ResponseError.TEACHER_COURSE_MISMATCH_AA,
+                { courseId, teacherId },
+                404
+            );
+        }
+
+        // checking if the lecture belongs to this course
+        const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+        if (!doesLectureBelong) {
+            return new ResponseError(
+                "TeacherService",
+                ResponseError.COURSE_LECTURE_MISMATCH_AA,
+                { lectureId, courseId },
+                404
+            );
+        }
+
+        const lecture = new Lecture(lId);
+        await db.updateLectureDeliveryMode(lecture);
+
+        return 204;
+    } catch (err) {
+        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+    }
+};
+
+/**
+ * Extract the query params in a query string
+ * Convert a date string in a date object
+ * @param {Object} queryString. E.g. queryString = {from: <dateString>, to: <dateString>}
+ * @returns {Object} e.g. queryFilter = {from: <new Date()>, to: <new Date()>}. In case of error returns a ResponseError
+ */
+function extractDateFilters(queryString) {
+    if (!(queryString instanceof Object)) {
+        return {};
+    }
+
+    const dateFilter = {};
+    for (const key of Object.keys(queryString)) {
+        switch (key) {
+            case "from": {
+                const fromDate = new Date(queryString[key]);
+                if (isNaN(fromDate.getTime())) {
+                    console.log("INVALID");
+                    return new ResponseError(
+                        "TeacherService",
+                        ResponseError.PARAM_NOT_DATE,
+                        { date: queryString[key] },
+                        400
+                    );
+                }
+
+                dateFilter.from = fromDate;
+                break;
+            }
+            case "to": {
+                const toDate = new Date(queryString[key]);
+                if (isNaN(toDate.getTime())) {
+                    return new ResponseError(
+                        "TeacherService",
+                        ResponseError.PARAM_NOT_DATE,
+                        { date: queryString[key] },
+                        400
+                    );
+                }
+
+                dateFilter.to = toDate;
+                break;
+            }
+            default:
+                return new ResponseError("TeacherService", ResponseError.QUERY_PARAM_NOT_ACCEPTED, { param: key }, 400);
+        }
+    }
+
+    return dateFilter;
+}
+
+/**
+ * Convert an object's properties values into numbers. E.g. { lectureId: "1", "foo": "3" } will be converted into { lectureId: 1, foo: 3 }
+ * In case a value is NaN, it will return the first property's value which is a NaN.
+ * @param {Object} custNumbers. E.g. { lectureId: "1", "foo": "3 }
+ * @returns {Object} E.g. { lectureId: 1, "foo": 3 }. In case of error an object similar to { error: { lectureId: foo} }
+ */
+function convertToNumbers(custNumbers) {
+    for (const [name, num] of Object.entries(custNumbers)) {
+        if (!isNaN(num)) {
+            custNumbers[name] = Number(num);
+        } else {
+            return { error: { [name]: num } };
+        }
+    }
+
+    return custNumbers;
+}
+
+/**
+ * Check if a lecture is cancellable.
+ * A lecture is cancellable is the request is sent 1h before the scheduled starting time of a lecture
+ * @param {Lecture} lecture
+ * @param {Date} requestDateTime
+ * @returns {Boolean}
+ */
+function isLectureCancellable(lecture, requestDateTime) {
+    if (!requestDateTime) requestDateTime = new Date();
+
+    const lectTime = lecture.startingDate.getTime();
+    const cancelTime = requestDateTime.getTime();
+    const minDiffAllowed = 60 * 60 * 1000;
+
+    if (lectTime - cancelTime > minDiffAllowed) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Check if the switchTo is a valid delivery mode
+ * @param {String} switchTo
+ * @returns {Boolean}
+ */
+function isValidDeliveryMode(switchTo) {
+    if (
+        switchTo.toUpperCase() !== Lecture.DeliveryType.PRESENCE &&
+        switchTo.toUpperCase() !== Lecture.DeliveryType.REMOTE
+    ) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Send daily summaries to the teacher
+ * @param {Object} summaries. E.g. summary = { 1: {teacher, course, lecture}, 2: {teacher, course, lecture} }
+ * @param {Date} requestDateTime
+ * @returns none
+ */
+function sendSummaryToTeachers(summaries) {
+    for (let [lectureId, summary] of summaries.entries()) {
+        const teacher = summary.teacher;
+        const course = summary.course;
+        const lecture = summary.lecture;
+
+        const options = {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
+            hour12: false,
+            timeZone: "Europe/Rome",
+        };
+        const dateFormatter = new Intl.DateTimeFormat("en-GB", options);
+
+        EmailService.sendStudentNumberEmail(
+            teacher.email,
+            course.description,
+            dateFormatter.format(lecture.startingDate),
+            summary.studentsBooked
+        ).then(() => console.log(`sent email to ${teacher.email} about lecture ${lectureId}`));
+
+        // TODO: add to the db the email sent
+    }
+    return;
+}
+
+/**
+ * Check whether a teacher is in charge of a course during this academic year
+ *
+ * teacherId {Integer}
+ * courseId {Integer}
+ * returns {Boolean}
+ **/
+async function isCourseTaughtBy(teacherId, courseId) {
+    let isTeachingThisCourse = false;
+
+    const teacherCourses = await db.getCoursesByTeacher(
+        new Teacher(teacherId, undefined, undefined, undefined, undefined)
+    );
+
+    if (teacherCourses.length > 0) {
+        isTeachingThisCourse = teacherCourses.some((course) => course.courseId === courseId);
+    }
+
+    return isTeachingThisCourse;
+}
+
+/**
+ * Check whether this lecture belongs to this course
+ *
+ * courseId {Integer}
+ * lectureId {Integer}
+ * returns {Boolean}
+ **/
+async function doesLectureBelongToCourse(courseId, lectureId) {
+    let doesBelong = false;
+
+    const courseLectures = await db.getLecturesByCourse(new Course(courseId, undefined, undefined));
+
+    if (courseLectures.length > 0) {
+        doesBelong = courseLectures.some((lecture) => lecture.lectureId === lectureId);
+    }
+
+    return doesBelong;
+}
+
+async function findSummaryExpiredLectures(date) {
     if (!date) date = new Date();
 
     const expiredLectures = await db.getLecturesByDeadline(date);
@@ -249,199 +591,4 @@ const findSummaryExpiredLectures = async (date) => {
     }
 
     return mapResponse;
-};
-
-const sendSummaryToTeachers = (summaries) => {
-    for (let [lectureId, summary] of summaries.entries()) {
-        const teacher = summary.teacher;
-        const course = summary.course;
-        const lecture = summary.lecture;
-
-        const options = {
-            year: "numeric",
-            month: "numeric",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-            second: "numeric",
-            hour12: false,
-            timeZone: "Europe/Rome",
-        };
-        const dateFormatter = new Intl.DateTimeFormat("en-GB", options);
-
-        EmailService.sendStudentNumberEmail(
-            teacher.email,
-            course.description,
-            dateFormatter.format(lecture.startingDate),
-            summary.studentsBooked
-        ).then(() => console.log(`sent email to ${teacher.email} about lecture ${lectureId}`));
-
-        // TODO: add to the db the email sent
-    }
-    return;
-};
-
-// TODO: add support for 'from' and 'to' query string
-exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId) {
-    if (isNaN(teacherId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
-    } else if (isNaN(courseId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { courseId }, 400);
-    } else if (isNaN(lectureId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { lectureId }, 400);
-    }
-
-    const tId = Number(teacherId);
-    const cId = Number(courseId);
-    const lId = Number(lectureId);
-
-    // checking whether the teacher is in charge of this course during this academic year
-    let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
-    if (!isTeachingThisCourse) {
-        return new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
-    }
-
-    // checking whether the teacher is in charge of this course during this academic year
-    let doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
-    if (!doesLectureBelong) {
-        return new ResponseError(
-            "TeacherService",
-            ResponseError.COURSE_LECTURE_MISMATCH_AA,
-            { lectureId, courseId },
-            404
-        );
-    }
-
-    try {
-        const lecture = new Lecture(lId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
-        const retLecture = await db.getLectureById(lecture);
-
-        if (!retLecture) {
-            return new ResponseError("TeacherService", ResponseError.LECTURE_NOT_FOUND, { lectureId }, 404);
-        }
-
-        return retLecture;
-    } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
-    }
-};
-
-exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectureId) {
-    if (isNaN(teacherId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
-    } else if (isNaN(courseId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { courseId }, 400);
-    } else if (isNaN(lectureId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { lectureId }, 400);
-    }
-
-    const tId = Number(teacherId);
-    const cId = Number(courseId);
-    const lId = Number(lectureId);
-
-    // checking whether the teacher is in charge of this course during this academic year
-    let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
-    if (!isTeachingThisCourse) {
-        return new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
-    }
-
-    // checking whether the teacher is in charge of this course during this academic year
-    let doesLecture = await doesLectureBelongToCourse(cId, lId);
-    if (!doesLecture) {
-        return new ResponseError(
-            "TeacherService",
-            ResponseError.COURSE_LECTURE_MISMATCH_AA,
-            { lectureId, courseId },
-            404
-        );
-    }
-
-    try {
-        const lecture = new Lecture(lId, undefined, undefined, undefined, undefined); // I also put the other fields in as a reminder
-        const retVal = await db.deleteLecture(lecture);
-        if (!retVal) {
-            return new ResponseError(
-                "TeacherService",
-                ResponseError.LECTURE_NOT_FOUND,
-                { lectureId: lecture.lectureId },
-                404
-            );
-        }
-
-        return 204;
-    } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
-    }
-};
-
-// TODO: add error when switching from the same state
-exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, courseId, lectureId, switchTo) {
-    if (isNaN(teacherId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId }, 400);
-    } else if (isNaN(courseId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { courseId }, 400);
-    } else if (isNaN(lectureId)) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { lectureId }, 400);
-    }
-
-    if (
-        switchTo.toUpperCase() !== Lecture.DeliveryType.PRESENCE &&
-        switchTo.toUpperCase() !== Lecture.DeliveryType.REMOTE
-    ) {
-        return new ResponseError(
-            "TeacherService",
-            ResponseError.LECTURE_INVALID_DELIVERY_MODE,
-            { delivery: switchTo },
-            400
-        );
-    }
-
-    const tId = Number(teacherId);
-    const cId = Number(courseId);
-    const lId = Number(lectureId);
-
-    // checking whether the teacher is in charge of this course during this academic year
-    let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
-    if (!isTeachingThisCourse) {
-        return new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
-    }
-
-    // checking whether the teacher is in charge of this course during this academic year
-    let doesLecture = await doesLectureBelongToCourse(cId, lId);
-    if (!doesLecture) {
-        return new ResponseError(
-            "TeacherService",
-            ResponseError.COURSE_LECTURE_MISMATCH_AA,
-            { lectureId, courseId },
-            404
-        );
-    }
-
-    // TODO: add a check that we are not switching from to the same delivery mode
-    try {
-        const lecture = new Lecture(lId, undefined, undefined, undefined, undefined, undefined, switchTo); // I also put the other fields in as a reminder
-        const retVal = await db.updateLectureDeliveryMode(lecture);
-        if (!retVal) {
-            return 400;
-        }
-
-        return 204;
-    } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
-    }
-};
+}

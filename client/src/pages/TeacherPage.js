@@ -38,21 +38,20 @@ class TeacherPage extends React.Component {
      * componentDidMount fetches the all courses of the teacher 
      */
     componentDidMount() {
-        API.getCoursesByTeacherId(this.state.user.userId)
-            .then((courses) => {
-                let i = 0;
-                let nMap = new Map();
-                courses.forEach(function (item) {
-                    nMap.set(item.courseId, Math.floor(i / elementForPage));
-                    i++;
-                });
-                let nPages = Math.ceil(i / elementForPage);
-                this.setState({ courses: courses, courseMap: nMap, cPages: nPages, fetchErrorC: false });
-            })
-            .catch((error) => {
-                let errormsg = error.source + " : " + error.error;
-                this.setState({ fetchErrorC: errormsg });
+        let courses = this.props.courses;
+        let fetchError = this.props.fetchError;
+        if (fetchError)
+            this.setState({ fetchErrorC: fetchError });
+        else {
+            let i = 0;
+            let nMap = new Map();
+            courses.forEach(function (item) {
+                nMap.set(item.courseId, Math.floor(i / elementForPage));
+                i++;
             });
+            let nPages = Math.ceil(i / elementForPage);
+            this.setState({ courses: courses, courseMap: nMap, cPages: nPages });
+        }
     }
 
     /**

@@ -94,8 +94,8 @@ const autoRun = () => {
 };
 
 const systemConf = {
-    "--test": false,
-    "--no-autorun": false 
+    "--test": false, // set db to testing.db
+    "--no-autorun": false // disable autorun
 };
 
 // prevent adding new properties. The properties's values can still be changed.
@@ -106,9 +106,9 @@ Object.seal(systemConf);
     try {
         console.log("INITIALIZING the system");
 
-        const args = process.argv.slice(2);
-        for(let key of args) {
-            systemConf[key.toLowerCase()] = true;
+        const options = process.argv.slice(2);
+        for(const option of options) {
+            systemConf[option.toLowerCase()] = true;
         }
 
         if(systemConf["--test"]) {

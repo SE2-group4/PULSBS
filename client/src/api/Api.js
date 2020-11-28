@@ -21,15 +21,16 @@ async function userLogin(email, password) {
             body: JSON.stringify({ email: email, password: password }),
         }).then((response) => {
             if (response.ok) {
-                response.json().then((user) => {
-                    resolve(User.from(user));
-                });
+                response.json()
+                    .then((user) => {
+                        resolve(User.from(user));
+                    });
             } else {
                 response.json()
-                    .then((obj) => { reject(obj); }) // error msg in the response body
-                    .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+                    .then((obj) => { reject({ source: "Login", error: "invalid username and/or password" }) }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Login", error: "server error" }) }); // something else
             }
-        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
+        }).catch((err) => { reject({ source: "Login", error: "server error" }) }); // connection errors
     });
 }
 
@@ -42,8 +43,9 @@ async function getCoursesByStudentId(id) {
         fetch(baseURL + `/students/${id}/courses`).then((response) => {
             if (response.ok)
                 resolve(response.json());
-            else reject((obj) => { reject(obj); });
-        }).catch((err) => { reject("Server cannot communicate")})}
+            else reject("Server error (getCoursesByStudentId)");
+        }).catch((err) => { reject("Server cannot communicate") })
+    }
     );
 }
 
@@ -56,8 +58,8 @@ async function getLecturesByCourseId(Uid, Cid) {
         fetch(baseURL + `/students/${Uid}/courses/${Cid}/lectures`).then((response) => {
             if (response.ok)
                 resolve(response.json());
-            else reject((obj) => { reject(obj); });
-        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
+            else reject("Server error (getLecturesByCourseId)");
+        }).catch((err) => { reject("Server cannot communicate") })
     });
 }
 
@@ -116,8 +118,8 @@ async function getBookedLectures(Uid) {
         fetch(baseURL + `/students/${Uid}/bookings`).then((response) => {
             if (response.ok)
                 resolve(response.json());
-            else reject((obj) => { reject(obj); });
-        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) })
+            else reject("Server error (getBookedLectures)");
+        }).catch((err) => { reject("Server cannot communicate") })
     });
 }
 
