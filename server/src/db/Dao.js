@@ -146,7 +146,7 @@ exports.addBooking = addBooking;
  */
 const deleteBooking = function(student, lecture) {
     return new Promise((resolve, reject) => {
-        const sql = `DELETE * FROM Booking WHERE studentId = ? AND lectureId = ?`;
+        const sql = `DELETE FROM Booking WHERE studentId = ? AND lectureId = ?`;
 
         db.run(sql, [student.studentId, lecture.lectureId], function(err) {
             if(err) {

@@ -30,6 +30,11 @@ const suite = function() {
     });
 
     beforeEach(function(done) {
+        reset();
+        done();
+    });
+
+    const reset = (done) => {
         student1 = new Student(1);
         student2 = new Student(2);
         lecture1 = new Lecture(1, 1);
@@ -39,10 +44,18 @@ const suite = function() {
         prepare('testing.db', 'testing.sql', false)
             .then(() => done())
             .catch((err) => done(err));
-    });
+    }
 
     describe('StudentService', function() {
+        beforeEach(function(done) {
+            reset(done);
+        });
+
         describe('studentBookLecture', function() {
+            beforeEach(function(done) {
+                reset(done);
+            });
+
             it('correct params should accept the booking request', function(done) {
                 service.studentBookLecture(student1.studentId, lecture2.courseId, lecture2.lectureId)
                     .then((retVal) => {
@@ -59,7 +72,7 @@ const suite = function() {
             });
             
             it('not existing lecture should refuse the booking request', function(done) {
-                student.studentBookLecture(student1.studentId, lecture1.lectureId, -1)
+                service.studentBookLecture(student1.studentId, lecture1.lectureId, -1)
                     .then((retVal) => done('This should fail'))
                     .catch((err) => done());
             });
@@ -78,6 +91,10 @@ const suite = function() {
         });
 
         describe('studentUnbookLecture', function() {
+            beforeEach(function(done) {
+                reset(done);
+            });
+
             it('correct params should accept the unbooking request', function(done) {
                 service.studentUnbookLecture(student1.studentId, lecture1.courseId, lecture1.lectureId)
                     .then((retVal) => {
@@ -95,6 +112,10 @@ const suite = function() {
         });
 
         describe('studentGetCourseLectures', function() {
+            beforeEach(function(done) {
+                reset(done);
+            });
+
             it('correct params should return the list of lectures', function(done) {
                 service.studentGetCourseLectures(student1.studentId, lecture1.courseId)
                     .then((lectures) => {
@@ -121,6 +142,10 @@ const suite = function() {
         });
 
         describe('studentGetCourses', function() {
+            beforeEach(function(done) {
+                reset(done);
+            });
+
             it('correct params should return the list of courses the student is enrolled in', function(done) {
                 service.studentGetCourses(student2.studentId)
                     .then((courses) => {
@@ -133,12 +158,19 @@ const suite = function() {
             
             it('non-existing student should return an empty list of courses', function(done) {
                 service.studentGetCourse(-1)
-                    .then((retVal) => done('This should fail'))
-                    .catch((err) => done());
+                    .then((courses) => {
+                        assert.strictEqual(courses.length, 0, 'Wrong number of courses retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
             });
         });
 
         describe('studentGetBookings', function() {
+            beforeEach(function(done) {
+                reset(done);
+            });
+
             it('correct params should return a list of lectures the student is booked for', function(done) {
                 service.studentGetBookings(student2.studentId)
                     .then((lectures) => {
@@ -150,8 +182,11 @@ const suite = function() {
             
             it('non-existing student should return an empty list of lectures', function(done) {
                 service.studentGetBookings(-1)
-                    .then((retVal) => done('This should fail'))
-                    .catch((err) => done());
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 0, 'Wrong number of bookings retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
             });
         });
     });
