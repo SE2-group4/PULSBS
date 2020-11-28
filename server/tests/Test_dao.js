@@ -20,21 +20,23 @@ const prepare = require('../src/db/preparedb.js');
 const suite = function() {
     describe('Dao', function() {
         let student1;
+        let student2;
         let teacher4;
         let lecture2, lecture3;
         let course3;
 
         before(function(done) {
-            student1 = new Student(1, 'Aldo', 'Baglio', 'aldo.baglio@agg.it', 'aldo');
+            done();
+        });
+
+        beforeEach(function(done) {
+            student1 = new Student(1, 'Aldo', 'Baglio');
+            student2 = new Student(2, 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
             teacher4 = new Teacher(4);
             lecture2 = new Lecture(2);
             lecture3 = new Lecture(3);
             course3 = new Course(3);
 
-            done();
-        });
-
-        beforeEach(function(done) {
             prepare('testing.db', 'testing.sql', false)
                 .then(() => done())
                 .catch((err) => done(err));
@@ -42,9 +44,9 @@ const suite = function() {
 
         describe('login', function() {
             it('correct data should perform login', function(done) {
-                dao.login(student1)
+                dao.login(student2)
                     .then((retStudent) => {
-                        assert.strictEqual(retStudent.studentId, student1.studentId, 'Wrong user retrieved');
+                        assert.strictEqual(retStudent.studentId, student2.studentId, 'Wrong user retrieved');
                         done()
                     })
                     .catch((err) => done(err));
@@ -84,10 +86,10 @@ const suite = function() {
 
         describe('getCoursesByStudent', function() {
             it('non empty course should get the list of students', function(done) {
-                dao.getCoursesByStudent(student1)
+                dao.getCoursesByStudent(student2)
                     .then((courses) => {
                         assert.ok(courses, 'No returned valued received');
-                        assert.ok(courses.length === 3, 'Wrong number of courses');
+                        assert.strictEqual(courses.length, 1, 'Wrong number of courses');
                         done();
                     })
                     .catch((err) => done(err));

@@ -15,6 +15,7 @@ INSERT INTO Course(courseId, description, year) VALUES(1, 'Software enginnering 
 INSERT INTO Course(courseId, description, year) VALUES(2, 'Computer system security', 2020);
 INSERT INTO Course(courseId, description, year) VALUES(3, 'Machine learning and artificial intelligence', 2020);
 INSERT INTO Course(courseId, description, year) VALUES(4, 'Web application', 2020);
+INSERT INTO Course(courseId, description, year) VALUES(5, '	Formal languages and compilers', 2020);
 
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'jamaree.bretley@extraale.com', 'giacomo');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'enis.laron@extraale.com', 'marina');
@@ -23,6 +24,7 @@ INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 1, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 2, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(5, 3, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(5, 4, 1);
+INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(5, 5, 1);
 
 INSERT INTO Enrollment(studentId, courseId) VALUES(1, 1);
 INSERT INTO Enrollment(studentId, courseId) VALUES(1, 2);
@@ -30,6 +32,7 @@ INSERT INTO Enrollment(studentId, courseId) VALUES(1, 3);
 INSERT INTO Enrollment(studentId, courseId) VALUES(2, 3);
 INSERT INTO Enrollment(studentId, courseId) VALUES(3, 3);
 INSERT INTO Enrollment(studentId, courseId) VALUES(3, 4);
+INSERT INTO Enrollment(studentId, courseId) VALUES(1, 5);
 
 INSERT INTO Class(classId, description) VALUES(1, '1A');
 INSERT INTO Class(classId, description) VALUES(2, '2B');
