@@ -236,10 +236,10 @@ async function deleteLecture(Tid, Cid, Lid) {
                 resolve()
             } else {
                 response.json()
-                    .then((obj) => { reject(obj.error); }) // error msg in the response body
-                    .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
+                    .then((obj) => { reject({ source: "Lecture", error: "can't delete lecture" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Lecture", error: "server error" }) }); // something else
             }
-        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
+        }).catch((err) => { reject({ source: "Lecture", error: "server error" }) }); // connection errors
     });
 }
 
