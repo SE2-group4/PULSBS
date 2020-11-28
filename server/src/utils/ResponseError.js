@@ -39,14 +39,17 @@ class ResponseError {
     static get LECTURE_NOT_CANCELLABLE() {
         return 23;
     }
-    static get PARAM_NOT_INT() {
+    static get PARAM_NOT_BOOLEAN() {
         return 1;
     }
     static get PARAM_NOT_DATE() {
         return 2;
     }
-    static get QUERY_PARAM_NOT_ACCEPTED() {
+    static get PARAM_NOT_INT() {
         return 3;
+    }
+    static get QUERY_PARAM_NOT_ACCEPTED() {
+        return 4;
     }
     static get TEACHER_COURSE_MISMATCH_AA() {
         return 30;
@@ -86,6 +89,11 @@ class ResponseError {
             case ResponseError.PARAM_NOT_INT: {
                 const keyName = Object.keys(args)[0];
                 return `'${keyName}' parameter is not an integer: ${args[keyName]}`;
+            }
+
+            case ResponseError.PARAM_NOT_BOOLEAN: {
+                const keyName = Object.keys(args)[0];
+                return `'${keyName}' parameter is not a boolean: ${args[keyName]}`;
             }
 
             case ResponseError.QUERY_PARAM_NOT_ACCEPTED:
