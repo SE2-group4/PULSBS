@@ -253,6 +253,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
 
         // checking if the lecture belongs to this course
         const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+
         if (!doesLectureBelong) {
             return new ResponseError(
                 "TeacherService",
@@ -269,24 +270,26 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
             const isSuccess = await db.deleteLectureById(lecture);
             if (isSuccess > 0) {
                 const emailsToBeSent = await db.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED);
-                const aEmail = emailsToBeSent[0];
 
-                const subjectArgs = [aEmail.courseName];
-                const messageArgs = [aEmail.startingDate];
-                const { subject, message } = EmailService.getDefaultEmail(
-                    Email.EmailType.LESSON_CANCELLED,
-                    subjectArgs,
-                    messageArgs
-                );
+                if (emailsToBeSent.length > 0) {
+                    const aEmail = emailsToBeSent[0];
+                    const subjectArgs = [aEmail.courseName];
+                    const messageArgs = [aEmail.startingDate];
+                    const { subject, message } = EmailService.getDefaultEmail(
+                        Email.EmailType.LESSON_CANCELLED,
+                        subjectArgs,
+                        messageArgs
+                    );
 
-                emailsToBeSent.forEach((email) =>
-                    EmailService.sendCustomMail(email.recipient, subject, message)
-                        .then(() => {
-                            console.log("CANCELLATION email sent to " + email.recipient);
-                            db.deleteEmailQueueById(email);
-                        })
-                        .catch((err) => console.error(err))
-                );
+                    emailsToBeSent.forEach((email) =>
+                        EmailService.sendCustomMail(email.recipient, subject, message)
+                            .then(() => {
+                                console.log("CANCELLATION email sent to " + email.recipient);
+                                db.deleteEmailQueueById(email);
+                            })
+                            .catch((err) => console.error(err))
+                    );
+                }
             }
         } else {
             return new ResponseError(
@@ -545,7 +548,7 @@ async function isCourseTaughtBy(teacherId, courseId) {
 async function doesLectureBelongToCourse(courseId, lectureId) {
     let doesBelong = false;
 
-    const courseLectures = await db.getLecturesByCourse(new Course(courseId, undefined, undefined));
+    const courseLectures = await db.getLecturesByCourse(new Course(courseId));
 
     if (courseLectures.length > 0) {
         doesBelong = courseLectures.some((lecture) => lecture.lectureId === lectureId);
