@@ -65,7 +65,7 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
  * You can filter the lecture by passing a query string.
  * If the query string is missing, the function will return all lectures minus the cancelled lectures
  * Otherwise if a 'from' property is passed, it will return all lectures with startingDate >= from.fromDate
- * Similarly, 'to' will return all lectures with startingDate <= to.fromDate 
+ * Similarly, 'to' will return all lectures with startingDate <= to.fromDate
  *
  * teacherId {Integer}
  * courseId {Integer}
@@ -126,6 +126,13 @@ exports.teacherGetCourses = async function (teacherId) {
     }
 };
 
+/**
+ * Computes the time difference between the parameter now and the next 23:59h
+ * If the parameter now is undefined or equal to the string "now", the parameter now is assumed to be new Date()
+ *
+ * nextCheck {Date | "now" | undefinedc} optional
+ * returns {Integer} time in ms. In case of error an ResponseError
+ **/
 const nextCheck = (now) => {
     if (!now || now === "now") now = new Date();
 
@@ -142,15 +149,20 @@ const nextCheck = (now) => {
 };
 exports.nextCheck = nextCheck;
 
+/**
+ * Check for today's expired lecture and send the summaries to the teachers in charge of the respective course
+ **/
 exports.checkForExpiredLectures = async () => {
     console.log("AUTORUN: Checking for expired lectures");
     const summaries = await findSummaryExpiredLectures();
+
     sendSummaryToTeachers(summaries);
+
     console.log("AUTORUN: Emails in queue");
+
     const time = nextCheck();
     const now = new Date();
     console.log(`AUTORUN: Next check planned for ${new Date(time + now.getTime())}`);
-
     setTimeout(() => {
         this.checkForExpiredLectures();
     }, time);
@@ -369,7 +381,7 @@ function extractDateFilters(queryString) {
         switch (key) {
             case "from": {
                 const value = queryString[key];
-                if(value.toLowerCase() === "inf") break;
+                if (value.toLowerCase() === "inf") break;
 
                 const fromDate = new Date(value);
                 if (isNaN(fromDate.getTime())) {
@@ -386,7 +398,7 @@ function extractDateFilters(queryString) {
             }
             case "to": {
                 const value = queryString[key];
-                if(value.toLowerCase() === "inf") break;
+                if (value.toLowerCase() === "inf") break;
 
                 const toDate = new Date(value);
                 if (isNaN(toDate.getTime())) {
@@ -454,19 +466,21 @@ function isLectureCancellable(lecture, requestDateTime) {
  * @returns {Boolean}
  */
 function isValidDeliveryMode(switchTo) {
+    if (!switchTo) return false;
+
     if (
-        switchTo.toUpperCase() !== Lecture.DeliveryType.PRESENCE &&
-        switchTo.toUpperCase() !== Lecture.DeliveryType.REMOTE
+        switchTo.toUpperCase() === Lecture.DeliveryType.PRESENCE ||
+        switchTo.toUpperCase() === Lecture.DeliveryType.REMOTE
     ) {
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 /**
- * Send daily summaries to the teacher
- * @param {Object} summaries. E.g. summary = { 1: {teacher, course, lecture}, 2: {teacher, course, lecture} }
+ * Send daily summaries about the lectures that have today as deadline to the teacher in charge of the respective course
+ * @param {Object} summaries. E.g. summaries = { 1: {teacher: <Teacher>, course: <Course>, lecture: <Lecture>, studentsBooked: 1}, 2: {...} }
  * @param {Date} requestDateTime
  * @returns none
  */
@@ -540,6 +554,12 @@ async function doesLectureBelongToCourse(courseId, lectureId) {
     return doesBelong;
 }
 
+/**
+ * Create the summaries of the lectures that have deadline === <date>
+ *
+ * date {Date | undefined}
+ * returns {Array} of summaries. E.g. of a summaries { 1: {lecture: <aLecture>, course: <aCourse>, teacher: <aTeacher>, stundetsBooked: 1}, 2: {...} }. The key is the lectureId.
+ **/
 async function findSummaryExpiredLectures(date) {
     if (!date) date = new Date();
 
