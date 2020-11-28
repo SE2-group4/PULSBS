@@ -66,6 +66,13 @@ async function setupEditModal() {
   });
 }
 
+async function setupDeleteModal() {
+  await fetchLectureSuccess();
+  await act(async () => {
+    userEvent.click(screen.getByTestId('d-1'))
+  });
+}
+
 describe('Teacher Page suite', () => {
   test('render TeacherPage component (courses API : success)', async () => {
     await fetchCourses();
@@ -253,19 +260,46 @@ describe('Teacher Page suite', () => {
   });
 
   test('testing DeleteModal component and related buttons (DELETE success)', async () => {
-
+    await setupDeleteModal();
+    await act(async () => {
+      userEvent.click(screen.getByTestId("no-d-1"));
+    });
+    await act(async () => {
+      userEvent.click(screen.getByTestId('d-1'))
+    });
+    fetch.mockResponseOnce(JSON.stringify({ body: "ok" }), { status: 204 });
+    await act(async () => {
+      userEvent.click(screen.getByTestId("yes-d-1"));
+    });
+    const items = screen.getAllByTestId('lecture-row');
+    expect(items).toHaveLength(1);
   });
 
   test('testing DeleteModal component and related buttons (DELETE failure : error)', async () => {
-
+    await setupDeleteModal();
+    fetch.mockResponseOnce(JSON.stringify({ body: "not ok" }), { status: 400 });
+    await act(async () => {
+      userEvent.click(screen.getByTestId("yes-d-1"));
+    });
+    expect(screen.getByText("Lecture : can't delete lecture")).toBeInTheDocument();
   });
 
   test('testing DeleteModal component and related buttons (DELETE failure : error parsing error)', async () => {
-
+    await setupDeleteModal();
+    fetch.mockResponseOnce({}, { status: 400 });
+    await act(async () => {
+      userEvent.click(screen.getByTestId("yes-d-1"));
+    });
+    expect(screen.getByText("Lecture : server error")).toBeInTheDocument();
   });
 
   test('testing DeleteModal component and related buttons (DELETE failure : server connection error)', async () => {
-
+    await setupDeleteModal();
+    fetch.mockRejectOnce();
+    await act(async () => {
+      userEvent.click(screen.getByTestId("yes-d-1"));
+    });
+    expect(screen.getByText("Lecture : server error")).toBeInTheDocument();
   });
 
 });

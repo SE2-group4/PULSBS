@@ -174,7 +174,7 @@ function LecturePanelRow(props) {
                     <span className="d-inline-block">
                         <Button disabled style={{ pointerEvents: 'none' }} variant="warning">delete</Button>
                     </span></OverlayTrigger>}
-                {canDelete && <Button name={props.lecture.lectureId} onClick={props.deleteOpen} variant="warning">delete</Button>}
+                {canDelete && <Button name={props.lecture.lectureId} onClick={props.deleteOpen} data-testid={"d-" + props.lecture.lectureId} variant="warning">delete</Button>}
             </td>
             <td><Checkbox name={props.lecture.lectureId} checked={props.checkedOne == props.lecture.lectureId ? true : false} onChange={props.handler} type={"l"} /></td>
         </tr>
@@ -268,7 +268,7 @@ function DeleteModal(props) {
             </Modal.Header>
             <Modal.Body>Do you want to cancel lecture <b>{props.lectureId}</b> ?</Modal.Body>
             <Modal.Footer>
-                <Button name="yes" variant="secondary" onClick={props.deleteLecture}>Yes</Button><Button name="no" variant="secondary" onClick={props.deleteClose}>No</Button>
+                <Button name="yes" data-testid={"yes-d-" + props.lectureId} variant="secondary" onClick={props.deleteLecture}>Yes</Button><Button name="no" data-testid={"no-d-" + props.lectureId} variant="secondary" onClick={props.deleteClose}>No</Button>
             </Modal.Footer>
         </Modal>
     </>;
