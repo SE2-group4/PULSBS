@@ -166,14 +166,15 @@ function LecturePanelRow(props) {
                     <span className="d-inline-block">
                         <Button disabled style={{ pointerEvents: 'none' }} variant="warning">modify</Button>
                     </span></OverlayTrigger>}
-                {canEdit && <Button name={props.lecture.lectureId} value={props.lecture.delivery} onClick={props.editOpen} variant="warning" data-testid={"m-" + props.lecture.lectureId}>modify</Button>}
+                {canEdit && <Button name={props.lecture.lectureId} value={props.lecture.delivery} onClick={props.editOpen}
+                    variant="warning" data-testid={"m-" + props.lecture.lectureId} disabled={props.lecture.delivery === 'ERROR' ? true : false}>modify</Button>}
             </td>
             <td>{!canDelete &&
                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't delete lecture if the lecture is closer than 60 mins.</Tooltip>}>
                     <span className="d-inline-block">
                         <Button disabled style={{ pointerEvents: 'none' }} variant="warning">delete</Button>
                     </span></OverlayTrigger>}
-                {canDelete && <Button variant="danger" name={props.lecture.lectureId} onClick={props.deleteOpen} variant="warning">delete</Button>}
+                {canDelete && <Button name={props.lecture.lectureId} onClick={props.deleteOpen} variant="warning">delete</Button>}
             </td>
             <td><Checkbox name={props.lecture.lectureId} checked={props.checkedOne == props.lecture.lectureId ? true : false} onChange={props.handler} type={"l"} /></td>
         </tr>

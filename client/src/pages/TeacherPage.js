@@ -58,7 +58,8 @@ class TeacherPage extends React.Component {
      * updateLectures fetches all lectures of the selected teacher's course 
      */
     updateLectures = (courseId) => {
-        API.getLecturesByCourseIdByTeacherId(this.state.user.userId, courseId)
+        let now = new Date().toISOString();
+        API.getLecturesByCourseIdByTeacherId(this.state.user.userId, courseId, now)
             .then((lectures) => {
                 let i = 0;
                 let nMap = new Map();
@@ -160,31 +161,38 @@ class TeacherPage extends React.Component {
     }
 
     deleteLecture = () => {
-        //TODO api call
+        API.deleteLecture(this.state.user.userId, this.state.selectedCourse, this.state.lectureIdToDelete)
+            .then(() => {
+                //ok from server
+                var newLectures = this.state.lectures.slice();
+                var i;
+                var lectureIdToDelete = this.state.lectureIdToDelete;
+                newLectures.forEach(function (item, index) {
+                    if (item.lectureId == lectureIdToDelete) {
+                        i = index;
+                    }
+                });
+                newLectures.splice(i, 1);
+                //update pagination
+                i = 0;
+                let nMap = new Map();
+                newLectures.forEach(function (item) {
+                    nMap.set(item.lectureId, Math.floor(i / elementForPage));
+                    i++;
+                });
+                let nPages = Math.ceil(i / elementForPage);
+                if (lectureIdToDelete === this.state.selectedLecture) {
+                    this.setState({ lectures: newLectures, lectureIdToDelete: null, lectureMap: nMap, lPages: nPages, selectedLecture: null, students: [], sPages: 1 });
+                }
+                else {
+                    this.setState({ lectures: newLectures, lectureIdToDelete: null, lectureMap: nMap, lPages: nPages });
+                }
+            }).catch((error) => {
+                //!ok from server
+                let errormsg = error.source + " : " + error.error;
+                this.setState({ fetchErrorL: errormsg, lectureIdToDelete: null });
+            });
 
-        var newLectures = this.state.lectures.slice();
-        var i;
-        var lectureIdToDelete = this.state.lectureIdToDelete;
-        newLectures.forEach(function (item, index) {
-            if (item.lectureId == lectureIdToDelete) {
-                i = index;
-            }
-        });
-        newLectures.splice(i, 1);
-        //update pagination
-        i = 0;
-        let nMap = new Map();
-        newLectures.forEach(function (item) {
-            nMap.set(item.lectureId, Math.floor(i / elementForPage));
-            i++;
-        });
-        let nPages = Math.ceil(i / elementForPage);
-        if (lectureIdToDelete === this.state.selectedLecture) {
-            this.setState({ lectures: newLectures, lectureIdToDelete: null, lectureMap: nMap, lPages: nPages, selectedLecture: null, students: [], sPages: 1 });
-        }
-        else {
-            this.setState({ lectures: newLectures, lectureIdToDelete: null, lectureMap: nMap, lPages: nPages });
-        }
     }
 
     render() {
@@ -202,7 +210,6 @@ class TeacherPage extends React.Component {
                                 sCourse={this.state.selectedCourse} pageMap={this.state.courseMap} nPages={this.state.cPages}   //courses pagination
                                 update={this.updateLectures} reset={this.resetSelected}                                         //interaction with Lecture Panel
                             />
-
                         </Col>
                         <Col sm={2}>
                             {this.state.fetchErrorC && <ErrorMsg name="fetchErrorC" msg={this.state.fetchErrorC} onClose={this.closeError} />}<> </>

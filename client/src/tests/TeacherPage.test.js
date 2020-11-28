@@ -252,4 +252,20 @@ describe('Teacher Page suite', () => {
     expect(screen.getByText("Lecture : server error")).toBeInTheDocument();
   });
 
+  test('testing DeleteModal component and related buttons (DELETE success)', async () => {
+
+  });
+
+  test('testing DeleteModal component and related buttons (DELETE failure : error)', async () => {
+
+  });
+
+  test('testing DeleteModal component and related buttons (DELETE failure : error parsing error)', async () => {
+
+  });
+
+  test('testing DeleteModal component and related buttons (DELETE failure : server connection error)', async () => {
+
+  });
+
 });
