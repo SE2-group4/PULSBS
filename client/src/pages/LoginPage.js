@@ -24,8 +24,6 @@ class LoginPage extends React.Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-    //this.props.setLoggedInUser(this.state.username, this.state.password);
-    //this.setState({ submitted: true });
     API.userLogin(this.state.username, this.state.password)
       .then((user) => this.userLogin(user))
       .catch((error) => {
@@ -66,6 +64,7 @@ class LoginPage extends React.Component {
                   onChange={(ev) => this.onChangeUsername(ev)}
                   required
                   autoFocus
+                  data-testid = "emailForm"
                 />
               </Form.Group>
 
@@ -78,6 +77,7 @@ class LoginPage extends React.Component {
                   value={this.state.password}
                   onChange={(ev) => this.onChangePassword(ev)}
                   required
+                  data-testid = "passwordForm"
                 />
               </Form.Group>
 
