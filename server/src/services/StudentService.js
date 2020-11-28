@@ -53,14 +53,14 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
                         const actualCourse = actualCourses[0];
 
                         dao.addBooking(student, lecture)
-                            .then(() => {
+                            .then((retVal) => {
                                 dao.getUserById(student)
                                     .then((currStudent) => {
                                         emailService.sendConfirmationBookingEmail(
                                                 currStudent.email,
                                                 actualCourse.description,
-                                                utils.formatDate(actualLecture.date))
-                                            .then(resolve);
+                                                utils.formatDate(actualLecture.date));
+                                        resolve(retVal); // do not wait the email has been sent
                                     })
                             })
                             .catch(reject);
