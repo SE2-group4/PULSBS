@@ -14,6 +14,7 @@ const prepareDb = require("./db/preparedb");
 const General = require("./controllers/GeneralController");
 const Student = require("./controllers/StudentController");
 const Teacher = require("./controllers/TeacherController");
+const colors = require("colors");
 
 const app = express();
 app.disable('x-powered-by'); // security: do not show outside the server technology which has been used
@@ -30,7 +31,7 @@ app.use(cookieParser());
 morgan.token("host", function (req) {
     return "src: " + req.hostname;
 });
-app.use(morgan(":method :url :host code: :status :res[content-length] - :response-time ms"));
+app.use(morgan(":method".blue + " :url :host code: :status :res[content-length] - :response-time ms"));
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +85,7 @@ app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
 
 const printConf = () => {
     console.log(`Server running on http://localhost:${PORT}${BASE_ROUTE}\n`);
-    console.log("System parameters:");
+    console.log("System parameters:".green);
     console.log(`DB path: ${dbPath}`);
 };
 
