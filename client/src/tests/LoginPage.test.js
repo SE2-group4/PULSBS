@@ -12,7 +12,7 @@ beforeEach(() => {
 
 
 
-async function setupLogin(){
+async function setupLogin() {
   await act(async () => {
     render(<LoginPage />)
   });
@@ -20,13 +20,12 @@ async function setupLogin(){
 describe("Login test suite", () => {
   test('Login incorrect credentials', async () => {
     await setupLogin();
-    screen.debug()
     await act(async () => {
-      userEvent.paste(screen.getByTestId("emailForm"),"fff@ddd.com")
-      userEvent.paste(screen.getByTestId("passwordForm"),"fffff")
+      userEvent.paste(screen.getByTestId("emailForm"), "fff@ddd.com")
+      userEvent.paste(screen.getByTestId("passwordForm"), "fffff")
     });
     fetch.mockResponseOnce(JSON.stringify({ body: "not ok" }), { status: 400 });
-    await act(async()=>{
+    await act(async () => {
       userEvent.click(screen.getByText("Login"))
     })
     expect(screen.getByText("Login : invalid username and/or password")).toBeInTheDocument()
@@ -34,11 +33,11 @@ describe("Login test suite", () => {
   test('Login server fails', async () => {
     await setupLogin();
     await act(async () => {
-      userEvent.paste(screen.getByTestId("emailForm"),"fff@ddd.com")
-      userEvent.paste(screen.getByTestId("passwordForm"),"fffff")
+      userEvent.paste(screen.getByTestId("emailForm"), "fff@ddd.com")
+      userEvent.paste(screen.getByTestId("passwordForm"), "fffff")
     });
     fetch.mockResponseOnce({}, { status: 400 });
-    await act(async()=>{
+    await act(async () => {
       userEvent.click(screen.getByText("Login"))
     })
     expect(screen.getByText("Login : server error")).toBeInTheDocument()
@@ -46,11 +45,11 @@ describe("Login test suite", () => {
   test('Login communication error', async () => {
     await setupLogin();
     await act(async () => {
-      userEvent.paste(screen.getByTestId("emailForm"),"fff@ddd.com")
-      userEvent.paste(screen.getByTestId("passwordForm"),"fffff")
+      userEvent.paste(screen.getByTestId("emailForm"), "fff@ddd.com")
+      userEvent.paste(screen.getByTestId("passwordForm"), "fffff")
     });
     fetch.mockReject();
-    await act(async()=>{
+    await act(async () => {
       userEvent.click(screen.getByText("Login"))
     })
     expect(screen.getByText("Login : server error")).toBeInTheDocument()

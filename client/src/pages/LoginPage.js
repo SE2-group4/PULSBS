@@ -5,7 +5,6 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import API from '../api/Api';
-import APIfake from '../api/APIfake';
 import ErrorMsg from "../components/ErrorMsg";
 
 class LoginPage extends React.Component {
@@ -64,7 +63,7 @@ class LoginPage extends React.Component {
                   onChange={(ev) => this.onChangeUsername(ev)}
                   required
                   autoFocus
-                  data-testid = "emailForm"
+                  data-testid="emailForm"
                 />
               </Form.Group>
 
@@ -77,7 +76,7 @@ class LoginPage extends React.Component {
                   value={this.state.password}
                   onChange={(ev) => this.onChangePassword(ev)}
                   required
-                  data-testid = "passwordForm"
+                  data-testid="passwordForm"
                 />
               </Form.Group>
 

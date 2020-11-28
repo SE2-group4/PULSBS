@@ -3,7 +3,6 @@ import Container from "react-bootstrap/Container";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import API from "../api/Api";
-import APIfake from "../api/APIfake";
 import Sidebar from '../components/Sidebar';
 import Calendar from '../components/Calendar';
 import CalendarEvent from "../entities/calendarEvent";
@@ -133,10 +132,10 @@ function buildEvents(booked, all, courses) {
                 events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "black", "past", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
             else if (lecture.delivery === "remote")
                 events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "grey", "remote", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
-            else if (isBooked(lecture,booked))
+            else if (isBooked(lecture, booked))
                 events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "blue", "booked", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
             else if (moment(lecture.bookingDeadline).isBefore(moment()))
-                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "red", "expired", lecture.lectureId, lecture.courseId, lecture.bookingDeadline)) 
+                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "red", "expired", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
             else events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "green", "bookable", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
         }
     return events;
@@ -147,9 +146,9 @@ function buildEvents(booked, all, courses) {
  * @param {Lecture} lecture 
  * @param {Array of Lectures} booked 
  */
-function isBooked(lecture,booked){
-    for (let l of booked )
-        if(l.lectureId === lecture.lectureId)
+function isBooked(lecture, booked) {
+    for (let l of booked)
+        if (l.lectureId === lecture.lectureId)
             return true
     return false
 }
