@@ -9,6 +9,7 @@ const EmailService = require("../services/EmailService");
 const { ResponseError } = require("../utils/ResponseError");
 
 const db = require("../db/Dao");
+const colors = require("colors");
 
 /**
  * Get all the students that have an active booking for a given lecture
@@ -61,27 +62,34 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
 };
 
 /**
- * Get all lectures given a course and a teacher.
+ * Retrieve all the lectures related to a course.
  * You can filter the lecture by passing a query string.
- * If the query string is missing, the function will return all lectures minus the cancelled lectures
+ * If the query string is missing, the function will return all lectures of the course.
  * Otherwise if a 'from' property is passed, it will return all lectures with startingDate >= from.fromDate
  * Similarly, 'to' will return all lectures with startingDate <= to.fromDate
+ * The cancelled lectures are not returned.
  *
  * teacherId {Integer}
  * courseId {Integer}
- * queryFilter {Object}
+ * queryString {Object} {from: <date>, to: <date>, numBookinks = true}
  * returns {Array} array of lectures. In case of error an ResponseError
  **/
-exports.teacherGetCourseLectures = async function (teacherId, courseId, queryFilter) {
+exports.teacherGetCourseLectures = async function (teacherId, courseId, queryString) {
     const { error, teacherId: tId, courseId: cId } = convertToNumbers({ teacherId, courseId });
     if (error) {
         return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    let dateFilter = extractDateFilters(queryFilter);
-    if (dateFilter instanceof ResponseError) return dateFilter;
+    console.log("hello");
+    let { err, dateFilter, numBookings } = extractOptions(queryString);
+    console.log(dateFilter);
+    if (err instanceof ResponseError) return err;
+    if (!dateFilter) dateFilter = {};
 
-    console.log("GET COURSE LECTURE: date filter", dateFilter);
+    console.log(
+        `Date filter:     ${Object.keys(dateFilter).length === 0 ? "no filter" : JSON.stringify(dateFilter)}`.magenta
+    );
+    console.log(`Num of bookings: ${numBookings === undefined ? false : numBookings}`.magenta);
 
     try {
         // checking if the teacher is in charge of this course during this academic year
@@ -97,8 +105,16 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryFil
 
         const course = new Course(cId);
         const courseLectures = await db.getLecturesByPeriodOfTime(course, dateFilter);
+        if (!numBookings) return courseLectures;
 
-        return courseLectures;
+        let lecturesPlusNumBookings = await Promise.all(
+            courseLectures.map(async (lecture) => {
+                const numBookings = await db.getNumBookingsOfLecture(lecture);
+                return { lecture, numBookings };
+            })
+        );
+
+        return lecturesPlusNumBookings;
     } catch (err) {
         return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
@@ -369,51 +385,70 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 };
 
 /**
- * Extract the query params in a query string
- * Convert a date string in a date object
- * @param {Object} queryString. E.g. queryString = {from: <dateString>, to: <dateString>}
- * @returns {Object} e.g. queryFilter = {from: <new Date()>, to: <new Date()>}. In case of error returns a ResponseError
+ * Extract the options from a query string
+ * @param {Object} queryString. E.g. queryString = {from: <dateString>, to: <dateString>, numBookings: "false"}
+ * @returns {Object} e.g. options = {dateFilter: { from: <new Date()>, to: <new Date()> }, numBookings: false }. In case of error returns a ResponseError
  */
-function extractDateFilters(queryString) {
-    if (!(queryString instanceof Object)) {
+function extractOptions(queryString) {
+    if (!(queryString instanceof Object) || Object.keys(queryString).length === 0) {
         return {};
     }
 
-    const dateFilter = {};
+    const options = {};
     for (const key of Object.keys(queryString)) {
+        const value = queryString[key];
         switch (key) {
             case "from": {
-                const value = queryString[key];
                 if (value.toLowerCase() === "inf") break;
 
                 const fromDate = new Date(value);
                 if (isNaN(fromDate.getTime())) {
-                    return new ResponseError(
-                        "TeacherService",
-                        ResponseError.PARAM_NOT_DATE,
-                        { date: queryString[key] },
-                        400
-                    );
+                    return {
+                        err: new ResponseError(
+                            "TeacherService",
+                            ResponseError.PARAM_NOT_DATE,
+                            { date: queryString[key] },
+                            400
+                        ),
+                    };
                 }
 
-                dateFilter.from = fromDate;
+                if (isObjEmpty(options.dateFilter)) options.dateFilter = {};
+                options.dateFilter.from = fromDate;
                 break;
             }
             case "to": {
-                const value = queryString[key];
                 if (value.toLowerCase() === "inf") break;
 
                 const toDate = new Date(value);
                 if (isNaN(toDate.getTime())) {
-                    return new ResponseError(
-                        "TeacherService",
-                        ResponseError.PARAM_NOT_DATE,
-                        { date: queryString[key] },
-                        400
-                    );
+                    return {
+                        err: new ResponseError(
+                            "TeacherService",
+                            ResponseError.PARAM_NOT_DATE,
+                            { date: queryString[key] },
+                            400
+                        ),
+                    };
                 }
 
-                dateFilter.to = toDate;
+                if (isObjEmpty(options.dateFilter)) options.dateFilter = {};
+                options.dateFilter.to = toDate;
+                break;
+            }
+            case "numBookings": {
+                if (value !== "false" && value !== "true") {
+                    return {
+                        err: new ResponseError(
+                            "TeacherService",
+                            ResponseError.PARAM_NOT_BOOLEAN,
+                            { numBookings: queryString[key] },
+                            400
+                        ),
+                    };
+                }
+
+                options.numBookings = value === "false" ? false : true;
                 break;
             }
             default:
@@ -421,7 +456,7 @@ function extractDateFilters(queryString) {
         }
     }
 
-    return dateFilter;
+    return options;
 }
 
 /**
@@ -617,4 +652,9 @@ async function findSummaryExpiredLectures(date) {
     }
 
     return mapResponse;
+}
+
+function isObjEmpty(obj) {
+    if (!obj) return true;
+    return Object.keys(obj).length === 0;
 }

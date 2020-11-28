@@ -20,7 +20,7 @@ module.exports.teacherGetCourseLectureStudents = function teacherGetCourseLectur
 module.exports.teacherGetCourseLectures = function teacherGetCourseLectures(req, res, next) {
     const teacherId = req.params.teacherId;
     const courseId = req.params.courseId;
-    const queryString = req.query;
+    const queryString = req.query; // is an empty object when no query is passed
 
     Teacher.teacherGetCourseLectures(teacherId, courseId, queryString)
         .then(function (response) {
