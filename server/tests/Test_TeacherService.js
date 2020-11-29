@@ -1,183 +1,303 @@
 /**
  * test suite for the TeacherService module
- * @author Gastaldi Paolo
  */
 
-'use strict'
+"use strict";
 
-const assert = require('assert');
-const path = require('path');
+const assert = require("assert");
+const path = require("path");
 
-const dao = require('../src/db/Dao.js');
-const service = require('../src/services/TeacherService.js');
-const Student = require('../src/entities/Student.js');
-const Teacher = require('../src/entities/Teacher.js');
-const Lecture = require('../src/entities/Lecture.js');
-const Course = require('../src/entities/Course.js');
-const EmailType = require('../src/entities/EmailType.js');
-const Email = require('../src/entities/Email.js');
-const prepare = require('../src/db/preparedb.js');
+const Dao = require("../src/db/Dao.js");
+const Service = require("../src/services/TeacherService.js");
+const Teacher = require("../src/entities/Teacher.js");
+const Student = require("../src/entities/Student.js");
+const Lecture = require("../src/entities/Lecture.js");
+const { ResponseError } = require("../src/utils/ResponseError.js");
+const prepare = require("../src/db/preparedb.js");
+const moment = require("moment");
 
-const suite = function() {
-    let teacher4;
-    let teacher5;
-    let lecture1;
-    let lecture4;
-
-    before(function(done) {
-        teacher4 = new Teacher(4);
-        teacher4 = new Teacher(5);
-        lecture1 = new Lecture(1, 1);
-        lecture4 = new Lecture(4, 1);
-
-        done();
+describe("TeacherService", function () {
+    before(async function openDb() {
+        Dao.init("testing.db");
+        tBBBStError = new ResponseError(
+            "TeacherService",
+            ResponseError.PARAM_NOT_INT,
+            { teacherId: tBBBSt.input[0] },
+            400
+        );
+        tGGGLectCancError = new ResponseError(
+            "TeacherService",
+            ResponseError.PARAM_NOT_INT,
+            { teacherId: tBBBSt.input[0] },
+            400
+        );
     });
 
-    beforeEach(function(done) {
-        prepare('testing.db', 'testing.sql', false)
-            .then(() => done())
-            .catch((err) => done(err));
+    let tBBBStError;
+    let tGGGLectCancError;
+    const tBBBSt = {
+        input: ["foo", "bar", "zab"],
+        error: tBBBStError,
+    };
+    const tGBBSt = {
+        input: [1, "bar", "zab"],
+        //error: new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId: tBBBSt.input[0] }, 400),
+        error: tBBBStError,
+    };
+    const tGGBSt = {
+        input: [4, 1, "zab"],
+        //error: new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId: tBBBSt.input[0] }, 400),
+        error: tBBBStError,
+    };
+    const tGGG1St = {
+        input: [4, 1, 1],
+        //error: new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId: tBBBSt.input[0] }, 400),
+        error: tBBBStError,
+    };
+    const tGGGLectNotCanc = {
+        input: [4, 1, 1],
+        //error: new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId: tBBBSt.input[0] }, 400),
+        error: tBBBStError,
+    };
+    const tGGGLectCanc = {
+        input: [4, 1, 2],
+        //error: new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId: tBBBSt.input[0] }, 400),
+        error: tGGGLectCancError,
+    };
+    const tGGGSwitchTo= {
+        input: [4, 1, 2, "remote"],
+        //error: new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId: tBBBSt.input[0] }, 400),
+        error: tGGGLectCancError,
+    };
+
+    const errorMsg = {
+        Array: {
+            type: "Should have returned an Array",
+            length: "Should have returned an Array of length",
+        },
+        Teacher: {
+            type: "Should have returned a Teacher",
+            length: "Should have returned an Array of length",
+        },
+        Student: {
+            type: "Should have returned a Student",
+            length: "Should have returned an Array of length",
+        },
+        Course: {
+            type: "Should have returned an Course",
+            length: "Should have returned an Array of length",
+        },
+        Lecture: {
+            type: "Should have returned a Lecture",
+            notCancellable: "Lecture should not be cancellable",
+            notSwitchable: "Lecture should not be switchable",
+            examples: {
+                message: "The returned lecture does not match",
+                cancellable: new Lecture(
+                    1,
+                    1,
+                    1,
+                    moment().add(1, "day").startOf("day").hours(8).minutes(30),
+                    5400000,
+                    moment().subtract(1, "day").startOf("day").hours(23).minutes(59),
+                    "PRESENCE"
+                ),
+                notCancellable: new Lecture(
+                    1,
+                    1,
+                    1,
+                    moment().subtract(1, "day").startOf("day").hours(8).minutes(30),
+                    5400000,
+                    moment().subtract(2, "day").startOf("day").hours(23).minutes(59),
+                    "PRESENCE"
+                ),
+            },
+        },
+        ResponseError: {
+            type: "Should have throw a ResponseError",
+            length: "Should have returned an Array of length",
+        },
+        Integer: {
+            type: "Should have returned an Integer",
+            length: "Should have returned an Array of length",
+        },
+        General: {
+            nextCheck: "",
+            length: "Should have returned an Array of length",
+        },
+    };
+
+    describe("teacherGetCourses", function () {
+        beforeEach(async function clearDb() {
+            await prepare("testing.db", "testTeacherServices.sql", false);
+        });
+
+        it(errorMsg.ResponseError.type, async function () {
+            await assert.rejects(Service.teacherGetCourses(...tBBBSt.input), tBBBSt.error);
+        });
+
+        it(errorMsg.Array.type + " of Courses", async function () {
+            try {
+                const res = await Service.teacherGetCourses(...tGGG1St.input);
+                assert(res.constructor === Array);
+            } catch (err) {
+                assert.fail();
+            }
+        });
+
+        it(errorMsg.Array.length + " 2", async function () {
+            try {
+                const res = await Service.teacherGetCourses(...tGGG1St.input);
+                assert.deepStrictEqual(res.length, 2);
+            } catch (err) {
+                assert.fail();
+            }
+        });
     });
 
-    describe('TeacherService', function() {
-        describe('teacherGetCourseLectureStudents', function() {
-            it('correct params should return the list of students booked for the given lecture', function(done) {
-                service.teacherGetCourseLectureStudents(this.teacher4.teacherId, this.lecture1.courseId, this.lecture1.lectureId)
-                    .then((students) => {
-                        assert.strictEqual(students.length, 1, 'Wrong number of students');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
-
-            /*
-            it('the teacher do not teach that course should throw error', function(done)  {
-                done();
-            });
-            */
-
-            it('course - lecture mismatch should return an empty list', function(done) {
-                service.teacherGetCourseLectureStudents(this.teacher4.teacherId, this.lecture1.courseId, -1)
-                    .then((students) => {
-                        assert.strictEqual(students.length, 0, 'Wrong number of students');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
-
-            it('lecture with no bookings should return an empty list', function(done) {
-                service.teacherGetCourseLectureStudents(this.teacher4.teacherId, this.lecture4.courseId, this.lecture4.lectureId)
-                    .then((students) => {
-                        assert.strictEqual(students.length, 0, 'Wrong number of students');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
+    describe("teacherGetCourseLectureStudents", function () {
+        beforeEach(async function clearDb() {
+            await prepare("testing.db", "testTeacherServices.sql", false);
         });
 
-        describe('teacherGetCourseLectures', function() {
-            it('correct params should return the list of future lectures', function(done) {
-                service.teacherGetCourseLectures(this.teacher4.teacherId, this.lecture1.courseId)
-                    .then((lectures) => {
-                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
-            
-            it('the teacher do not teach that course should return an empty list', function(done) {
-                service.teacherGetCourseLectures(this.teacher5.teacherId, this.lecture1.courseId)
-                    .then((lectures) => {
-                        assert.strictEqual(lectures.length, 0, 'Wrong number of lectures');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
+        it(errorMsg.ResponseError.type, async function () {
+            await assert.rejects(Service.teacherGetCourseLectureStudents(...tBBBSt.input), tBBBSt.error);
         });
 
-        describe('teacherGetCourses', function() {
-            it('correct params should return a list of courses', function(done) {
-                service.teacherGetCourse(this.teacher4.teacherId)
-                    .then((courses) => {
-                        assert.strictEqual(courses.length, 2, 'Wrong number of courses');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
-            
-            it('non-existing teacher should return an empty list', function(done) {
-                service.teacherGetCourse(-1)
-                    .then((courses) => {
-                        assert.strictEqual(courses.length, 0, 'Wrong number of courses');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
+        it(errorMsg.Array.type + " of Students", async function () {
+            try {
+                const res = await Service.teacherGetCourseLectureStudents(...tGGG1St.input);
+                assert(res.constructor === Array);
+            } catch (err) {
+                assert.fail();
+            }
         });
 
-        describe('isCourseTeachedBy', function() {
-            it('correct params should return a teacher', function(done) {
-                service.isCourseTeachedBy(this.lecture1.courseId)
-                    .then((teacher) => {
-                        assert.strictEqual(teacher.teacherId, this.teacher4.teacherId, 'Wrong teacher');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
-
-            it('non-existing course should throw an error', function(done) {
-                service.isCourseTeachedBy(-1)
-                    .then((teacher) => {
-                        done('This should fail');
-                    })
-                    .catch((err) => done());
-            });
+        it(errorMsg.Array.length + " 1", async function () {
+            try {
+                const res = await Service.teacherGetCourseLectureStudents(...tGGG1St.input);
+                assert.deepStrictEqual(res.length, 1);
+            } catch (err) {
+                assert.fail();
+            }
         });
-
-        describe('doesLectureBelongCourse', function() {
-            it('correct params should return a course', function(done) {
-                service.doesLectureBelongCourse(this.lecture1.lectureId)
-                    .then((course) => {
-                        assert.strictEqual(course.courseId, this.lecture1.courseId, 'Wrong course');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
-            
-            it('non-existing lecture should throw an error', function(done) {
-                service.doesLectureBelongCourse(-1)
-                    .then((course) => {
-                        done('This should fail');
-                    })
-                    .catch((err) => done());
-            });
-        });
-
-        /*
-        // NOT EXPORTED FUNCTIONS
-
-        describe('nextCheck', function() {
-            it('', function(done) {
-                done();
-            });
-            
-            it('', function(done) {
-                done();
-            });
-
-        });
-
-        describe('checkForExpiredLectures', function() {
-            it('', function(done) {
-                done();
-            });
-            
-            it('', function(done) {
-                done();
-            });
-
-        });
-        */
     });
-}
-module.exports = suite;
+
+    describe("teacherGetCourseLectures", function () {
+        beforeEach(async function clearDb() {
+            await prepare("testing.db", "testTeacherServices.sql", false);
+        });
+
+        it(errorMsg.ResponseError.type, async function () {
+            await assert.rejects(Service.teacherGetCourseLectures(...tBBBSt.input), tBBBSt.error);
+        });
+
+        it(errorMsg.Array.type + " of Lectures", async function () {
+            try {
+                const res = await Service.teacherGetCourseLectures(...tGGG1St.input);
+                assert(res.constructor === Array);
+            } catch (err) {
+                assert.fail();
+            }
+        });
+
+        it(errorMsg.Array.length + " 3", async function () {
+            try {
+                const res = await Service.teacherGetCourseLectures(...tGGG1St.input);
+                assert.deepStrictEqual(res.length, 3);
+            } catch (err) {
+                assert.fail();
+            }
+        });
+    });
+
+    describe("teacherGetCourseLecture", function () {
+        beforeEach(async function clearDb() {
+            await prepare("testing.db", "testTeacherServices.sql", false);
+        });
+
+        it(errorMsg.ResponseError.type, async function () {
+            await assert.rejects(Service.teacherGetCourseLecture(...tBBBSt.input), tBBBSt.error);
+        });
+
+        it(errorMsg.Lecture.type, async function () {
+            try {
+                const res = await Service.teacherGetCourseLecture(...tGGG1St.input);
+                assert(res.constructor === Lecture);
+            } catch (err) {
+                assert.fail();
+            }
+        });
+
+        it(errorMsg.Lecture.examples.message, async function () {
+            try {
+                const res = await Service.teacherGetCourseLecture(...tGGG1St.input);
+                assert.deepStrictEqual(res, errorMsg.Lecture.examples.notCancellable);
+            } catch (err) {
+                assert.fail();
+            }
+        });
+    });
+
+    describe("teacherDeleteCourseLecture", function () {
+        beforeEach(async function clearDb() {
+            await prepare("testing.db", "testTeacherServices.sql", false);
+        });
+
+        it(errorMsg.ResponseError.type, async function () {
+            await assert.rejects(Service.teacherDeleteCourseLecture(...tBBBSt.input), tBBBSt.error);
+        });
+
+        it(errorMsg.Integer.type, async function () {
+            try {
+                const res = await Service.teacherDeleteCourseLecture(...tGGGLectCanc.input);
+                assert.strictEqual(res, 204);
+            } catch (err) {
+                assert.fail();
+            }
+        });
+
+        it(errorMsg.Lecture.notCancellable, async function () {
+            // TODO test pass even if tGGGLectCanc.error is not strictly equal to the rejected object
+            //await assert.rejects(Service.teacherDeleteCourseLecture(...tGGGLectNotCanc.input), tGGGLectNotCanc.error);
+            await assert.rejects(Service.teacherDeleteCourseLecture(...tGGGLectNotCanc.input));
+        });
+    });
+
+    describe("teacherUpdateCourseLectureDeliveryMode", function () {
+        beforeEach(async function clearDb() {
+            await prepare("testing.db", "testTeacherServices.sql", false);
+        });
+
+        it(errorMsg.ResponseError.type, async function () {
+            await assert.rejects(Service.teacherUpdateCourseLectureDeliveryMode(...tBBBSt.input), tBBBSt.error);
+        });
+
+        it(errorMsg.Integer.type, async function () {
+            try {
+                const res = await Service.teacherUpdateCourseLectureDeliveryMode(...tGGGSwitchTo.input);
+                assert.strictEqual(res, 204);
+            } catch (err) {
+                assert.fail();
+            }
+        });
+
+        it(errorMsg.Lecture.notSwitchable, async function () {
+            // TODO still need to be implemented
+            //await assert.rejects(Service.teacherUpdateCourseLectureDeliveryMode(...tGGGLectNotCanc.input));
+        });
+    });
+
+    describe("nextCheck", function () {
+        beforeEach(async function clearDb() {
+            await prepare("testing.db", "testTeacherServices.sql", false);
+        });
+
+        it("Wrong return value", async function () {
+            // TODO weird things happening...
+            const diff = 23 * 60 * 60 * 1000 + 59 * 60 * 1000;
+            assert.strictEqual(Service.nextCheck(moment().startOf('day').toDate()), diff);
+        });
+    });
+});
+
