@@ -72,7 +72,7 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
                     return;
                 }
 
-                console.log(`The db at ${dbpath} has been reset`.cyan);
+                if(flag) console.log(`The db at ${dbpath} has been reset`.cyan);
                 resolve();
             });
         });
