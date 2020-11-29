@@ -39,6 +39,9 @@ class ResponseError {
     static get LECTURE_NOT_CANCELLABLE() {
         return 23;
     }
+    static get LECTURE_NOT_SWITCHABLE() {
+        return 24;
+    }
     static get PARAM_NOT_BOOLEAN() {
         return 1;
     }
@@ -74,6 +77,9 @@ class ResponseError {
 
             case ResponseError.LECTURE_NOT_CANCELLABLE:
                 return `Lecture with lectureId = ${args.lectureId} is not cancellable`;
+
+            case ResponseError.LECTURE_NOT_SWITCHABLE:
+                return `Lecture with lectureId = ${args.lectureId} is not switchable`;
 
             case ResponseError.LECTURE_NOT_FOUND:
                 return `lecture with lectureId = ${args.lectureId} not found`;
