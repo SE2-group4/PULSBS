@@ -26,14 +26,14 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
         lectureId,
     });
     if (error) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
     try {
         // checking if the teacher is in charge of this course during this academic year
         const isTaughtBy = await isCourseTaughtBy(tId, cId);
         if (!isTaughtBy) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.TEACHER_COURSE_MISMATCH_AA,
                 { courseId, teacherId },
@@ -44,7 +44,7 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
         // checking if the lecture is associated to this course
         const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
         if (!doesLectureBelong) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.COURSE_LECTURE_MISMATCH_AA,
                 { lectureId, courseId },
@@ -57,7 +57,8 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
 
         return lectureStudents;
     } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        if (err instanceof ResponseError) throw err;
+        throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
 };
 
@@ -77,13 +78,12 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
 exports.teacherGetCourseLectures = async function (teacherId, courseId, queryString) {
     const { error, teacherId: tId, courseId: cId } = convertToNumbers({ teacherId, courseId });
     if (error) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    console.log("hello");
     let { err, dateFilter, numBookings } = extractOptions(queryString);
-    console.log(dateFilter);
-    if (err instanceof ResponseError) return err;
+    if (err instanceof ResponseError) throw err;
+
     if (!dateFilter) dateFilter = {};
 
     console.log(
@@ -92,10 +92,10 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
     console.log(`Num of bookings: ${numBookings === undefined ? false : numBookings}`.magenta);
 
     try {
-        // checking if the teacher is in charge of this course during this academic year
+        // check if the teacher is in charge of this course during this academic year
         let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
         if (!isTeachingThisCourse) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.TEACHER_COURSE_MISMATCH_AA,
                 { courseId, teacherId },
@@ -129,7 +129,7 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
 exports.teacherGetCourses = async function (teacherId) {
     const { error, teacherId: tId } = convertToNumbers({ teacherId });
     if (error) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
     try {
@@ -138,7 +138,7 @@ exports.teacherGetCourses = async function (teacherId) {
 
         return teacherCourses;
     } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
 };
 
@@ -150,7 +150,9 @@ exports.teacherGetCourses = async function (teacherId) {
  * returns {Integer} time in ms. In case of error an ResponseError
  **/
 const nextCheck = (now) => {
-    if (!now || now === "now") now = new Date();
+    if (!now || now === "now") {
+        now = new Date();
+    }
 
     const next_at_23_59 = new Date();
     if (now.getHours() >= 23 && now.getMinutes() >= 59 && now.getSeconds() >= 0)
@@ -185,7 +187,7 @@ exports.checkForExpiredLectures = async () => {
 };
 
 /**
- * Get a lecture given a lectureId, courseId, teacherId
+ * Retrieve a lecture given a lectureId, courseId, teacherId
  *
  * teacherId {Integer}
  * courseId {Integer}
@@ -199,14 +201,14 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
         lectureId,
     });
     if (error) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
     try {
         // checking if the teacher is in charge of this course during this academic year
         const isTaughtBy = await isCourseTaughtBy(tId, cId);
         if (!isTaughtBy) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.TEACHER_COURSE_MISMATCH_AA,
                 { courseId, teacherId },
@@ -217,7 +219,7 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
         // checking if the lecture belongs to this course
         const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
         if (!doesLectureBelong) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.COURSE_LECTURE_MISMATCH_AA,
                 { lectureId, courseId },
@@ -228,12 +230,12 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
         const lecture = new Lecture(lId);
         const retLecture = await db.getLectureById(lecture);
         if (!retLecture) {
-            return new ResponseError("TeacherService", ResponseError.LECTURE_NOT_FOUND, { lectureId }, 404);
+            throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_FOUND, { lectureId }, 404);
         }
 
         return retLecture;
     } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
 };
 
@@ -252,14 +254,14 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
         lectureId,
     });
     if (error) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
     try {
         // checking if the teacher is in charge of this course during this academic year
         const isTaughtBy = await isCourseTaughtBy(tId, cId);
         if (!isTaughtBy) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.TEACHER_COURSE_MISMATCH_AA,
                 { courseId, teacherId },
@@ -271,7 +273,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
         const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
 
         if (!doesLectureBelong) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.COURSE_LECTURE_MISMATCH_AA,
                 { lectureId, courseId },
@@ -308,7 +310,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
                 }
             }
         } else {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.LECTURE_NOT_CANCELLABLE,
                 { lectureId: lecture.lectureId },
@@ -318,8 +320,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
 
         return 204;
     } catch (err) {
-        console.log(err);
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
 };
 
@@ -340,11 +341,11 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         lectureId,
     });
     if (error) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
     if (switchTo && !isValidDeliveryMode(switchTo)) {
-        return new ResponseError(
+        throw new ResponseError(
             "TeacherService",
             ResponseError.LECTURE_INVALID_DELIVERY_MODE,
             { delivery: switchTo },
@@ -356,7 +357,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         // checking if the teacher is in charge of this course during this academic year
         const isTaughtBy = await isCourseTaughtBy(tId, cId);
         if (!isTaughtBy) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.TEACHER_COURSE_MISMATCH_AA,
                 { courseId, teacherId },
@@ -367,7 +368,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         // checking if the lecture belongs to this course
         const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
         if (!doesLectureBelong) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.COURSE_LECTURE_MISMATCH_AA,
                 { lectureId, courseId },
@@ -380,7 +381,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 
         return 204;
     } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
 };
 
@@ -553,7 +554,7 @@ function sendSummaryToTeachers(summaries) {
 }
 
 /**
- * Check whether a teacher is in charge of a course during this academic year
+ * Check if teacherId is in charge of courseId during this academic year
  *
  * teacherId {Integer}
  * courseId {Integer}
@@ -562,19 +563,20 @@ function sendSummaryToTeachers(summaries) {
 async function isCourseTaughtBy(teacherId, courseId) {
     let isTeachingThisCourse = false;
 
-    const teacherCourses = await db.getCoursesByTeacher(
-        new Teacher(teacherId, undefined, undefined, undefined, undefined)
-    );
-
-    if (teacherCourses.length > 0) {
-        isTeachingThisCourse = teacherCourses.some((course) => course.courseId === courseId);
+    try {
+        const teacherCourses = await db.getCoursesByTeacher(new Teacher(teacherId));
+        if (teacherCourses.length > 0) {
+            isTeachingThisCourse = teacherCourses.some((course) => course.courseId === courseId);
+        }
+    } catch (err) {
+        throw err;
     }
 
     return isTeachingThisCourse;
 }
 
 /**
- * Check whether this lecture belongs to this course
+ * Check if lectureId belongs to courseId
  *
  * courseId {Integer}
  * lectureId {Integer}
@@ -583,10 +585,13 @@ async function isCourseTaughtBy(teacherId, courseId) {
 async function doesLectureBelongToCourse(courseId, lectureId) {
     let doesBelong = false;
 
-    const courseLectures = await db.getLecturesByCourse(new Course(courseId));
-
-    if (courseLectures.length > 0) {
-        doesBelong = courseLectures.some((lecture) => lecture.lectureId === lectureId);
+    try {
+        const courseLectures = await db.getLecturesByCourseId(new Course(courseId));
+        if (courseLectures.length > 0) {
+            doesBelong = courseLectures.some((lecture) => lecture.lectureId === lectureId);
+        }
+    } catch (err) {
+        throw err;
     }
 
     return doesBelong;
