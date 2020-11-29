@@ -211,6 +211,9 @@ const getCoursesByStudent = function (student) {
 };
 exports.getCoursesByStudent = getCoursesByStudent;
 
+// TODO: confusing function.
+// should consider refactor this function. It should return all lectures by CourseId.
+// pass a date string if you want to apply a filter. Delete getLecturesByCourseId after refactor. 
 /**
  * get a list of lectures related to a specific course
  * only future lectures are considered
@@ -743,3 +746,27 @@ const getNumBookingsOfLecture = function (lecture) {
     });
 };
 exports.getNumBookingsOfLecture = getNumBookingsOfLecture;
+
+/**
+ * Get a list of lectures related to a specific course
+ * @param {Course} course - courseId needed
+ * @returns {Promise} promise
+ */
+const getLecturesByCourseId = function (course) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT Lecture.* FROM Lecture
+            WHERE Lecture.courseId = ?`;
+
+        db.all(sql, [course.courseId], (err, rows) => {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            const lectures = [];
+            rows.forEach((row) => lectures.push(Lecture.from(row)));
+            resolve(lectures);
+        });
+    });
+};
+exports.getLecturesByCourseId = getLecturesByCourseId;
