@@ -57,8 +57,9 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
 
         return lectureStudents;
     } catch (err) {
-        if (err instanceof ResponseError) throw err;
-        throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw err;
+        //if (err instanceof ResponseError) throw err;
+        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
 };
 
@@ -116,7 +117,8 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
 
         return lecturesPlusNumBookings;
     } catch (genError) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, genError, 500);
+        //return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, genError, 500);
+        throw genError;
     }
 };
 
@@ -138,7 +140,8 @@ exports.teacherGetCourses = async function (teacherId) {
 
         return teacherCourses;
     } catch (err) {
-        throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw err;
     }
 };
 
@@ -189,8 +192,9 @@ exports.checkForExpiredLectures = async () => {
 
         return "noerror";
     } catch (err) {
-        console.log(err);
-        throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        //console.log(err);
+        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw err;
     }
 };
 
@@ -243,7 +247,8 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
 
         return retLecture;
     } catch (err) {
-        throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw err;
     }
 };
 
@@ -328,12 +333,14 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
 
         return 204;
     } catch (err) {
-        throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw err;
+        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
 };
 
 /**
  * Update a lecture delivery mode given a lectureId, courseId, teacherId and a switchTo mode
+ * You can only switch from PRESENCE to REMOTE. The switch is valid only if the request is sent 30m before the scheduled starting time.
  *
  * teacherId {Integer}
  * courseId {Integer}
@@ -341,7 +348,6 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
  * switchTo {String}
  * returns {Integer} 204. In case of error an ResponseError
  **/
-// TODO: add error when switching from the same state
 exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, courseId, lectureId, switchTo) {
     const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
         teacherId,
@@ -384,12 +390,18 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
             );
         }
 
-        const lecture = new Lecture(lId);
+        const lecture = await db.getLectureById(new Lecture(lId));
+        if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
+            throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_SWITCHABLE, { lectureId }, 404);
+        }
+
+        lecture.delivery = switchTo;
         await db.updateLectureDeliveryMode(lecture);
 
         return 204;
     } catch (err) {
-        throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw err;
     }
 };
 
@@ -501,6 +513,31 @@ function isLectureCancellable(lecture, requestDateTime) {
     const minDiffAllowed = 60 * 60 * 1000;
 
     if (lectTime - cancelTime > minDiffAllowed) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Check if a lecture is switchable.
+ * A lecture is switchable if the request is sent 30m before the scheduled starting time of a lecture and only from PRESENCE to REMOTE
+ * @param {Lecture} lecture
+ * @param {Date} requestDateTime
+ * @returns {Boolean}
+ */
+function isLectureSwitchable(lecture, requestDateTime, newMode) {
+    if (newMode.toUpperCase() === Lecture.DeliveryType.PRESENCE || lecture.delivery === Lecture.DeliveryType.REMOTE) {
+        return false;
+    }
+
+    if (!requestDateTime) requestDateTime = new Date();
+
+    const lectTime = lecture.startingDate.getTime();
+    const switchTime = requestDateTime.getTime();
+    const minDiffAllowed = 30 * 60 * 1000;
+
+    if (lectTime - switchTime > minDiffAllowed) {
         return true;
     }
 
