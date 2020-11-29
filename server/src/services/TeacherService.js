@@ -109,14 +109,14 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
 
         let lecturesPlusNumBookings = await Promise.all(
             courseLectures.map(async (lecture) => {
-                const numBookings = await db.getNumBookingsOfLecture(lecture);
-                return { lecture, numBookings };
+                const totBookings = await db.getNumBookingsOfLecture(lecture);
+                return { lecture, numBookings: totBookings };
             })
         );
 
         return lecturesPlusNumBookings;
-    } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+    } catch (genError) {
+        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, genError, 500);
     }
 };
 
@@ -563,13 +563,9 @@ function sendSummaryToTeachers(summaries) {
 async function isCourseTaughtBy(teacherId, courseId) {
     let isTeachingThisCourse = false;
 
-    try {
-        const teacherCourses = await db.getCoursesByTeacher(new Teacher(teacherId));
-        if (teacherCourses.length > 0) {
-            isTeachingThisCourse = teacherCourses.some((course) => course.courseId === courseId);
-        }
-    } catch (err) {
-        throw err;
+    const teacherCourses = await db.getCoursesByTeacher(new Teacher(teacherId));
+    if (teacherCourses.length > 0) {
+        isTeachingThisCourse = teacherCourses.some((course) => course.courseId === courseId);
     }
 
     return isTeachingThisCourse;
@@ -585,13 +581,9 @@ async function isCourseTaughtBy(teacherId, courseId) {
 async function doesLectureBelongToCourse(courseId, lectureId) {
     let doesBelong = false;
 
-    try {
-        const courseLectures = await db.getLecturesByCourseId(new Course(courseId));
-        if (courseLectures.length > 0) {
-            doesBelong = courseLectures.some((lecture) => lecture.lectureId === lectureId);
-        }
-    } catch (err) {
-        throw err;
+    const courseLectures = await db.getLecturesByCourseId(new Course(courseId));
+    if (courseLectures.length > 0) {
+        doesBelong = courseLectures.some((lecture) => lecture.lectureId === lectureId);
     }
 
     return doesBelong;
