@@ -22,7 +22,7 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
         const cwd = __dirname;
         dbpath = path.join(cwd, dbpath);
         dbscript = path.join(cwd, dbscript);
-        
+
         if (flag) {
             console.log(`RESETTING DB`.green);
             console.log(`Current file directory         ${cwd.green}`);
@@ -42,8 +42,8 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
 
         const dataSql = fs.readFileSync(dbscript).toString();
         const dataArr = dataSql.toString().split(/\r?\n/);
-        dataArr.forEach((query, index, array) => array[index] = query.trim());
-        
+        dataArr.forEach((query, index, array) => (array[index] = query.trim()));
+
         db.serialize(() => {
             // db.run runs your SQL query against the DB
             db.run("PRAGMA foreign_keys=OFF;");
@@ -72,7 +72,7 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
                     return;
                 }
 
-                if(flag) console.log(`The db at ${dbpath} has been reset`.cyan);
+                if (flag) console.log(`The db at ${dbpath} has been reset`.cyan);
                 resolve();
             });
         });
@@ -82,11 +82,10 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
 if (require.main === module) {
     // if called from command line
     const args = process.argv.slice(2);
-    prepare(args[0], args[1], args[2])
-        .catch((err) => {
-            console.log("Something went wrong");
-            console.log(err);
-        });
+    prepare(args[0], args[1], args[2]).catch((err) => {
+        console.log("Something went wrong");
+        console.log(err);
+    });
 }
 
 module.exports = prepare;
