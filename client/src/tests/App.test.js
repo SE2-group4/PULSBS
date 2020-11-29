@@ -49,7 +49,7 @@ describe('App suite', () => {
         await setupApp()
         expect(screen.getByText("Log-in to your account")).toBeInTheDocument();
     });
-    test('redirect to teacher page success', async () => {
+    test('redirect to teacher page (courses API : success)', async () => {
         await setupApp()
         await act(async () => {
             userEvent.paste(screen.getByTestId("emailForm"), "fff@ddd.com")
@@ -64,7 +64,7 @@ describe('App suite', () => {
         })
         expect(screen.getByText("Your Lessons")).toBeInTheDocument()
     })
-    test('redirect to teacher page parse fail', async () => {
+    test('redirect to teacher page (courses API : error parsing error)', async () => {
         await setupApp()
         await act(async () => {
             userEvent.paste(screen.getByTestId("emailForm"), "fff@ddd.com")
@@ -79,7 +79,7 @@ describe('App suite', () => {
         })
         expect(screen.getByText("Course : server error")).toBeInTheDocument()
     })
-    test('redirect to teacher page server fail', async () => {
+    test('redirect to teacher page (courses API : error)', async () => {
         await setupApp()
         await act(async () => {
             userEvent.paste(screen.getByTestId("emailForm"), "fff@ddd.com")
@@ -87,14 +87,14 @@ describe('App suite', () => {
         });
         fetch.mockResponses(
             [JSON.stringify(teacher), { status: 200 }],
-            [JSON.stringify({ body: "ok" }), { status: 400 }]
+            [JSON.stringify({ body: "not ok" }), { status: 400 }]
         );
         await act(async () => {
             userEvent.click(screen.getByText("Login"))
         })
         expect(screen.getByText("Course : invalid parameter error")).toBeInTheDocument()
     })
-    test('redirect to teacher page success but parse error', async () => {
+    test('redirect to teacher page (courses API : json parsing error)', async () => {
         await setupApp()
         await act(async () => {
             userEvent.paste(screen.getByTestId("emailForm"), "fff@ddd.com")
@@ -109,7 +109,7 @@ describe('App suite', () => {
         })
         expect(screen.getByText("Course : application parse error")).toBeInTheDocument()
     })
-    test('redirect to teacher page server communication error', async () => {
+    test('redirect to teacher page server (courses API : server connection error)', async () => {
         await setupApp()
         await act(async () => {
             userEvent.paste(screen.getByTestId("emailForm"), "fff@ddd.com")

@@ -35,7 +35,7 @@ class App extends React.Component {
 
   render() {
     return (
-      <Container fluid>
+      <Container fluid id="containerExt">
         <Header
           isAuth={this.state.isAuth}
           user={this.state.authUser}

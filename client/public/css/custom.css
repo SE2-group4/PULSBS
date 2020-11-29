@@ -1,15 +1,16 @@
 /* Global */
-
 .vheight-100 {
   min-height: 100vh;
 }
-
 .below-nav {
   padding-top: 7rem;
 }
-
 .projects-title {
   margin-top: 2rem;
+}
+#containerExt{
+  padding-right:0px;
+  padding-left:0px; 
 }
 #containerMainContent{
   padding-top:1%;
@@ -23,9 +24,10 @@
   height: 400px;
   background-color: rgba(228, 228, 228, 0.884);
   border-radius: 10px 10px 10px 10px;
-  padding-top: 1%;
+  padding-top: 3%;
   padding-left: 6%;
   padding-right:6.5%;
+  margin-top:5%;
 }
 #logout {
   position: absolute;
@@ -40,7 +42,6 @@
 .img-button:hover {
   cursor: pointer;
 }
-
 .list-title {
   font-weight: 500;
 }
