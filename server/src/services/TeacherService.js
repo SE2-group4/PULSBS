@@ -143,10 +143,10 @@ exports.teacherGetCourses = async function (teacherId) {
 };
 
 /**
- * Computes the time difference between the parameter now and the next 23:59h
- * If the parameter now is undefined or equal to the string "now", the parameter now is assumed to be new Date()
+ * Computes the time difference between the datetime in "now" and the next time it will clock 23:59h
+ * If the parameter now is undefined or equal to the string "now", the parameter "now" is assumed to be new Date()
  *
- * nextCheck {Date | "now" | undefinedc} optional
+ * nextCheck {Date | "now" | undefined} optional
  * returns {Integer} time in ms. In case of error an ResponseError
  **/
 const nextCheck = (now) => {
@@ -172,18 +172,26 @@ exports.nextCheck = nextCheck;
  **/
 exports.checkForExpiredLectures = async () => {
     console.log("AUTORUN: Checking for expired lectures");
-    const summaries = await findSummaryExpiredLectures();
 
-    sendSummaryToTeachers(summaries);
+    try {
+        const summaries = await findSummaryExpiredLectures();
 
-    console.log("AUTORUN: Emails in queue");
+        sendSummaryToTeachers(summaries);
 
-    const time = nextCheck();
-    const now = new Date();
-    console.log(`AUTORUN: Next check planned for ${new Date(time + now.getTime())}`);
-    setTimeout(() => {
-        this.checkForExpiredLectures();
-    }, time);
+        console.log("AUTORUN: Emails in queue");
+
+        const time = nextCheck();
+        const now = new Date();
+        console.log(`AUTORUN: Next check planned for ${new Date(time + now.getTime())}`);
+        setTimeout(() => {
+            this.checkForExpiredLectures();
+        }, time);
+
+        return "noerror";
+    } catch (err) {
+        console.log(err);
+        throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+    }
 };
 
 /**
@@ -462,9 +470,9 @@ function extractOptions(queryString) {
 
 /**
  * Convert an object's properties values into numbers. E.g. { lectureId: "1", "foo": "3" } will be converted into { lectureId: 1, foo: 3 }
- * In case a value is NaN, it will return the first property's value which is a NaN.
+ * In case a property value is NaN, it will return the first property together with its value which is a NaN.
  * @param {Object} custNumbers. E.g. { lectureId: "1", "foo": "3 }
- * @returns {Object} E.g. { lectureId: 1, "foo": 3 }. In case of error an object similar to { error: { lectureId: foo} }
+ * @returns {Object} E.g. { lectureId: 1, "foo": 3 }. In case of error an object like { error: { lectureId: foo} }
  */
 function convertToNumbers(custNumbers) {
     for (const [name, num] of Object.entries(custNumbers)) {
@@ -480,7 +488,7 @@ function convertToNumbers(custNumbers) {
 
 /**
  * Check if a lecture is cancellable.
- * A lecture is cancellable is the request is sent 1h before the scheduled starting time of a lecture
+ * A lecture is cancellable if the request is sent 1h before the scheduled starting time of a lecture
  * @param {Lecture} lecture
  * @param {Date} requestDateTime
  * @returns {Boolean}
@@ -650,6 +658,7 @@ async function findSummaryExpiredLectures(date) {
 
     return mapResponse;
 }
+exports._findSummaryExpiredLectures = findSummaryExpiredLectures;
 
 function isObjEmpty(obj) {
     if (!obj) return true;
