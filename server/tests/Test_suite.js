@@ -24,4 +24,8 @@ describe('System', function () {
     describe('Integration tests', function() {
         Test_services();
     });
+
+    describe('Integration tests', function() {
+        Test_services();
+    });
 })
