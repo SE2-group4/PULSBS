@@ -14,6 +14,7 @@ const prepareDb = require("./db/preparedb");
 const General = require("./controllers/GeneralController");
 const Student = require("./controllers/StudentController");
 const Teacher = require("./controllers/TeacherController");
+const colors = require("colors");
 
 const app = express();
 app.disable('x-powered-by'); // security: do not show outside the server technology which has been used
@@ -23,6 +24,7 @@ const JWT_SECRET = "1234567890";
 const PORT = 3001;
 
 let dbPath = "./PULSBS.db";
+let sqlPath = undefined;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -30,7 +32,7 @@ app.use(cookieParser());
 morgan.token("host", function (req) {
     return "src: " + req.hostname;
 });
-app.use(morgan(":method :url :host code: :status :res[content-length] - :response-time ms"));
+app.use(morgan(":method".blue + " :url :host code: :status :res[content-length] - :response-time ms"));
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -73,9 +75,9 @@ app.all(`${BASE_ROUTE}`, () => console.log("This route is not supported. Check t
 
 app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
     try {
-        // TODO: add a prompt in case db == PULSB.db. Are you sure?
-        await prepareDb(dbPath, "testing.sql", true);
 
+        sqlPath = sqlPath === undefined ? "testing.sql" : sqlPath;
+        await prepareDb(dbPath, sqlPath, true);
         res.status(200).send("Success Reset");
     } catch (err) {
         res.status(400).send("Failed Reset");
@@ -84,7 +86,7 @@ app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
 
 const printConf = () => {
     console.log(`Server running on http://localhost:${PORT}${BASE_ROUTE}\n`);
-    console.log("System parameters:");
+    console.log("System parameters:".green);
     console.log(`DB path: ${dbPath}`);
 };
 
@@ -95,7 +97,8 @@ const autoRun = () => {
 
 const systemConf = {
     "--test": false, // set db to testing.db
-    "--no-autorun": false // disable autorun
+    "--no-autorun": false, // disable autorun
+    "--api": false, // set sql to testApi.sql
 };
 
 // prevent adding new properties. The properties's values can still be changed.
@@ -116,6 +119,9 @@ Object.seal(systemConf);
         }
         if(!systemConf["--no-autorun"]) {
             autoRun();
+        }
+        if(systemConf["--api"]) {
+            sqlPath = "testApi.sql"
         }
 
         await db.init(dbPath);

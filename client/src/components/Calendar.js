@@ -120,7 +120,7 @@ function ModalClick(props) {
                 <strong>This lecture will be errogated remotely</strong>}
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={props.handleClose}>
+                <Button data-testid="modalClose" variant="secondary" onClick={props.handleClose}>
                     Close
                 </Button>
                 {(props.event.extendedProps.status==="booked" || props.event.extendedProps.status==="bookable") && 
@@ -147,7 +147,7 @@ function ModalClick(props) {
                 {props.success===true ? "Your operation was successfull" : "Ops, an error during server communication occurs"}
                 </Modal.Header>
                 <Modal.Footer>
-                <Button variant="secondary" onClick={props.handleClose}>
+                <Button data-testid="modalClose" variant="secondary" onClick={props.handleClose}>
                     Close
                 </Button>
                 </Modal.Footer>
@@ -159,7 +159,7 @@ function ModalClick(props) {
  * @param {*} props 
  */
 function InfoLecture(props) {
-    console.log(props.lecture.start)
+    
     return (
         <ListGroup variant="flush">
             <ListGroup.Item>Lecture ID : {props.lecture.extendedProps.lectureId}</ListGroup.Item>

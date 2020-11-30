@@ -5,7 +5,6 @@ import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 import InfoPanel from './InfoPanel';
-import DropdownButton from 'react-bootstrap/DropdownButton';
 import { Link } from "react-router-dom";
 
 function Header(props) {

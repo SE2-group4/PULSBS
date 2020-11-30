@@ -3,21 +3,21 @@
  * @author Gastaldi Paolo
  * @version 1.0.0
  */
-'use strict';
+"use strict";
 
-const sqlite = require('sqlite3');
-const moment = require('moment');
-const path = require('path');
+const sqlite = require("sqlite3");
+const moment = require("moment");
+const path = require("path");
 
-const Teacher = require('./../entities/Teacher.js');
-const Student = require('./../entities/Student.js');
-const Lecture = require('./../entities/Lecture.js');
-const Course = require('./../entities/Course.js');
-const Email = require('./../entities/Email.js');
-const EmailQueue = require('./../entities/EmailQueue.js');
-const EmailType = require('./../entities/EmailType.js');
-const emailService = require('./../services/EmailService.js');
-const { StandardErr } = require('./../utils/utils');
+const Teacher = require("./../entities/Teacher.js");
+const Student = require("./../entities/Student.js");
+const Lecture = require("./../entities/Lecture.js");
+const Course = require("./../entities/Course.js");
+const Email = require("./../entities/Email.js");
+const EmailQueue = require("./../entities/EmailQueue.js");
+const EmailType = require("./../entities/EmailType.js");
+const emailService = require("./../services/EmailService.js");
+const { StandardErr } = require("./../utils/utils");
 
 let db = null;
 
@@ -32,43 +32,42 @@ let db = new sqlite.Database(dbpath, (err) => {
  * it closes existing connections before creating the new one
  * @param {String} dbpath
  */
-const openConn = function openConn(dbpath = './PULSBS.db') {
-    if(db)
-        db.close();
+const openConn = function openConn(dbpath = "./PULSBS.db") {
+    if (db) db.close();
 
     const cwd = __dirname;
     dbpath = path.join(cwd, dbpath);
     db = new sqlite.Database(dbpath, (err) => {
-        if (err) throw(StandardErr.new('Dao', StandardErr.errno.FAILURE, err.message));
+        if (err) throw StandardErr.new("Dao", StandardErr.errno.FAILURE, err.message);
     });
 
-    db.get("PRAGMA foreign_keys = ON")
+    db.get("PRAGMA foreign_keys = ON");
 
     return;
-}
+};
 exports.openConn = openConn;
 
 /**
- * init db 
+ * init db
  * @param {string} dbpath
  */
-const init = async function init(dbpath = './PULSBS.db') {
+const init = async function init(dbpath = "./PULSBS.db") {
     openConn(dbpath);
-}
+};
 exports.init = init;
 
 /**
  * get a user by its id
  * @param {Teacher|Student} user - teacher or student
  */
-const getUserById = function(user) {
+const getUserById = function (user) {
     const userId = user.teacherId ? user.teacherId : user.studentId;
 
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User WHERE userId = ?`;
         db.get(sql, [userId], (err, row) => {
-            if(err || !row) {
-                reject(StandardErr.new('Dao', StandardErr.errno.NOT_EXISTS, 'incorrect userId'));
+            if (err || !row) {
+                reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "incorrect userId"));
                 return;
             }
 
@@ -76,7 +75,7 @@ const getUserById = function(user) {
             resolve(fullUser);
         });
     });
-}
+};
 exports.getUserById = getUserById;
 
 /**
@@ -84,72 +83,71 @@ exports.getUserById = getUserById;
  * @param {Teacher | Student} user - email and password needed
  * @returns {Promise} promise
  */
-const login = function(user) {
+const login = function (user) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User WHERE email = ? AND password = ?`;
         db.get(sql, [user.email, user.password], (err, row) => {
-            if(err || !row) {
-                reject(StandardErr.new('Dao', StandardErr.errno.WRONG_VALUE, 'incorrect userId or password')); // no more info for security reasons
+            if (err || !row) {
+                reject(StandardErr.new("Dao", StandardErr.errno.WRONG_VALUE, "incorrect userId or password")); // no more info for security reasons
                 return;
             }
 
             let retUser = null;
-            switch(row.type) {
-                case 'TEACHER':
+            switch (row.type) {
+                case "TEACHER":
                     retUser = Teacher.from(row);
                     break;
-                case 'STUDENT':
+                case "STUDENT":
                     retUser = Student.from(row);
                     break;
                 default:
-                    reject(StandardErr.new('Dao', StandardErr.errno.UNEXPECTED_TYPE, 'unexpected user type'));
+                    reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type"));
                     return;
             }
-            
+
             resolve(retUser);
         });
-    })
-}
+    });
+};
 exports.login = login;
 
 /**
  * record a booking in the system
- * @param {Student} student 
+ * @param {Student} student
  * @param {Lecture} lecture
  * @returns {Promise} promise
  */
-const addBooking = function(student, lecture) {
+const addBooking = function (student, lecture) {
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO Booking(studentId, lectureId) VALUES (?, ?)`;
 
-        db.run(sql, [student.studentId, lecture.lectureId], function(err) {
-            if(err) {
-                if(err.errno == 19)
-                    err = StandardErr.new('Dao', StandardErr.errno.ALREADY_PRESENT, 'The lecture was already booked');
-                else
-                    err = StandardErr.fromDao(err);
+        db.run(sql, [student.studentId, lecture.lectureId], function (err) {
+            if (err) {
+                if (err.errno == 19)
+                    err = StandardErr.new("Dao", StandardErr.errno.ALREADY_PRESENT, "The lecture was already booked");
+                else err = StandardErr.fromDao(err);
                 reject(err);
                 return;
             }
 
             resolve(this.lastID);
         });
-    })
-}
+    });
+};
 exports.addBooking = addBooking;
 
 /**
  * remove a booking
- * @param {Student} student 
- * @param {Lecture} lecture 
+ * @param {Student} student
+ * @param {Lecture} lecture
  * @returns {Promise} promise
  */
-const deleteBooking = function(student, lecture) {
+const deleteBooking = function (student, lecture) {
     return new Promise((resolve, reject) => {
         const sql = `DELETE FROM Booking WHERE studentId = ? AND lectureId = ?`;
 
-        db.run(sql, [student.studentId, lecture.lectureId], function(err) {
-            if(err) {
+        db.run(sql, [student.studentId, lecture.lectureId], function (err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
@@ -157,7 +155,7 @@ const deleteBooking = function(student, lecture) {
             resolve(this.lastID);
         });
     });
-}
+};
 exports.deleteBooking = deleteBooking;
 
 /**
@@ -166,25 +164,25 @@ exports.deleteBooking = deleteBooking;
  * @param {Student} student - studentId needed
  * @returns {Promise} promise
  */
-const getLecturesByStudent = function(student) {
+const getLecturesByStudent = function (student) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Lecture.* FROM Lecture
             JOIN Course ON Lecture.lectureId = Course.courseId
             JOIN Enrollment ON Enrollment.courseId = Course.courseId
             WHERE Enrollment.studentId = ? AND DATE(Lecture.startingDate) > DATE(?)`;
 
-        db.all(sql, [student.studentId, (new Date()).toISOString()], (err, rows) => {
-            if(err) {
+        db.all(sql, [student.studentId, new Date().toISOString()], (err, rows) => {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
 
             const lectures = [];
-            rows.forEach(row => lectures.push(Lecture.from(row)));
+            rows.forEach((row) => lectures.push(Lecture.from(row)));
             resolve(lectures);
         });
-    })
-}
+    });
+};
 exports.getLecturesByStudent = getLecturesByStudent;
 
 /**
@@ -193,49 +191,52 @@ exports.getLecturesByStudent = getLecturesByStudent;
  * @param {Student} student - studentId needed
  * @returns {Promise} promise
  */
-const getCoursesByStudent = function(student) {
+const getCoursesByStudent = function (student) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Course.* FROM Course
         JOIN Enrollment ON Enrollment.courseId = Course.courseId
         WHERE Enrollment.studentId = ? AND year = ?`;
 
         db.all(sql, [student.studentId, _getCurrentAcademicYear()], (err, rows) => {
-            if(err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
 
             const courses = [];
-            rows.forEach(row => courses.push(Course.from(row)));
+            rows.forEach((row) => courses.push(Course.from(row)));
             resolve(courses);
         });
-    })
-}
+    });
+};
 exports.getCoursesByStudent = getCoursesByStudent;
 
+// TODO: confusing function.
+// should consider refactor this function. It should return all lectures by CourseId.
+// pass a date string if you want to apply a filter. Delete getLecturesByCourseId after refactor. 
 /**
  * get a list of lectures related to a specific course
  * only future lectures are considered
  * @param {Course} course - courseId needed
  * @returns {Promise} promise
  */
-const getLecturesByCourse = function(course) {
+const getLecturesByCourse = function (course) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Lecture.* FROM Lecture
             WHERE Lecture.courseId = ? AND DATETIME(Lecture.startingDate) >= DATETIME(?)`;
 
-        db.all(sql, [course.courseId, (new Date()).toISOString()], (err, rows) => {
-            if(err) {
+        db.all(sql, [course.courseId, new Date().toISOString()], (err, rows) => {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
 
             const lectures = [];
-            rows.forEach(row => lectures.push(Lecture.from(row)));
+            rows.forEach((row) => lectures.push(Lecture.from(row)));
             resolve(lectures);
         });
-    })
-}
+    });
+};
 exports.getLecturesByCourse = getLecturesByCourse;
 
 /**
@@ -243,24 +244,24 @@ exports.getLecturesByCourse = getLecturesByCourse;
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} promise
  */
-const getStudentsByLecture = function(lecture) {
+const getStudentsByLecture = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User
             JOIN Booking on User.userId = Booking.studentId
             WHERE Booking.lectureId = ? AND User.type = ?`;
 
-        db.all(sql, [lecture.lectureId, 'STUDENT'], (err, rows) => {
-            if(err) {
+        db.all(sql, [lecture.lectureId, "STUDENT"], (err, rows) => {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
 
             const students = [];
-            rows.forEach(row => students.push(Student.from(row)));
+            rows.forEach((row) => students.push(Student.from(row)));
             resolve(students);
         });
-    })
-}
+    });
+};
 exports.getStudentsByLecture = getStudentsByLecture;
 
 /**
@@ -269,78 +270,78 @@ exports.getStudentsByLecture = getStudentsByLecture;
  * @param {Course} course - courseId needed
  * @returns {Promise} promise
  */
-const getStudentsByCourse = function(course) {
+const getStudentsByCourse = function (course) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User
         JOIN Enrollment ON User.userId = Enrollment.studentId
         JOIN Course ON Enrollment.courseId = Course.courseId
         WHERE Course.courseId = ? AND Course.year = ? AND User.type = ?`;
 
-        db.all(sql, [course.courseId, _getCurrentAcademicYear(), 'STUDENT'], (err, rows) => {
-            if(err) {
+        db.all(sql, [course.courseId, _getCurrentAcademicYear(), "STUDENT"], (err, rows) => {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
 
             const students = [];
-            rows.forEach(row => students.push(Student.from(row)));
+            rows.forEach((row) => students.push(Student.from(row)));
             resolve(students);
         });
-    })
-}
+    });
+};
 exports.getStudentsByCourse = getStudentsByCourse;
 
 /**
  * get a list of lectures a teacher will give
  * only lectures in the future are considered
- * @param {Teacher} teacher 
+ * @param {Teacher} teacher
  * @returns {Promise} promise
  */
-const getLecturesByTeacher = function(teacher) {
+const getLecturesByTeacher = function (teacher) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Lecture.* FROM Lecture
             JOIN Course ON Lecture.courseId = Course.courseId
             JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId
             WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.startingDate) > DATE(?)`;
 
-        db.all(sql, [teacher.teacherId, (new Date()).toISOString()], (err, rows) => {
-            if(err) {
+        db.all(sql, [teacher.teacherId, new Date().toISOString()], (err, rows) => {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
 
             const lectures = [];
-            rows.forEach(row => lectures.push(Lecture.from(row)));
+            rows.forEach((row) => lectures.push(Lecture.from(row)));
             resolve(lectures);
         });
-    })
-}
+    });
+};
 exports.getLecturesByTeacher = getLecturesByTeacher;
 
 /**
  * get a list of courses a teacher is holding
  * only courses in the current academic year are considered
- * @param {Teacher} teacher - teacherId needed 
+ * @param {Teacher} teacher - teacherId needed
  * @returns {Promise} promise
  */
-const getCoursesByTeacher = function(teacher) {
+const getCoursesByTeacher = function (teacher) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Course.* FROM Course
         JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId
         WHERE TeacherCourse.teacherId = ? AND Course.year = ?`;
 
         db.all(sql, [teacher.teacherId, _getCurrentAcademicYear()], (err, rows) => {
-            if(err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
 
             const courses = [];
-            rows.forEach(row => courses.push(Course.from(row)));
+            rows.forEach((row) => courses.push(Course.from(row)));
             resolve(courses);
         });
-    })
-}
+    });
+};
 exports.getCoursesByTeacher = getCoursesByTeacher;
 
 /**
@@ -348,21 +349,21 @@ exports.getCoursesByTeacher = getCoursesByTeacher;
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} promise
  */
-const getCourseByLecture = function(lecture) {
+const getCourseByLecture = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Course.* FROM Course
             JOIN Lecture ON Course.courseId = Lecture.courseId
             WHERE Lecture.lectureId = ?`;
         db.get(sql, [lecture.lectureId], (err, row) => {
-            if(err || !row) {
+            if (err || !row) {
                 reject(StandardErr.fromDao(err));
-                return
+                return;
             }
 
             resolve(Course.from(row));
         });
-    })
-}
+    });
+};
 exports.getCourseByLecture = getCourseByLecture;
 
 /**
@@ -372,46 +373,60 @@ exports.getCourseByLecture = getCourseByLecture;
  * @returns {Promise} promise
  * @deprecated
  */
-const _createStudentBookingEmail = function(student, lecture) {
+const _createStudentBookingEmail = function (student, lecture) {
     return new Promise((resolve, reject) => {
-        getCourseByLecture(lecture)
-            .then((course) => {
-                const email = new Email(undefined, systemUser, student, new Date(), EmailType.STUDENT_NEW_BOOKING);
+        getCourseByLecture(lecture).then((course) => {
+            const email = new Email(undefined, systemUser, student, new Date(), EmailType.STUDENT_NEW_BOOKING);
 
-                emailService.sendConfirmationBookingEmail(student.email, course.description, lectures.date.toISOString())
-                    .then(addEmail(email)
+            emailService
+                .sendConfirmationBookingEmail(student.email, course.description, lectures.date.toISOString())
+                .then(
+                    addEmail(email)
                         .then(() => resolve)
-                        .catch((err) => reject(err)))
-                    .catch((err) => reject(err));
-            });
-    })
-}
+                        .catch((err) => reject(err))
+                )
+                .catch((err) => reject(err));
+        });
+    });
+};
 exports._createStudentBookingEmail = _createStudentBookingEmail;
 
 /**
  * create a new email to inform a teacher about students that will attend his/her lecture
  * @param {Teacher} teacher
- * @param {Lecture} lecture 
+ * @param {Lecture} lecture
  * @returns {Promise} promise
  * @deprecated
  */
-const _createTeacherBookingsEmail = function(teacher, lecture) {
+const _createTeacherBookingsEmail = function (teacher, lecture) {
     return new Promise((resolve, reject) => {
-        getCourseByLecture(lecture)
-            .then((course) => {
-                getStudentsByLecture(lecture)
-                    .then((students) => {
-                        const email = new Email(undefined, systemUser, teacher, new Date(), EmailType.TEACHER_ATTENDING_STUDENTS);
-                        
-                        emailService.sendStudentNumberEmail(teacher.email, course.description, lecture.date.toISOString(), students.length)
-                            .then(addEmail(email)
-                                .then(() => resolve)
-                                .catch((err) => reject(err)))
-                            .catch((err) => reject(err));
-                    });
+        getCourseByLecture(lecture).then((course) => {
+            getStudentsByLecture(lecture).then((students) => {
+                const email = new Email(
+                    undefined,
+                    systemUser,
+                    teacher,
+                    new Date(),
+                    EmailType.TEACHER_ATTENDING_STUDENTS
+                );
+
+                emailService
+                    .sendStudentNumberEmail(
+                        teacher.email,
+                        course.description,
+                        lecture.date.toISOString(),
+                        students.length
+                    )
+                    .then(
+                        addEmail(email)
+                            .then(() => resolve)
+                            .catch((err) => reject(err))
+                    )
+                    .catch((err) => reject(err));
             });
-    })
-}
+        });
+    });
+};
 exports._createTeacherBookingsEmail = _createTeacherBookingsEmail;
 
 /**
@@ -419,46 +434,47 @@ exports._createTeacherBookingsEmail = _createTeacherBookingsEmail;
  * based on the server time
  * @returns {Number} year
  */
-const _getCurrentAcademicYear = function() {
+const _getCurrentAcademicYear = function () {
     const now = moment();
 
     let year = now.year();
     // academic year: from October YYYY to September (YYYY +1)
-    if(now.month() <= 8) // 8 = September (base 0)
+    if (now.month() <= 8)
+        // 8 = September (base 0)
         year--; // still the previous academic year
 
-    return(year);
-}
+    return year;
+};
 exports._getCurrentAcademicYear = _getCurrentAcademicYear;
 
 /**
  * create a log in the database of an email
  * @param {Email} email
  */
-const addEmail = function(email) {
+const addEmail = function (email) {
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO Email(fromId, toId, emailType) VALUES(?, ?, ?)`;
 
         const fromId = email.from instanceof Teacher ? email.from.teacherId : email.from.studentId;
         const toId = email.to instanceof Teacher ? email.to.teacherId : email.to.studentId;
 
-        db.run(sql, [fromId, toId, email.emailType], function(err) {
-            if(err) {
+        db.run(sql, [fromId, toId, email.emailType], function (err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
 
             resolve(this.lastID);
         });
-    })
-}
+    });
+};
 exports.addEmail = addEmail;
 
 /**
  * Get all the lectures that have the booking deadline equal to date
- * @param {Date} date 
+ * @param {Date} date
  */
-const getLecturesByDeadline = function(date) {
+const getLecturesByDeadline = function (date) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Lecture.* FROM Lecture \
             JOIN Course ON Course.courseId = Lecture.lectureId \
@@ -467,44 +483,44 @@ const getLecturesByDeadline = function(date) {
 
         const now = new Date();
         db.all(sql, [now.toISOString()], (err, rows) => {
-            if(err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
 
             const lectures = [];
-            rows.forEach(row => lectures.push(Lecture.from(row)));
+            rows.forEach((row) => lectures.push(Lecture.from(row)));
             resolve(lectures);
         });
-    })
-}
+    });
+};
 exports.getLecturesByDeadline = getLecturesByDeadline;
 
 /**
- * Get the teacher given a course 
- * @param {Course} course 
+ * Get the teacher given a course
+ * @param {Course} course
  */
-const getTeacherByCourse = function(course) {
+const getTeacherByCourse = function (course) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User
             JOIN TeacherCourse ON User.userId = TeacherCourse.teacherId
             WHERE TeacherCourse.courseId = ? AND User.type = ?`;
 
         db.get(sql, [course.courseId, "TEACHER"], (err, row) => {
-            if(err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
-                return
+                return;
             }
-            
-            if(!row) {
-                reject(StandardErr.new('Dao', StandardErr.errno.NOT_EXISTS, 'teacher not found'));
-                return; 
+
+            if (!row) {
+                reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "teacher not found"));
+                return;
             }
 
             resolve(Teacher.from(row));
         });
     });
-}
+};
 exports.getTeacherByCourse = getTeacherByCourse;
 
 /**
@@ -512,24 +528,24 @@ exports.getTeacherByCourse = getTeacherByCourse;
  * @param {Student} student - studentId needed
  * @returns {Promise} promise
  */
-const getBookingsByStudent = function(student) {
+const getBookingsByStudent = function (student) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Lecture.* FROM Lecture
             JOIN Booking ON Booking.lectureId = Lecture.lectureId
             WHERE Booking.studentId = ?`;
-        
+
         db.all(sql, [student.studentId], (err, rows) => {
-            if(err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
-                return
+                return;
             }
 
             const lectures = [];
-            rows.forEach(row => lectures.push(Lecture.from(row)));
+            rows.forEach((row) => lectures.push(Lecture.from(row)));
             resolve(lectures);
         });
     });
-}
+};
 exports.getBookingsByStudent = getBookingsByStudent;
 
 /**
@@ -538,75 +554,75 @@ exports.getBookingsByStudent = getBookingsByStudent;
  * @param {Object} periodOfTime - {Date} from (optional), {Date} to (optional)
  * @returns {Promise} promise
  */
-const getLecturesByPeriodOfTime = function(course, periodOfTime) {
+const getLecturesByPeriodOfTime = function (course, periodOfTime = {}) {
     return new Promise((resolve, reject) => {
         const sqlParams = [];
         let sql = `SELECT Lecture.* FROM Lecture WHERE Lecture.courseId = ?`;
         sqlParams.push(course.courseId);
 
         // composing the SQL query
-        if(periodOfTime.from && periodOfTime.from instanceof Date) {
+        if (periodOfTime.from && periodOfTime.from instanceof Date) {
             sql += ` AND DATETIME(startingDate) >= DATETIME(?)`;
             sqlParams.push(periodOfTime.from.toISOString());
         }
-        if(periodOfTime.to && periodOfTime.to instanceof Date) {
+        if (periodOfTime.to && periodOfTime.to instanceof Date) {
             console.log("sono to");
             sql += ` AND DATETIME(startingDate) <= DATETIME(?)`;
             sqlParams.push(periodOfTime.to.toISOString());
         }
 
         db.all(sql, sqlParams, (err, rows) => {
-            if(err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
-                return
+                return;
             }
 
             const lectures = [];
-            rows.forEach(row => lectures.push(Lecture.from(row)));
+            rows.forEach((row) => lectures.push(Lecture.from(row)));
             resolve(lectures);
-        })
+        });
     });
 };
 exports.getLecturesByPeriodOfTime = getLecturesByPeriodOfTime;
 
 /**
- * Get a lecture given a lectureId 
+ * Get a lecture given a lectureId
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} promise
  */
-const getLectureById = function(lecture) {
+const getLectureById = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT * FROM Lecture
             WHERE Lecture.lectureId = ?`;
 
         db.get(sql, [lecture.lectureId], (err, row) => {
-            if(err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
-            
-            if(!row) {
+
+            if (!row) {
                 resolve(null);
                 return;
             }
 
             resolve(Lecture.from(row));
         });
-    })
-}
+    });
+};
 exports.getLectureById = getLectureById;
 
 /**
- * Delete a lecture from Lecture given a lectureId 
+ * Delete a lecture from Lecture given a lectureId
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} promise
  */
-const deleteLectureById = function(lecture) {
+const deleteLectureById = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `DELETE FROM Lecture WHERE lectureId = ?`;
 
-        db.run(sql, [lecture.lectureId], function(err) {
-            if(err) {
+        db.run(sql, [lecture.lectureId], function (err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
@@ -614,20 +630,20 @@ const deleteLectureById = function(lecture) {
             resolve(this.changes);
         });
     });
-}
+};
 exports.deleteLectureById = deleteLectureById;
 
 /**
- * Delete a email from EmailQueue given a queueId 
+ * Delete a email from EmailQueue given a queueId
  * @param {EmailQueue} emailQueue - emailQueue needed
  * @returns {Promise} promise
  */
-const deleteEmailQueueById = function(emailQueue) {
+const deleteEmailQueueById = function (emailQueue) {
     return new Promise((resolve, reject) => {
         const sql = `DELETE FROM EmailQueue WHERE queueId = ?`;
 
-        db.run(sql, [emailQueue.queueId], function(err) {
-            if(err) {
+        db.run(sql, [emailQueue.queueId], function (err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
@@ -635,7 +651,7 @@ const deleteEmailQueueById = function(emailQueue) {
             resolve(this.changes);
         });
     });
-}
+};
 exports.deleteEmailQueueById = deleteEmailQueueById;
 
 /**
@@ -643,22 +659,22 @@ exports.deleteEmailQueueById = deleteEmailQueueById;
  * @param {String} filter - Email.EmailType
  * @returns {Promise} promise
  */
-const getEmailsInQueueByEmailType = function(emailType) {
+const getEmailsInQueueByEmailType = function (emailType) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT * FROM EmailQueue WHERE emailType = ?`;
 
-        db.all(sql, [emailType], function(err, rows) {
-            if(err) {
+        db.all(sql, [emailType], function (err, rows) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
 
             const res = [];
-            rows.forEach(row => res.push(EmailQueue.from(row)));
+            rows.forEach((row) => res.push(EmailQueue.from(row)));
             resolve(rows);
         });
     });
-}
+};
 exports.getEmailsInQueueByEmailType = getEmailsInQueueByEmailType;
 
 /**
@@ -666,12 +682,12 @@ exports.getEmailsInQueueByEmailType = getEmailsInQueueByEmailType;
  * @param {Lecture} lecture - lectureId, delivery needed
  * @returns {Promise} promise
  */
-const updateLectureDeliveryMode = function(lecture) {
+const updateLectureDeliveryMode = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `UPDATE Lecture SET delivery = ? WHERE lectureId = ?`;
 
-        db.run(sql, [lecture.delivery.toUpperCase(), lecture.lectureId], function(err) {
-            if(err) {
+        db.run(sql, [lecture.delivery.toUpperCase(), lecture.lectureId], function (err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
@@ -679,5 +695,78 @@ const updateLectureDeliveryMode = function(lecture) {
             resolve(this.changes);
         });
     });
-}
+};
 exports.updateLectureDeliveryMode = updateLectureDeliveryMode;
+
+/**
+ * Return all lectures + num of booked students per lecture given a course
+ * @param {Course} course - courseId needed
+ * @returns {Promise} promise
+ */
+const getLecturesByCoursePlusNumBookings = function (course) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT lect.*, COUNT(book.studentId) as numBookings
+            FROM Lecture lect 
+            LEFT JOIN Booking book ON lect.lectureId = book.lectureId 
+            WHERE lect.courseId = ? 
+            GROUP BY lect.lectureId`;
+
+        db.all(sql, [course.courseId], function (err, rows) {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            const res = rows.map((row) => {
+                return { lecture: Lecture.create(row), numBookings: row.numBookings };
+            });
+            resolve(res);
+        });
+    });
+};
+exports.getLecturesByCoursePlusNumBookings = getLecturesByCoursePlusNumBookings;
+
+/**
+ * Return the number of booked stundets given in a lecture
+ * @param {Lecture} lecture - lectureId needed
+ * @returns {Promise} promise
+ */
+const getNumBookingsOfLecture = function (lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT COUNT(*) as numBookings FROM Booking WHERE lectureId = ?`;
+
+        db.get(sql, [lecture.lectureId], function (err, res) {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(res.numBookings);
+        });
+    });
+};
+exports.getNumBookingsOfLecture = getNumBookingsOfLecture;
+
+/**
+ * Get a list of lectures related to a specific course
+ * @param {Course} course - courseId needed
+ * @returns {Promise} promise
+ */
+const getLecturesByCourseId = function (course) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT Lecture.* FROM Lecture
+            WHERE Lecture.courseId = ?`;
+
+        db.all(sql, [course.courseId], (err, rows) => {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            const lectures = [];
+            rows.forEach((row) => lectures.push(Lecture.from(row)));
+            resolve(lectures);
+        });
+    });
+};
+exports.getLecturesByCourseId = getLecturesByCourseId;

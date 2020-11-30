@@ -9,6 +9,7 @@ const EmailService = require("../services/EmailService");
 const { ResponseError } = require("../utils/ResponseError");
 
 const db = require("../db/Dao");
+const colors = require("colors");
 
 /**
  * Get all the students that have an active booking for a given lecture
@@ -25,14 +26,14 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
         lectureId,
     });
     if (error) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
     try {
         // checking if the teacher is in charge of this course during this academic year
         const isTaughtBy = await isCourseTaughtBy(tId, cId);
         if (!isTaughtBy) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.TEACHER_COURSE_MISMATCH_AA,
                 { courseId, teacherId },
@@ -43,7 +44,7 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
         // checking if the lecture is associated to this course
         const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
         if (!doesLectureBelong) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.COURSE_LECTURE_MISMATCH_AA,
                 { lectureId, courseId },
@@ -56,40 +57,46 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
 
         return lectureStudents;
     } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw err;
+        //if (err instanceof ResponseError) throw err;
+        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
 };
 
 /**
- * Get all lectures given a course and a teacher.
+ * Retrieve all the lectures related to a course.
  * You can filter the lecture by passing a query string.
- * If the query string is missing, the function will return all lectures scheduled from today
- * Otherwise if a 'from' property is passed, it will return all lectures that have startingDate >= from
- * Similarly for 'to' property
- * The support for getting all lectures is not yet implemented
+ * If the query string is missing, the function will return all lectures of the course.
+ * Otherwise if a 'from' property is passed, it will return all lectures with startingDate >= from.fromDate
+ * Similarly, 'to' will return all lectures with startingDate <= to.fromDate
+ * The cancelled lectures are not returned.
  *
  * teacherId {Integer}
  * courseId {Integer}
- * queryFilter {Object}
- * returns array of lectures. In case of error an ResponseError
+ * queryString {Object} {from: <date>, to: <date>, numBookinks = true}
+ * returns {Array} array of lectures. In case of error an ResponseError
  **/
-exports.teacherGetCourseLectures = async function (teacherId, courseId, queryFilter) {
+exports.teacherGetCourseLectures = async function (teacherId, courseId, queryString) {
     const { error, teacherId: tId, courseId: cId } = convertToNumbers({ teacherId, courseId });
     if (error) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    let dateFilter = extractDateFilters(queryFilter);
-    if (dateFilter instanceof ResponseError) return dateFilter;
-    else if (!dateFilter.from && !dateFilter.to) dateFilter.from = new Date();
+    let { err, dateFilter, numBookings } = extractOptions(queryString);
+    if (err instanceof ResponseError) throw err;
 
-    console.log("GET COURSE LECTURE: date filter", dateFilter);
+    if (!dateFilter) dateFilter = {};
+
+    console.log(
+        `Date filter:     ${Object.keys(dateFilter).length === 0 ? "no filter" : JSON.stringify(dateFilter)}`.magenta
+    );
+    console.log(`Num of bookings: ${numBookings === undefined ? false : numBookings}`.magenta);
 
     try {
-        // checking if the teacher is in charge of this course during this academic year
+        // check if the teacher is in charge of this course during this academic year
         let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
         if (!isTeachingThisCourse) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.TEACHER_COURSE_MISMATCH_AA,
                 { courseId, teacherId },
@@ -99,10 +106,19 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryFil
 
         const course = new Course(cId);
         const courseLectures = await db.getLecturesByPeriodOfTime(course, dateFilter);
+        if (!numBookings) return courseLectures;
 
-        return courseLectures;
-    } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        let lecturesPlusNumBookings = await Promise.all(
+            courseLectures.map(async (lecture) => {
+                const totBookings = await db.getNumBookingsOfLecture(lecture);
+                return { lecture, numBookings: totBookings };
+            })
+        );
+
+        return lecturesPlusNumBookings;
+    } catch (genError) {
+        //return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, genError, 500);
+        throw genError;
     }
 };
 
@@ -115,7 +131,7 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryFil
 exports.teacherGetCourses = async function (teacherId) {
     const { error, teacherId: tId } = convertToNumbers({ teacherId });
     if (error) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
     try {
@@ -124,12 +140,22 @@ exports.teacherGetCourses = async function (teacherId) {
 
         return teacherCourses;
     } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw err;
     }
 };
 
+/**
+ * Computes the time difference between the datetime in "now" and the next time it will clock 23:59h
+ * If the parameter now is undefined or equal to the string "now", the parameter "now" is assumed to be new Date()
+ *
+ * nextCheck {Date | "now" | undefined} optional
+ * returns {Integer} time in ms. In case of error an ResponseError
+ **/
 const nextCheck = (now) => {
-    if (!now || now === "now") now = new Date();
+    if (!now || now === "now") {
+        now = new Date();
+    }
 
     const next_at_23_59 = new Date();
     if (now.getHours() >= 23 && now.getMinutes() >= 59 && now.getSeconds() >= 0)
@@ -144,22 +170,36 @@ const nextCheck = (now) => {
 };
 exports.nextCheck = nextCheck;
 
+/**
+ * Check for today's expired lecture and send the summaries to the teachers in charge of the respective course
+ **/
 exports.checkForExpiredLectures = async () => {
     console.log("AUTORUN: Checking for expired lectures");
-    const summaries = await findSummaryExpiredLectures();
-    sendSummaryToTeachers(summaries);
-    console.log("AUTORUN: Emails in queue");
-    const time = nextCheck();
-    const now = new Date();
-    console.log(`AUTORUN: Next check planned for ${new Date(time + now.getTime())}`);
 
-    setTimeout(() => {
-        this.checkForExpiredLectures();
-    }, time);
+    try {
+        const summaries = await findSummaryExpiredLectures();
+
+        sendSummaryToTeachers(summaries);
+
+        console.log("AUTORUN: Emails in queue");
+
+        const time = nextCheck();
+        const now = new Date();
+        console.log(`AUTORUN: Next check planned for ${new Date(time + now.getTime())}`);
+        setTimeout(() => {
+            this.checkForExpiredLectures();
+        }, time);
+
+        return "noerror";
+    } catch (err) {
+        //console.log(err);
+        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw err;
+    }
 };
 
 /**
- * Get a lecture given a lectureId, courseId, teacherId
+ * Retrieve a lecture given a lectureId, courseId, teacherId
  *
  * teacherId {Integer}
  * courseId {Integer}
@@ -173,14 +213,14 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
         lectureId,
     });
     if (error) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
     try {
         // checking if the teacher is in charge of this course during this academic year
         const isTaughtBy = await isCourseTaughtBy(tId, cId);
         if (!isTaughtBy) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.TEACHER_COURSE_MISMATCH_AA,
                 { courseId, teacherId },
@@ -191,7 +231,7 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
         // checking if the lecture belongs to this course
         const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
         if (!doesLectureBelong) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.COURSE_LECTURE_MISMATCH_AA,
                 { lectureId, courseId },
@@ -202,12 +242,13 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
         const lecture = new Lecture(lId);
         const retLecture = await db.getLectureById(lecture);
         if (!retLecture) {
-            return new ResponseError("TeacherService", ResponseError.LECTURE_NOT_FOUND, { lectureId }, 404);
+            throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_FOUND, { lectureId }, 404);
         }
 
         return retLecture;
     } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw err;
     }
 };
 
@@ -226,14 +267,14 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
         lectureId,
     });
     if (error) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
     try {
         // checking if the teacher is in charge of this course during this academic year
         const isTaughtBy = await isCourseTaughtBy(tId, cId);
         if (!isTaughtBy) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.TEACHER_COURSE_MISMATCH_AA,
                 { courseId, teacherId },
@@ -243,8 +284,9 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
 
         // checking if the lecture belongs to this course
         const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+
         if (!doesLectureBelong) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.COURSE_LECTURE_MISMATCH_AA,
                 { lectureId, courseId },
@@ -259,27 +301,29 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
             const isSuccess = await db.deleteLectureById(lecture);
             if (isSuccess > 0) {
                 const emailsToBeSent = await db.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED);
-                const aEmail = emailsToBeSent[0];
 
-                const subjectArgs = [aEmail.courseName];
-                const messageArgs = [aEmail.startingDate];
-                const { subject, message } = EmailService.getDefaultEmail(
-                    Email.EmailType.LESSON_CANCELLED,
-                    subjectArgs,
-                    messageArgs
-                );
+                if (emailsToBeSent.length > 0) {
+                    const aEmail = emailsToBeSent[0];
+                    const subjectArgs = [aEmail.courseName];
+                    const messageArgs = [aEmail.startingDate];
+                    const { subject, message } = EmailService.getDefaultEmail(
+                        Email.EmailType.LESSON_CANCELLED,
+                        subjectArgs,
+                        messageArgs
+                    );
 
-                emailsToBeSent.forEach((email) =>
-                    EmailService.sendCustomMail(email.recipient, subject, message)
-                        .then(() => {
-                            console.log("CANCELLATION email sent to " + email.recipient);
-                            db.deleteEmailQueueById(email);
-                        })
-                        .catch((err) => console.error(err))
-                );
+                    emailsToBeSent.forEach((email) =>
+                        EmailService.sendCustomMail(email.recipient, subject, message)
+                            .then(() => {
+                                console.log("CANCELLATION email sent to " + email.recipient);
+                                db.deleteEmailQueueById(email);
+                            })
+                            .catch((err) => console.error(err))
+                    );
+                }
             }
         } else {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.LECTURE_NOT_CANCELLABLE,
                 { lectureId: lecture.lectureId },
@@ -289,13 +333,14 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
 
         return 204;
     } catch (err) {
-        console.log(err);
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw err;
+        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
     }
 };
 
 /**
  * Update a lecture delivery mode given a lectureId, courseId, teacherId and a switchTo mode
+ * You can only switch from PRESENCE to REMOTE. The switch is valid only if the request is sent 30m before the scheduled starting time.
  *
  * teacherId {Integer}
  * courseId {Integer}
@@ -303,7 +348,6 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
  * switchTo {String}
  * returns {Integer} 204. In case of error an ResponseError
  **/
-// TODO: add error when switching from the same state
 exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, courseId, lectureId, switchTo) {
     const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
         teacherId,
@@ -311,11 +355,11 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         lectureId,
     });
     if (error) {
-        return new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
     if (switchTo && !isValidDeliveryMode(switchTo)) {
-        return new ResponseError(
+        throw new ResponseError(
             "TeacherService",
             ResponseError.LECTURE_INVALID_DELIVERY_MODE,
             { delivery: switchTo },
@@ -327,7 +371,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         // checking if the teacher is in charge of this course during this academic year
         const isTaughtBy = await isCourseTaughtBy(tId, cId);
         if (!isTaughtBy) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.TEACHER_COURSE_MISMATCH_AA,
                 { courseId, teacherId },
@@ -338,7 +382,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         // checking if the lecture belongs to this course
         const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
         if (!doesLectureBelong) {
-            return new ResponseError(
+            throw new ResponseError(
                 "TeacherService",
                 ResponseError.COURSE_LECTURE_MISMATCH_AA,
                 { lectureId, courseId },
@@ -346,56 +390,86 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
             );
         }
 
-        const lecture = new Lecture(lId);
+        const lecture = await db.getLectureById(new Lecture(lId));
+        if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
+            throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_SWITCHABLE, { lectureId }, 404);
+        }
+
+        lecture.delivery = switchTo;
         await db.updateLectureDeliveryMode(lecture);
 
         return 204;
     } catch (err) {
-        return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+        throw err;
     }
 };
 
 /**
- * Extract the query params in a query string
- * Convert a date string in a date object
- * @param {Object} queryString. E.g. queryString = {from: <dateString>, to: <dateString>}
- * @returns {Object} e.g. queryFilter = {from: <new Date()>, to: <new Date()>}. In case of error returns a ResponseError
+ * Extract the options from a query string
+ * @param {Object} queryString. E.g. queryString = {from: <dateString>, to: <dateString>, numBookings: "false"}
+ * @returns {Object} e.g. options = {dateFilter: { from: <new Date()>, to: <new Date()> }, numBookings: false }. In case of error returns a ResponseError
  */
-function extractDateFilters(queryString) {
-    if (!(queryString instanceof Object)) {
+function extractOptions(queryString) {
+    if (!(queryString instanceof Object) || Object.keys(queryString).length === 0) {
         return {};
     }
 
-    const dateFilter = {};
+    const options = {};
     for (const key of Object.keys(queryString)) {
+        const value = queryString[key];
         switch (key) {
             case "from": {
-                const fromDate = new Date(queryString[key]);
+                if (value.toLowerCase() === "inf") break;
+
+                const fromDate = new Date(value);
                 if (isNaN(fromDate.getTime())) {
-                    console.log("INVALID");
-                    return new ResponseError(
-                        "TeacherService",
-                        ResponseError.PARAM_NOT_DATE,
-                        { date: queryString[key] },
-                        400
-                    );
+                    return {
+                        err: new ResponseError(
+                            "TeacherService",
+                            ResponseError.PARAM_NOT_DATE,
+                            { date: queryString[key] },
+                            400
+                        ),
+                    };
                 }
 
-                dateFilter.from = fromDate;
+                if (isObjEmpty(options.dateFilter)) options.dateFilter = {};
+                options.dateFilter.from = fromDate;
                 break;
             }
             case "to": {
-                const toDate = new Date(queryString[key]);
+                if (value.toLowerCase() === "inf") break;
+
+                const toDate = new Date(value);
                 if (isNaN(toDate.getTime())) {
-                    return new ResponseError(
-                        "TeacherService",
-                        ResponseError.PARAM_NOT_DATE,
-                        { date: queryString[key] },
-                        400
-                    );
+                    return {
+                        err: new ResponseError(
+                            "TeacherService",
+                            ResponseError.PARAM_NOT_DATE,
+                            { date: queryString[key] },
+                            400
+                        ),
+                    };
                 }
 
-                dateFilter.to = toDate;
+                if (isObjEmpty(options.dateFilter)) options.dateFilter = {};
+                options.dateFilter.to = toDate;
+                break;
+            }
+            case "numBookings": {
+                if (value !== "false" && value !== "true") {
+                    return {
+                        err: new ResponseError(
+                            "TeacherService",
+                            ResponseError.PARAM_NOT_BOOLEAN,
+                            { numBookings: queryString[key] },
+                            400
+                        ),
+                    };
+                }
+
+                options.numBookings = value === "false" ? false : true;
                 break;
             }
             default:
@@ -403,14 +477,14 @@ function extractDateFilters(queryString) {
         }
     }
 
-    return dateFilter;
+    return options;
 }
 
 /**
  * Convert an object's properties values into numbers. E.g. { lectureId: "1", "foo": "3" } will be converted into { lectureId: 1, foo: 3 }
- * In case a value is NaN, it will return the first property's value which is a NaN.
+ * In case a property value is NaN, it will return the first property together with its value which is a NaN.
  * @param {Object} custNumbers. E.g. { lectureId: "1", "foo": "3 }
- * @returns {Object} E.g. { lectureId: 1, "foo": 3 }. In case of error an object similar to { error: { lectureId: foo} }
+ * @returns {Object} E.g. { lectureId: 1, "foo": 3 }. In case of error an object like { error: { lectureId: foo} }
  */
 function convertToNumbers(custNumbers) {
     for (const [name, num] of Object.entries(custNumbers)) {
@@ -426,7 +500,7 @@ function convertToNumbers(custNumbers) {
 
 /**
  * Check if a lecture is cancellable.
- * A lecture is cancellable is the request is sent 1h before the scheduled starting time of a lecture
+ * A lecture is cancellable if the request is sent 1h before the scheduled starting time of a lecture
  * @param {Lecture} lecture
  * @param {Date} requestDateTime
  * @returns {Boolean}
@@ -446,24 +520,51 @@ function isLectureCancellable(lecture, requestDateTime) {
 }
 
 /**
+ * Check if a lecture is switchable.
+ * A lecture is switchable if the request is sent 30m before the scheduled starting time of a lecture and only from PRESENCE to REMOTE
+ * @param {Lecture} lecture
+ * @param {Date} requestDateTime
+ * @returns {Boolean}
+ */
+function isLectureSwitchable(lecture, requestDateTime, newMode) {
+    if (newMode.toUpperCase() === Lecture.DeliveryType.PRESENCE || lecture.delivery === Lecture.DeliveryType.REMOTE) {
+        return false;
+    }
+
+    if (!requestDateTime) requestDateTime = new Date();
+
+    const lectTime = lecture.startingDate.getTime();
+    const switchTime = requestDateTime.getTime();
+    const minDiffAllowed = 30 * 60 * 1000;
+
+    if (lectTime - switchTime > minDiffAllowed) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * Check if the switchTo is a valid delivery mode
  * @param {String} switchTo
  * @returns {Boolean}
  */
 function isValidDeliveryMode(switchTo) {
+    if (!switchTo) return false;
+
     if (
-        switchTo.toUpperCase() !== Lecture.DeliveryType.PRESENCE &&
-        switchTo.toUpperCase() !== Lecture.DeliveryType.REMOTE
+        switchTo.toUpperCase() === Lecture.DeliveryType.PRESENCE ||
+        switchTo.toUpperCase() === Lecture.DeliveryType.REMOTE
     ) {
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 /**
- * Send daily summaries to the teacher
- * @param {Object} summaries. E.g. summary = { 1: {teacher, course, lecture}, 2: {teacher, course, lecture} }
+ * Send daily summaries about the lectures that have today as deadline to the teacher in charge of the respective course
+ * @param {Object} summaries. E.g. summaries = { 1: {teacher: <Teacher>, course: <Course>, lecture: <Lecture>, studentsBooked: 1}, 2: {...} }
  * @param {Date} requestDateTime
  * @returns none
  */
@@ -498,7 +599,7 @@ function sendSummaryToTeachers(summaries) {
 }
 
 /**
- * Check whether a teacher is in charge of a course during this academic year
+ * Check if teacherId is in charge of courseId during this academic year
  *
  * teacherId {Integer}
  * courseId {Integer}
@@ -507,10 +608,7 @@ function sendSummaryToTeachers(summaries) {
 async function isCourseTaughtBy(teacherId, courseId) {
     let isTeachingThisCourse = false;
 
-    const teacherCourses = await db.getCoursesByTeacher(
-        new Teacher(teacherId, undefined, undefined, undefined, undefined)
-    );
-
+    const teacherCourses = await db.getCoursesByTeacher(new Teacher(teacherId));
     if (teacherCourses.length > 0) {
         isTeachingThisCourse = teacherCourses.some((course) => course.courseId === courseId);
     }
@@ -519,7 +617,7 @@ async function isCourseTaughtBy(teacherId, courseId) {
 }
 
 /**
- * Check whether this lecture belongs to this course
+ * Check if lectureId belongs to courseId
  *
  * courseId {Integer}
  * lectureId {Integer}
@@ -528,8 +626,7 @@ async function isCourseTaughtBy(teacherId, courseId) {
 async function doesLectureBelongToCourse(courseId, lectureId) {
     let doesBelong = false;
 
-    const courseLectures = await db.getLecturesByCourse(new Course(courseId, undefined, undefined));
-
+    const courseLectures = await db.getLecturesByCourseId(new Course(courseId));
     if (courseLectures.length > 0) {
         doesBelong = courseLectures.some((lecture) => lecture.lectureId === lectureId);
     }
@@ -537,6 +634,12 @@ async function doesLectureBelongToCourse(courseId, lectureId) {
     return doesBelong;
 }
 
+/**
+ * Create the summaries of the lectures that have deadline === <date>
+ *
+ * date {Date | undefined}
+ * returns {Array} of summaries. E.g. of a summaries { 1: {lecture: <aLecture>, course: <aCourse>, teacher: <aTeacher>, stundetsBooked: 1}, 2: {...} }. The key is the lectureId.
+ **/
 async function findSummaryExpiredLectures(date) {
     if (!date) date = new Date();
 
@@ -591,4 +694,10 @@ async function findSummaryExpiredLectures(date) {
     }
 
     return mapResponse;
+}
+exports._findSummaryExpiredLectures = findSummaryExpiredLectures;
+
+function isObjEmpty(obj) {
+    if (!obj) return true;
+    return Object.keys(obj).length === 0;
 }

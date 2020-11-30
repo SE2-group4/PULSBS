@@ -8,6 +8,7 @@ const sqlite = require("sqlite3");
 const fs = require("fs");
 const path = require("path");
 const StandardErr = require("../utils/utils");
+const colors = require("colors");
 
 /**
  * prepare the DB with default values
@@ -21,10 +22,12 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
         const cwd = __dirname;
         dbpath = path.join(cwd, dbpath);
         dbscript = path.join(cwd, dbscript);
-        
+
         if (flag) {
-            console.log(`Working on ${cwd}`);
-            console.log(`Opening database connection on ${dbpath} to execute the script ${dbscript}`);
+            console.log(`RESETTING DB`.green);
+            console.log(`Current file directory         ${cwd.green}`);
+            console.log(`Opening database connection on ${dbpath.green}`);
+            console.log(`Executing script at            ${dbscript.green}`);
         }
 
         const db = new sqlite.Database(dbpath, (err) => {
@@ -37,12 +40,10 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
 
         let count = 0; // line counter
 
-        if (flag) console.log("Preparing your DB...");
-
         const dataSql = fs.readFileSync(dbscript).toString();
         const dataArr = dataSql.toString().split(/\r?\n/);
-        dataArr.forEach((query, index, array) => array[index] = query.trim());
-        
+        dataArr.forEach((query, index, array) => (array[index] = query.trim()));
+
         db.serialize(() => {
             // db.run runs your SQL query against the DB
             db.run("PRAGMA foreign_keys=OFF;");
@@ -71,6 +72,7 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
                     return;
                 }
 
+                if (flag) console.log(`The db at ${dbpath} has been reset`.cyan);
                 resolve();
             });
         });
@@ -80,14 +82,10 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
 if (require.main === module) {
     // if called from command line
     const args = process.argv.slice(2);
-    prepare(args[0], args[1], args[2])
-        .then(() => {
-            console.log("The testing DB is ready, enjoy! :)");
-        })
-        .catch((err) => {
-            console.log("Something went wrong");
-            console.log(err);
-        });
+    prepare(args[0], args[1], args[2]).catch((err) => {
+        console.log("Something went wrong");
+        console.log(err);
+    });
 }
 
 module.exports = prepare;

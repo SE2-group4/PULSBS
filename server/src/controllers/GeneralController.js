@@ -44,4 +44,8 @@ controller.post('/login', [
         });
 });
 
+controller.post('/logout', (req, res) => {
+  res.clearCookie('token').end();
+});
+
 module.exports = controller;

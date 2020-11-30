@@ -3,3 +3,4 @@
 .vscode/
 .coverage
 /server/coverage/
+client/debug.log
