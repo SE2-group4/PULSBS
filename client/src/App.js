@@ -7,6 +7,7 @@ import TeacherRoute from './pages/TeacherRoute';
 import LoginPage from "./pages/LoginPage";
 import Header from "./components/Header";
 import { withRouter } from 'react-router-dom';
+import API from './api/Api';
 
 class App extends React.Component {
   /**
@@ -30,7 +31,13 @@ class App extends React.Component {
    * userLogout performs the logout
    */
   userLogout = () => {
-    this.setState({ authUser: null, isAuth: false });
+    API.userLogout()
+      .then(() => {
+        this.setState({ authUser: null, isAuth: false });
+      })
+      .catch(() => {
+        this.setState({ authUser: null, isAuth: false });
+      })
   };
 
   render() {

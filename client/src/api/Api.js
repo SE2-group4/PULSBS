@@ -33,7 +33,26 @@ async function userLogin(email, password) {
         }).catch((err) => { reject({ source: "Login", error: "server error" }) }); // connection errors
     });
 }
-
+/**
+ * userLogout performs logout also on server
+ */
+async function userLogout() {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + '/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({}),
+        }).then((response) => {
+            if (response.ok) {
+                resolve(null);
+            } else {
+                reject(null);
+            }
+        }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
+    });
+}
 /************************* STUDENT API *************************************/
 /**
  * getCoursesByStudentId performs a GET request towards the server to gain the all courses of a certain student
@@ -255,7 +274,7 @@ async function deleteLecture(Tid, Cid, Lid) {
 }
 
 const API = {
-    userLogin, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, getCoursesByTeacherId,
+    userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, getCoursesByTeacherId,
     getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture
 };
 export default API;
