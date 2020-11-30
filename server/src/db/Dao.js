@@ -640,7 +640,7 @@ const getLectureById = function (lecture) {
             }
 
             if (!row) {
-                resolve(null);
+                reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "incorrect lectureId"));
                 return;
             }
 
