@@ -605,7 +605,6 @@ const getLecturesByCourseAndPeriodOfTime = function (course, periodOfTime = {}) 
             sqlParams.push(periodOfTime.from.toISOString());
         }
         if (periodOfTime.to && (periodOfTime.to instanceof Date || periodOfTime.to instanceof moment)) {
-            console.log("sono to");
             sql += ` AND DATETIME(Lecture.startingDate) <= DATETIME(?)`;
             sqlParams.push(periodOfTime.to.toISOString());
         }
