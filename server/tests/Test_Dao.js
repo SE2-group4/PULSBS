@@ -232,7 +232,55 @@ const suite = function() {
                     })
                     .catch((err) => done());
             });
-        })
+        });
+
+        describe('getBookingsByStudentAndPeriodOfTime', function() {
+            it('not specified period of time should return the list of lectures', function(done) {
+                dao.getBookingsByStudentAndPeriodOfTime(course1)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('only from setted should return the list of lectures', function(done) {
+                const periodOfTime = {
+                    from : moment().startOf('day').add(2, 'day')
+                };
+                dao.getBookingsByStudentAndPeriodOfTime(course1, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('only to setted should return the list of lectures', function(done) {
+                const periodOfTime = {
+                    to : moment().endOf('day').add(1, 'day')
+                };
+                dao.getBookingsByStudentAndPeriodOfTime(course1, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('both from and to setted should return the list of lectures', function(done) {
+                const periodOfTime = {
+                    from : moment().add(2, 'day').startOf('day'),
+                    to : moment().add(3, 'day').endOf('day')
+                };
+                dao.getBookingsByStudentAndPeriodOfTime(course1, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
 
         describe('getLecturesByCourseAndPeriodOfTime', function() {
             it('not specified period of time should return the list of lectures', function(done) {
@@ -254,7 +302,7 @@ const suite = function() {
                         done();
                     })
                     .catch((err) => done(err));
-            })
+            });
 
             it('only to setted should return the list of lectures', function(done) {
                 const periodOfTime = {
@@ -266,7 +314,7 @@ const suite = function() {
                         done();
                     })
                     .catch((err) => done(err));
-            })
+            });
 
             it('both from and to setted should return the list of lectures', function(done) {
                 const periodOfTime = {
@@ -279,7 +327,7 @@ const suite = function() {
                         done();
                     })
                     .catch((err) => done(err));
-            })
+            });
         });
 
         describe('getLectureById', function() {
