@@ -76,7 +76,7 @@ app.all(`${BASE_ROUTE}`, () => console.log("This route is not supported. Check t
 app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
     try {
 
-        sqlPath = sqlPath === undefined ? "testing.sql" : sqlPath;
+        sqlPath = sqlPath === undefined ? "PULSBS.sql" : sqlPath;
         await prepareDb(dbPath, sqlPath, true);
         res.status(200).send("Success Reset");
     } catch (err) {
@@ -128,7 +128,7 @@ Object.seal(systemConf);
 
         app.listen(PORT, printConf);
     } catch (err) {
-        console.log(err, "FAILED initializing the system");
+        console.log(err, "FAILED initializing the system".red);
         return process.exit(-1);
     }
 })();

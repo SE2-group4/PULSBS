@@ -95,3 +95,12 @@ const formatDate = function(date) {
     return dateFormatter.format(date);
 }
 exports.formatDate = formatDate;
+
+console.email = function (msg) {
+    console.log("EMAIL: ".green + msg);
+};
+
+console.info = function (msg) {
+    console.log("INFO: ".green + msg);
+};
+
