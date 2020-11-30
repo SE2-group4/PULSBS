@@ -246,7 +246,7 @@ const suite = function() {
 
             it('only from setted should return the list of lectures', function(done) {
                 const periodOfTime = {
-                    from : moment().add(2, 'day').endOf('day')
+                    from : moment().startOf('day').add(2, 'day')
                 };
                 dao.getLecturesByPeriodOfTime(course1, periodOfTime)
                     .then((lectures) => {
@@ -258,7 +258,7 @@ const suite = function() {
 
             it('only to setted should return the list of lectures', function(done) {
                 const periodOfTime = {
-                    to : moment().add(1, 'day').endOf('day')
+                    to : moment().endOf('day').add(1, 'day')
                 };
                 dao.getLecturesByPeriodOfTime(course1, periodOfTime)
                     .then((lectures) => {
@@ -270,7 +270,7 @@ const suite = function() {
 
             it('both from and to setted should return the list of lectures', function(done) {
                 const periodOfTime = {
-                    from : moment().add(2, 'day').endOf('day'),
+                    from : moment().add(2, 'day').startOf('day'),
                     to : moment().add(3, 'day').endOf('day')
                 };
                 dao.getLecturesByPeriodOfTime(course1, periodOfTime)
