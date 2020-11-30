@@ -564,12 +564,12 @@ const getBookingsByStudentAndPeriodOfTime = function (student, periodOfTime = {}
 
         // composing the SQL query
         if (periodOfTime.from && (periodOfTime.from instanceof Date || periodOfTime.from instanceof moment)) {
-            sql += ` AND DATETIME(startingDate) >= DATETIME(?)`;
+            sql += ` AND DATETIME(Lecture.startingDate) >= DATETIME(?)`;
             sqlParams.push(periodOfTime.from.toISOString());
         }
         if (periodOfTime.to && (periodOfTime.to instanceof Date || periodOfTime.to instanceof moment)) {
             console.log("sono to");
-            sql += ` AND DATETIME(startingDate) <= DATETIME(?)`;
+            sql += ` AND DATETIME(Lecture.startingDate) <= DATETIME(?)`;
             sqlParams.push(periodOfTime.to.toISOString());
         }
 
@@ -601,12 +601,12 @@ const getLecturesByCourseAndPeriodOfTime = function (course, periodOfTime = {}) 
 
         // composing the SQL query
         if (periodOfTime.from && (periodOfTime.from instanceof Date || periodOfTime.from instanceof moment)) {
-            sql += ` AND DATETIME(startingDate) >= DATETIME(?)`;
+            sql += ` AND DATETIME(Lecture.startingDate) >= DATETIME(?)`;
             sqlParams.push(periodOfTime.from.toISOString());
         }
         if (periodOfTime.to && (periodOfTime.to instanceof Date || periodOfTime.to instanceof moment)) {
             console.log("sono to");
-            sql += ` AND DATETIME(startingDate) <= DATETIME(?)`;
+            sql += ` AND DATETIME(Lecture.startingDate) <= DATETIME(?)`;
             sqlParams.push(periodOfTime.to.toISOString());
         }
 
