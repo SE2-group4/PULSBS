@@ -84,7 +84,10 @@ exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
 
     return new Promise((resolve, reject) => {
         dao.deleteBooking(student, lecture)
-            .then(resolve) // TODO: send a confirmation email
+            .then((modifiedBookings) => {
+                if(modifiedBookings == 1) resolve(modifiedBookings); 
+                else reject(new StandardErr('StudentService', StandardErr.errno.NOT_EXISTS, 'This booking does not exists', 404));
+            })
             .catch(reject);
     });
 }
