@@ -29,6 +29,9 @@ describe("Login test suite", () => {
       userEvent.click(screen.getByText("Login"))
     })
     expect(screen.getByText("Login : invalid username and/or password")).toBeInTheDocument()
+    await act(async () => {
+      userEvent.click(screen.getAllByRole('button')[1]);
+    });
   })
   test('Login server fails', async () => {
     await setupLogin();

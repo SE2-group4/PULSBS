@@ -158,7 +158,6 @@ async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, book
     let qbook = bookings ? "numBookings=true" : "";
     qbook = qfrom && qbook || qto ? "&" + qbook : qbook;
     let query = qfrom || qto || qbook ? "?" + qfrom + qto + qbook : "";
-    console.log(query);
 
     return new Promise((resolve, reject) => {
         fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures${query}`).then((response) => {

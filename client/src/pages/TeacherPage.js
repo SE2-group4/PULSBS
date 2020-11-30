@@ -113,8 +113,6 @@ class TeacherPage extends React.Component {
             case "lecture":
                 this.setState({ selectedLecture: null, students: [], sPages: 1, fetchErrorS: false });
                 break;
-            default:
-                break;
         }
     }
 

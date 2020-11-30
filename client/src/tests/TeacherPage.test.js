@@ -84,6 +84,9 @@ describe('Teacher Page suite', () => {
   test('render TeacherPage component (courses API : json parsing error)', async () => {
     await fetchCourses('Course : application parse error');
     expect(screen.getByText('Course : application parse error')).toBeInTheDocument();
+    await act(async () => {
+      userEvent.click(screen.getByRole('button'));
+    });
   });
 
   test('render TeacherPage component (courses API : error)', async () => {
