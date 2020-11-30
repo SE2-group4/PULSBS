@@ -29,7 +29,7 @@ function Header(props) {
       }
       {props.isAuth &&
         <Nav className="mr-sm-2">
-          <Nav.Link href="/login"><Button variant="light">Logout</Button></Nav.Link>
+          <Nav.Link to="/login" onClick={() => props.userLogout()}><Button variant="light">Logout</Button></Nav.Link>
         </Nav>
       }
     </Navbar>
