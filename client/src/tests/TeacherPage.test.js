@@ -2,6 +2,7 @@ import { render, screen, act } from '@testing-library/react';
 import fetchMock from "jest-fetch-mock";
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
+import moment from "moment";
 
 import TeacherPage from '../pages/TeacherPage';
 import User from '../entities/user';
@@ -17,8 +18,8 @@ const courses = [
   new Course(2, "Information Systems Security", 2020)
 ];
 const lectures = [
-  new Lecture(1, 1, 1, "2021-11-22T07:30:00.000Z", "1000000", "2021-11-18T07:30:00.000Z", "PRESENCE"),
-  new Lecture(2, 1, 1, "2020-11-22T07:30:00.000Z", "1000000", "2020-11-18T07:30:00.000Z", "REMOTE")
+  new Lecture(1, 1, 1, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE"),
+  new Lecture(2, 1, 1, moment().add("2", "day").toISOString(), "1000000", moment().add("1", "day").toISOString(), "REMOTE")
 ];
 const students = [
   new Student(1, "Francesco", "Rossi", "fr@email.com", "ciao1"),
@@ -265,6 +266,9 @@ describe('Teacher Page suite', () => {
       userEvent.click(screen.getByTestId("no-d-1"));
     });
     await act(async () => {
+      userEvent.click(screen.getByTestId('l-1'))
+    });
+    await act(async () => {
       userEvent.click(screen.getByTestId('d-1'))
     });
     fetch.mockResponseOnce(JSON.stringify({ body: "ok" }), { status: 204 });
@@ -273,6 +277,14 @@ describe('Teacher Page suite', () => {
     });
     const items = screen.getAllByTestId('lecture-row');
     expect(items).toHaveLength(1);
+    await act(async () => {
+      userEvent.click(screen.getByTestId('d-2'))
+    });
+    fetch.mockResponseOnce(JSON.stringify({ body: "ok" }), { status: 204 });
+    await act(async () => {
+      userEvent.click(screen.getByTestId("yes-d-2"));
+    });
+    expect(screen.getByText("no lectures available.")).toBeInTheDocument();
   });
 
   test('testing DeleteModal component and related buttons (DELETE failure : error)', async () => {

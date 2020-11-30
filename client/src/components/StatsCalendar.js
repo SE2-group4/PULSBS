@@ -1,5 +1,5 @@
 import React from 'react';
-import FullCalendar, { formatDate } from '@fullcalendar/react'
+import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
@@ -17,6 +17,7 @@ class StatsCalendar extends React.Component {
 
     calendarRef = React.createRef();
     render() {
+        let yesterday = moment().subtract("1", "day").toISOString();
         return (
             <Container fluid>
                 <FullCalendar
@@ -29,6 +30,9 @@ class StatsCalendar extends React.Component {
                     }}
                     aspectRatio="2"
                     initialView='listWeek'
+                    validRange={{
+                        end: yesterday
+                    }}
                     slotMinTime="08:00:00"
                     slotMaxTime="19:00:00"
                     allDaySlot={false}

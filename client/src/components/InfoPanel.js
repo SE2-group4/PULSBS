@@ -1,13 +1,12 @@
 import React from 'react';
 import Container from "react-bootstrap/Container";
-import Jumbotron from 'react-bootstrap/Jumbotron';
 import Row from 'react-bootstrap/Row';
 
 function InfoPanel(props) {
     return (
         <>
-        <Container fluid>
-            
+            <Container fluid>
+
                 <Row>
                     <label><strong>ID :</strong> {props.user.userId}</label>
                 </Row>
@@ -23,8 +22,8 @@ function InfoPanel(props) {
                 <Row>
                     <label><strong>Email :</strong> {props.user.email}</label>
                 </Row>
-            
-        </Container>
+
+            </Container>
         </>
     );
 }

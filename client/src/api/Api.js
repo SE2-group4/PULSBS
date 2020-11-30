@@ -154,11 +154,11 @@ async function getCoursesByTeacherId(id) {
 async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, bookings) {
     let qfrom = dateFrom ? "from=" + dateFrom : "";
     let qto = dateTo ? "to=" + dateTo : "";
-    qto = qfrom ? "&" + qto : qto;
+    qto = qfrom && qto ? "&" + qto : qto;
     let qbook = bookings ? "numBookings=true" : "";
-    qbook = qfrom || qto ? "&" + qbook : qbook;
+    qbook = qfrom && qbook || qto ? "&" + qbook : qbook;
     let query = qfrom || qto || qbook ? "?" + qfrom + qto + qbook : "";
-
+    console.log(query);
 
     return new Promise((resolve, reject) => {
         fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures${query}`).then((response) => {

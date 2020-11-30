@@ -105,7 +105,7 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
         }
 
         const course = new Course(cId);
-        const courseLectures = await db.getLecturesByPeriodOfTime(course, dateFilter);
+        const courseLectures = await db.getLecturesByCourseAndPeriodOfTime(course, dateFilter);
         if (!numBookings) return courseLectures;
 
         let lecturesPlusNumBookings = await Promise.all(

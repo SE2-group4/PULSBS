@@ -63,7 +63,7 @@ class TeacherPage extends React.Component {
     updateLectures = (courseId) => {
         this.setState({ lectureLoading: true });
         let now = new Date().toISOString();
-        API.getLecturesByCourseIdByTeacherId(this.state.user.userId, courseId, now, null, null)
+        API.getLecturesByCourseIdByTeacherId(this.state.user.userId, courseId, now)
             .then((lectures) => {
                 let i = 0;
                 let nMap = new Map();
