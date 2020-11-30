@@ -1,6 +1,19 @@
 "use strict";
 
 class EmailQueue {
+    /**
+     * 
+     * @param {Number} queueId 
+     * @param {String} sender 
+     * @param {String} recipient 
+     * @param {String} emailType 
+     * @param {Number} teacherId 
+     * @param {Number} studentId 
+     * @param {Number} courseId 
+     * @param {String} courseName 
+     * @param {Number} lectureId 
+     * @param {Date} startingDate 
+     */
     constructor(queueId, sender, recipient, emailType, teacherId, studentId, courseId, courseName, lectureId, startingDate) {
         this.queueId = queueId;
         this.sender = sender;

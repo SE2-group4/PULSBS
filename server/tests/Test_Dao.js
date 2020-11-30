@@ -16,7 +16,9 @@ const Lecture = require('../src/entities/Lecture.js');
 const Course = require('../src/entities/Course.js');
 const EmailType = require('../src/entities/EmailType.js');
 const Email = require('../src/entities/Email.js');
+const EmailQueue = require('../src/entities/EmailQueue.js');
 const prepare = require('../src/db/preparedb.js');
+const { fail } = require('assert');
 
 const suite = function() {
     describe('Dao', function() {
@@ -24,6 +26,10 @@ const suite = function() {
         let teacher4;
         let lecture1, lecture2, lecture3;
         let course1, course3;
+        let emailQueue1;
+
+        let wrongLecture;
+        let wrongCourse;
 
         before(function(done) {
             done();
@@ -38,10 +44,14 @@ const suite = function() {
             student2 = new Student(2, 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
             teacher4 = new Teacher(4);
             lecture2 = new Lecture(2);
-            lecture1 = new Lecture(1, 1);
+            lecture1 = new Lecture(1, 1, 1);
             lecture3 = new Lecture(3);
             course1 = new Course(1);
             course3 = new Course(3);
+            emailQueue1 = new EmailQueue(1);
+
+            wrongLecture = new Lecture(-1, -1);
+            wrongCourse = new Course(-1);
 
             prepare('testing.db', 'testing.sql', false)
                 .then(() => done())
@@ -231,7 +241,7 @@ const suite = function() {
                         assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
                         done();
                     })
-                    .catch((err) => done());
+                    .catch((err) => done(err));
             });
 
             it('only from setted should return the list of lectures', function(done) {
@@ -243,7 +253,7 @@ const suite = function() {
                         assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
                         done();
                     })
-                    .catch((err) => done());
+                    .catch((err) => done(err));
             })
 
             it('only to setted should return the list of lectures', function(done) {
@@ -255,7 +265,7 @@ const suite = function() {
                         assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
                         done();
                     })
-                    .catch((err) => done());
+                    .catch((err) => done(err));
             })
 
             it('both from and to setted should return the list of lectures', function(done) {
@@ -268,8 +278,184 @@ const suite = function() {
                         assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
                         done();
                     })
-                    .catch((err) => done());
+                    .catch((err) => done(err));
             })
+        });
+
+        describe('getLectureById', function() {
+            it('correct params should return a lecture', function(done) {
+                dao.getLectureById(lecture1)
+                    .then((lecture) => {
+                        assert.strictEqual(lecture.lectureId, lecture1.lectureId, 'Incorrect lectureId');
+                        assert.strictEqual(lecture.courseId, lecture1.courseId, 'Incorrect courseId');
+                        assert.strictEqual(lecture.classId, lecture1.classId, 'Incorrect classId');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('wrong params should return an error', function(done) {
+                dao.getLectureById({ lectureId : -1 })
+                    .then((lecture) => {
+                        done('This must fail');
+                    })
+                    .catch((err) => done()); // correct case
+            });
+        });
+
+        describe('deleteLectureById', function() {
+            it('correct params should accept the request', function(done) {
+                dao.deleteLectureById(lecture1)
+                    .then((modifiedRows) => {
+                        assert.strictEqual(modifiedRows, 1, 'Lecture not deleted');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('non existing lecture should deny the request', function(done) {
+                dao.deleteLectureById({ lectureId : -1 })
+                .then((modifiedRows) => {
+                    assert.strictEqual(modifiedRows, 0, 'Wrong DB content modified');
+                    done();
+                })
+                .catch((err) => done(err));
+            });
+        });
+
+        describe('deleteEmailQueueById', function() {
+            it('correct params should accept the request', function(done) {
+                dao.deleteEmailQueueById(emailQueue1)
+                    .then((modifiedRows) => {
+                        assert.strictEqual(modifiedRows, 0, 'Email queue not deleted');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('incorrect params should deny the request', function(done) {
+                dao.deleteEmailQueueById({ queueId : -1 })
+                    .then((modifiedRows) => {
+                        assert.strictEqual(modifiedRows, 0, 'Wrong DB content modified');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('getEmailsInQueueByEmailType', function() {
+            it('correct params should return the list of emails', function(done) {
+                dao.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED)
+                    .then((emails) => {
+                        assert.strictEqual(emails.length, 1, 'Wrong number of emails');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('non existing email type should return an empty list', function(done) {
+                dao.getEmailsInQueueByEmailType('Unexisting type')
+                    .then((emails) => {
+                        assert.strictEqual(emails.length, 0, 'Wrong number of emails');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('updateLectureDeliveryMode', function() {
+            it('correct params should accept the request', function(done) {
+                lecture1.delivery = Lecture.DeliveryType.REMOTE;
+                dao.updateLectureDeliveryMode(lecture1)
+                    .then((modifiedRows) => {
+                        assert.strictEqual(modifiedRows, 1, 'Lecture not updated');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('non existing lecture should deny the request', function(done) {
+                dao.updateLectureDeliveryMode({ lectureId : -1, delivery : Lecture.DeliveryType.REMOTE })
+                    .then((modifiedRows) => {
+                        assert.strictEqual(modifiedRows, 0, 'Wrong DB content modified');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('getLecturesByCoursePlusNumBookings', function() {
+            it('correct params should return a complex list', function(done) {
+                dao.getLecturesByCoursePlusNumBookings(course1)
+                    .then((list) => {
+                        assert.ok(list);
+                        assert.ok(list[0]);
+                        assert.strictEqual(list.length, 2, 'Wrong number of lectures');
+                        
+                        for(let currItem of list) {
+                            switch(currItem.lecture.lectureId) {
+                                case 1:
+                                    assert.strictEqual(currItem.numBookings, 1, 'Wrong number of bookings');
+                                    break;
+                                case 4:
+                                    assert.strictEqual(currItem.numBookings, 0, 'Wrong number of bookings');
+                                    break;
+                                default:
+                                    fail('unexpected lecture');
+                            }
+                        }
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('non existing course should return an empty list', function(done) {
+                dao.getLecturesByCoursePlusNumBookings({ courseId : -1 })
+                    .then((list) => {
+                        assert.ok(list);
+                        assert.strictEqual(list.length, 0, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('getNumBookingsOfLecture', function() {
+            it('correct params should return the number of bookings', function(done) {
+                dao.getNumBookingsOfLecture(lecture2)
+                    .then((nBooking) => {
+                        assert.strictEqual(nBooking, 1, 'Wrong number of bookings');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+            it('non existing lecture should return zero', function(done) {
+                dao.getNumBookingsOfLecture(wrongLecture)
+                    .then((nBooking) => {
+                        assert.strictEqual(nBooking, 0, 'Wrong number of bookings');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('getLecturesByCourseId', function() {
+            it('correct params should return a list of lectures', function(done) {
+                dao.getLecturesByCourseId(course1)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+            it('non existing course should return an empty list', function(done) {
+                dao.getLecturesByCourseId(wrongCourse)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 0, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
         });
     });
 }
