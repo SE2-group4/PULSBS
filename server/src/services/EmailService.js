@@ -1,11 +1,14 @@
 "use strict";
-
 const nodemailer = require("nodemailer");
 
 const defaultTemplates = {
     LESSON_CANCELLED: {
         subject: "Course {0} - <b>LECTURE CANCELLED</b>",
         message: "Dear student,\nyour lecture scheduled for {0} has been cancelled.",
+    },
+    LESSON_UPDATE_DELIVERY: {
+        subject: "Course {0} - <b>LECTURE UPDATE</b>",
+        message: "Dear student,\nyour lecture scheduled for {0} has been switched to {1} mode.",
     },
 };
 
