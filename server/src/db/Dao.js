@@ -152,7 +152,7 @@ const deleteBooking = function (student, lecture) {
                 return;
             }
 
-            resolve(this.lastID);
+            resolve(this.changes);
         });
     });
 };

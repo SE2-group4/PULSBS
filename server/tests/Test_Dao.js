@@ -186,8 +186,8 @@ const suite = function() {
         describe('deleteBooking', function() {
             it('correct params should remove the booking', function(done) {
                 dao.deleteBooking(student1, lecture1)
-                    .then((retVal) => {
-                        assert.ok(retVal > 0, 'Booking not inserted');
+                    .then((modifiedRows) => {
+                        assert.strictEqual(modifiedRows, 1, 'Booking not inserted');
                         done();
                     })
                     .catch((err) => done());
@@ -195,8 +195,9 @@ const suite = function() {
 
             it('non existing student should reject the request', function(done) {
                 dao.deleteBooking(-1, lecture1)
-                    .then((retVal) => {
-                        assert.strictEqual(retVal, 0, 'Not booking should be deleted');
+                    .then((modifiedRows) => {
+                        console.log(modifiedRows);
+                        assert.strictEqual(modifiedRows, 0, 'Not booking should be deleted');
                         done()
                     })
                     .catch((err) => done());

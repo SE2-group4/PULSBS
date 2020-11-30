@@ -10,8 +10,8 @@ const Course = require("../entities/Course.js");
 const Lecture = require("../entities/Lecture.js");
 const EmailType = require('./../entities/EmailType.js');
 const emailService = require('./EmailService.js');
-const utils = require('../utils/Utils.js');
-const { StandardErr } = require('./../utils/utils');
+const utils = require('../utils/utils.js');
+const { StandardErr } = require('./../utils/utils.js');
 
 const dao = require("../db/Dao.js");
 
@@ -84,7 +84,10 @@ exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
 
     return new Promise((resolve, reject) => {
         dao.deleteBooking(student, lecture)
-            .then(resolve) // TODO: send a confirmation email
+            .then((modifiedBookings) => {
+                if(modifiedBookings == 1) resolve(modifiedBookings); 
+                else reject(new StandardErr('StudentService', StandardErr.errno.NOT_EXISTS, 'This booking does not exists', 404));
+            })
             .catch(reject);
     });
 }
