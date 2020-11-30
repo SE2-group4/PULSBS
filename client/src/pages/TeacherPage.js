@@ -2,6 +2,7 @@ import React from 'react';
 import Container from "react-bootstrap/Container"
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
+import Spinner from 'react-bootstrap/Spinner';
 import API from "../api/Api";
 import ErrorMsg from '../components/ErrorMsg';
 import { CoursePanel, LecturePanel, StudentPanel, EditModal, DeleteModal } from '../components/TeacherComp';
@@ -12,6 +13,7 @@ import Lecture from '../entities/lecture';
  *  in the same instance (min value: 2)
  */
 const elementForPage = 2;
+const studentForPage = 10;
 
 class TeacherPage extends React.Component {
 
@@ -30,7 +32,8 @@ class TeacherPage extends React.Component {
             courseMap: new Map(), cPages: 1,                                 //course pagination
             lectureMap: new Map(), lPages: 1,                                //lecture pagination
             studentMap: new Map(), sPages: 1,                                //student pagination
-            fetchErrorC: false, fetchErrorL: false, fetchErrorS: false       //fetch errors
+            fetchErrorC: false, fetchErrorL: false, fetchErrorS: false,      //fetch errors
+            lectureLoading: false, studentLoading: false                     //loadings
         };
     }
 
@@ -58,8 +61,9 @@ class TeacherPage extends React.Component {
      * updateLectures fetches all lectures of the selected teacher's course 
      */
     updateLectures = (courseId) => {
+        this.setState({ lectureLoading: true });
         let now = new Date().toISOString();
-        API.getLecturesByCourseIdByTeacherId(this.state.user.userId, courseId, now)
+        API.getLecturesByCourseIdByTeacherId(this.state.user.userId, courseId, now, null, null)
             .then((lectures) => {
                 let i = 0;
                 let nMap = new Map();
@@ -68,11 +72,11 @@ class TeacherPage extends React.Component {
                     i++;
                 });
                 let nPages = Math.ceil(i / elementForPage);
-                this.setState({ lectures: lectures, lectureMap: nMap, lPages: nPages, selectedCourse: courseId, selectedLecture: null, fetchErrorL: false, students: [], sPages: 1, fetchErrorS: false });
+                this.setState({ lectures: lectures, lectureMap: nMap, lPages: nPages, selectedCourse: courseId, selectedLecture: null, fetchErrorL: false, students: [], sPages: 1, fetchErrorS: false, lectureLoading: false });
             })
             .catch((error) => {
                 let errormsg = error.source + " : " + error.error;
-                this.setState({ selectedCourse: courseId, lectures: [], selectedLecture: null, lPages: 1, fetchErrorL: errormsg, students: [], sPages: 1, fetchErrorS: false });
+                this.setState({ selectedCourse: courseId, lectures: [], selectedLecture: null, lPages: 1, fetchErrorL: errormsg, students: [], sPages: 1, fetchErrorS: false, lectureLoading: false });
             });
     }
 
@@ -80,20 +84,21 @@ class TeacherPage extends React.Component {
      * updateStudents fetches all students of the selected lecture of a teacher's selected course 
      */
     updateStudents = (lectureId) => {
+        this.setState({ studentLoading: true });
         API.getStudentsByLecture(this.state.user.userId, this.state.selectedCourse, lectureId)
             .then((students) => {
                 let i = 0;
                 let nMap = new Map();
                 students.forEach(function (item) {
-                    nMap.set(item.studentId, Math.floor(i / elementForPage));
+                    nMap.set(item.studentId, Math.floor(i / studentForPage));
                     i++;
                 });
                 let nPages = Math.ceil(i / elementForPage);
-                this.setState({ students: students, studentMap: nMap, sPages: nPages, selectedLecture: lectureId, fetchErrorS: false })
+                this.setState({ students: students, studentMap: nMap, sPages: nPages, selectedLecture: lectureId, fetchErrorS: false, studentLoading: false })
             })
             .catch((error) => {
                 let errormsg = error.source + " : " + error.error;
-                this.setState({ selectedLecture: lectureId, students: [], sPages: 1, fetchErrorS: errormsg });
+                this.setState({ selectedLecture: lectureId, students: [], sPages: 1, fetchErrorS: errormsg, studentLoading: false });
             });
     }
 
@@ -202,23 +207,17 @@ class TeacherPage extends React.Component {
                     <EditModal editClose={this.closeEditModal} lectureId={this.state.lectureIdToUpdate} delivery={this.state.deliveryToUpdate} updateDelivery={this.updateDelivery} />}
                 { this.state.lectureIdToDelete &&
                     <DeleteModal deleteClose={this.closeDeleteModal} lectureId={this.state.lectureIdToDelete} deleteLecture={this.deleteLecture} />}
+
                 <Container fluid>
                     <Row>
-                        <Col sm={8}>
+                        <Col sm={6}>
                             <CoursePanel
                                 courses={this.state.courses}                                                                    //courses
                                 sCourse={this.state.selectedCourse} pageMap={this.state.courseMap} nPages={this.state.cPages}   //courses pagination
                                 update={this.updateLectures} reset={this.resetSelected}                                         //interaction with Lecture Panel
                             />
-                        </Col>
-                        <Col sm={2}>
-                            {this.state.fetchErrorC && <ErrorMsg name="fetchErrorC" msg={this.state.fetchErrorC} onClose={this.closeError} />}<> </>
-                        </Col>
-                    </Row>
-                    <br />
-                    <br />
-                    <Row>
-                        <Col sm={8}>
+                            <br />
+                            <br />
                             <LecturePanel
                                 lectures={this.state.lectures}                                                                      //lectures
                                 sLecture={this.state.selectedLecture} pageMap={this.state.lectureMap} nPages={this.state.lPages}    //lectures pagination
@@ -227,21 +226,17 @@ class TeacherPage extends React.Component {
                                 showDeleteModal={this.showDeleteModal}                                                              //Delete
                             />
                         </Col>
-                        <Col sm={2}>
-                            {this.state.fetchErrorL && <ErrorMsg name="fetchErrorL" msg={this.state.fetchErrorL} onClose={this.closeError} />}<> </>
-                        </Col>
-                    </Row>
-                    <br />
-                    <br />
-                    <Row>
-                        <Col sm={8}>
+                        <Col sm={6}>
                             <StudentPanel
                                 students={this.state.students}                                                      //students
                                 pageMap={this.state.studentMap} nPages={this.state.sPages}                          //students pagination
                             />
-                        </Col>
-                        <Col sm={2}>
-                            {this.state.fetchErrorS && <ErrorMsg name="fetchErrorS" msg={this.state.fetchErrorS} onClose={this.closeError} />}<> </>
+                            <Col sm={4}>
+                                {this.state.fetchErrorC && <ErrorMsg name="fetchErrorC" msg={this.state.fetchErrorC} onClose={this.closeError} />}
+                                {this.state.fetchErrorS && <ErrorMsg name="fetchErrorS" msg={this.state.fetchErrorS} onClose={this.closeError} />}
+                                {this.state.fetchErrorL && <ErrorMsg name="fetchErrorL" msg={this.state.fetchErrorL} onClose={this.closeError} />}
+                                {(this.state.studentLoading || this.state.lectureLoading) && <label>Loading...&emsp;&emsp;<Spinner animation="border" /></label>}
+                            </Col>
                         </Col>
                     </Row>
                 </Container>

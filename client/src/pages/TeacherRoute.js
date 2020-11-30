@@ -1,6 +1,7 @@
 import React from "react";
 import { Route } from "react-router-dom";
 import { Switch } from "react-router";
+import Spinner from 'react-bootstrap/Spinner';
 import TeacherPage from "./TeacherPage";
 import TeacherStatsPage from "./TeacherStatsPage";
 import API from '../api/Api';
@@ -33,23 +34,26 @@ class TeacherRoute extends React.Component {
     }
 
     render() {
-        return <Switch>
-            {!this.state.loading && <>
-                <Route
-                    path="/teacherPage/main"
-                    render={() => {
-                        return <TeacherPage user={this.props.user} courses={this.state.courses} fetchError={this.state.fetchError} />;
-                    }}
-                ></Route>
-                <Route
-                    path="/teacherPage/stats"
-                    render={() => {
-                        return <TeacherStatsPage user={this.props.user} courses={this.state.courses} />;
-                    }}
-                ></Route>
-            </>}
+        return <>
+            {this.state.loading && <Spinner animation="border" />}
+            <Switch>
+                {!this.state.loading && <>
+                    <Route
+                        path="/teacherPage/main"
+                        render={() => {
+                            return <TeacherPage user={this.props.user} courses={this.state.courses} fetchError={this.state.fetchError} />;
+                        }}
+                    ></Route>
+                    <Route
+                        path="/teacherPage/stats"
+                        render={() => {
+                            return <TeacherStatsPage user={this.props.user} courses={this.state.courses} />;
+                        }}
+                    ></Route>
+                </>}
 
-        </Switch>
+            </Switch>
+        </>;
     }
 }
 

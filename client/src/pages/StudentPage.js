@@ -6,7 +6,7 @@ import API from "../api/Api";
 import Sidebar from '../components/Sidebar';
 import Calendar from '../components/Calendar';
 import CalendarEvent from "../entities/calendarEvent";
-import ErrorMsg from '../components/ErrorMsg'
+import ErrorMsg from '../components/ErrorMsg';
 import moment from "moment";
 import Spinner from 'react-bootstrap/Spinner';
 import Lecture from '../entities/lecture';

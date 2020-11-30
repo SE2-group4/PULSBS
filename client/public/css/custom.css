@@ -21,7 +21,7 @@
 #containerLogin{
   align-content:center;
   width: 500px;
-  height: 400px;
+  height: 500px;
   background-color: rgba(228, 228, 228, 0.884);
   border-radius: 10px 10px 10px 10px;
   padding-top: 3%;
@@ -37,6 +37,10 @@
   background-color: rgb(240, 240, 173);
   border-radius: 10px 10px 10px 10px;
   padding-right: 5%;
+}
+.tabspinners{
+  position: absolute;
+  right: 10%;
 }
 /* img buttons */
 .img-button:hover {
