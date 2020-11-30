@@ -17,7 +17,7 @@ const Email = require("./../entities/Email.js");
 const EmailQueue = require("./../entities/EmailQueue.js");
 const EmailType = require("./../entities/EmailType.js");
 const emailService = require("./../services/EmailService.js");
-const { StandardErr } = require("./../utils/utils");
+const { StandardErr } = require("./../utils/Utils");
 
 let db = null;
 

@@ -75,7 +75,7 @@ const toStandard = function(errors, code) {
         return StandardErr.new('System', StandardErr.errno.GENERIC, 'not specified');
 
     const err = errors.errors[0];
-    return StandardErr.new('Request ' + err.location, undefined,  err.msg + ' ' + err.location, code);
+    return StandardErr.new('Request ' + err.location, StandardErr.errno.GENERIC,  err.msg + ' ' + err.location, code);
 }
 exports.toStandard = toStandard;
 

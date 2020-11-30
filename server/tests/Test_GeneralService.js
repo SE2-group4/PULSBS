@@ -30,7 +30,7 @@ const suite = function() {
     });
 
     const reset = (done) => {
-        this.student2 = new Student(2, 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
+        student2 = new Student(2, 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
 
         prepare('testing.db', 'testing.sql', false)
             .then(() => done())
@@ -40,20 +40,20 @@ const suite = function() {
     describe('GeneralService', function() {        
         describe('userLogin', function() {
             beforeEach(function(done) {
-                reset(done());
+                reset(done);
             });
 
             it('correct params should accept the request', function(done) {
-                service.userLogin(this.student2.email, this.student2.password)
+                service.userLogin(student2.email, student2.password)
                     .then((user) => {
-                        assert.strictEqual(user.userId, this.student2.studentId, 'different user retrieved');
+                        assert.strictEqual(user.userId, student2.studentId, 'different user retrieved');
                         done();
                     })
                     .catch((err) => done(err));
             });
             
             it('incorrect username should discard the request', function(done) {
-                service.userLogin('franco@agg.it', this.student2.password)
+                service.userLogin('franco@agg.it', student2.password)
                     .then((user) => {
                         done('This should fail');
                     })
@@ -61,7 +61,7 @@ const suite = function() {
             });
 
             it('incorrect password should discard the request', function(done) {
-                service.userLogin(this.student2.email, 'franco')
+                service.userLogin(student2.email, 'franco')
                     .then((user) => {
                         done('This should fail');
                     })

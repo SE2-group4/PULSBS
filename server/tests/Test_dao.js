@@ -7,6 +7,7 @@
 
 const assert = require('assert');
 const path = require('path');
+const moment = require('moment');
 
 const dao = require('../src/db/Dao.js');
 const Student = require('../src/entities/Student.js');
@@ -19,28 +20,33 @@ const prepare = require('../src/db/preparedb.js');
 
 const suite = function() {
     describe('Dao', function() {
-        let student1;
-        let student2;
+        let student1, student2;
         let teacher4;
-        let lecture2, lecture3;
-        let course3;
+        let lecture1, lecture2, lecture3;
+        let course1, course3;
 
         before(function(done) {
             done();
         });
 
         beforeEach(function(done) {
+            reset(done);
+        });
+
+        const reset = (done) => {
             student1 = new Student(1, 'Aldo', 'Baglio');
             student2 = new Student(2, 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
             teacher4 = new Teacher(4);
             lecture2 = new Lecture(2);
+            lecture1 = new Lecture(1, 1);
             lecture3 = new Lecture(3);
+            course1 = new Course(1);
             course3 = new Course(3);
 
             prepare('testing.db', 'testing.sql', false)
                 .then(() => done())
                 .catch((err) => done(err));
-        });
+        }
 
         describe('login', function() {
             it('correct data should perform login', function(done) {
@@ -176,6 +182,94 @@ const suite = function() {
                     .catch((err) => done(err));
             });
         });
+
+        describe('deleteBooking', function() {
+            it('correct params should remove the booking', function(done) {
+                dao.deleteBooking(student1, lecture1)
+                    .then((retVal) => {
+                        assert.ok(retVal > 0, 'Booking not inserted');
+                        done();
+                    })
+                    .catch((err) => done());
+            });
+
+            it('non existing student should reject the request', function(done) {
+                dao.deleteBooking(-1, lecture1)
+                    .then((retVal) => {
+                        assert.strictEqual(retVal, 0, 'Not booking should be deleted');
+                        done()
+                    })
+                    .catch((err) => done());
+            });
+        });
+
+        describe('getBookingsByStudent', function() {
+            it('correct params should return the list of lectures', function(done) {
+                dao.getBookingsByStudent(student2)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of bookings');
+                        done();
+                    })
+                    .catch((err) => done());
+            });
+
+            it('non existing student should return an empty list', function(done) {
+                dao.getBookingsByStudent(-1)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 0, 'Wrong number of bookings');
+                        done();
+                    })
+                    .catch((err) => done());
+            });
+        })
+
+        describe('getLecturesByPeriodOfTime', function() {
+            it('not specified period of time should return the list of lectures', function(done) {
+                dao.getLecturesByPeriodOfTime(course1)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done());
+            });
+
+            it('only from setted should return the list of lectures', function(done) {
+                const periodOfTime = {
+                    from : moment().add(2, 'day').endOf('day')
+                };
+                dao.getLecturesByPeriodOfTime(course1, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done());
+            })
+
+            it('only to setted should return the list of lectures', function(done) {
+                const periodOfTime = {
+                    to : moment().add(1, 'day').endOf('day')
+                };
+                dao.getLecturesByPeriodOfTime(course1, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done());
+            })
+
+            it('both from and to setted should return the list of lectures', function(done) {
+                const periodOfTime = {
+                    from : moment().add(2, 'day').endOf('day'),
+                    to : moment().add(3, 'day').endOf('day')
+                };
+                dao.getLecturesByPeriodOfTime(course1, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done());
+            })
+        });
     });
 }
-module.exports = suite;
+module.exports = suite;''

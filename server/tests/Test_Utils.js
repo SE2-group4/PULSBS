@@ -23,15 +23,15 @@ const suite = function() {
             ];
 
             it('correct input should return specific error', function(done) {
-                const retVal = utils.toStandard(errors, 999);
-                assert.strictEqual(retVal.statusCode, 999, 'Wrong error code');
-                assert.strictEqual(typeof retVal, typeof utils.StandardErr, 'Not a proper error');
+                const retError = utils.toStandard(errors, 999);
+                assert.strictEqual(typeof retError, typeof new utils.StandardErr(), 'Not a proper error');
+                assert.strictEqual(retError.statusCode, 999, 'Wrong error code');
                 done();
             });
 
             it('wrong input should return generic string', function(done) {
                 const retVal = utils.toStandard(null);
-                assert.strictEqual(typeof retVal, typeof utils.StandardErr, 'Not a proper error');
+                assert.strictEqual(typeof retVal, typeof new utils.StandardErr(), 'Not a proper error');
                 done();
             });
         });

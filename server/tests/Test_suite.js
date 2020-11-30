@@ -6,7 +6,7 @@
 
 const dao = require('../src/db/Dao.js');
 const Test_Dao = require('./Test_Dao.js');
-const Test_Dao = require('./Test_Utils.');
+const Test_Utils = require('./Test_Utils.js');
 const Test_services = require('./Test_services.js');
 
 /**

@@ -112,7 +112,7 @@ const suite = function() {
             });
 
             it('correct params should return the list of lectures', function(done) {
-                service.studentGetCourseLectures(student1.studentId, lecture1.courseId)
+                service.studentGetCourseLectures(student1.studentId, lecture2.courseId)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
                         done();
@@ -127,7 +127,7 @@ const suite = function() {
             });
 
             it('course with no future lectures should return an empty list of lectures', function(done) {
-                service.studentGetCourseLectures(student2.studentId, course5.courseId)
+                service.studentGetCourseLectures(student1.studentId, course5.courseId)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 0, 'Wrong number of lectures retrieved');
                         done();
@@ -152,7 +152,7 @@ const suite = function() {
             });
             
             it('non-existing student should return an empty list of courses', function(done) {
-                service.studentGetCourse(-1)
+                service.studentGetCourses(-1)
                     .then((courses) => {
                         assert.strictEqual(courses.length, 0, 'Wrong number of courses retrieved');
                         done();
