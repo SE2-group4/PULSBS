@@ -5,7 +5,7 @@ const Course = require("../entities/Course");
 const Teacher = require("../entities/Teacher");
 const Email = require("../entities/Email");
 const EmailService = require("../services/EmailService");
-
+const utils = require("../utils/utils");
 const { ResponseError } = require("../utils/ResponseError");
 
 const db = require("../db/Dao");
@@ -174,28 +174,24 @@ exports.nextCheck = nextCheck;
  * Check for today's expired lecture and send the summaries to the teachers in charge of the respective course
  **/
 exports.checkForExpiredLectures = async () => {
-    console.log("AUTORUN: Checking for expired lectures");
+    console.info("Checking for lectures that have today as deadline");
 
-    try {
-        const summaries = await findSummaryExpiredLectures();
+    const summaries = await findSummaryExpiredLectures();
 
-        sendSummaryToTeachers(summaries);
+    sendSummaryToTeachers(summaries);
 
-        console.log("AUTORUN: Emails in queue");
+    console.info("Emails in queue");
 
-        const time = nextCheck();
-        const now = new Date();
-        console.log(`AUTORUN: Next check planned for ${new Date(time + now.getTime())}`);
-        setTimeout(() => {
-            this.checkForExpiredLectures();
-        }, time);
+    const time = nextCheck();
+    const now = new Date();
 
-        return "noerror";
-    } catch (err) {
-        //console.log(err);
-        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
-        throw err;
-    }
+    console.info(`Next check scheduled at ${utils.formatDate(new Date(time + now.getTime()))}`);
+
+    setTimeout(() => {
+        this.checkForExpiredLectures();
+    }, time);
+
+    return "noerror";
 };
 
 /**
@@ -397,6 +393,31 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 
         lecture.delivery = switchTo;
         await db.updateLectureDeliveryMode(lecture);
+        const studentsToBeNotified = await db.getStudentsByLecture(lecture);
+        if (studentsToBeNotified.length > 0) {
+            const course = await db.getCourseByLecture(lecture);
+            const subjectArgs = [course.description];
+            const messageArgs = [lecture.startingDate, lecture.delivery];
+            const { subject, message } = EmailService.getDefaultEmail(
+                Email.EmailType.LESSON_UPDATE_DELIVERY,
+                subjectArgs,
+                messageArgs
+            );
+
+            console.log(subject, message);
+
+            studentsToBeNotified.forEach((student) =>
+                EmailService.sendCustomMail(student.email, subject, message)
+                    .then(() => {
+                        console.email(
+                            `lecture update (${lecture.delivery}, ${utils.formatDate(
+                                lecture.startingDate
+                            )}) email sent to ${student.email}`
+                        );
+                    })
+                    .catch((err) => console.error(err))
+            );
+        }
 
         return 204;
     } catch (err) {
@@ -574,24 +595,16 @@ function sendSummaryToTeachers(summaries) {
         const course = summary.course;
         const lecture = summary.lecture;
 
-        const options = {
-            year: "numeric",
-            month: "numeric",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-            second: "numeric",
-            hour12: false,
-            timeZone: "Europe/Rome",
-        };
-        const dateFormatter = new Intl.DateTimeFormat("en-GB", options);
-
         EmailService.sendStudentNumberEmail(
             teacher.email,
             course.description,
-            dateFormatter.format(lecture.startingDate),
+            utils.formatDate(lecture.startingDate),
             summary.studentsBooked
-        ).then(() => console.log(`sent email to ${teacher.email} about lecture ${lectureId}`));
+        ).then(() =>
+            console.email(
+                `sent summary to ${teacher.email} about lecture scheduled for ${utils.formatDate(lecture.startingDate)}`
+            )
+        );
 
         // TODO: add to the db the email sent
     }
@@ -646,7 +659,6 @@ async function findSummaryExpiredLectures(date) {
     const expiredLectures = await db.getLecturesByDeadline(date);
 
     const mapResponse = new Map();
-
     let promises = new Map();
 
     // Get number of stundents for each expiredLectures
