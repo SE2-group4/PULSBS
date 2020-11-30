@@ -151,17 +151,29 @@ async function getCoursesByTeacherId(id) {
  *  @param {*} dateFrom date
  *  @param {*} dateTo date
  */
-async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo) {
+async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, bookings) {
     let qfrom = dateFrom ? "from=" + dateFrom : "";
     let qto = dateTo ? "to=" + dateTo : "";
-    qto = qfrom ? "&" + qto : qto;                      //chiedere conferma
-    let query = qfrom || qto ? "?" + qfrom + qto : "";
+    qto = qfrom ? "&" + qto : qto;
+    let qbook = bookings ? "numBookings=true" : "";
+    qbook = qfrom || qto ? "&" + qbook : qbook;
+    let query = qfrom || qto || qbook ? "?" + qfrom + qto + qbook : "";
+
 
     return new Promise((resolve, reject) => {
         fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures${query}`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { resolve(obj.map((l) => Lecture.from(l))); })
+                    .then((obj) => {
+                        if (!bookings)
+                            resolve(obj.map((l) => Lecture.from(l)));
+                        else {
+                            resolve(obj.map((l) => {
+                                l.lecture["numBookings"] = l.numBookings;
+                                return Lecture.from(l.lecture);
+                            }));
+                        }
+                    })
                     .catch((err) => { reject({ source: "Lecture", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
