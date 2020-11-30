@@ -344,10 +344,10 @@ const suite = function() {
         });
 
         describe('getEmailsInQueueByEmailType', function() {
-            it('correct params should return the list of emails', function(done) {
+            it('correct params should return the list of email queues', function(done) {
                 dao.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED)
-                    .then((emails) => {
-                        assert.strictEqual(emails.length, 1, 'Wrong number of emails');
+                    .then((emailQueues) => {
+                        assert.strictEqual(emailQueues.length, 1, 'Wrong number of email queues');
                         done();
                     })
                     .catch((err) => done(err));
@@ -355,8 +355,8 @@ const suite = function() {
 
             it('non existing email type should return an empty list', function(done) {
                 dao.getEmailsInQueueByEmailType('Unexisting type')
-                    .then((emails) => {
-                        assert.strictEqual(emails.length, 0, 'Wrong number of emails');
+                    .then((emailQueues) => {
+                        assert.strictEqual(emailQueues.length, 0, 'Wrong number of email queues');
                         done();
                     })
                     .catch((err) => done(err));
