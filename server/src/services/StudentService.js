@@ -133,10 +133,11 @@ exports.studentGetCourses = function(studentId) {
 /**
  * get the list of lectures booked
  * @param {Student} studentId 
+ * @parma {Object} periodOfTime
  * @returns {Promise} promise
  */
-exports.studentGetBookings = function(studentId) {
+exports.studentGetBookings = function(studentId, periodOfTime) {
     const student = new Student(studentId);
 
-    return dao.getBookingsByStudent(student);
+    return dao.getBookingsByStudentAndPeriodOfTime(student);
 };

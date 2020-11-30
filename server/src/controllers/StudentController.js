@@ -118,7 +118,13 @@ controller.get('/:studentId/bookings', [
         return;
     }
 
-    const studentId = Number(req.params.studentId);
+    const periodOfTime = {};
+    if(req.query.from)
+        periodOfTime.from = moment(req.query.from);
+    if(req.query.to)
+        periodOfTime.from = moment(req.query.to);
+
+    const studentId = Number(req.params.studentId, periodOfTime);
     service.studentGetBookings(studentId)
         .then((lectures) => res.status(200).json(lectures).end())
         .catch((err) => res.status(err.statusCode).json(err).end());
