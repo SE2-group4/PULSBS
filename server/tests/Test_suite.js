@@ -5,7 +5,8 @@
 'use strict';
 
 const dao = require('../src/db/Dao.js');
-const Test_dao = require('./Test_dao.js');
+const Test_Dao = require('./Test_Dao.js');
+const Test_Dao = require('./Test_Utils.');
 const Test_services = require('./Test_services.js');
 
 /**
@@ -18,11 +19,8 @@ describe('System', function () {
     });
 
     describe('Unit tests', function() {
-        Test_dao();
-    });
-
-    describe('Integration tests', function() {
-        Test_services();
+        Test_Dao();
+        Test_Utils();
     });
 
     describe('Integration tests', function() {
