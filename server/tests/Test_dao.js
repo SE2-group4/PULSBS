@@ -272,4 +272,4 @@ const suite = function() {
         });
     });
 }
-module.exports = suite;''
+module.exports = suite;
