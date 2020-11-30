@@ -49,7 +49,7 @@ controller.delete('/:studentId/courses/:courseId/lectures/:lectureId', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(utils.toStandard(errors)).end();
+        res.status(400).json(utils.toStandard(errors, 400)).end();
         return;
     }
 
@@ -89,7 +89,7 @@ controller.get('/:studentId/courses', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(utils.toStandard(errors)).end();
+        res.status(400).json(utils.toStandard(errors, 400)).end();
         return;
     }
 
@@ -108,7 +108,7 @@ controller.get('/:studentId/bookings', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(utils.toStandard(errors)).end();
+        res.status(400).json(utils.toStandard(errorsm, 400)).end();
         return;
     }
 
