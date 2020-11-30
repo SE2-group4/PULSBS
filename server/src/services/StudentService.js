@@ -11,7 +11,7 @@ const Lecture = require("../entities/Lecture.js");
 const EmailType = require('./../entities/EmailType.js');
 const emailService = require('./EmailService.js');
 const utils = require('../utils/Utils.js');
-const { StandardErr } = require('./../utils/Utils');
+const { StandardErr } = require('./../utils/utils');
 
 const dao = require("../db/Dao.js");
 
