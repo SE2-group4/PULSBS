@@ -22,19 +22,27 @@ const suite = function() {
     let student2;
 
     before(function(done) {
-        this.student2 = new Student(2, 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
-        
         done();
     });
 
     beforeEach(function(done) {
+        done();
+    });
+
+    const reset = (done) => {
+        this.student2 = new Student(2, 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
+
         prepare('testing.db', 'testing.sql', false)
             .then(() => done())
             .catch((err) => done(err));
-    });
+    };
 
-    describe('GeneralService', function() {
+    describe('GeneralService', function() {        
         describe('userLogin', function() {
+            beforeEach(function(done) {
+                reset(done());
+            });
+
             it('correct params should accept the request', function(done) {
                 service.userLogin(this.student2.email, this.student2.password)
                     .then((user) => {

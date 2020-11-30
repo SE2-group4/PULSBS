@@ -30,7 +30,6 @@ const suite = function() {
     });
 
     beforeEach(function(done) {
-        reset();
         done();
     });
 
@@ -47,10 +46,6 @@ const suite = function() {
     }
 
     describe('StudentService', function() {
-        beforeEach(function(done) {
-            reset(done);
-        });
-
         describe('studentBookLecture', function() {
             beforeEach(function(done) {
                 reset(done);
