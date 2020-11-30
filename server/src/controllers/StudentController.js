@@ -72,9 +72,15 @@ controller.get('/:studentId/courses/:courseId/lectures', [
         return;
     }
 
+    const periodOfTime = {};
+    if(req.query.from)
+        periodOfTime.from = moment(req.query.from);
+    if(req.query.to)
+        periodOfTime.from = moment(req.query.to);
+
     const studentId = Number(req.params.studentId);
     const courseId = Number(req.params.courseId);
-    service.studentGetCourseLectures(studentId, courseId)
+    service.studentGetCourseLectures(studentId, courseId, periodOfTime)
         .then((lectures) => res.status(200).json(lectures).end())
         .catch((err) => res.status(err.statusCode).json(err).end());
 

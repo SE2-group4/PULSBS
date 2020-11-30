@@ -96,9 +96,10 @@ exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
  * get the list of lectures given a student and a course
  * @param {Number} studentId
  * @param {Number} courseId
+ * @param {Object} periodOfTime
  * @returns {Promise} promise
  */
-exports.studentGetCourseLectures = function(studentId, courseId) {
+exports.studentGetCourseLectures = function(studentId, courseId, periodOfTime = {}) {
     const student = new Student(studentId);
     const course = new Course(courseId);
 
@@ -111,7 +112,7 @@ exports.studentGetCourseLectures = function(studentId, courseId) {
                     return;
                 }
                 
-                dao.getLecturesByCourse(course)
+                dao.getLecturesByCourseAndPeriodOfTime(course, periodOfTime)
                     .then(resolve)
                     .catch(reject);
             });

@@ -554,7 +554,7 @@ exports.getBookingsByStudent = getBookingsByStudent;
  * @param {Object} periodOfTime - {Date} from (optional), {Date} to (optional)
  * @returns {Promise} promise
  */
-const getLecturesByPeriodOfTime = function (course, periodOfTime = {}) {
+const getLecturesByCourseAndPeriodOfTime = function (course, periodOfTime = {}) {
     return new Promise((resolve, reject) => {
         const sqlParams = [];
         let sql = `SELECT Lecture.* FROM Lecture WHERE Lecture.courseId = ?`;
@@ -583,7 +583,7 @@ const getLecturesByPeriodOfTime = function (course, periodOfTime = {}) {
         });
     });
 };
-exports.getLecturesByPeriodOfTime = getLecturesByPeriodOfTime;
+exports.getLecturesByCourseAndPeriodOfTime = getLecturesByCourseAndPeriodOfTime;
 
 /**
  * Get a lecture given a lectureId

@@ -234,9 +234,9 @@ const suite = function() {
             });
         })
 
-        describe('getLecturesByPeriodOfTime', function() {
+        describe('getLecturesByCourseAndPeriodOfTime', function() {
             it('not specified period of time should return the list of lectures', function(done) {
-                dao.getLecturesByPeriodOfTime(course1)
+                dao.getLecturesByCourseAndPeriodOfTime(course1)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
                         done();
@@ -248,7 +248,7 @@ const suite = function() {
                 const periodOfTime = {
                     from : moment().startOf('day').add(2, 'day')
                 };
-                dao.getLecturesByPeriodOfTime(course1, periodOfTime)
+                dao.getLecturesByCourseAndPeriodOfTime(course1, periodOfTime)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
                         done();
@@ -260,7 +260,7 @@ const suite = function() {
                 const periodOfTime = {
                     to : moment().endOf('day').add(1, 'day')
                 };
-                dao.getLecturesByPeriodOfTime(course1, periodOfTime)
+                dao.getLecturesByCourseAndPeriodOfTime(course1, periodOfTime)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
                         done();
@@ -273,7 +273,7 @@ const suite = function() {
                     from : moment().add(2, 'day').startOf('day'),
                     to : moment().add(3, 'day').endOf('day')
                 };
-                dao.getLecturesByPeriodOfTime(course1, periodOfTime)
+                dao.getLecturesByCourseAndPeriodOfTime(course1, periodOfTime)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
                         done();
