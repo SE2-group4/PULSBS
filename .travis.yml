@@ -5,12 +5,14 @@ install:
   - npm install -g codecov
 jobs:
   include:
-  - stage: Tests & Coverage
-    script:
-    - cd client ; npm install
-    - npm run coverage
-    - cd ..
-    - cd server ; npm install
-    - npm run coverage 
-    - cd ..
-    - codecov
+    - stage: Tests & Coverage
+      script:
+        - cd client ; npm install
+        - npm run coverage
+        - cd ..
+        - cd server ; npm install
+        - npm run coverage
+        - cd ..
+        - codecov
+      ignore:
+        - "client/src/api/APIfake.js"
