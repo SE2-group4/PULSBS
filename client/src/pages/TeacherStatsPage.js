@@ -19,19 +19,21 @@ class TeacherStatsPage extends React.Component {
     }
 
     async componentDidMount() {
-        try {
-            let lectures = [];
-            let yesterday = moment().subtract("1", "day").toISOString();
-            for (let c of this.state.courses)
-                lectures.push(await API.getLecturesByCourseIdByTeacherId(this.state.user.userId, c.courseId, null, yesterday, true)); //TODO add to date
-            let allLectures = this.buildLectures(lectures);
-            console.log(allLectures);
-            let events = this.buildEvents(allLectures, this.state.courses);
-            this.setState({ lectures: [...allLectures], events: events, loading: false, showChart: false });
-        } catch (error) {
-            let errormsg = error.source + " : " + error.error;
-            this.setState({ fetchError: errormsg, loading: false })
-        }
+        if (!this.props.fetchError)
+            try {
+                let lectures = [];
+                let yesterday = moment().subtract("1", "day").toISOString();
+                for (let c of this.state.courses)
+                    lectures.push(await API.getLecturesByCourseIdByTeacherId(this.state.user.userId, c.courseId, null, yesterday, true)); //TODO add to date
+                let allLectures = this.buildLectures(lectures);
+                let events = this.buildEvents(allLectures, this.state.courses);
+                this.setState({ lectures: [...allLectures], events: events, loading: false, showChart: false });
+            } catch (error) {
+                let errormsg = error.source + " : " + error.error;
+                this.setState({ fetchError: errormsg, loading: false })
+            }
+        else
+            this.setState({ fetchError: this.props.fetchError, loading: false });
     }
 
     buildEvents = (all, courses) => {
@@ -44,7 +46,6 @@ class TeacherStatsPage extends React.Component {
             'rgba(217, 196, 76,0.6)'
         ];
         for (let lecture of all) {
-            console.log(lecture.courseId);
             events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), colors[getColorIndex(courses, lecture.courseId)], null, lecture.lectureId, lecture.courseId, lecture.bookingDeadline));
         }
         return events;

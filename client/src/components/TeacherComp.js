@@ -95,13 +95,11 @@ class LecturePanel extends React.Component {
 
     //triggers EditModal
     editOpen = (e) => {
-        //console.log(e.target.name+" "+e.target.value);
         this.props.showEditModal(e.target.name, e.target.value);
     }
 
     //triggers DeleteModal
     deleteOpen = (e) => {
-        //console.log(e.target.name+" "+e.target.value);
         this.props.showDeleteModal(e.target.name);
     }
 

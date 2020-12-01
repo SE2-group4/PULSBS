@@ -85,8 +85,6 @@ function courseName(courses, courseId) {
 function avgWeek(lectures, lecture) {
     let date = moment(lecture.startingDate);
     let thisWeek = date.week();
-    console.log(date.startOf('week').format('DD/MM/YYYY'));
-    console.log(date.endOf('week').format('DD/MM/YYYY'));
     let sum = 0, i = 0;
     for (let l of lectures) {
         if (l.courseId === lecture.courseId && moment(l.startingDate).week() === thisWeek) {
