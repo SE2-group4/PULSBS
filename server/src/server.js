@@ -40,13 +40,13 @@ app.use(morgan(":method".blue + " :url :host code: :status :res[content-length] 
 // GENERAL HANDLERS (NO LOGIN NEEDED)
 app.use(`${BASE_ROUTE}`, General);
 
-app.use(jwt({ secret: JWT_SECRET, algorithms: ['RS256'] }));
+// app.use(jwt({ secret: JWT_SECRET, algorithms: ['RS256'] }));
 // app.use(jwt({ secret: JWT_SECRET, algorithms: ['RS256'] }).unless({ path: [ '/login', '/logout' ] }));
 
 app.use(function(err, req, res, next) {
     if(err.name === 'UnauthorizedError') {
-    res.status(401).json(StandardErr.new('Login middleware', StandardErr.errno.NOT_ALLOWED, 'login must be performed before this action', 401));
-      return;
+        res.status(401).json(StandardErr.new('Login middleware', StandardErr.errno.NOT_ALLOWED, 'login must be performed before this action', 401));
+        return;
     }
     next();
 });
