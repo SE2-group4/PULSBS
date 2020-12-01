@@ -25,7 +25,7 @@ controller.post('/:studentId/courses/:courseId/lectures/:lectureId', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(utils.toStandard(errors)).end();
+        res.status(400).json(utils.toStandard(errors, 400)).end();
         return;
     }
     
@@ -68,7 +68,7 @@ controller.get('/:studentId/courses/:courseId/lectures', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(utils.toStandard(errors)).end();
+        res.status(400).json(utils.toStandard(errors, 400)).end();
         return;
     }
 
@@ -119,10 +119,12 @@ controller.get('/:studentId/bookings', [
     }
 
     const periodOfTime = {};
-    if(req.query.from)
-        periodOfTime.from = moment(req.query.from);
-    if(req.query.to)
-        periodOfTime.from = moment(req.query.to);
+    const fromDate = moment(req.query.from);
+    if(fromDate.isValid())
+        periodOfTime.from = fromDate;
+    const toDate = moment(req.query.from);
+    if(toDate.isValid())
+        periodOfTime.to = toDate;
 
     const studentId = Number(req.params.studentId, periodOfTime);
     service.studentGetBookings(studentId)

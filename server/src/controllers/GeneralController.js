@@ -26,7 +26,7 @@ controller.post('/login', [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json(utils.toStandard(errors)).end();
+        res.status(400).json(utils.toStandard(errors, 400)).end();
         return;
     }
 
@@ -40,6 +40,7 @@ controller.post('/login', [
             res.status(200).json(user).end();
         })
         .catch((error) => {
+            error.statusCode = 401;
             res.status(401).json(error).end();
         });
 });
