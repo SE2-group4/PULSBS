@@ -11,7 +11,6 @@ var EmailService;
 const suite = function () {
     describe('EmailService', function () {
         describe('Tests EmailService.sendConfirmationBookingEmail', async () => {
-            let app = null;
 
             before(async () => {
                 // Enable mockery to mock objects
@@ -81,7 +80,6 @@ const suite = function () {
             });
         })
         describe('Tests EmailService.sendStudentNumberEmail', async () => {
-            let app = null;
 
             before(async () => {
                 // Enable mockery to mock objects
@@ -154,7 +152,6 @@ const suite = function () {
             });
         })
         describe('Tests EmailService.sendCustomEmail', async () => {
-            let app = null;
 
             before(async () => {
                 // Enable mockery to mock objects
