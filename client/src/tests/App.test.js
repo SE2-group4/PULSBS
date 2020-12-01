@@ -24,6 +24,19 @@ async function setupApp() {
         </Router>
     );
 }
+
+async function setupTeacher() {
+    await setupApp()
+    await act(async () => {
+        userEvent.paste(screen.getByTestId("emailForm"), "fff@ddd.com")
+        userEvent.paste(screen.getByTestId("passwordForm"), "fffff")
+    });
+    fetch.mockResponseOnce(JSON.stringify(teacher), { status: 200 });
+    await act(async () => {
+        userEvent.click(screen.getByText("Login"))
+    })
+}
+
 const student = new User(1, "STUDENT", "Lorenzo", "Ceccarelli", "fr@email.com", "ciao");
 const teacher = new User(2, "TEACHER", "Lorenzo", "Appendini", "lr@email.com", "ciao");
 const courses = [
@@ -49,6 +62,34 @@ describe('App suite', () => {
         await setupApp()
         expect(screen.getByText("Log-in to your account")).toBeInTheDocument();
     });
+
+    test('testing logout (API success)', async () => {
+        await setupTeacher();
+        fetch.mockResponseOnce(JSON.stringify({}), { status: 200 });
+        await act(async () => {
+            userEvent.click(screen.getByText("Logout"))
+        })
+        expect(screen.getByText("Log-in to your account")).toBeInTheDocument();
+    })
+
+    test('testing logout (API error)', async () => {
+        await setupTeacher();
+        fetch.mockResponseOnce(JSON.stringify({}), { status: 400 });
+        await act(async () => {
+            userEvent.click(screen.getByText("Logout"))
+        })
+        expect(screen.getByText("Log-in to your account")).toBeInTheDocument();
+    })
+
+    test('testing logout (API disconnected)', async () => {
+        await setupTeacher();
+        fetch.mockReject();
+        await act(async () => {
+            userEvent.click(screen.getByText("Logout"))
+        })
+        expect(screen.getByText("Log-in to your account")).toBeInTheDocument();
+    })
+
     test('redirect to teacher page (courses API : success)', async () => {
         await setupApp()
         await act(async () => {
