@@ -563,17 +563,16 @@ const getBookingsByStudentAndPeriodOfTime = function (student, periodOfTime = {}
         sqlParams.push(student.studentId);
 
         // composing the SQL query
-        if (periodOfTime.from && (periodOfTime.from instanceof Date || periodOfTime.from instanceof moment)) {
+        if (periodOfTime.from && moment(periodOfTime.from).isValid()) {
             sql += ` AND DATETIME(Lecture.startingDate) >= DATETIME(?)`;
-            sqlParams.push(periodOfTime.from.toISOString());
+            sqlParams.push(moment(periodOfTime.from).toISOString());
         }
-        if (periodOfTime.to && (periodOfTime.to instanceof Date || periodOfTime.to instanceof moment)) {
-            console.log("sono to");
+        if (periodOfTime.to && moment(periodOfTime.to).isValid()) {
             sql += ` AND DATETIME(Lecture.startingDate) <= DATETIME(?)`;
-            sqlParams.push(periodOfTime.to.toISOString());
+            sqlParams.push(moment(periodOfTime.to).toISOString());
         }
 
-        db.all(sql, [student.studentId], (err, rows) => {
+        db.all(sql, sqlParams, (err, rows) => {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
@@ -600,13 +599,13 @@ const getLecturesByCourseAndPeriodOfTime = function (course, periodOfTime = {}) 
         sqlParams.push(course.courseId);
 
         // composing the SQL query
-        if (periodOfTime.from && (periodOfTime.from instanceof Date || periodOfTime.from instanceof moment)) {
+        if (periodOfTime.from && moment(periodOfTime.from).isValid()) {
             sql += ` AND DATETIME(Lecture.startingDate) >= DATETIME(?)`;
-            sqlParams.push(periodOfTime.from.toISOString());
+            sqlParams.push(moment(periodOfTime.from).toISOString());
         }
-        if (periodOfTime.to && (periodOfTime.to instanceof Date || periodOfTime.to instanceof moment)) {
+        if (periodOfTime.to && moment(periodOfTime.to).isValid()) {
             sql += ` AND DATETIME(Lecture.startingDate) <= DATETIME(?)`;
-            sqlParams.push(periodOfTime.to.toISOString());
+            sqlParams.push(moment(periodOfTime.to).toISOString());
         }
 
         db.all(sql, sqlParams, (err, rows) => {

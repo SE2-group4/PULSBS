@@ -236,7 +236,7 @@ const suite = function() {
 
         describe('getBookingsByStudentAndPeriodOfTime', function() {
             it('not specified period of time should return the list of lectures', function(done) {
-                dao.getBookingsByStudentAndPeriodOfTime(course1)
+                dao.getBookingsByStudentAndPeriodOfTime(student1)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
                         done();
@@ -244,11 +244,11 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('only from setted should return the list of lectures', function(done) {
+            it('only periodOfTime.from setted should return the list of lectures', function(done) {
                 const periodOfTime = {
                     from : moment().startOf('day').add(2, 'day')
                 };
-                dao.getBookingsByStudentAndPeriodOfTime(course1, periodOfTime)
+                dao.getBookingsByStudentAndPeriodOfTime(student1, periodOfTime)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
                         done();
@@ -256,11 +256,11 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('only to setted should return the list of lectures', function(done) {
+            it('only periodOfTime.to setted should return the list of lectures', function(done) {
                 const periodOfTime = {
                     to : moment().endOf('day').add(1, 'day')
                 };
-                dao.getBookingsByStudentAndPeriodOfTime(course1, periodOfTime)
+                dao.getBookingsByStudentAndPeriodOfTime(student1, periodOfTime)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
                         done();
@@ -268,12 +268,12 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('both from and to setted should return the list of lectures', function(done) {
+            it('both periodOfTime.from and periodOfTime.to setted should return the list of lectures', function(done) {
                 const periodOfTime = {
                     from : moment().add(2, 'day').startOf('day'),
                     to : moment().add(3, 'day').endOf('day')
                 };
-                dao.getBookingsByStudentAndPeriodOfTime(course1, periodOfTime)
+                dao.getBookingsByStudentAndPeriodOfTime(student1, periodOfTime)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
                         done();
@@ -292,7 +292,7 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('only from setted should return the list of lectures', function(done) {
+            it('only periodOfTime.from setted should return the list of lectures', function(done) {
                 const periodOfTime = {
                     from : moment().startOf('day').add(2, 'day')
                 };
@@ -304,7 +304,7 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('only to setted should return the list of lectures', function(done) {
+            it('only periodOfTime.to setted should return the list of lectures', function(done) {
                 const periodOfTime = {
                     to : moment().endOf('day').add(1, 'day')
                 };
@@ -316,7 +316,7 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('both from and to setted should return the list of lectures', function(done) {
+            it('both periodOfTime.from and periodOfTime.to setted should return the list of lectures', function(done) {
                 const periodOfTime = {
                     from : moment().add(2, 'day').startOf('day'),
                     to : moment().add(3, 'day').endOf('day')

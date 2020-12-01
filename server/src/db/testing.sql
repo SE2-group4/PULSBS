@@ -44,6 +44,7 @@ INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookin
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(3, 3, 3, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 
 INSERT INTO Booking(studentId, lectureId) VALUES(1, 1);
+INSERT INTO Booking(studentId, lectureId) VALUES(1, 4);
 INSERT INTO Booking(studentId, lectureId) VALUES(2, 2);
 INSERT INTO Booking(studentId, lectureId) VALUES(3, 3);
 
