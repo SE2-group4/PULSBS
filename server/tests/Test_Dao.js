@@ -375,7 +375,7 @@ const suite = function() {
             it('correct params should accept the request', function(done) {
                 dao.deleteEmailQueueById(emailQueue1)
                     .then((modifiedRows) => {
-                        assert.strictEqual(modifiedRows, 0, 'Email queue not deleted');
+                        assert.strictEqual(modifiedRows, 1, 'Email queue not deleted');
                         done();
                     })
                     .catch((err) => done(err));
