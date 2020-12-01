@@ -8,8 +8,8 @@ const assert = require('assert');
 const nodemailerMock = require('nodemailer-mock');
 var EmailService;
 
-const suite = function() {
-    describe('EmailService', function() {
+const suite = function () {
+    describe('EmailService', function () {
         describe('Tests EmailService.sendConfirmationBookingEmail', async () => {
             let app = null;
 
@@ -72,9 +72,9 @@ const suite = function() {
                     console.log(err);
                 })
             });
-            it ("should verify that the confirmation booking email cannot send because the to is a nullish value", async()=>{
+            it("should verify that the confirmation booking email cannot send because the to is a nullish value", async () => {
                 const response = EmailService.sendConfirmationBookingEmail(null, "SE2", "13:00");
-                response.catch((err)=>{
+                response.catch((err) => {
                     console.log(err);
                     err.should.be.exactly("Undefined recipient")
                 })
@@ -106,7 +106,7 @@ const suite = function() {
 
             it('should send a number of student  email using nodemailer-mock', async () => {
 
-                const response = EmailService.sendStudentNumberEmail("s3945734658376e@gmail.com", "SE2", "13:00",3); // <-- your email code here
+                const response = EmailService.sendStudentNumberEmail("s3945734658376e@gmail.com", "SE2", "13:00", 3); // <-- your email code here
                 response.then((done) => {
                     //console.log(done);
                     done.response.should.be.exactly("nodemailer-mock success");
@@ -122,7 +122,7 @@ const suite = function() {
                 nodemailerMock.mock.setFailResponse(err);
 
                 // call a service that uses nodemailer
-                const response = EmailService.sendStudentNumberEmail("fakeStudent.se2@gmail.com", "SE2", "13:00",3); // <-- your code here
+                const response = EmailService.sendStudentNumberEmail("fakeStudent.se2@gmail.com", "SE2", "13:00", 3); // <-- your code here
 
                 // a test for our response
                 response.then((done) => {
@@ -135,7 +135,7 @@ const suite = function() {
                 nodemailerMock.mock.setMockedVerify(false);
 
                 // call a service that uses nodemailer
-                const response = EmailService.sendStudentNumberEmail("fakeStudent.se2@gmail.com", "SE2", "13:00",3); // <-- your code here
+                const response = EmailService.sendStudentNumberEmail("fakeStudent.se2@gmail.com", "SE2", "13:00", 3); // <-- your code here
 
                 /* calls to transport.verify() will be passed through, 
                 transport.sendMail() is still mocked */
@@ -145,9 +145,9 @@ const suite = function() {
                     console.log(err);
                 })
             });
-            it ("should verify that the email cannot send because the to is a nullish value", async()=>{
-                const response = EmailService.sendStudentNumberEmail(null, "SE2", "13:00",3); // <-- your code here
-                response.catch((err)=>{
+            it("should verify that the email cannot send because the to is a nullish value", async () => {
+                const response = EmailService.sendStudentNumberEmail(null, "SE2", "13:00", 3); // <-- your code here
+                response.catch((err) => {
                     console.log(err);
                     err.should.be.exactly("Undefined recipient")
                 })
@@ -183,7 +183,7 @@ const suite = function() {
                 response.then((done) => {
                     //console.log(done);
                     done.response.should.be.exactly("nodemailer-mock success");
-                }).catch((err) => { 
+                }).catch((err) => {
                     console.log(err);
                 })
             });
@@ -218,13 +218,25 @@ const suite = function() {
                     console.log(err);
                 })
             });
-            it ("should verify that the custom email cannot send because the to is a nullish value", async()=>{
+            it("should verify that the custom email cannot send because 'to' is a nullish value", async () => {
                 const response = EmailService.sendCustomMail("s3945734658376e@gmail.com", "Test", "This is a test"); // <-- your code here
-                response.catch((err)=>{
+                response.catch((err) => {
                     err.should.be.exactly("Undefined recipient")
                 })
             });
         });
+        describe('Tests EmailService.getDefaultEmail', async () => {
+            it('default template does not have the property', async () => {
+                let response = EmailService.getDefaultEmail("ThisIsNotAProperty")
+                console.log(response)
+                assert.ok(Object.keys(response).length === 0 && response.constructor === Object)
+            })
+            it('return correct default email', async () => {
+                let response = EmailService.getDefaultEmail("LESSON_CANCELLED", ["BestCourse"], ["00:00:00"]);
+                console.log(response)
+                assert.ok(response.hasOwnProperty("subject") && response.hasOwnProperty("message"))
+            })
+        })
     });
 }
 
