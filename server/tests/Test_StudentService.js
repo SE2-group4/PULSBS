@@ -7,6 +7,7 @@
 
 const assert = require('assert');
 const path = require('path');
+const moment = require('moment');
 
 const dao = require('../src/db/Dao.js');
 const service = require('../src/services/StudentService.js');
@@ -134,6 +135,43 @@ const suite = function() {
                     })
                     .catch((err) => done(err));
             });
+
+            it('only periodOfTime.from setted should return the list of lectures', function(done) {
+                const periodOfTime = {
+                    from : moment().startOf('day').add(2, 'day')
+                };
+                service.studentGetCourseLectures(student1.studentId, lecture1.courseId, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('only periodOfTime.to setted should return the list of lectures', function(done) {
+                const periodOfTime = {
+                    to : moment().endOf('day').add(1, 'day')
+                };
+                service.studentGetCourseLectures(student1.studentId, lecture1.courseId, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('both periodOfTime.from and periodOfTime.to setted should return the list of lectures', function(done) {
+                const periodOfTime = {
+                    from : moment().add(2, 'day').startOf('day'),
+                    to : moment().add(3, 'day').endOf('day')
+                };
+                service.studentGetCourseLectures(student1.studentId, lecture1.courseId, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
         });
 
         describe('studentGetCourses', function() {
@@ -179,6 +217,43 @@ const suite = function() {
                 service.studentGetBookings(-1)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 0, 'Wrong number of bookings retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('only periodOfTime.from setted should return the list of lectures', function(done) {
+                const periodOfTime = {
+                    from : moment().startOf('day').add(2, 'day')
+                };
+                service.studentGetBookings(student1.studentId, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('only periodOfTime.to setted should return the list of lectures', function(done) {
+                const periodOfTime = {
+                    to : moment().endOf('day').add(1, 'day')
+                };
+                service.studentGetBookings(student1.studentId, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('both periodOfTime.from and periodOfTime.to setted should return the list of lectures', function(done) {
+                const periodOfTime = {
+                    from : moment().add(2, 'day').startOf('day'),
+                    to : moment().add(3, 'day').endOf('day')
+                };
+                service.studentGetBookings(student1.studentId, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
                         done();
                     })
                     .catch((err) => done(err));
