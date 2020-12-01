@@ -9,6 +9,7 @@ const controller = require('express').Router({ mergeParams : true });
 const service = require("../services/StudentService.js");
 const { check, validationResult } = require('express-validator');
 const utils = require('../utils/utils.js');
+const moment = require('moment');
 
 /**
  * book a lecture
