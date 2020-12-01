@@ -15,6 +15,7 @@ const General = require("./controllers/GeneralController");
 const Student = require("./controllers/StudentController");
 const Teacher = require("./controllers/TeacherController");
 const colors = require("colors");
+const { StandardErr } = require("./utils/utils");
 
 const app = express();
 app.disable('x-powered-by'); // security: do not show outside the server technology which has been used
@@ -39,13 +40,39 @@ app.use(morgan(":method".blue + " :url :host code: :status :res[content-length] 
 // GENERAL HANDLERS (NO LOGIN NEEDED)
 app.use(`${BASE_ROUTE}`, General);
 
+app.use(jwt({ secret: JWT_SECRET, algorithms: ['RS256'] }));
+// app.use(jwt({ secret: JWT_SECRET, algorithms: ['RS256'] }).unless({ path: [ '/login', '/logout' ] }));
+
+app.use(function(err, req, res, next) {
+    if(err.name === 'UnauthorizedError') {
+    res.status(401).json(StandardErr.new('Login middleware', StandardErr.errno.NOT_ALLOWED, 'login must be performed before this action', 401));
+      return;
+    }
+    next();
+});
+/*
 // The following routes needs authentication
-app.use((err, req, res, next) => {
-    if (!req.cookies) res.status(401).json("login must be performed before this action");
-    jwt.verify(req.cookies.token, { key: JWT_SECRET }, (error, decoded) => {
-        if (error) res.status(401).json("invalid login token");
+app.use((req, res, next) => {
+    console.log('check if the cookie exists...');
+    // if (!req.cookies) res.status(401).json("login must be performed before this action");
+    if(!req.cookies) {
+        res.status(401).json(StandardErr.new('Login middleware', StandardErr.errno.NOT_ALLOWED, 'login must be performed before this action', 401));
+        return;
+    }
+    console.log('check if the cookie exists... - done');
+    console.log('veryfing the cookie...');
+    jwt.verify(req.cookies.token, { key: JWT_SECRET }, function(error, decoded) {
+        console.log('veryfing the cookie... - done');
+        // if (error) res.status(401).json('invalid login token');
+        if(error) {
+            res.status(401).json(StandardErr.new('Login middleware', StandardErr.errno.UNEXPECTED_VALUE, 'invalid login token', 401));
+            return;
+        }
+
+        next(); // else, proceed
     });
 });
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 

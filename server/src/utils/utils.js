@@ -29,7 +29,8 @@ class StandardErr {
      */
     static errno = {
         GENERIC : 0,
-        FAILURE: 700,
+        FAILURE : 700,
+        NOT_ALLOWED : 701,
         PARAMS_MISMATCH : 730,
         UNEXPECTED_VALUE : 731,
         UNEXPECTED_TYPE : 732,
