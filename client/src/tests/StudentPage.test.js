@@ -39,7 +39,7 @@ const lecturesCourse4 = [
   new Lecture(5, 4, 4, moment().add("1", "hours").toISOString(), 60000, moment().subtract("1", "hours").toISOString(), "inPresence")
 ]
 const lecturesCourse5 = [
-  new Lecture(6, 5, 7, moment().add("5", "minutes").toISOString(), 60000, moment().subtract("1", "hours"), "remote")
+  new Lecture(6, 5, 7, moment().add("5", "minutes").toISOString(), 60000, moment().subtract("1", "hours"), "REMOTE")
 ]
 const lecturesCourse6 = [
   new Lecture(7, 6, 7, moment().subtract("1", "hours").toISOString(), 60000, moment().subtract("1", "days"), "inPresence")
@@ -78,12 +78,7 @@ describe('Student Page suite', () => {
     expect(screen.getByText("Legend:")).toBeInTheDocument()
   })
   test("render StudentPage component (getCoursesByStudentId : communication error)", async () => {
-    let allCourses = JSON.stringify([{
-      source: "StudentService",
-      errno: 1,
-      error: "userID is not an integer",
-      statusCode: 400
-    }]);
+
     fetch.mockReject(new Error(""))
     await act(async () => {
       render(<StudentPage user={user} />)

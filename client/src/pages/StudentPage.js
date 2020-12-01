@@ -9,7 +9,7 @@ import CalendarEvent from "../entities/calendarEvent";
 import ErrorMsg from '../components/ErrorMsg';
 import moment from "moment";
 import Spinner from 'react-bootstrap/Spinner';
-import Lecture from '../entities/lecture';
+
 /**
  * Student Page component
  */
@@ -130,7 +130,7 @@ function buildEvents(booked, all, courses) {
         for (let lecture of array) {
             if (moment(lecture.startingDate).isBefore(moment()))
                 events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "black", "past", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
-            else if (lecture.delivery === "remote")
+            else if (lecture.delivery === "REMOTE")
                 events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "grey", "remote", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
             else if (isBooked(lecture, booked))
                 events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "blue", "booked", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
