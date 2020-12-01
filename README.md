@@ -51,6 +51,14 @@ docker pull se2group4/pulsbs
 docker run se2group4/pulsbs
 ```
 - Visit http://localhost:3000 on your browser
+## Usage
+# Login Account
+- Student : 
+  - Email : fakeStudent.se2@gmail.com
+  - Password : aldo
+- Teacher :
+  - Email : fakeTeacher.se2@gmail.com
+  - Password : giacomo
 ## Description
 
 ### Client
