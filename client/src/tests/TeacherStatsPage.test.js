@@ -41,7 +41,7 @@ const lectures1 = [{
         classId: 4,
         startingDate: moment().subtract("1", "day").toISOString(),
         duration: 600000,
-        bookingDeadline: moment().subtract("0", "day").toISOString(),
+        bookingDeadline: moment().subtract().toISOString(),
         delivery: "PRESENCE",
     },
     numBookings: 6
@@ -80,7 +80,7 @@ async function setupTeacherStats() {
 }
 
 describe('TeacherStats suite', () => {
-    test('redirect to TeacherStatsPage (API success) then click on a lesson', async () => {
+    test('redirect to TeacherStatsPage (all API success) then click on a lesson', async () => {
         await setupTeacherStats();
         fetch.mockResponses(
             [JSON.stringify(lectures1), { status: 200 }],
@@ -91,7 +91,46 @@ describe('TeacherStats suite', () => {
         });
         expect(screen.getByText("Information Systems Security")).toBeInTheDocument();
         await act(async () => {
-            userEvent.click(screen.getByText("Software Engineering 2"));
+            userEvent.click(screen.getAllByText("Software Engineering 2")[0]);
         });
+    });
+
+    test('redirect to TeacherStatsPage (course API fails)', async () => {
+        const history = createMemoryHistory()
+        render(
+            <Router history={history}>
+                <App />
+            </Router>
+        );
+        await act(async () => {
+            userEvent.paste(screen.getByTestId("emailForm"), "fff@ddd.com")
+            userEvent.paste(screen.getByTestId("passwordForm"), "fffff")
+        });
+        fetch.mockResponses(
+            [JSON.stringify(teacher), { status: 200 }],
+            [JSON.stringify({}), { status: 400 }],
+        );
+        await act(async () => {
+            userEvent.click(screen.getByText("Login"))
+        });
+        await act(async () => {
+            userEvent.click(screen.getByText("Your Stats"));
+        });
+        expect(screen.getByText("No events to display")).toBeInTheDocument();
+        await act(async () => {
+            userEvent.click(screen.getAllByRole("button")[9]);
+        });
+    });
+
+    test('redirect to TeacherStatsPage (lecture API fails)', async () => {
+        await setupTeacherStats();
+        fetch.mockResponses(
+            [JSON.stringify({}), { status: 400 }],
+            [JSON.stringify({}), { status: 400 }],
+        );
+        await act(async () => {
+            userEvent.click(screen.getByText("Your Stats"));
+        });
+        expect(screen.getByText("No events to display")).toBeInTheDocument();
     });
 });
