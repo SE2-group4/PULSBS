@@ -41,7 +41,7 @@ const lectures1 = [{
         classId: 4,
         startingDate: moment().subtract("1", "day").toISOString(),
         duration: 600000,
-        bookingDeadline: moment().subtract().toISOString(),
+        bookingDeadline: moment().toISOString(),
         delivery: "PRESENCE",
     },
     numBookings: 6
