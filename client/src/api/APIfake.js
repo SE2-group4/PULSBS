@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import User from "../entities/user";
 import Course from '../entities/course';
 import Lecture from '../entities/lecture';

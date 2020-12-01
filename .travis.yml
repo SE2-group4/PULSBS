@@ -14,5 +14,4 @@ jobs:
         - npm run coverage
         - cd ..
         - codecov
-      ignore:
-        - "client/src/api/APIfake.js"
+      
