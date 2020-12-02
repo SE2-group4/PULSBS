@@ -159,13 +159,19 @@ function LecturePanelRow(props) {
             <td>{props.lecture.lectureId}</td>
             <td>{date.toLocaleDateString()}{" " + (date.toLocaleTimeString()).slice(0, 5)}</td>
             <td>{props.lecture.delivery}</td>
-            <td>{!canEdit &&
+            <td>{!canEdit && props.lecture.delivery !== 'REMOTE' &&
                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't switch delivery if the lecture is closer than 30 mins.</Tooltip>}>
                     <span className="d-inline-block">
                         <Button disabled style={{ pointerEvents: 'none' }} variant="warning">modify</Button>
                     </span></OverlayTrigger>}
-                {canEdit && <Button name={props.lecture.lectureId} value={props.lecture.delivery} onClick={props.editOpen}
-                    variant="warning" data-testid={"m-" + props.lecture.lectureId} disabled={props.lecture.delivery === 'ERROR' ? true : false}>modify</Button>}
+                {props.lecture.delivery === 'REMOTE' &&
+                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't switch delivery to Presence.</Tooltip>}>
+                        <span className="d-inline-block">
+                            <Button disabled style={{ pointerEvents: 'none' }} variant="warning">modify</Button>
+                        </span></OverlayTrigger>}
+                {canEdit && props.lecture.delivery !== 'REMOTE' &&
+                    <Button name={props.lecture.lectureId} value={props.lecture.delivery} onClick={props.editOpen}
+                        variant="warning" data-testid={"m-" + props.lecture.lectureId} disabled={props.lecture.delivery === 'ERROR' ? true : false}>modify</Button>}
             </td>
             <td>{!canDelete &&
                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't delete lecture if the lecture is closer than 60 mins.</Tooltip>}>

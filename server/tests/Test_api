@@ -192,7 +192,7 @@
 							"script": {
 								"id": "04267f0b-c9c0-4122-be5b-28b3615ca725",
 								"exec": [
-									"pm.test(\"Status code of POST /login\", function () {\r",
+									"pm.test(\"Status code of POST /logout\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -214,6 +214,81 @@
 								"api",
 								"v1",
 								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user login - correct cred. Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0cf44e25-5350-4131-b396-132cfaf8d244",
+								"exec": [
+									"pm.test(\"Status code of POST /login\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body of GET /tickets\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    console.log(responseJson)\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "6a002cf7-7f9e-4263-8eb3-d8e5bcae9aca",
+								"exec": [
+									"function sendRequest(req) {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest(req, (err, res) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"            return resolve(res);\r",
+									"        })\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"(async function main() {\r",
+									"    const baseUrl = pm.globals.get(\"base_url\");\r",
+									"    \r",
+									"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+									"    console.log('Reset', result);\r",
+									"})();"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"tjw85.student.baglio@inbox.testmail.app\",\r\n    \"password\": \"aldo\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/v1/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"v1",
+								"login"
 							]
 						}
 					},
@@ -698,7 +773,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/teachers/4/courses/1/lectures/2",
+									"raw": "{{base_url}}/teachers/4/courses/2/lectures/4",
 									"host": [
 										"{{base_url}}"
 									],
@@ -706,9 +781,9 @@
 										"teachers",
 										"4",
 										"courses",
-										"1",
+										"2",
 										"lectures",
-										"2"
+										"4"
 									]
 								}
 							},
