@@ -11,8 +11,8 @@ const { check, validationResult } = require('express-validator');
 const jsonwebtoken = require('jsonwebtoken');
 const utils = require('../utils/utils.js');
 
-// const expireTime = 60 * 20; // 20 minutes
-const expireTime = 10;
+const expireTime = 60 * 20; // 20 minutes
+// const expireTime = 10; // 10 seconds
 const jwtSecret = "1234567890";
 
 /**
