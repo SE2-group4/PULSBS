@@ -37,7 +37,7 @@ app.use(morgan(":method".blue + " :url :host code: :status :res[content-length] 
 // GENERAL HANDLERS (NO LOGIN NEEDED)
 app.use(`${BASE_ROUTE}`, General);
 
-app.use(jwt({ secret: JWT_SECRET, algorithms: ['HS256'], resultProperty: 'userId', getToken: (req) => req.cookies.token }));
+app.use(jwt({ secret: JWT_SECRET, algorithms: ['HS256'], resultProperty: 'userId', getToken: (req) => req.cookies.token }).unless({ path: [ '/login', '/logout' ] }));
 // app.use(jwt({ secret: JWT_SECRET, algorithms: ['RS256'] }).unless({ path: [ '/login', '/logout' ] }));
 
 app.use(function (err, req, res, next) {

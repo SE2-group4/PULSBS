@@ -46,7 +46,7 @@ controller.post('/login', [
 });
 
 controller.post('/logout', (req, res) => {
-  res.clearCookie('token').end();
+    res.clearCookie('token').status(200).end();
 });
 
 module.exports = controller;
