@@ -8,7 +8,7 @@
 const controller = require('express').Router({ mergeParams : true });
 const service = require("../services/GeneralService.js");
 const { check, validationResult } = require('express-validator');
-const jwt = require('jsonwebtoken');
+const jsonwebtoken = require('jsonwebtoken');
 const utils = require('../utils/utils.js');
 
 const expireTime = 60 * 5; // 5 minutes
@@ -34,7 +34,7 @@ controller.post('/login', [
     const password = req.body.password;
     service.userLogin(email, password)
         .then((user) => {
-            const token = jwt.sign({ userId: user.userId  }, jwtSecret, { expiresIn: expireTime }, { algorithm: 'RS256' });
+            const token = jsonwebtoken.sign({ userId: user.userId  }, jwtSecret, { expiresIn: expireTime, algorithm: 'HS256' });
             // res.cookie('token', token, { httpOnly: true, sameSite: true, maxAge: expireTime });
             res.cookie('token', token);
             res.status(200).json(user).end();

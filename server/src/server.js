@@ -7,7 +7,7 @@
 const cookieParser = require("cookie-parser");
 const db = require("./db/Dao");
 const express = require("express");
-// const jwt = require("express-jwt");
+const jwt = require("express-jwt");
 const morgan = require("morgan");
 const prepareDb = require("./db/preparedb");
 
@@ -21,7 +21,7 @@ const app = express();
 app.disable("x-powered-by"); // security: do not show outside the server technology which has been used
 
 const BASE_ROUTE = "/api/v1";
-// const JWT_SECRET = "1234567890";
+const JWT_SECRET = "1234567890";
 const PORT = 3001;
 
 app.use(express.json());
@@ -37,7 +37,7 @@ app.use(morgan(":method".blue + " :url :host code: :status :res[content-length] 
 // GENERAL HANDLERS (NO LOGIN NEEDED)
 app.use(`${BASE_ROUTE}`, General);
 
-// app.use(jwt({ secret: JWT_SECRET, algorithms: ['RS256'] }));
+app.use(jwt({ secret: JWT_SECRET, algorithms: ['HS256'], resultProperty: 'userId', getToken: (req) => req.cookies.token }));
 // app.use(jwt({ secret: JWT_SECRET, algorithms: ['RS256'] }).unless({ path: [ '/login', '/logout' ] }));
 
 app.use(function (err, req, res, next) {
@@ -50,7 +50,6 @@ app.use(function (err, req, res, next) {
                 401
             )
         );
-        return;
     }
     next();
 });
