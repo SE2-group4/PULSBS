@@ -169,7 +169,8 @@ const getLecturesByStudent = function (student) {
         const sql = `SELECT Lecture.* FROM Lecture
             JOIN Course ON Lecture.lectureId = Course.courseId
             JOIN Enrollment ON Enrollment.courseId = Course.courseId
-            WHERE Enrollment.studentId = ? AND DATE(Lecture.startingDate) > DATE(?)`;
+            WHERE Enrollment.studentId = ? AND DATE(Lecture.startingDate) > DATE(?)
+            ORDER BY DATETIME(Lecture.startingDate)`;
 
         db.all(sql, [student.studentId, new Date().toISOString()], (err, rows) => {
             if (err) {
@@ -302,7 +303,8 @@ const getLecturesByTeacher = function (teacher) {
         const sql = `SELECT Lecture.* FROM Lecture
             JOIN Course ON Lecture.courseId = Course.courseId
             JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId
-            WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.startingDate) > DATE(?)`;
+            WHERE TeacherCourse.teacherId = ? AND DATE(Lecture.startingDate) > DATE(?)
+            ORDER BY DATETIME(Lecture.startingDate)`;
 
         db.all(sql, [teacher.teacherId, new Date().toISOString()], (err, rows) => {
             if (err) {
@@ -479,7 +481,8 @@ const getLecturesByDeadline = function (date) {
         const sql = `SELECT Lecture.* FROM Lecture \
             JOIN Course ON Course.courseId = Lecture.lectureId \
             JOIN TeacherCourse ON TeacherCourse.courseId = Course.courseId \
-            WHERE DATE(Lecture.bookingDeadline) = DATE(?)`;
+            WHERE DATE(Lecture.bookingDeadline) = DATE(?)
+            ORDER BY DATETIME(Lecture.startingDate)`;
 
         const now = new Date();
         db.all(sql, [now.toISOString()], (err, rows) => {
@@ -532,7 +535,8 @@ const getBookingsByStudent = function (student) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Lecture.* FROM Lecture
             JOIN Booking ON Booking.lectureId = Lecture.lectureId
-            WHERE Booking.studentId = ?`;
+            WHERE Booking.studentId = ?
+            ORDER BY DATETIME(Lecture.startingDate)`;
 
         db.all(sql, [student.studentId], (err, rows) => {
             if (err) {
@@ -571,6 +575,7 @@ const getBookingsByStudentAndPeriodOfTime = function (student, periodOfTime = {}
             sql += ` AND DATETIME(Lecture.startingDate) <= DATETIME(?)`;
             sqlParams.push(moment(periodOfTime.to).toISOString());
         }
+        sql += ` ORDER BY DATETIME(Lecture.startingDate)`;
 
         db.all(sql, sqlParams, (err, rows) => {
             if (err) {
@@ -607,6 +612,7 @@ const getLecturesByCourseAndPeriodOfTime = function (course, periodOfTime = {}) 
             sql += ` AND DATETIME(Lecture.startingDate) <= DATETIME(?)`;
             sqlParams.push(moment(periodOfTime.to).toISOString());
         }
+        sql += ` ORDER BY DATETIME(Lecture.startingDate)`;
 
         db.all(sql, sqlParams, (err, rows) => {
             if (err) {
@@ -746,7 +752,8 @@ const getLecturesByCoursePlusNumBookings = function (course) {
             FROM Lecture lect 
             LEFT JOIN Booking book ON lect.lectureId = book.lectureId 
             WHERE lect.courseId = ? 
-            GROUP BY lect.lectureId`;
+            GROUP BY lect.lectureId
+            ORDER BY DATETIME(lect.startingDate)`;
 
         db.all(sql, [course.courseId], function (err, rows) {
             if (err) {
@@ -792,7 +799,8 @@ exports.getNumBookingsOfLecture = getNumBookingsOfLecture;
 const getLecturesByCourseId = function (course) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Lecture.* FROM Lecture
-            WHERE Lecture.courseId = ?`;
+            WHERE Lecture.courseId = ?
+            ORDER BY DATETIME(Lecture.startingDate)`;
 
         db.all(sql, [course.courseId], (err, rows) => {
             if (err) {
