@@ -29,38 +29,32 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
         throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    try {
-        // checking if the teacher is in charge of this course during this academic year
-        const isTaughtBy = await isCourseTaughtBy(tId, cId);
-        if (!isTaughtBy) {
-            throw new ResponseError(
-                "TeacherService",
-                ResponseError.TEACHER_COURSE_MISMATCH_AA,
-                { courseId, teacherId },
-                404
-            );
-        }
-
-        // checking if the lecture is associated to this course
-        const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
-        if (!doesLectureBelong) {
-            throw new ResponseError(
-                "TeacherService",
-                ResponseError.COURSE_LECTURE_MISMATCH_AA,
-                { lectureId, courseId },
-                404
-            );
-        }
-
-        const lecture = new Lecture(lId);
-        const lectureStudents = await db.getStudentsByLecture(lecture);
-
-        return lectureStudents;
-    } catch (err) {
-        throw err;
-        //if (err instanceof ResponseError) throw err;
-        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+    // checking if the teacher is in charge of this course during this academic year
+    const isTaughtBy = await isCourseTaughtBy(tId, cId);
+    if (!isTaughtBy) {
+        throw new ResponseError(
+            "TeacherService",
+            ResponseError.TEACHER_COURSE_MISMATCH_AA,
+            { courseId, teacherId },
+            404
+        );
     }
+
+    // checking if the lecture is associated to this course
+    const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+    if (!doesLectureBelong) {
+        throw new ResponseError(
+            "TeacherService",
+            ResponseError.COURSE_LECTURE_MISMATCH_AA,
+            { lectureId, courseId },
+            404
+        );
+    }
+
+    const lecture = new Lecture(lId);
+    const lectureStudents = await db.getStudentsByLecture(lecture);
+
+    return lectureStudents;
 };
 
 /**
@@ -92,34 +86,29 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
     );
     console.info(`Num of bookings: ${numBookings === undefined ? false : numBookings}`.magenta);
 
-    try {
-        // check if the teacher is in charge of this course during this academic year
-        let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
-        if (!isTeachingThisCourse) {
-            throw new ResponseError(
-                "TeacherService",
-                ResponseError.TEACHER_COURSE_MISMATCH_AA,
-                { courseId, teacherId },
-                404
-            );
-        }
-
-        const course = new Course(cId);
-        const courseLectures = await db.getLecturesByCourseAndPeriodOfTime(course, dateFilter);
-        if (!numBookings) return courseLectures;
-
-        let lecturesPlusNumBookings = await Promise.all(
-            courseLectures.map(async (lecture) => {
-                const totBookings = await db.getNumBookingsOfLecture(lecture);
-                return { lecture, numBookings: totBookings };
-            })
+    // check if the teacher is in charge of this course during this academic year
+    let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
+    if (!isTeachingThisCourse) {
+        throw new ResponseError(
+            "TeacherService",
+            ResponseError.TEACHER_COURSE_MISMATCH_AA,
+            { courseId, teacherId },
+            404
         );
-
-        return lecturesPlusNumBookings;
-    } catch (genError) {
-        //return new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, genError, 500);
-        throw genError;
     }
+
+    const course = new Course(cId);
+    const courseLectures = await db.getLecturesByCourseAndPeriodOfTime(course, dateFilter);
+    if (!numBookings) return courseLectures;
+
+    let lecturesPlusNumBookings = await Promise.all(
+        courseLectures.map(async (lecture) => {
+            const totBookings = await db.getNumBookingsOfLecture(lecture);
+            return { lecture, numBookings: totBookings };
+        })
+    );
+
+    return lecturesPlusNumBookings;
 };
 
 /**
@@ -134,15 +123,10 @@ exports.teacherGetCourses = async function (teacherId) {
         throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    try {
-        const teacher = new Teacher(tId);
-        const teacherCourses = await db.getCoursesByTeacher(teacher);
+    const teacher = new Teacher(tId);
+    const teacherCourses = await db.getCoursesByTeacher(teacher);
 
-        return teacherCourses;
-    } catch (err) {
-        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
-        throw err;
-    }
+    return teacherCourses;
 };
 
 /**
@@ -212,40 +196,35 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
         throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    try {
-        // checking if the teacher is in charge of this course during this academic year
-        const isTaughtBy = await isCourseTaughtBy(tId, cId);
-        if (!isTaughtBy) {
-            throw new ResponseError(
-                "TeacherService",
-                ResponseError.TEACHER_COURSE_MISMATCH_AA,
-                { courseId, teacherId },
-                404
-            );
-        }
-
-        // checking if the lecture belongs to this course
-        const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
-        if (!doesLectureBelong) {
-            throw new ResponseError(
-                "TeacherService",
-                ResponseError.COURSE_LECTURE_MISMATCH_AA,
-                { lectureId, courseId },
-                404
-            );
-        }
-
-        const lecture = new Lecture(lId);
-        const retLecture = await db.getLectureById(lecture);
-        if (!retLecture) {
-            throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_FOUND, { lectureId }, 404);
-        }
-
-        return retLecture;
-    } catch (err) {
-        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
-        throw err;
+    // checking if the teacher is in charge of this course during this academic year
+    const isTaughtBy = await isCourseTaughtBy(tId, cId);
+    if (!isTaughtBy) {
+        throw new ResponseError(
+            "TeacherService",
+            ResponseError.TEACHER_COURSE_MISMATCH_AA,
+            { courseId, teacherId },
+            404
+        );
     }
+
+    // checking if the lecture belongs to this course
+    const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+    if (!doesLectureBelong) {
+        throw new ResponseError(
+            "TeacherService",
+            ResponseError.COURSE_LECTURE_MISMATCH_AA,
+            { lectureId, courseId },
+            404
+        );
+    }
+
+    const lecture = new Lecture(lId);
+    const retLecture = await db.getLectureById(lecture);
+    if (!retLecture) {
+        throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_FOUND, { lectureId }, 404);
+    }
+
+    return retLecture;
 };
 
 /**
@@ -266,72 +245,67 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
         throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    try {
-        // checking if the teacher is in charge of this course during this academic year
-        const isTaughtBy = await isCourseTaughtBy(tId, cId);
-        if (!isTaughtBy) {
-            throw new ResponseError(
-                "TeacherService",
-                ResponseError.TEACHER_COURSE_MISMATCH_AA,
-                { courseId, teacherId },
-                404
-            );
-        }
-
-        // checking if the lecture belongs to this course
-        const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
-
-        if (!doesLectureBelong) {
-            throw new ResponseError(
-                "TeacherService",
-                ResponseError.COURSE_LECTURE_MISMATCH_AA,
-                { lectureId, courseId },
-                404
-            );
-        }
-
-        let lecture = new Lecture(lId);
-        lecture = await db.getLectureById(lecture);
-
-        if (isLectureCancellable(lecture)) {
-            const isSuccess = await db.deleteLectureById(lecture);
-            if (isSuccess > 0) {
-                const emailsToBeSent = await db.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED);
-
-                if (emailsToBeSent.length > 0) {
-                    const aEmail = emailsToBeSent[0];
-                    const subjectArgs = [aEmail.courseName];
-                    const messageArgs = [aEmail.startingDate];
-                    const { subject, message } = EmailService.getDefaultEmail(
-                        Email.EmailType.LESSON_CANCELLED,
-                        subjectArgs,
-                        messageArgs
-                    );
-
-                    emailsToBeSent.forEach((email) =>
-                        EmailService.sendCustomMail(email.recipient, subject, message)
-                            .then(() => {
-                                console.email("CANCELLATION email sent to " + email.recipient);
-                                db.deleteEmailQueueById(email);
-                            })
-                            .catch((err) => console.error(err))
-                    );
-                }
-            }
-        } else {
-            throw new ResponseError(
-                "TeacherService",
-                ResponseError.LECTURE_NOT_CANCELLABLE,
-                { lectureId: lecture.lectureId },
-                409
-            );
-        }
-
-        return 204;
-    } catch (err) {
-        throw err;
-        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
+    // checking if the teacher is in charge of this course during this academic year
+    const isTaughtBy = await isCourseTaughtBy(tId, cId);
+    if (!isTaughtBy) {
+        throw new ResponseError(
+            "TeacherService",
+            ResponseError.TEACHER_COURSE_MISMATCH_AA,
+            { courseId, teacherId },
+            404
+        );
     }
+
+    // checking if the lecture belongs to this course
+    const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+
+    if (!doesLectureBelong) {
+        throw new ResponseError(
+            "TeacherService",
+            ResponseError.COURSE_LECTURE_MISMATCH_AA,
+            { lectureId, courseId },
+            404
+        );
+    }
+
+    let lecture = new Lecture(lId);
+    lecture = await db.getLectureById(lecture);
+
+    if (isLectureCancellable(lecture)) {
+        const isSuccess = await db.deleteLectureById(lecture);
+        if (isSuccess > 0) {
+            const emailsToBeSent = await db.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED);
+
+            if (emailsToBeSent.length > 0) {
+                const aEmail = emailsToBeSent[0];
+                const subjectArgs = [aEmail.courseName];
+                const messageArgs = [aEmail.startingDate];
+                const { subject, message } = EmailService.getDefaultEmail(
+                    Email.EmailType.LESSON_CANCELLED,
+                    subjectArgs,
+                    messageArgs
+                );
+
+                emailsToBeSent.forEach((email) =>
+                    EmailService.sendCustomMail(email.recipient, subject, message)
+                        .then(() => {
+                            console.email("CANCELLATION email sent to " + email.recipient);
+                            db.deleteEmailQueueById(email);
+                        })
+                        .catch((err) => console.error(err))
+                );
+            }
+        }
+    } else {
+        throw new ResponseError(
+            "TeacherService",
+            ResponseError.LECTURE_NOT_CANCELLABLE,
+            { lectureId: lecture.lectureId },
+            409
+        );
+    }
+
+    return 204;
 };
 
 /**
@@ -363,65 +337,60 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         );
     }
 
-    try {
-        // checking if the teacher is in charge of this course during this academic year
-        const isTaughtBy = await isCourseTaughtBy(tId, cId);
-        if (!isTaughtBy) {
-            throw new ResponseError(
-                "TeacherService",
-                ResponseError.TEACHER_COURSE_MISMATCH_AA,
-                { courseId, teacherId },
-                404
-            );
-        }
-
-        // checking if the lecture belongs to this course
-        const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
-        if (!doesLectureBelong) {
-            throw new ResponseError(
-                "TeacherService",
-                ResponseError.COURSE_LECTURE_MISMATCH_AA,
-                { lectureId, courseId },
-                404
-            );
-        }
-
-        const lecture = await db.getLectureById(new Lecture(lId));
-        if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
-            throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_SWITCHABLE, { lectureId }, 404);
-        }
-
-        lecture.delivery = switchTo;
-        await db.updateLectureDeliveryMode(lecture);
-        const studentsToBeNotified = await db.getStudentsByLecture(lecture);
-        if (studentsToBeNotified.length > 0) {
-            const course = await db.getCourseByLecture(lecture);
-            const subjectArgs = [course.description];
-            const messageArgs = [utils.formatDate(lecture.startingDate), lecture.delivery];
-            const { subject, message } = EmailService.getDefaultEmail(
-                Email.EmailType.LESSON_UPDATE_DELIVERY,
-                subjectArgs,
-                messageArgs
-            );
-
-            studentsToBeNotified.forEach((student) =>
-                EmailService.sendCustomMail(student.email, subject, message)
-                    .then(() => {
-                        console.email(
-                            `lecture update (${lecture.delivery}, ${utils.formatDate(
-                                lecture.startingDate
-                            )}) email sent to ${student.email}`
-                        );
-                    })
-                    .catch((err) => console.error(err))
-            );
-        }
-
-        return 204;
-    } catch (err) {
-        //throw new ResponseError("TeacherService", ResponseError.DB_GENERIC_ERROR, err, 500);
-        throw err;
+    // checking if the teacher is in charge of this course during this academic year
+    const isTaughtBy = await isCourseTaughtBy(tId, cId);
+    if (!isTaughtBy) {
+        throw new ResponseError(
+            "TeacherService",
+            ResponseError.TEACHER_COURSE_MISMATCH_AA,
+            { courseId, teacherId },
+            404
+        );
     }
+
+    // checking if the lecture belongs to this course
+    const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+    if (!doesLectureBelong) {
+        throw new ResponseError(
+            "TeacherService",
+            ResponseError.COURSE_LECTURE_MISMATCH_AA,
+            { lectureId, courseId },
+            404
+        );
+    }
+
+    const lecture = await db.getLectureById(new Lecture(lId));
+    if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
+        throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_SWITCHABLE, { lectureId }, 404);
+    }
+
+    lecture.delivery = switchTo;
+    await db.updateLectureDeliveryMode(lecture);
+    const studentsToBeNotified = await db.getStudentsByLecture(lecture);
+    if (studentsToBeNotified.length > 0) {
+        const course = await db.getCourseByLecture(lecture);
+        const subjectArgs = [course.description];
+        const messageArgs = [utils.formatDate(lecture.startingDate), lecture.delivery];
+        const { subject, message } = EmailService.getDefaultEmail(
+            Email.EmailType.LESSON_UPDATE_DELIVERY,
+            subjectArgs,
+            messageArgs
+        );
+
+        studentsToBeNotified.forEach((student) =>
+            EmailService.sendCustomMail(student.email, subject, message)
+                .then(() => {
+                    console.email(
+                        `lecture update (${lecture.delivery}, ${utils.formatDate(
+                            lecture.startingDate
+                        )}) email sent to ${student.email}`
+                    );
+                })
+                .catch((err) => console.error(err))
+        );
+    }
+
+    return 204;
 };
 
 /**
@@ -582,13 +551,13 @@ function isValidDeliveryMode(switchTo) {
 }
 
 /**
- * Send daily summaries about the lectures that have today as deadline to the teacher in charge of the respective course
+ * Send daily summaries about the lectures to the teacher in charge of the respective course
  * @param {Object} summaries. E.g. summaries = { 1: {teacher: <Teacher>, course: <Course>, lecture: <Lecture>, studentsBooked: 1}, 2: {...} }
  * @param {Date} requestDateTime
  * @returns none
  */
 function sendSummaryToTeachers(summaries) {
-    for (let [lectureId, summary] of summaries.entries()) {
+    for (let summary of summaries.values()) {
         const teacher = summary.teacher;
         const course = summary.course;
         const lecture = summary.lecture;

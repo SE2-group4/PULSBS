@@ -118,14 +118,13 @@ app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
     }
 });
 
-
 // description: for demo purposes we are sending the email right now instead of waiting 23:59; alternatively call Teacher.nextCheck() for setting the time correctly)
 function autorun() {
     setTimeout(() => Teacher.checkForExpiredLectures(), 0);
-};
+}
 
 const systemConf = {
-    "dbPath": "PULSBS.db",
+    dbPath: "PULSBS.db",
     "--test": false, // set dbpath to testing.db
     "--no-autorun": false, // disable autorun
     "--sql-path": "PULSBS.sql", // set sql path
@@ -135,7 +134,7 @@ const systemConf = {
 Object.seal(systemConf);
 
 /**
- * parse command line options 
+ * parse command line options
  */
 function parseOptions(options) {
     for (const option of options) {
@@ -162,7 +161,7 @@ function printConf() {
     for (const [name, value] of Object.entries(systemConf)) {
         console.info(`${name.grey}: ${value}`);
     }
-};
+}
 
 // "Main"
 (async () => {
