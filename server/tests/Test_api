@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "6b818d35-3373-4709-826f-b01de0626942",
-		"name": "PULSBS",
+		"_postman_id": "7243e747-d6cd-4bd4-a594-d83eac56a8ae",
+		"name": "PULSBS Copy",
 		"description": "se2 project",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -15,7 +15,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "5f48f197-b961-4ee9-ac9e-21ff0a67c073",
+								"id": "bc6d346f-a7a4-42a8-8998-e5346b734d3b",
 								"exec": [
 									"pm.test(\"Status code of POST /login\", function () {\r",
 									"    pm.response.to.have.status(401);\r",
@@ -23,8 +23,33 @@
 									"\r",
 									"pm.test(\"Response body of GET /tickets\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    console.log(responseJson)\r",
 									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "58393a7e-9ee9-45f5-8edb-4eb7f83259af",
+								"exec": [
+									"function sendRequest(req) {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest(req, (err, res) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"            return resolve(res);\r",
+									"        })\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"(async function main() {\r",
+									"    const baseUrl = pm.globals.get(\"base_url\");\r",
+									"    \r",
+									"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+									"    console.log('Reset', result);\r",
+									"})();"
 								],
 								"type": "text/javascript"
 							}
@@ -64,7 +89,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "95561a28-cd5f-4c93-946c-2881f4fc7647",
+								"id": "359500a3-9061-4338-ba03-ea7bb3f62b3c",
 								"exec": [
 									"pm.test(\"Status code of POST /login\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -77,6 +102,32 @@
 								],
 								"type": "text/javascript"
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "9306abe8-5717-4725-84f2-eafe7605b9c2",
+								"exec": [
+									"function sendRequest(req) {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest(req, (err, res) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"            return resolve(res);\r",
+									"        })\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"(async function main() {\r",
+									"    const baseUrl = pm.globals.get(\"base_url\");\r",
+									"    \r",
+									"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+									"    console.log('Reset', result);\r",
+									"})();"
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
 					"request": {
@@ -84,7 +135,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"fakeStudent.se2@gmail.com\",\r\n    \"password\": \"anvzRPuDd1mvCXJBfn\"\r\n}",
+							"raw": "{\r\n    \"email\": \"tjw85.student.baglio@inbox.testmail.app\",\r\n    \"password\": \"aldo\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -106,6 +157,67 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "user logout",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "ff8cb825-c65b-465a-8056-7a2d3b28ca07",
+								"exec": [
+									"function sendRequest(req) {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest(req, (err, res) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"            return resolve(res);\r",
+									"        })\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"(async function main() {\r",
+									"    const baseUrl = pm.globals.get(\"base_url\");\r",
+									"    \r",
+									"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+									"    console.log('Reset', result);\r",
+									"})();"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "04267f0b-c9c0-4122-be5b-28b3615ca725",
+								"exec": [
+									"pm.test(\"Status code of POST /login\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/v1/logout",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"v1",
+								"logout"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}
@@ -114,12 +226,880 @@
 			"name": "tests-teacher",
 			"item": [
 				{
+					"name": "tests-teacher Sprint2",
+					"item": [
+						{
+							"name": "teachers -> courses -> lectures | 1 or more",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "78629b99-ef64-4fe9-a262-c45f2ff4586f",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "04a0fd7b-5fc1-4e01-a9b9-daa2f0ce9838",
+										"exec": [
+											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /teachers/4/courses/1/lectures\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson).to.be.an(\"array\");\r",
+											"    pm.expect(responseJson).to.have.length(3);\r",
+											"        const expectedLectureId = [1, 2, 3]\r",
+											"    for (let i = 0; i < responseJson.length; i++) {\r",
+											"        pm.expect(responseJson[i].lectureId).to.be.equal(expectedLectureId[i]);  \r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/teachers/4/courses/1/lectures",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"teachers",
+										"4",
+										"courses",
+										"1",
+										"lectures"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "teachers -> courses -> lectures | param not int",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "aa952c1b-6388-481d-ad09-885ff8fabb10",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "54dd630e-01bf-4d25-9060-3cabaa5eba7b",
+										"exec": [
+											"pm.test(\"Status code of  GET /teachers/4/courses/\\\"foo\\\"/lectures\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /teachers/4/courses/\\\"foo\\\"/lectures\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson.errno).to.eql(3);\r",
+											"    pm.expect(responseJson.message).to.contain(\"courseId\");\r",
+											"    pm.expect(responseJson.statusCode).to.eql(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/teachers/4/courses/\"foo\"/lectures",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"teachers",
+										"4",
+										"courses",
+										"\"foo\"",
+										"lectures"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "teachers -> courses -> lectures | empty",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "2e10b438-ef00-4ca9-a544-b90afc93c4fe",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "1916c593-ab9e-4f5b-98e3-e43a56269af5",
+										"exec": [
+											"pm.test(\"Status code of GET /teachers/5/courses/4/lectures\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /teachers/5/courses/4/lectures\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson).to.be.an(\"array\");\r",
+											"    pm.expect(responseJson).to.have.length(0);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/teachers/5/courses/4/lectures",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"teachers",
+										"5",
+										"courses",
+										"4",
+										"lectures"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "teachers -> courses -> lectures | numBookings",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "16056e4a-58fa-41c7-ae9c-ef6df73e2684",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "07a11e10-54ae-4195-bd26-9b813541d17a",
+										"exec": [
+											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures?numBookings=true\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /teachers/4/courses/1/lectures?numBookings=true\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson).to.be.an(\"array\");\r",
+											"    pm.expect(responseJson).to.have.length(3);\r",
+											"    const expectedNumBookings = [1, 0, 0]\r",
+											"    for (let i = 0; i < responseJson.length; i++) {\r",
+											"        pm.expect(responseJson[i].numBookings).to.be.equal(expectedNumBookings[i]);  \r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/teachers/4/courses/1/lectures?numBookings=true",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"teachers",
+										"4",
+										"courses",
+										"1",
+										"lectures"
+									],
+									"query": [
+										{
+											"key": "numBookings",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "teachers -> courses -> lectures | from 1 or more",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e2c0feba-6320-45bd-aa0e-f1ee5b7472d3",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    pm.request.url.query.add(\"from=\" + (new Date()).toISOString());\r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "456666b3-4e21-4a44-ac83-6d3b8dfe075c",
+										"exec": [
+											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /teachers/4/courses/1/lectures\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson).to.be.an(\"array\");\r",
+											"    pm.expect(responseJson).to.have.length(2);\r",
+											"    const expectedLectureId = [2, 3]\r",
+											"    for (let i = 0; i < responseJson.length; i++) {\r",
+											"        pm.expect(responseJson[i].lectureId).to.be.equal(expectedLectureId[i]);  \r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/teachers/4/courses/1/lectures",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"teachers",
+										"4",
+										"courses",
+										"1",
+										"lectures"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "teachers -> courses -> lectures | from empty",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "7986edd9-0a3a-4159-85cf-ef6092dea4ae",
+										"exec": [
+											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /teachers/4/courses/1/lectures\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson).to.be.an(\"array\");\r",
+											"    pm.expect(responseJson).to.have.length(0);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "02af63ea-e193-4de1-92d7-2a8e9d9ad65d",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    const d = new Date();\r",
+											"    d.setDate(d.getDate() + 3)\r",
+											"    d.setHours(0,0,0,0);\r",
+											"    pm.request.url.query.add(\"from=\" + d.toISOString());\r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/teachers/4/courses/1/lectures",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"teachers",
+										"4",
+										"courses",
+										"1",
+										"lectures"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "teachers -> courses -> lectures -> id | cancellable",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "dfa239ea-6b11-40d1-b7b8-788e13ea9faf",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "acf9628a-7dda-4317-b9d2-eda7a086fc20",
+										"exec": [
+											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/teachers/4/courses/1/lectures/2",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"teachers",
+										"4",
+										"courses",
+										"1",
+										"lectures",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "teachers -> courses -> lectures -> id | not cancellable",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "a4f288d7-2a1c-4f5a-b13e-42ed7d734ddd",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "a2fbec02-6953-43b7-8b28-225925b89891",
+										"exec": [
+											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
+											"    pm.response.to.have.status(409);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /teachers/4/courses/1/lectures\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson.errno).to.eql(23);\r",
+											"    pm.expect(responseJson.message).to.contain(\"lectureId\");\r",
+											"    pm.expect(responseJson.statusCode).to.eql(409);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/teachers/4/courses/1/lectures/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"teachers",
+										"4",
+										"courses",
+										"1",
+										"lectures",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "teachers -> courses -> lectures -> id | switch remote",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "3e83d84d-e28f-4c9b-8424-6ee8f28dba6e",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "ed9ec99c-21b3-452d-88ce-7f0f70429ab6",
+										"exec": [
+											"pm.test(\"Status code of PUT /teachers/4/courses/2/lectures/4?switchTo=remote\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/teachers/4/courses/2/lectures/4?switchTo=remote",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"teachers",
+										"4",
+										"courses",
+										"2",
+										"lectures",
+										"4"
+									],
+									"query": [
+										{
+											"key": "switchTo",
+											"value": "remote"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "teachers -> courses -> lectures -> id | switch fail",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "eab0ba39-2952-4612-a8df-7cab89633a43",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "0383b818-d362-47cc-a45a-9f31cf4b523b",
+										"exec": [
+											"pm.test(\"Status code of PUT /teachers/4/courses/1/lectures/3?switchTo=fail\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Status code of PUT /teachers/4/courses/1/lectures/3?switchTo=fail\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson.errno).to.eql(22);\r",
+											"    pm.expect(responseJson.message).to.contain(\"Delivery mode\");\r",
+											"    pm.expect(responseJson.statusCode).to.eql(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/teachers/4/courses/1/lectures/3?switchTo=fail",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"teachers",
+										"4",
+										"courses",
+										"1",
+										"lectures",
+										"3"
+									],
+									"query": [
+										{
+											"key": "switchTo",
+											"value": "fail"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "teachers -> courses -> lectures -> id",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "c98a676a-a205-4936-b402-8df559ca7365",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "db854054-c398-43a5-a5fe-1daf1711b62c",
+										"exec": [
+											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures/1\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /teachers/4/courses/1/lectures/1\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson).to.be.an(\"object\");\r",
+											"    pm.expect(responseJson[\"lectureId\"]).to.be.equal(1);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/teachers/4/courses/1/lectures/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"teachers",
+										"4",
+										"courses",
+										"1",
+										"lectures",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "students -> courses -> lectures | from",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "4087db05-3055-4aaf-ae18-730510579153",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    pm.request.url.query.add(\"from=\" + (new Date()).toISOString());\r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "12771e2b-c6bc-4a00-903d-060e7df56dc9",
+										"exec": [
+											"pm.test(\"Status code of GET /students/1/courses/1/lectures\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /students/1/courses/1/lectures\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson).to.be.an(\"array\");\r",
+											"    pm.expect(responseJson).to.have.length(2);\r",
+											"    expectedLectureId = [2, 3];\r",
+											"    for(let i = 0; i < responseJson.length; i++) {\r",
+											"        responseJson[i].lectureId = expectedLectureId[i];\r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/students/1/courses/1/lectures",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"students",
+										"1",
+										"courses",
+										"1",
+										"lectures"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "610ec9a8-1084-4527-be83-cd1cbdffbd0c",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "60cdcc62-9f8a-4ba5-9dd8-0c693d02c0f9",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
 					"name": "GET teacher's courses | empty",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"id": "b67337bf-c6e8-4d39-a0ac-6706fc2175ad",
+								"id": "e625d782-df32-4257-9fcf-6f151b08e39b",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/1/courses\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -137,7 +1117,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "72501b1d-db4b-4b04-afb3-e57e8bb397d6",
+								"id": "4496cad0-695c-40af-97de-648aaebf5fc8",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -188,7 +1168,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "0c36fa60-b5c0-48a5-8a10-84a08d4e85f2",
+								"id": "61de9f20-d2a7-4f3d-a74d-0e3e979b15ec",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -230,7 +1210,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "f805e6f7-0ede-458f-8a1a-8b33fd62a8bd",
+								"id": "94bd353a-e304-496c-b0c3-c0326581c802",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/fail/courses\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -238,8 +1218,8 @@
 									"\r",
 									"pm.test(\"Response body of GET /teachers/fail/courses\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.errno).to.eql(1);\r",
-									"    pm.expect(responseJson.error).to.contain(\"teacherId\");\r",
+									"    pm.expect(responseJson.errno).to.eql(3);\r",
+									"    pm.expect(responseJson.message).to.contain(\"teacherId\");\r",
 									"    pm.expect(responseJson.statusCode).to.eql(400);\r",
 									"});"
 								],
@@ -249,7 +1229,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "50134f38-4201-4356-9e3a-12721582f513",
+								"id": "fffab6b1-0a87-4393-9fa0-ffb763ace6cc",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -297,7 +1277,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "c2e3e553-9af8-4c71-9095-d351fe3f3337",
+								"id": "0257a8f9-98f4-4b36-9eaa-409bd7e83693",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -323,7 +1303,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "c8053f22-1f12-4f28-a160-c2688f6f8dcb",
+								"id": "eced6e3b-5af4-416e-a05c-420340de6819",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/fail/courses/1/lectures\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -331,8 +1311,8 @@
 									"\r",
 									"pm.test(\"Response body of GET /teachers/fail/courses/1/lectures\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.errno).to.eql(1);\r",
-									"    pm.expect(responseJson.error).to.contain(\"teacherId\");\r",
+									"    pm.expect(responseJson.errno).to.eql(3);\r",
+									"    pm.expect(responseJson.message).to.contain(\"teacherId\");\r",
 									"    pm.expect(responseJson.statusCode).to.eql(400);\r",
 									"});"
 								],
@@ -365,7 +1345,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "a531a3f6-8ac6-42fb-a155-ed2c5ead47ee",
+								"id": "1a15bae3-a5bf-48bc-b33c-d24b27f1aa3b",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -391,7 +1371,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "49661a7d-fbe7-40e4-b11d-2ab5fc388cf2",
+								"id": "b9e87eec-148b-48c8-b8e4-e1507de7d9ec",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/1/courses/fail/lectures\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -399,8 +1379,8 @@
 									"\r",
 									"pm.test(\"Response body of GET /teachers/1/courses/fail/lectures\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.errno).to.eql(1);\r",
-									"    pm.expect(responseJson.error).to.contain(\"courseId\")\r",
+									"    pm.expect(responseJson.errno).to.eql(3);\r",
+									"    pm.expect(responseJson.message).to.contain(\"courseId\")\r",
 									"    pm.expect(responseJson.statusCode).to.eql(400);\r",
 									"});"
 								],
@@ -433,7 +1413,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "676500d0-fb55-4b3b-9c67-15bccbee6930",
+								"id": "55ee59ee-ad96-4816-a6a3-b6dbcf6bc96b",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/5/courses/1/lectures\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
@@ -442,7 +1422,7 @@
 									"pm.test(\"Response body of GET /teachers/5/courses/1/lectures\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
 									"    pm.expect(responseJson.errno).to.eql(30);\r",
-									"    pm.expect(responseJson.error).to.contain(\"courseId\")\r",
+									"    pm.expect(responseJson.message).to.contain(\"courseId\")\r",
 									"    pm.expect(responseJson.statusCode).to.eql(404);\r",
 									"});"
 								],
@@ -452,7 +1432,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "cdef9f4a-bc76-419b-b66d-26539f961e3a",
+								"id": "54e9ca46-c16e-4563-ba46-ae4b284b36a8",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -505,7 +1485,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "3abb1484-370d-4cab-8ebb-932190396687",
+								"id": "0be06171-168a-4424-9b74-1d649b995997",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -531,7 +1511,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "52618f9e-f308-4c73-89e3-dcd76fc18d5c",
+								"id": "3562f13a-6c03-4ea1-adab-a5ce8d913b3c",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -539,15 +1519,27 @@
 									"\r",
 									"pm.test(\"Response body of GET /teachers/4/courses/1/lectures\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    const datetime = new Date();\r",
-									"    datetime.setDate(datetime.getDate() + 1);\r",
-									"    datetime.setHours(8, 30, 00, 00);\r",
-									"    const keys = [\"lectureId\", \"courseId\", \"classId\", \"date\"]\r",
-									"    const values = [1, 1, 1, datetime.toISOString()]\r",
-									"    pm.expect(responseJson[0]).to.have.any.keys(...keys);\r",
-									"    for(let i = 0; i < keys.length; i++) {\r",
-									"        pm.expect(responseJson[0][keys[i]]).to.eq(values[i]);\r",
-									"    } \r",
+									"    console.log(responseJson)\r",
+									"    const datetime1 = new Date();\r",
+									"    const datetime2 = new Date();\r",
+									"    const datetime3 = new Date();\r",
+									"    datetime1.setDate(datetime1.getDate() -  1);\r",
+									"    datetime1.setHours(8, 30, 00, 00);\r",
+									"    datetime2.setDate(datetime2.getDate() + 1);\r",
+									"    datetime2.setHours(8, 30, 00, 00);\r",
+									"    datetime3.setDate(datetime3.getDate() + 2);\r",
+									"    datetime3.setHours(8, 30, 00, 00);\r",
+									"    const datetime = [datetime1, datetime2, datetime3];\r",
+									"    const expected = [ [1, 1, 1, datetime1.toISOString(), 5400000, \"PRESENCE\"],\r",
+									"    [2, 1, 1, datetime2.toISOString(), 5400000, \"PRESENCE\"],\r",
+									"    [3, 1, 3, datetime3.toISOString(), 5400000, \"PRESENCE\"]]\r",
+									"    const keys = [\"lectureId\", \"courseId\", \"classId\", \"startingDate\", \"duration\", \"delivery\"]\r",
+									"    for(let i = 0; i < 3; i++) {\r",
+									"        pm.expect(responseJson[i]).to.have.any.keys(...keys);\r",
+									"        for(let j = 0; j < keys.length; j++) {\r",
+									"          pm.expect(responseJson[i][keys[j]]).to.eq(expected[i][j]);\r",
+									"        } \r",
+									"    }\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -579,7 +1571,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "424eccd6-ecc3-44ef-bda8-ffd1594da41e",
+								"id": "a24904ed-ae9c-43f7-8527-a58c7d973681",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -605,7 +1597,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "f4b86966-2d55-4f21-a9ec-017980bc37ee",
+								"id": "04577256-f62d-4973-b600-c0b597e026e7",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/1/courses/fail/lectures\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -650,7 +1642,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "197446a1-c3d4-4757-8cd8-c5c33de22da4",
+								"id": "94ba8ec5-f552-4391-8203-13f1ee534bb1",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -676,7 +1668,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "de8ba943-b3a1-4d28-b57e-507a85474f41",
+								"id": "f254b436-99a1-4f7a-bb1f-aba8d578c41f",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/fail/courses/1/lectures/2/students\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -684,8 +1676,8 @@
 									"\r",
 									"pm.test(\"Response body of GET /teachers/fail/courses/1/lectures/2/students\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.errno).to.eql(1);\r",
-									"    pm.expect(responseJson.error).to.contain(\"teacherId\");\r",
+									"    pm.expect(responseJson.errno).to.eql(3);\r",
+									"    pm.expect(responseJson.message).to.contain(\"teacherId\");\r",
 									"    pm.expect(responseJson.statusCode).to.eql(400);\r",
 									"});"
 								],
@@ -720,7 +1712,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "e08a4596-3bcf-487d-af5f-20231ef2e0a9",
+								"id": "6db075bf-b7a7-437a-82b0-b39fada1f111",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -746,7 +1738,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "5fb49bec-a6a4-4b26-a60b-4bfc174ad15b",
+								"id": "ab8b725f-d97e-46b0-b566-13a190d1a577",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/fail/lectures/2/students\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -754,8 +1746,8 @@
 									"\r",
 									"pm.test(\"Response body of GET /teachers/4/courses/fail/lectures/2/students\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.errno).to.eql(1);\r",
-									"    pm.expect(responseJson.error).to.contain(\"courseId\");\r",
+									"    pm.expect(responseJson.errno).to.eql(3);\r",
+									"    pm.expect(responseJson.message).to.contain(\"courseId\");\r",
 									"    pm.expect(responseJson.statusCode).to.eql(400);\r",
 									"});"
 								],
@@ -790,7 +1782,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "feb290fd-45c4-4140-9b0a-ac2fc57e7fed",
+								"id": "5d7497ce-0871-415f-890d-5053fb4f694c",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -816,7 +1808,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "5bd9e75b-5d2d-421e-8606-b1eaf1475411",
+								"id": "18cdbfe8-3c3f-4b95-bb7a-8826ae4fbd89",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/1/lectures/fail/students\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -824,8 +1816,8 @@
 									"\r",
 									"pm.test(\"Response body of GET /teachers/4/courses/1/lectures/fail/students\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.errno).to.eql(1);\r",
-									"    pm.expect(responseJson.error).to.contain(\"lectureId\");\r",
+									"    pm.expect(responseJson.errno).to.eql(3);\r",
+									"    pm.expect(responseJson.message).to.contain(\"lectureId\");\r",
 									"    pm.expect(responseJson.statusCode).to.eql(400);\r",
 									"});"
 								],
@@ -861,7 +1853,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "edc1a1f7-395b-442c-86f8-72dc66e0d284",
+								"id": "492e47a6-421e-4e60-aaea-6cacdbe4b7ee",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -887,7 +1879,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "af35719c-473b-45e9-8138-314eefb45d63",
+								"id": "270abaea-8e4a-4a05-bd38-e26a3e9111fa",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/3/lectures/1/students\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
@@ -896,7 +1888,7 @@
 									"pm.test(\"Response body of GET /teachers/4/courses/3/lectures/1/students\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
 									"    pm.expect(responseJson.errno).to.eql(30);\r",
-									"    pm.expect(responseJson.error).to.contain(\"courseId\")\r",
+									"    pm.expect(responseJson.message).to.contain(\"courseId\")\r",
 									"    pm.expect(responseJson.statusCode).to.eql(404);\r",
 									"});"
 								],
@@ -931,7 +1923,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "872812da-7d49-4f8c-abf3-5ecce4ef3c01",
+								"id": "18ebfa50-b807-4735-a0e6-087f208e4935",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -957,7 +1949,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "ad781370-a5f8-452a-a5e8-6c043ecb0bc9",
+								"id": "0a81320b-6952-4609-b43c-c44fed33803b",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/3/lectures/1/students\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
@@ -966,7 +1958,7 @@
 									"pm.test(\"Response body of GET /teachers/4/courses/3/lectures/1/students\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
 									"    pm.expect(responseJson.errno).to.eql(11);\r",
-									"    pm.expect(responseJson.error).to.contain(\"lectureId\")\r",
+									"    pm.expect(responseJson.message).to.contain(\"lectureId\")\r",
 									"    pm.expect(responseJson.statusCode).to.eql(404);\r",
 									"});"
 								],
@@ -978,7 +1970,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/teachers/4/courses/1/lectures/2/students",
+							"raw": "{{base_url}}/teachers/4/courses/1/lectures/4/students",
 							"host": [
 								"{{base_url}}"
 							],
@@ -988,7 +1980,7 @@
 								"courses",
 								"1",
 								"lectures",
-								"2",
+								"4",
 								"students"
 							]
 						}
@@ -1001,7 +1993,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "1c748f6f-1482-425c-a696-2662a98bf420",
+								"id": "f9b8947f-3c7f-4cb5-a13f-b5e663dad1b1",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1027,7 +2019,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "99717b23-6cdd-417c-b039-51690d8ac5d7",
+								"id": "2aed959e-abe2-4f66-aa04-546d12c935b5",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/1/lectures/1/students\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -1037,7 +2029,7 @@
 									"    const responseJson = pm.response.json();\r",
 									"\r",
 									"    const keys = [\"userId\", \"firstName\", \"lastName\", \"email\"];\r",
-									"    const values = [1, \"Aldo\", \"Baglio\", \"aldo.baglio@agg.it\", \"STUDENT\"];\r",
+									"    const values = [1, \"Aldo\", \"Baglio\", \"tjw85.student.baglio@inbox.testmail.app\", \"STUDENT\"];\r",
 									"\r",
 									"    pm.expect(responseJson).to.be.an(\"array\"); \r",
 									"    console.log(responseJson[0])  \r",
@@ -1079,7 +2071,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "f28609f3-7476-463e-a119-7477623ad9a7",
+								"id": "a2f56692-18a7-4515-946e-e6b9de5ea72d",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1105,7 +2097,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "10026f5c-7921-4f87-9640-e34d421dc015",
+								"id": "583c2630-c7eb-4319-a853-96c3db90cb45",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/1/lectures/1/students\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -1125,7 +2117,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/teachers/4/courses/1/lectures/4/students",
+							"raw": "{{base_url}}/teachers/4/courses/1/lectures/2/students",
 							"host": [
 								"{{base_url}}"
 							],
@@ -1135,7 +2127,7 @@
 								"courses",
 								"1",
 								"lectures",
-								"4",
+								"2",
 								"students"
 							]
 						}
@@ -1149,12 +2141,467 @@
 			"name": "tests-student",
 			"item": [
 				{
+					"name": "tests-student Sprint2",
+					"item": [
+						{
+							"name": "students -> courses -> lectures -> id",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "6d28f74b-35fd-4d1c-a887-3ace5323eff8",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "a21aeff3-dfd9-4460-94f7-508c5e5a8b96",
+										"exec": [
+											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/students/1/courses/1/lectures/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"students",
+										"1",
+										"courses",
+										"1",
+										"lectures",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "students -> courses -> lectures -> id | param not int",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "9adafba2-3b9f-4041-bfaf-8584a15bbde5",
+										"exec": [
+											"pm.test(\"Status code of DELETE /students/1/courses/1/lectures/\\\"foo\\\"\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of DELETE /students/1/courses/1/lectures/\\\"foo\\\"\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson.errno).to.eql(0);\r",
+											"    pm.expect(responseJson.statusCode).to.eql(400);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/students/1/courses/1/lectures/\"foo\"",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"students",
+										"1",
+										"courses",
+										"1",
+										"lectures",
+										"\"foo\""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "students -> bookings | 1 or more",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "92bacc4b-5aa7-451b-8457-79708ffa3a4f",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "eb5c5d75-0924-4549-b7f1-61b59837db74",
+										"exec": [
+											"pm.test(\"Status code of GET /students/1/bookings\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /students/1/bookings\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson).to.be.an(\"array\");\r",
+											"    pm.expect(responseJson).to.have.length(1);\r",
+											"    const expectedLectureId = [1];\r",
+											"    for(let i = 0; i < responseJson.length; i++) {\r",
+											"        responseJson[i].lectureId = expectedLectureId[i]; \r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/students/1/bookings",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"students",
+										"1",
+										"bookings"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "students -> bookings | empty",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "0c956356-5854-4b5e-9d08-67eb116c6d2c",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "23ec4450-4939-4d84-ae74-9e3966b00faa",
+										"exec": [
+											"pm.test(\"Status code of GET /students/6/bookings\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /students/6/bookings\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson).to.be.an(\"array\");\r",
+											"    pm.expect(responseJson).to.have.length(0);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/students/6/bookings",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"students",
+										"6",
+										"bookings"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "students -> courses -> lectures | from",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "98515816-ec2d-4085-9de4-8252426d735c",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    pm.request.url.query.add(\"from=\" + (new Date()).toISOString());\r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "c862cade-03f9-49e2-986f-680c08b67928",
+										"exec": [
+											"pm.test(\"Status code of GET /students/1/courses/1/lectures\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /students/1/courses/1/lectures\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson).to.be.an(\"array\");\r",
+											"    pm.expect(responseJson).to.have.length(2);\r",
+											"    const expectedLectureId = [2, 3];\r",
+											"    for(let i = 0; i < responseJson.length; i++) {\r",
+											"        responseJson[i].lectureId = expectedLectureId[i];\r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/students/1/courses/1/lectures",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"students",
+										"1",
+										"courses",
+										"1",
+										"lectures"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "students -> courses -> lectures | student/course mismatch",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e4ca48f7-0715-4f72-a200-12a1b2006aa0",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "753a6482-98c3-467e-8e2a-34d3fd9997f2",
+										"exec": [
+											"pm.test(\"Status code of GET /students/1/courses/4/lectures\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /students/1/courses/4/lectures\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson.errno).to.eql(730);\r",
+											"    pm.expect(responseJson.message).to.contain(\"not enrolled\");\r",
+											"    pm.expect(responseJson.statusCode).to.eql(404);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/students/1/courses/4/lectures",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"students",
+										"1",
+										"courses",
+										"4",
+										"lectures"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "students -> courses -> lectures | 1 or more",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "10ea9f6f-9c12-4faa-a12e-bb0fc0ef4678",
+										"exec": [
+											"function sendRequest(req) {\r",
+											"    return new Promise((resolve, reject) => {\r",
+											"        pm.sendRequest(req, (err, res) => {\r",
+											"            if (err) {\r",
+											"                return reject(err);\r",
+											"            }\r",
+											"            return resolve(res);\r",
+											"        })\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"(async function main() {\r",
+											"    const baseUrl = pm.globals.get(\"base_url\");\r",
+											"    \r",
+											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
+											"    console.log('Reset', result);\r",
+											"})();"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "a9f1b6cb-7baa-4f79-ac8a-37628aedb73d",
+										"exec": [
+											"pm.test(\"Status code of GET /students/1/courses/1/lectures\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body of GET /students/1/courses/1/lectures\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson).to.be.an(\"array\");\r",
+											"    pm.expect(responseJson).to.have.length(3);\r",
+											"    expectedLectureId = [1, 2, 3];\r",
+											"    for(let i = 0; i < responseJson.length; i++) {\r",
+											"        responseJson[i].lectureId = expectedLectureId[i];\r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/students/1/courses/1/lectures",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"students",
+										"1",
+										"courses",
+										"1",
+										"lectures"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
 					"name": "GET student's courses | empty",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"id": "73cd7944-aae7-49b6-90ad-70e0b4cb313d",
+								"id": "27853af6-4ec9-457e-93e8-2fc0f9d52d1f",
 								"exec": [
 									"pm.test(\"Status code of GET /students/6/courses\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -1172,7 +2619,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "ba7bda1f-9183-470f-b7b7-0c6ee25ee63b",
+								"id": "5ef943f1-c71a-4c34-a8b3-cfa4408b831c",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1219,7 +2666,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "cbabae63-bdb9-4f13-b696-c54573a02abb",
+								"id": "16e0eb8a-0ea5-4f26-a7eb-fc2da180d8d3",
 								"exec": [
 									"pm.test(\"Status code of GET /students/1/courses\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -1236,7 +2683,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "805107c5-2c4f-47f9-8c8f-20a0afc4fecf",
+								"id": "6b0bd5c2-7de7-4319-beb0-e2b21a0ad2e3",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1283,7 +2730,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "482beca8-4774-4124-bbaf-845addd3fbac",
+								"id": "ec27fe33-e5bd-4b2c-94a8-d846a0564466",
 								"exec": [
 									"pm.test(\"Status code of GET /students/fail/courses\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -1291,8 +2738,8 @@
 									"\r",
 									"pm.test(\"Response body of GET /students/fail/courses\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.value).to.eql(\"fail\");\r",
-									"    pm.expect(responseJson.param).to.eql(\"studentId\");\r",
+									"    pm.expect(responseJson.errno).to.eql(0);\r",
+									"    pm.expect(responseJson.statusCode).to.eql(400);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1301,7 +2748,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "63c00c01-b5a0-4ed2-8669-3dbd6d8f0634",
+								"id": "404a63ce-763e-4107-9a95-4ead9e43b2df",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1349,7 +2796,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "ac851e7b-ba7d-4ffe-b24f-aec7e99ac1b6",
+								"id": "52ca2021-475d-4c13-ab18-32051256140d",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1375,7 +2822,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "68977e27-7639-4a17-af0f-2235e218ac26",
+								"id": "0097f623-7ee1-4f3e-a4b0-ad7954b942b0",
 								"exec": [
 									"pm.test(\"Status code of GET /students/fail/courses/1/lectures\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -1383,8 +2830,8 @@
 									"\r",
 									"pm.test(\"Response body of GET /students/fail/courses/1/lectures\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.value).to.eql(\"fail\");\r",
-									"    pm.expect(responseJson.param).to.eql(\"studentId\");\r",
+									"    pm.expect(responseJson.errno).to.eql(0);\r",
+									"    pm.expect(responseJson.statusCode).to.eql(400);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1416,7 +2863,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "02a18551-2903-4294-872a-8047e66483e4",
+								"id": "3b4d1acf-95b1-41a5-8d0f-45527fe79308",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1442,7 +2889,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "05b05d95-8d05-4541-8178-9856b5754884",
+								"id": "483ba643-ec90-4148-b206-975e67e8c794",
 								"exec": [
 									"pm.test(\"Status code of GET /students/1/courses/fail/lectures\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -1450,8 +2897,8 @@
 									"\r",
 									"pm.test(\"Response body of GET /students/1/courses/fail/lectures\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.value).to.eql(\"fail\");\r",
-									"    pm.expect(responseJson.param).to.eql(\"courseId\");\r",
+									"    pm.expect(responseJson.errno).to.eql(0);\r",
+									"    pm.expect(responseJson.statusCode).to.eql(400);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1483,15 +2930,17 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "d0790191-aa6c-4a88-8380-4f1ea52ba5d0",
+								"id": "45561900-c1bc-43cf-ba38-f51eaddd204e",
 								"exec": [
-									"pm.test(\"Status code of GET /teachers/5/courses/1/lectures\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
+									"pm.test(\"Status code of GET /students/1/courses/4/lectures\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Response body of GET /teachers/5/courses/1/lectures\", function () {\r",
+									"pm.test(\"Response body of GET /students/1/courses/4/lectures\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson).to.have.keys(\"error\");\r",
+									"    pm.expect(responseJson.errno).to.be.equal(730);\r",
+									"    pm.expect(responseJson.message).to.contain(\"not enrolled\");\r",
+									"    pm.expect(responseJson.statusCode).to.be.equal(404);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1500,7 +2949,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "7760c27c-4221-462e-8cc0-4be16d3f87bc",
+								"id": "e12178b6-8d45-4589-ab14-c69a255be2a8",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1549,7 +2998,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "f4c896a8-642b-4b97-964d-417b1d9ddcf8",
+								"id": "55ae466f-b5a0-4c0a-9868-3515d45b4d3c",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1575,23 +3024,35 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "71b6d849-e1d0-4050-bbdd-5baafc251509",
+								"id": "90743c31-c9fc-43cb-962b-7d9bf0b16dd9",
 								"exec": [
-									"pm.test(\"Status code of GET /teachers/1/courses/fail/lectures\", function () {\r",
+									"pm.test(\"Status code of GET /students/1/courses/1/lectures\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Response body of GET /teachers/1/courses/fail/lectures\", function () {\r",
+									"pm.test(\"Response body of GET /students/1/courses/1/lectures\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    const datetime = new Date();\r",
-									"    datetime.setDate(datetime.getDate() + 1);\r",
-									"    datetime.setHours(8, 30, 00, 00);\r",
-									"    const keys = [\"lectureId\", \"courseId\", \"classId\", \"date\"]\r",
-									"    const values = [1, 1, 1, datetime.toISOString()]\r",
-									"    pm.expect(responseJson[0]).to.have.any.keys(...keys);\r",
-									"    for(let i = 0; i < keys.length; i++) {\r",
-									"        pm.expect(responseJson[0][keys[i]]).to.eq(values[i]);\r",
-									"    } \r",
+									"    console.log(responseJson)\r",
+									"    const datetime1 = new Date();\r",
+									"    const datetime2 = new Date();\r",
+									"    const datetime3 = new Date();\r",
+									"    datetime1.setDate(datetime1.getDate() -  1);\r",
+									"    datetime1.setHours(8, 30, 00, 00);\r",
+									"    datetime2.setDate(datetime2.getDate() + 1);\r",
+									"    datetime2.setHours(8, 30, 00, 00);\r",
+									"    datetime3.setDate(datetime3.getDate() + 2);\r",
+									"    datetime3.setHours(8, 30, 00, 00);\r",
+									"    const datetime = [datetime1, datetime2, datetime3];\r",
+									"    const expected = [ [1, 1, 1, datetime1.toISOString(), 5400000, \"PRESENCE\"],\r",
+									"    [2, 1, 1, datetime2.toISOString(), 5400000, \"PRESENCE\"],\r",
+									"    [3, 1, 3, datetime3.toISOString(), 5400000, \"PRESENCE\"]]\r",
+									"    const keys = [\"lectureId\", \"courseId\", \"classId\", \"startingDate\", \"duration\", \"delivery\"]\r",
+									"    for(let i = 0; i < 3; i++) {\r",
+									"        pm.expect(responseJson[i]).to.have.any.keys(...keys);\r",
+									"        for(let j = 0; j < keys.length; j++) {\r",
+									"          pm.expect(responseJson[i][keys[j]]).to.eq(expected[i][j]);\r",
+									"        } \r",
+									"    }\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1623,7 +3084,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "bc37978c-0011-42d1-9da9-cb5ef0dac8b4",
+								"id": "5dd65383-2bdd-415d-9b77-78defbd323cf",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1649,13 +3110,13 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "6f558fbc-c2a3-4745-8285-edba47c6163c",
+								"id": "b0dce7b1-dd1f-46dc-b6b1-f0033b003937",
 								"exec": [
-									"pm.test(\"Status code of GET /teachers/1/courses/fail/lectures\", function () {\r",
+									"pm.test(\"Status code of GET /students/3/courses/4/lectures\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Response body of GET /teachers/1/courses/fail/lectures\", function () {\r",
+									"pm.test(\"Response body of GET /students/3/courses/4/lectures\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
 									"    pm.expect(responseJson).to.be.an(\"array\"); \r",
 									"    pm.expect(responseJson).to.have.length(0);\r",
@@ -1690,7 +3151,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "90bfc5d1-f6e7-4dec-ae14-e344198e9201",
+								"id": "43495250-1136-4a49-8c50-8d83440976b2",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1716,16 +3177,16 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "83394f64-d1fa-4983-a1c5-9ead8d1b133c",
+								"id": "a3eca9ad-b783-48fc-a399-b536bb99006b",
 								"exec": [
-									"pm.test(\"Status code of POST /students/fail/courses/1/lectures/2\", function () {\r",
+									"pm.test(\"Status code of GET /students/fail/courses/1/lectures/2\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Response body of POST /students/fail/courses/1/lectures/2\", function () {\r",
+									"pm.test(\"Response body of GET /students/fail/courses/1/lectures/2\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.value).to.eql(\"fail\");\r",
-									"    pm.expect(responseJson.param).to.eql(\"studentId\");\r",
+									"    pm.expect(responseJson.errno).to.eql(0);\r",
+									"    pm.expect(responseJson.statusCode).to.eql(400);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1758,7 +3219,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "345065b3-1598-4ede-90df-4664254c0fac",
+								"id": "59c91fa4-82cd-4d58-a7c7-fdc7c6376997",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1784,7 +3245,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "2edf5663-25c9-4cdd-b161-b6962d1bbfce",
+								"id": "281846e8-2afa-402d-8d6a-4b89e85d8ad5",
 								"exec": [
 									"pm.test(\"Status code of POST /students/1/courses/fail/lectures/2\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -1792,8 +3253,8 @@
 									"\r",
 									"pm.test(\"Response body of POST /students/1/courses/fail/lectures/2\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.value).to.eql(\"fail\");\r",
-									"    pm.expect(responseJson.param).to.eql(\"courseId\");\r",
+									"    pm.expect(responseJson.errno).to.eql(0);\r",
+									"    pm.expect(responseJson.statusCode).to.eql(400);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1826,7 +3287,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "65d8b96c-d523-4395-8b48-003ce62f66e3",
+								"id": "1bbe99ec-45a5-4b1f-996c-25fe2225e5f1",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1852,7 +3313,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "499ace94-455c-4f1a-aa55-d75cd02b83ca",
+								"id": "a87d8991-3d20-481d-acd1-c5ffb6e8460a",
 								"exec": [
 									"pm.test(\"Status code of POST /students/1/courses/1/lectures/fail\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -1860,8 +3321,8 @@
 									"\r",
 									"pm.test(\"Response body of POST /students/1/courses/1/lectures/fail\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.value).to.eql(\"fail\");\r",
-									"    pm.expect(responseJson.param).to.eql(\"lectureId\");\r",
+									"    pm.expect(responseJson.errno).to.eql(0);\r",
+									"    pm.expect(responseJson.statusCode).to.eql(400);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1895,7 +3356,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "089d1da0-73e6-40d0-8c75-13acdc7734a3",
+								"id": "d9846572-edbd-4da1-84f9-1a83ddf78601",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1921,15 +3382,16 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "68f9d90e-ec87-48ac-9070-6805a1855141",
+								"id": "7ddd7421-6f52-4fa7-adc7-cbb1907baf3e",
 								"exec": [
 									"pm.test(\"Status code of POST /students/2/courses/1/lectures/1\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
+									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Response body of POST /students/2/courses/1/lectures/1\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson).to.have.keys(\"error\");\r",
+									"    pm.expect(responseJson.errno).to.eql(730);\r",
+									"    pm.expect(responseJson.statusCode).to.eql(404);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1962,7 +3424,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "dc719496-6986-47db-8aac-da47712894c2",
+								"id": "dbfef179-3cd4-4472-8cd6-9ac5a5e15297",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1988,15 +3450,16 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "777d0600-b280-49e2-a310-f3144be4c2ca",
+								"id": "8f318a25-aaf6-4751-883a-b44196ac93d5",
 								"exec": [
 									"pm.test(\"Status code of POST /students/1/courses/1/lectures/2\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
+									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Response body of POST /students/1/courses/1/lectures/2\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson).to.have.keys(\"error\");\r",
+									"    pm.expect(responseJson.errno).to.eql(730);\r",
+									"    pm.expect(responseJson.statusCode).to.eql(404);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2029,7 +3492,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "5fd065b8-4b83-4505-b8e3-11141a36aa34",
+								"id": "630e2c1b-3bc4-40df-905a-06e21e784005",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -2055,15 +3518,16 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "5b427cb0-73a8-4a67-b7fb-50d467aaccff",
+								"id": "0754570d-62c9-4ac3-ad24-5c8cea87a723",
 								"exec": [
 									"pm.test(\"Status code of POST /students/2/courses/1/lectures/1\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
+									"    pm.response.to.have.status(404);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Response body of POST /students/2/courses/1/lectures/1\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson).to.have.keys(\"error\");\r",
+									"    pm.expect(responseJson.errno).to.eql(730);\r",
+									"    pm.expect(responseJson.statusCode).to.eql(404);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2096,7 +3560,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "01e0959d-c2e6-403e-9316-5ca29d20707e",
+								"id": "73382b4a-6cf0-4849-9ec4-ce43cad01c53",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -2122,15 +3586,10 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "1aef3e60-b714-4ee9-94c1-13403e4523f5",
+								"id": "70ef86f7-17e6-4bdc-8e88-128c3ebe11a3",
 								"exec": [
 									"pm.test(\"Status code of POST /students/2/courses/1/lectures/1\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body of POST /students/2/courses/1/lectures/1\", function () {\r",
-									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson).to.have.keys(\"msg\");\r",
+									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2141,7 +3600,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/students/1/courses/3/lectures/3",
+							"raw": "{{base_url}}/students/1/courses/1/lectures/2",
 							"host": [
 								"{{base_url}}"
 							],
@@ -2149,9 +3608,9 @@
 								"students",
 								"1",
 								"courses",
-								"3",
+								"1",
 								"lectures",
-								"3"
+								"2"
 							]
 						}
 					},
