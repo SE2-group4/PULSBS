@@ -354,7 +354,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    if (switchTo && !isValidDeliveryMode(switchTo)) {
+    if (!isValidDeliveryMode(switchTo)) {
         throw new ResponseError(
             "TeacherService",
             ResponseError.LECTURE_INVALID_DELIVERY_MODE,
@@ -403,8 +403,6 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
                 subjectArgs,
                 messageArgs
             );
-
-            console.log(subject, message);
 
             studentsToBeNotified.forEach((student) =>
                 EmailService.sendCustomMail(student.email, subject, message)
