@@ -87,10 +87,10 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
 
     if (!dateFilter) dateFilter = {};
 
-    console.log(
+    console.info(
         `Date filter:     ${Object.keys(dateFilter).length === 0 ? "no filter" : JSON.stringify(dateFilter)}`.magenta
     );
-    console.log(`Num of bookings: ${numBookings === undefined ? false : numBookings}`.magenta);
+    console.info(`Num of bookings: ${numBookings === undefined ? false : numBookings}`.magenta);
 
     try {
         // check if the teacher is in charge of this course during this academic year
@@ -311,7 +311,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
                     emailsToBeSent.forEach((email) =>
                         EmailService.sendCustomMail(email.recipient, subject, message)
                             .then(() => {
-                                console.log("CANCELLATION email sent to " + email.recipient);
+                                console.email("CANCELLATION email sent to " + email.recipient);
                                 db.deleteEmailQueueById(email);
                             })
                             .catch((err) => console.error(err))
