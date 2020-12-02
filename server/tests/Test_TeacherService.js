@@ -33,25 +33,18 @@ const testSuiteTeacherService = () => {
             );
         });
 
+        after(async function openDb() {
+            await prepare("testing.db", "testTeacherServices.sql", false);
+        });
+
         let tBBBStError;
         let tGGGLectCancError;
         const tBBBSt = {
             input: ["foo", "bar", "zab"],
             error: tBBBStError,
         };
-        const tGBBSt = {
-            input: [1, "bar", "zab"],
-            //error: new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId: tBBBSt.input[0] }, 400),
-            error: tBBBStError,
-        };
-        const tGGBSt = {
-            input: [4, 1, "zab"],
-            //error: new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId: tBBBSt.input[0] }, 400),
-            error: tBBBStError,
-        };
         const tBBBSem = {
             input: [5, 1, 4],
-            //error: new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId: tBBBSt.input[0] }, 400),
             error: tBBBStError,
         };
         const tGBBSem = {
@@ -68,17 +61,14 @@ const testSuiteTeacherService = () => {
         };
         const tGGGLectNotCanc = {
             input: [4, 1, 1],
-            //error: new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId: tBBBSt.input[0] }, 400),
             error: tBBBStError,
         };
         const tGGGLectCanc = {
             input: [4, 1, 2],
-            //error: new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId: tBBBSt.input[0] }, 400),
             error: tGGGLectCancError,
         };
         const tGGGSwitchTo = {
             input: [4, 1, 2, "remote"],
-            //error: new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, { teacherId: tBBBSt.input[0] }, 400),
             error: tGGGLectCancError,
         };
 
@@ -324,10 +314,6 @@ const testSuiteTeacherService = () => {
                 }
             });
 
-            it(errorMsg.Lecture.notSwitchable, async function () {
-                // TODO still need to be implemented
-                //await assert.rejects(Service.teacherUpdateCourseLectureDeliveryMode(...tGGGLectNotCanc.input));
-            });
         });
 
         describe("nextCheck", function () {
