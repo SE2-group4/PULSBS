@@ -93,7 +93,7 @@ class TeacherPage extends React.Component {
                     nMap.set(item.studentId, Math.floor(i / studentForPage));
                     i++;
                 });
-                let nPages = Math.ceil(i / elementForPage);
+                let nPages = Math.ceil(i / studentForPage);
                 this.setState({ students: students, studentMap: nMap, sPages: nPages, selectedLecture: lectureId, fetchErrorS: false, studentLoading: false })
             })
             .catch((error) => {
