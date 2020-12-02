@@ -171,6 +171,8 @@ INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookin
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(25, 5, 6, DATETIME('now', '2 day', 'start of day', '16 hours', '30 minutes'), 1000*60*90, DATETIME('now', '1 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(26, 1, 8, DATETIME('now', '3 day', 'start of day', '16 hours', '30 minutes'), 1000*60*90, DATETIME('now', '2 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(27, 10, 9, DATETIME('now', '4 day', 'start of day', '16 hours', '30 minutes'), 1000*60*90, DATETIME('now', '3 day', 'start of day', '23 hours', '59 minutes'), 'REMOTE');
+INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(28, 1, 9, DATETIME('now', '-10 day', 'start of day', '16 hours', '30 minutes'), 1000*60*90, DATETIME('now', '-11 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
+INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(29, 1, 9, DATETIME('now', '-9 day', 'start of day', '16 hours', '30 minutes'), 1000*60*90, DATETIME('now', '-10 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 
 INSERT INTO Booking(studentId, lectureId) VALUES(1, 1);
 INSERT INTO Booking(studentId, lectureId) VALUES(1, 8);
@@ -202,6 +204,8 @@ INSERT INTO Booking(studentId, lectureId) VALUES(8, 16);
 INSERT INTO Booking(studentId, lectureId) VALUES(8, 17);
 INSERT INTO Booking(studentId, lectureId) VALUES(8, 19);
 INSERT INTO Booking(studentId, lectureId) VALUES(8, 21);
+INSERT INTO Booking(studentId, lectureId) VALUES(8, 28);
+INSERT INTO Booking(studentId, lectureId) VALUES(8, 29);
 INSERT INTO Booking(studentId, lectureId) VALUES(9, 2);
 INSERT INTO Booking(studentId, lectureId) VALUES(9, 6);
 INSERT INTO Booking(studentId, lectureId) VALUES(9, 7);
@@ -213,6 +217,7 @@ INSERT INTO Booking(studentId, lectureId) VALUES(9, 22);
 INSERT INTO Booking(studentId, lectureId) VALUES(9, 23);
 INSERT INTO Booking(studentId, lectureId) VALUES(9, 25);
 INSERT INTO Booking(studentId, lectureId) VALUES(9, 26);
+INSERT INTO Booking(studentId, lectureId) VALUES(9, 29);
 INSERT INTO Booking(studentId, lectureId) VALUES(10, 2);
 INSERT INTO Booking(studentId, lectureId) VALUES(10, 4);
 INSERT INTO Booking(studentId, lectureId) VALUES(10, 8);
@@ -259,6 +264,8 @@ INSERT INTO Booking(studentId, lectureId) VALUES(13, 20);
 INSERT INTO Booking(studentId, lectureId) VALUES(13, 22)
 INSERT INTO Booking(studentId, lectureId) VALUES(13, 25);
 INSERT INTO Booking(studentId, lectureId) VALUES(13, 26);
+INSERT INTO Booking(studentId, lectureId) VALUES(13, 27);
+INSERT INTO Booking(studentId, lectureId) VALUES(13, 28);
 
 DROP trigger IF EXISTS delete_bookings_after_delete_lecture;
 CREATE TRIGGER delete_bookings_after_delete_lecture BEFORE DELETE ON Lecture BEGIN INSERT INTO EmailQueue(sender, recipient, emailType, teacherId, studentId, courseId, courseName, lectureId, startingDate) SELECT TempLecture.email, User.email, "LESSON_CANCELLED", TempLecture.teacherId, Booking.studentId, TempLecture.courseId, TempLecture.description, TempLecture.lectureId, TempLecture.startingDate FROM Booking, (SELECT * FROM Lecture, Course, TeacherCourse, User WHERE Lecture.lectureId = OLD.lectureId AND Lecture.courseId = TeacherCourse.courseId AND TeacherCourse.teacherId = User.userId AND Course.courseId = Lecture.courseId) AS TempLecture, User WHERE Booking.lectureId = OLD.lectureId AND Booking.studentId = User.userId AND Booking.lectureId = TempLecture.lectureId; DELETE FROM Booking WHERE Booking.lectureId = OLD.lectureId; END;
