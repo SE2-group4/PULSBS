@@ -45,11 +45,11 @@ INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 1, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 2, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 5, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(5, 3, 1);
-INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(6, 6, 1);
-INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(7, 7, 1);
-INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(8, 8, 1);
-INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(8, 9, 1);
-INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(8, 10, 1);
+INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 6, 1);
+INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 7, 1);
+INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(5, 8, 1);
+INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 9, 1);
+INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 10, 1);
 
 INSERT INTO Enrollment(studentId, courseId) VALUES(1, 1);
 INSERT INTO Enrollment(studentId, courseId) VALUES(1, 2);
