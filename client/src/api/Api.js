@@ -175,7 +175,7 @@ async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, book
     let qto = dateTo ? "to=" + dateTo : "";
     qto = qfrom && qto ? "&" + qto : qto;
     let qbook = bookings ? "numBookings=true" : "";
-    qbook = qfrom && qbook || qto ? "&" + qbook : qbook;
+    qbook = qbook && (qfrom || qto) ? "&" + qbook : qbook;
     let query = qfrom || qto || qbook ? "?" + qfrom + qto + qbook : "";
 
     return new Promise((resolve, reject) => {

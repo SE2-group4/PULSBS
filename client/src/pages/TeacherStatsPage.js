@@ -55,7 +55,8 @@ class TeacherStatsPage extends React.Component {
         let lecturesSet = [];
         for (let array of all)
             for (let lecture of array)
-                lecturesSet.push(lecture);
+                if (lecture.delivery === "PRESENCE")
+                    lecturesSet.push(lecture);
         return lecturesSet;
     }
 
