@@ -15,15 +15,29 @@ fetchMock.enableMocks();
 const teacher = new User(1, "TEACHER", "Giacomo", "Poretti", "giacomo.poretti@agg.it", "giacomo");
 const courses = [
   new Course(1, "Software Engineering 2", 2020),
-  new Course(2, "Information Systems Security", 2020)
+  new Course(2, "Information Systems Security", 2020),
+  new Course(3, "Architetture dei Sistemi di Elaborazione", 2020),
+  new Course(4, "Data Science e Tecnologie per le Basi di Dati", 2020)
 ];
 const lectures = [
   new Lecture(1, 1, 1, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE"),
-  new Lecture(2, 1, 1, moment().add("2", "day").toISOString(), "1000000", moment().add("1", "day").toISOString(), "REMOTE")
+  new Lecture(2, 1, 1, moment().add("2", "day").toISOString(), "1000000", moment().add("1", "day").toISOString(), "REMOTE"),
+  new Lecture(3, 2, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE"),
+  new Lecture(4, 1, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE")
 ];
 const students = [
   new Student(1, "Francesco", "Rossi", "fr@email.com", "ciao1"),
-  new Student(2, "Monica", "Gialli", "mg@email.com", "ciao2")
+  new Student(2, "Monica", "Gialli", "mg@email.com", "ciao2"),
+  new Student(3, "Giovanni", "Verdi", "fr@email.com", "ciao1"),
+  new Student(4, "Carla", "Blu", "mg@email.com", "ciao2"),
+  new Student(5, "Francesco", "Rossi", "fr@email.com", "ciao1"),
+  new Student(6, "Monica", "Gialli", "mg@email.com", "ciao2"),
+  new Student(7, "Giovanni", "Verdi", "fr@email.com", "ciao1"),
+  new Student(8, "Carla", "Blu", "mg@email.com", "ciao2"),
+  new Student(9, "Francesco", "Rossi", "fr@email.com", "ciao1"),
+  new Student(10, "Monica", "Gialli", "mg@email.com", "ciao2"),
+  new Student(11, "Giovanni", "Verdi", "fr@email.com", "ciao1"),
+  new Student(12, "Carla", "Blu", "mg@email.com", "ciao2")
 ];
 
 beforeEach(() => {
@@ -75,10 +89,19 @@ async function setupDeleteModal() {
 }
 
 describe('Teacher Page suite', () => {
-  test('render TeacherPage component (courses API : success)', async () => {
+  test('render TeacherPage component (courses API : success), testing next/previous', async () => {
     await fetchCourses();
     let items = screen.getAllByTestId('course-row');
     expect(items).toHaveLength(2);
+    expect(screen.getByText("Software Engineering 2")).toBeInTheDocument(); //should be in page 0
+    await act(async () => {
+      userEvent.click(screen.getByText('Next')); //page 0 -> 1
+    });
+    expect(screen.getByText("Architetture dei Sistemi di Elaborazione")).toBeInTheDocument(); //should be in page 1
+    await act(async () => {
+      userEvent.click(screen.getByText('Previous')); //page 1 -> 0
+    });
+    expect(screen.getByText("Information Systems Security")).toBeInTheDocument(); //should be in page 0
   });
 
   test('render TeacherPage component (courses API : json parsing error)', async () => {
@@ -104,11 +127,17 @@ describe('Teacher Page suite', () => {
     expect(screen.getByText('Course : server error')).toBeInTheDocument();
   });
 
-  test('testing interaction CoursePanel-LecturePanel (lectures API : success)', async () => {
+  test('testing interaction CoursePanel-LecturePanel (lectures API : success), testing next/previous', async () => {
     await fetchLectureSuccess();
     expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
     const items = screen.getAllByTestId('lecture-row');
     expect(items).toHaveLength(2);
+    await act(async () => {
+      userEvent.click(screen.getAllByText('Next')[1]); //page 0 -> 1
+    });
+    await act(async () => {
+      userEvent.click(screen.getAllByText('Previous')[1]); //page 1 -> 0
+    });
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
     });
@@ -161,12 +190,20 @@ describe('Teacher Page suite', () => {
     expect(screen.getByText('Lecture : server error')).toBeInTheDocument();
   });
 
-  test('testing interaction between LecturePanel-StudentPanel (students API : success)', async () => {
+  test('testing interaction between LecturePanel-StudentPanel (students API : success), testing next/previous', async () => {
     await fetchStudentSuccess();
     expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
-    expect(screen.getByText('Number of students: 2')).toBeInTheDocument();
-    const items = screen.getAllByTestId('student-row');
+    expect(screen.getByText('Number of students: 12')).toBeInTheDocument();
+    let items = screen.getAllByTestId('student-row');
+    expect(items).toHaveLength(10);
+    await act(async () => {
+      userEvent.click(screen.getAllByText('Next')[2]); //page 0 -> 1
+    });
+    items = screen.getAllByTestId('student-row');
     expect(items).toHaveLength(2);
+    await act(async () => {
+      userEvent.click(screen.getAllByText('Previous')[2]); //page 1 -> 0
+    });
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))
     });
@@ -278,16 +315,8 @@ describe('Teacher Page suite', () => {
     await act(async () => {
       userEvent.click(screen.getByTestId("yes-d-1"));
     });
-    const items = screen.getAllByTestId('lecture-row');
-    expect(items).toHaveLength(1);
-    await act(async () => {
-      userEvent.click(screen.getByTestId('d-2'))
-    });
-    fetch.mockResponseOnce(JSON.stringify({ body: "ok" }), { status: 204 });
-    await act(async () => {
-      userEvent.click(screen.getByTestId("yes-d-2"));
-    });
-    expect(screen.getByText("no lectures available.")).toBeInTheDocument();
+    let items = screen.getAllByTestId('lecture-row');
+    expect(items).toHaveLength(2); //num lectures 4 -> 3, but pagination still provides 2 lectures
   });
 
   test('testing DeleteModal component and related buttons (DELETE failure : error)', async () => {

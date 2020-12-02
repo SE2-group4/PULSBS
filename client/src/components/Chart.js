@@ -30,7 +30,7 @@ class Chart extends React.Component {
                         ["average month", moment(this.props.lecture.startingDate).startOf('month').format('DD/MM/YYYY') + " - " + moment(this.props.lecture.startingDate).endOf('month').format('DD/MM/YYYY')]],
                         datasets: [{
                             label: description,
-                            data: [this.props.lecture.numBookings, week, month],
+                            data: [this.props.lecture.numBookings, week.toFixed(2), month.toFixed(2)],
                             backgroundColor: colors[getColorIndex(this.props.courses, this.props.lecture.courseId)],
                             borderWidth: 2,
                         }]
@@ -46,6 +46,7 @@ class Chart extends React.Component {
                                 ticks: {
                                     beginAtZero: true,
                                     fontSize: 15,
+                                    precision: 2,
                                 },
                                 scaleLabel: {
                                     display: true,
