@@ -15,7 +15,7 @@ class CoursePanel extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { currentPage: 0 };
+        this.state = {};
     }
 
     //triggers the selected lecture (or untrigger if already)
@@ -28,10 +28,7 @@ class CoursePanel extends React.Component {
 
     //NavButtons handler
     onClick = (e) => {
-        if (e.target.name === "prev")
-            this.setState({ currentPage: this.state.currentPage - 1 });
-        else //next
-            this.setState({ currentPage: this.state.currentPage + 1 });
+        this.props.change("currCPage", e.target.name);
     }
 
     render() {
@@ -50,12 +47,12 @@ class CoursePanel extends React.Component {
                         {
                             this.props.courses.map((course) => (
                                 <CoursePanelRow key={course.courseId} checkedOne={this.props.sCourse} course={course} handler={this.handler} pMap={this.props.pageMap}
-                                    nPages={this.props.nPages} current={this.state.currentPage} />
+                                    nPages={this.props.nPages} current={this.props.currentPage} />
                             ))
                         }
                         <tr style={{ backgroundColor: "white" }}>
                             <td>
-                                {this.props.nPages > 1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick} />}
+                                {this.props.nPages > 1 && <NavButtons currentPage={this.props.currentPage} nPages={this.props.nPages} onClick={this.onClick} />}
                                 {this.props.courses.length === 0 && <label>no courses available.</label>}
                             </td>
                             <td></td>
@@ -82,7 +79,7 @@ class LecturePanel extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { currentPage: 0 };
+        this.state = {};
     }
 
     //triggers the selected lecture (or untrigger if already)
@@ -105,10 +102,7 @@ class LecturePanel extends React.Component {
 
     //NavButtons handler
     onClick = (e) => {
-        if (e.target.name == "prev")
-            this.setState({ currentPage: this.state.currentPage - 1 });
-        else //next
-            this.setState({ currentPage: this.state.currentPage + 1 });
+        this.props.change("currLPage", e.target.name);
     }
 
     render() {
@@ -129,11 +123,11 @@ class LecturePanel extends React.Component {
                     <tbody>
                         {
                             this.props.lectures.map((lecture) => (<LecturePanelRow key={lecture.lectureId} checkedOne={this.props.sLecture} lecture={lecture} handler={this.handler}
-                                pMap={this.props.pageMap} nPages={this.props.nPages} current={this.state.currentPage} editOpen={this.editOpen} deleteOpen={this.deleteOpen} />))
+                                pMap={this.props.pageMap} nPages={this.props.nPages} current={this.props.currentPage} editOpen={this.editOpen} deleteOpen={this.deleteOpen} />))
                         }
                         <tr style={{ backgroundColor: "white" }}>
                             <td>
-                                {this.props.nPages > 1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick} />}
+                                {this.props.nPages > 1 && <NavButtons currentPage={this.props.currentPage} nPages={this.props.nPages} onClick={this.onClick} />}
                                 {this.props.lectures.length === 0 && <label>no lectures available.</label>}
                             </td>
                             <td></td>
@@ -189,15 +183,12 @@ class StudentPanel extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { currentPage: 0 };
+        this.state = {};
     }
 
     //NavButtons handler
     onClick = (e) => {
-        if (e.target.name == "prev")
-            this.setState({ currentPage: this.state.currentPage - 1 });
-        else //next
-            this.setState({ currentPage: this.state.currentPage + 1 });
+        this.props.change("currSPage", e.target.name);
     }
 
     render() {
@@ -215,11 +206,11 @@ class StudentPanel extends React.Component {
                     <tbody>
                         {
                             this.props.students.map((student) => (<StudentPanelRow key={student.studentId} student={student} pMap={this.props.pageMap}
-                                nPages={this.props.nPages} current={this.state.currentPage} />))
+                                nPages={this.props.nPages} current={this.props.currentPage} />))
                         }
                         <tr style={{ backgroundColor: "white" }}>
                             <td>
-                                {this.props.nPages > 1 && <NavButtons currentPage={this.state.currentPage} nPages={this.props.nPages} onClick={this.onClick} />}
+                                {this.props.nPages > 1 && <NavButtons currentPage={this.props.currentPage} nPages={this.props.nPages} onClick={this.onClick} />}
                                 {this.props.students.length === 0 && <label>no students listed.</label>}
                             </td>
                             <td></td>

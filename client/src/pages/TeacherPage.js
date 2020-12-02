@@ -29,9 +29,9 @@ class TeacherPage extends React.Component {
             selectedCourse: null, selectedLecture: null,                     //selected elements
             lectureIdToUpdate: null, deliveryToUpdate: null,                 //change delivery management
             lectureIdToDelete: null,                                         //delete lecture
-            courseMap: new Map(), cPages: 1,                                 //course pagination
-            lectureMap: new Map(), lPages: 1,                                //lecture pagination
-            studentMap: new Map(), sPages: 1,                                //student pagination
+            courseMap: new Map(), cPages: 1, currCPage: 0,                   //course pagination
+            lectureMap: new Map(), lPages: 1, currLPage: 0,                  //lecture pagination
+            studentMap: new Map(), sPages: 1, currSPage: 0,                  //student pagination
             fetchErrorC: false, fetchErrorL: false, fetchErrorS: false,      //fetch errors
             lectureLoading: false, studentLoading: false                     //loadings
         };
@@ -72,11 +72,11 @@ class TeacherPage extends React.Component {
                     i++;
                 });
                 let nPages = Math.ceil(i / elementForPage);
-                this.setState({ lectures: lectures, lectureMap: nMap, lPages: nPages, selectedCourse: courseId, selectedLecture: null, fetchErrorL: false, students: [], sPages: 1, fetchErrorS: false, lectureLoading: false });
+                this.setState({ lectures: lectures, lectureMap: nMap, lPages: nPages, selectedCourse: courseId, selectedLecture: null, fetchErrorL: false, students: [], sPages: 1, fetchErrorS: false, lectureLoading: false, currLPage: 0 });
             })
             .catch((error) => {
                 let errormsg = error.source + " : " + error.error;
-                this.setState({ selectedCourse: courseId, lectures: [], selectedLecture: null, lPages: 1, fetchErrorL: errormsg, students: [], sPages: 1, fetchErrorS: false, lectureLoading: false });
+                this.setState({ selectedCourse: courseId, lectures: [], selectedLecture: null, lPages: 1, fetchErrorL: errormsg, students: [], sPages: 1, fetchErrorS: false, lectureLoading: false, currLPage: 0 });
             });
     }
 
@@ -94,11 +94,11 @@ class TeacherPage extends React.Component {
                     i++;
                 });
                 let nPages = Math.ceil(i / studentForPage);
-                this.setState({ students: students, studentMap: nMap, sPages: nPages, selectedLecture: lectureId, fetchErrorS: false, studentLoading: false })
+                this.setState({ students: students, studentMap: nMap, sPages: nPages, selectedLecture: lectureId, fetchErrorS: false, studentLoading: false, currSPage: 0 })
             })
             .catch((error) => {
                 let errormsg = error.source + " : " + error.error;
-                this.setState({ selectedLecture: lectureId, students: [], sPages: 1, fetchErrorS: errormsg, studentLoading: false });
+                this.setState({ selectedLecture: lectureId, students: [], sPages: 1, fetchErrorS: errormsg, studentLoading: false, currSPage: 0 });
             });
     }
 
@@ -114,6 +114,24 @@ class TeacherPage extends React.Component {
                 this.setState({ selectedLecture: null, students: [], sPages: 1, fetchErrorS: false });
                 break;
         }
+    }
+
+    changePage = (name, mode) => {
+        if (name === "currCPage")
+            if (mode === "prev")
+                this.setState({ currCPage: this.state.currCPage - 1 })
+            else
+                this.setState({ currCPage: this.state.currCPage + 1 })
+        else if (name === "currLPage")
+            if (mode === "prev")
+                this.setState({ currLPage: this.state.currLPage - 1 })
+            else
+                this.setState({ currLPage: this.state.currLPage + 1 })
+        else
+            if (mode === "prev")
+                this.setState({ currSPage: this.state.currSPage - 1 })
+            else
+                this.setState({ currSPage: this.state.currSPage + 1 })
     }
 
     //Error handler
@@ -212,6 +230,7 @@ class TeacherPage extends React.Component {
                             <CoursePanel
                                 courses={this.state.courses}                                                                    //courses
                                 sCourse={this.state.selectedCourse} pageMap={this.state.courseMap} nPages={this.state.cPages}   //courses pagination
+                                currentPage={this.state.currCPage} change={this.changePage}
                                 update={this.updateLectures} reset={this.resetSelected}                                         //interaction with Lecture Panel
                             />
                             <br />
@@ -219,6 +238,7 @@ class TeacherPage extends React.Component {
                             <LecturePanel
                                 lectures={this.state.lectures}                                                                      //lectures
                                 sLecture={this.state.selectedLecture} pageMap={this.state.lectureMap} nPages={this.state.lPages}    //lectures pagination
+                                currentPage={this.state.currLPage} change={this.changePage}
                                 update={this.updateStudents} reset={this.resetSelected}                                             //interaction with StudentPanel                                                 
                                 showEditModal={this.showEditModal}                                                                  //EditDelivery management                                                                     
                                 showDeleteModal={this.showDeleteModal}                                                              //Delete
@@ -228,6 +248,7 @@ class TeacherPage extends React.Component {
                             <StudentPanel
                                 students={this.state.students}                                                      //students
                                 pageMap={this.state.studentMap} nPages={this.state.sPages}                          //students pagination
+                                currentPage={this.state.currSPage} change={this.changePage}
                             />
                             <Col sm={4}>
                                 {this.state.fetchErrorC && <ErrorMsg name="fetchErrorC" msg={this.state.fetchErrorC} onClose={this.closeError} />}
