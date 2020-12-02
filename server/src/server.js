@@ -7,7 +7,7 @@
 const cookieParser = require("cookie-parser");
 const db = require("./db/Dao");
 const express = require("express");
-const jwt = require("express-jwt");
+// const jwt = require("express-jwt");
 const morgan = require("morgan");
 const prepareDb = require("./db/preparedb");
 
@@ -18,14 +18,11 @@ const colors = require("colors");
 const { StandardErr } = require("./utils/utils");
 
 const app = express();
-app.disable('x-powered-by'); // security: do not show outside the server technology which has been used
+app.disable("x-powered-by"); // security: do not show outside the server technology which has been used
 
 const BASE_ROUTE = "/api/v1";
-const JWT_SECRET = "1234567890";
+// const JWT_SECRET = "1234567890";
 const PORT = 3001;
-
-let dbPath = "./PULSBS.db";
-let sqlPath = undefined;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -43,9 +40,16 @@ app.use(`${BASE_ROUTE}`, General);
 // app.use(jwt({ secret: JWT_SECRET, algorithms: ['RS256'] }));
 // app.use(jwt({ secret: JWT_SECRET, algorithms: ['RS256'] }).unless({ path: [ '/login', '/logout' ] }));
 
-app.use(function(err, req, res, next) {
-    if(err.name === 'UnauthorizedError') {
-        res.status(401).json(StandardErr.new('Login middleware', StandardErr.errno.NOT_ALLOWED, 'login must be performed before this action', 401));
+app.use(function (err, req, res, next) {
+    if (err.name === "UnauthorizedError") {
+        res.status(401).json(
+            StandardErr.new(
+                "Login middleware",
+                StandardErr.errno.NOT_ALLOWED,
+                "login must be performed before this action",
+                401
+            )
+        );
         return;
     }
     next();
@@ -88,7 +92,10 @@ app.get(
 );
 
 app.get(`${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures/:lectureId`, Teacher.teacherGetCourseLecture);
-app.delete(`${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures/:lectureId`, Teacher.teacherDeleteCourseLecture);
+app.delete(
+    `${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures/:lectureId`,
+    Teacher.teacherDeleteCourseLecture
+);
 app.put(`${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures/:lectureId`, Teacher.teacherPutCourseLecture);
 
 app.get(`${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures`, Teacher.teacherGetCourseLectures);
@@ -102,8 +109,8 @@ app.all(`${BASE_ROUTE}`, () => console.log("This route is not supported. Check t
 
 app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
     try {
-
-        sqlPath = sqlPath === undefined ? "PULSBS.sql" : sqlPath;
+        const dbPath = systemConf["dbPath"];
+        const sqlPath = systemConf["--sql-path"];
         await prepareDb(dbPath, sqlPath, true);
         res.status(200).send("Success Reset");
     } catch (err) {
@@ -111,51 +118,68 @@ app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
     }
 });
 
-const printConf = () => {
-    console.log(`Server running on http://localhost:${PORT}${BASE_ROUTE}\n`);
-    console.log("System parameters:".green);
-    console.log(`DB path: ${dbPath}`);
-};
 
 // description: for demo purposes we are sending the email right now instead of waiting 23:59; alternatively call Teacher.nextCheck() for setting the time correctly)
-const autoRun = () => {
+function autorun() {
     setTimeout(() => Teacher.checkForExpiredLectures(), 0);
 };
 
 const systemConf = {
-    "--test": false, // set db to testing.db
+    "dbPath": "PULSBS.db",
+    "--test": false, // set dbpath to testing.db
     "--no-autorun": false, // disable autorun
-    "--api": false, // set sql to testApi.sql
+    "--sql-path": "PULSBS.sql", // set sql path
 };
 
-// prevent adding new properties. The properties's values can still be changed.
+// Prevent adding new properties to systemConf. The properties's values can still be changed.
 Object.seal(systemConf);
+
+/**
+ * parse command line options 
+ */
+function parseOptions(options) {
+    for (const option of options) {
+        switch (option) {
+            case "--test":
+                systemConf["--test"] = "testing.db";
+                systemConf["dbPath"] = "testing.db";
+                break;
+            case "--no-autorun":
+                systemConf[option] = true;
+                break;
+            case "--sql-path":
+                const index = options.indexOf(option);
+                systemConf["--sql-path"] = options[index + 1];
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+function printConf() {
+    console.info("Server running on " + `http://localhost:${PORT}${BASE_ROUTE}`.magenta);
+    for (const [name, value] of Object.entries(systemConf)) {
+        console.info(`${name.grey}: ${value}`);
+    }
+};
 
 // "Main"
 (async () => {
     try {
-        console.log("INITIALIZING the system");
+        console.info("Initializing the system");
 
         const options = process.argv.slice(2);
-        for(const option of options) {
-            systemConf[option.toLowerCase()] = true;
+        parseOptions(options);
+
+        if (!systemConf["--no-autorun"]) {
+            autorun();
         }
 
-        if(systemConf["--test"]) {
-            dbPath = "testing.db";
-        }
-        if(!systemConf["--no-autorun"]) {
-            autoRun();
-        }
-        if(systemConf["--api"]) {
-            sqlPath = "testApi.sql"
-        }
-
-        await db.init(dbPath);
-
+        await db.init(systemConf["dbPath"]);
         app.listen(PORT, printConf);
     } catch (err) {
-        console.log(err, "FAILED initializing the system".red);
+        console.info(err, "FAILED initializing the system".red);
         return process.exit(-1);
     }
 })();
