@@ -173,8 +173,8 @@ INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookin
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(27, 10, 9, DATETIME('now', '4 day', 'start of day', '10 hours', '0 minutes'), 1000*60*90, DATETIME('now', '3 day', 'start of day', '23 hours', '59 minutes'), 'REMOTE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(28, 1, 9, DATETIME('now', '-10 day', 'start of day', '16 hours', '0 minutes'), 1000*60*90, DATETIME('now', '-11 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(29, 1, 9, DATETIME('now', '-9 day', 'start of day', '11 hours', '30 minutes'), 1000*60*90*3, DATETIME('now', '-10 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(30, 1, 9, DATETIME('now', '0 day', '0 hours', '50 minutes'), 1000*60*90, DATETIME('now', '-1 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(31, 1, 9, DATETIME('now', '0 day', '0 hours', '25 minutes'), 1000*60*90*2, DATETIME('now', '-1 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
+INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(30, 1, 9, DATETIME('now', '0 day', '1 hours', '50 minutes'), 1000*60*90, DATETIME('now', '-1 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
+INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(31, 1, 9, DATETIME('now', '0 day', '1 hours', '25 minutes'), 1000*60*90*2, DATETIME('now', '-1 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 
 INSERT INTO Booking(studentId, lectureId) VALUES(1, 1);
 INSERT INTO Booking(studentId, lectureId) VALUES(1, 8);
