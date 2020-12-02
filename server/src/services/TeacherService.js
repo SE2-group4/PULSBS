@@ -397,7 +397,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         if (studentsToBeNotified.length > 0) {
             const course = await db.getCourseByLecture(lecture);
             const subjectArgs = [course.description];
-            const messageArgs = [lecture.startingDate, lecture.delivery];
+            const messageArgs = [utils.formatDate(lecture.startingDate), lecture.delivery];
             const { subject, message } = EmailService.getDefaultEmail(
                 Email.EmailType.LESSON_UPDATE_DELIVERY,
                 subjectArgs,
