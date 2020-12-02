@@ -3,11 +3,11 @@ const nodemailer = require("nodemailer");
 
 const defaultTemplates = {
     LESSON_CANCELLED: {
-        subject: "Course {0} - <b>LECTURE CANCELLED</b>",
+        subject: "Course {0} - LECTURE CANCELLED",
         message: "Dear student,\nyour lecture scheduled for {0} has been cancelled.",
     },
     LESSON_UPDATE_DELIVERY: {
-        subject: "Course {0} - <b>LECTURE UPDATE</b>",
+        subject: "Course {0} - LECTURE UPDATE",
         message: "Dear student,\nyour lecture scheduled for {0} has been switched to {1} mode.",
     },
 };
@@ -62,9 +62,8 @@ exports.sendStudentNumberEmail = function (to, courseName, lessonHour, studentNu
 
     const emailSubject = `Summary: course ${courseName} lecture ${lessonHour}`;
     const emailBody = `<label>Course: <b>${courseName}</b></label>\
-    <div>The scheduled lesson at ${lessonHour} has ${studentNumber} ${
-        studentNumber == 1 ? "student" : "students"
-    } booked</div>`;
+    <div>The scheduled lesson at ${lessonHour} has ${studentNumber} ${studentNumber == 1 ? "student" : "students"
+        } booked</div>`;
 
     // send mail with defined transport object
     let info = transporter.sendMail({
