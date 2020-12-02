@@ -89,7 +89,6 @@ describe('TeacherStats suite', () => {
         await act(async () => {
             userEvent.click(screen.getByText("Your Stats"));
         });
-        expect(screen.getByText("Information Systems Security")).toBeInTheDocument();
         await act(async () => {
             userEvent.click(screen.getAllByText("Software Engineering 2")[0]);
         });
