@@ -49,9 +49,10 @@ app.use(function (err, req, res, next) {
                 "login must be performed before this action",
                 401
             )
-        );
+        ).end();
     }
-    next();
+    else
+        next();
 });
 /*
 // The following routes needs authentication
