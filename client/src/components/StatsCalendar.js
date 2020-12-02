@@ -29,7 +29,7 @@ class StatsCalendar extends React.Component {
                         right: 'dayGridMonth,timeGridWeek,listMonth'
                     }}
                     aspectRatio="2"
-                    initialView='listWeek'
+                    initialView='listMonth'
                     validRange={{
                         end: yesterday
                     }}
