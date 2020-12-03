@@ -42,15 +42,13 @@ npm start
 From this point you could interact with the application visiting http://localhost:3000
 ### Docker
 - Install Docker (https://www.docker.com/get-started)
-- Import the DockerHub Image of the application writing in the terminal : (NOT AVAILABLE!)
+- Import the DockerHub Image of the application writing in the terminal :
 ```
-docker pull se2group4/pulsbs
+docker pull se2group4/pulsbs:release1
 ```
 - Run the application writing in the terminal : 
 ```
-docker run se2group4/pulsbs
-# alternatively run an existing local copy
-docker run -p 3000:3000 <imageId>
+docker run -p 3000:3000 se2group4/pulsbs:release1
 ```
 - Visit http://localhost:3000 on your browser
 ## Usage
