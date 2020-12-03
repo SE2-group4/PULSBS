@@ -49,6 +49,8 @@ docker pull se2group4/pulsbs
 - Run the application writing in the terminal : 
 ```
 docker run se2group4/pulsbs
+# alternatively run an existing local copy
+docker run -p 3000:3000 <imageId>
 ```
 - Visit http://localhost:3000 on your browser
 ## Usage
@@ -64,7 +66,9 @@ docker run se2group4/pulsbs
 ### Client
 
 ### Server
-
-
-
-
+#### How to
+* run the API tests
+```
+cd <root>/server
+npm run testapi
+```
