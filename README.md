@@ -32,11 +32,13 @@ git clone https://github.com/SE2-group4/PULSBS.git
 #### Starting server
 ```
 cd server
+npm install
 npm start
 ```
 #### Starting client
 ```
 cd client 
+npm install
 npm start
 ```
 From this point you could interact with the application visiting http://localhost:3000
