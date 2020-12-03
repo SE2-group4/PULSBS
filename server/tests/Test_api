@@ -608,6 +608,7 @@
 											"(async function main() {\r",
 											"    const baseUrl = pm.globals.get(\"base_url\");\r",
 											"    pm.request.url.query.add(\"from=\" + (new Date()).toISOString());\r",
+											"    console.log(pm.request.url);\r",
 											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
 											"    console.log('Reset', result);\r",
 											"})();"
@@ -620,11 +621,11 @@
 									"script": {
 										"id": "456666b3-4e21-4a44-ac83-6d3b8dfe075c",
 										"exec": [
-											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
+											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures?from=\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
 											"});\r",
 											"\r",
-											"pm.test(\"Response body of GET /teachers/4/courses/1/lectures\", function () {\r",
+											"pm.test(\"Response body of GET /teachers/4/courses/1/lectures?from=\", function () {\r",
 											"    const responseJson = pm.response.json();\r",
 											"    pm.expect(responseJson).to.be.an(\"array\");\r",
 											"    pm.expect(responseJson).to.have.length(2);\r",
@@ -1598,11 +1599,11 @@
 									"    const datetime1 = new Date();\r",
 									"    const datetime2 = new Date();\r",
 									"    const datetime3 = new Date();\r",
-									"    datetime1.setDate(datetime1.getDate() -  1);\r",
+									"    datetime1.setDate(datetime1.getUTCDate() -  1);\r",
 									"    datetime1.setHours(8, 30, 00, 00);\r",
-									"    datetime2.setDate(datetime2.getDate() + 1);\r",
+									"    datetime2.setDate(datetime2.getUTCDate() + 1);\r",
 									"    datetime2.setHours(8, 30, 00, 00);\r",
-									"    datetime3.setDate(datetime3.getDate() + 2);\r",
+									"    datetime3.setDate(datetime3.getUTCDate() + 2);\r",
 									"    datetime3.setHours(8, 30, 00, 00);\r",
 									"    const datetime = [datetime1, datetime2, datetime3];\r",
 									"    const expected = [ [1, 1, 1, datetime1.toISOString(), 5400000, \"PRESENCE\"],\r",
@@ -3111,11 +3112,11 @@
 									"    const datetime1 = new Date();\r",
 									"    const datetime2 = new Date();\r",
 									"    const datetime3 = new Date();\r",
-									"    datetime1.setDate(datetime1.getDate() -  1);\r",
+									"    datetime1.setDate(datetime1.getUTCDate() -  1);\r",
 									"    datetime1.setHours(8, 30, 00, 00);\r",
-									"    datetime2.setDate(datetime2.getDate() + 1);\r",
+									"    datetime2.setDate(datetime2.getUTCDate() + 1);\r",
 									"    datetime2.setHours(8, 30, 00, 00);\r",
-									"    datetime3.setDate(datetime3.getDate() + 2);\r",
+									"    datetime3.setDate(datetime3.getUTCDate() + 2);\r",
 									"    datetime3.setHours(8, 30, 00, 00);\r",
 									"    const datetime = [datetime1, datetime2, datetime3];\r",
 									"    const expected = [ [1, 1, 1, datetime1.toISOString(), 5400000, \"PRESENCE\"],\r",
@@ -3221,7 +3222,7 @@
 					"response": []
 				},
 				{
-					"name": "GET student -> course -> lectures -> book| 1st params not int",
+					"name": "POST student -> course -> lectures -> book| 1st params not int",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3289,7 +3290,7 @@
 					"response": []
 				},
 				{
-					"name": "GET teacher -> course -> lectures -> book | 2nd params not int",
+					"name": "POST teacher -> course -> lectures -> book | 2nd params not int",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3357,7 +3358,7 @@
 					"response": []
 				},
 				{
-					"name": "GET student -> course -> lectures -> book| 3nd params not int Copy",
+					"name": "POST student -> course -> lectures -> book| 3nd params not int Copy",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3426,7 +3427,7 @@
 					"response": []
 				},
 				{
-					"name": "GET student -> course -> lectures -> book | student/course mismatch",
+					"name": "POST student -> course -> lectures -> book | student/course mismatch",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3494,7 +3495,7 @@
 					"response": []
 				},
 				{
-					"name": "GET student -> course -> lectures -> book | course/lecture mismatch",
+					"name": "POST student -> course -> lectures -> book | course/lecture mismatch",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3562,7 +3563,7 @@
 					"response": []
 				},
 				{
-					"name": "GET student -> course -> lectures -> book | lecture already booked",
+					"name": "POST student -> course -> lectures -> book | lecture already booked",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3630,7 +3631,7 @@
 					"response": []
 				},
 				{
-					"name": "GET student -> course -> lectures -> book | lecture booked",
+					"name": "POST student -> course -> lectures -> book | lecture booked",
 					"event": [
 						{
 							"listen": "prerequest",

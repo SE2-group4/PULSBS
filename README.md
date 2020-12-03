@@ -32,23 +32,25 @@ git clone https://github.com/SE2-group4/PULSBS.git
 #### Starting server
 ```
 cd server
+npm install
 npm start
 ```
 #### Starting client
 ```
 cd client 
+npm install
 npm start
 ```
 From this point you could interact with the application visiting http://localhost:3000
 ### Docker
 - Install Docker (https://www.docker.com/get-started)
-- Import the DockerHub Image of the application writing in the terminal : (NOT AVAILABLE!)
+- Import the DockerHub Image of the application writing in the terminal :
 ```
-docker pull se2group4/pulsbs
+docker pull se2group4/pulsbs:release1
 ```
 - Run the application writing in the terminal : 
 ```
-docker run se2group4/pulsbs
+docker run -p 3000:3000 se2group4/pulsbs:release1
 ```
 - Visit http://localhost:3000 on your browser
 ## Usage
@@ -64,7 +66,9 @@ docker run se2group4/pulsbs
 ### Client
 
 ### Server
-
-
-
-
+#### How to
+* run the API tests
+```
+cd <root>/server
+npm run testapi
+```

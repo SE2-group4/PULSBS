@@ -1,28 +1,17 @@
-FROM ubuntu:latest
+FROM node:12
 
-# Install nodejs
+RUN mkdir -p /client
+COPY ./client/package.json /client/package.json
+RUN cd /client && npm install
 
-RUN apt update
-RUN apt-get install -y nodejs
-RUN apt-get install -y npm
-
-# Bundle app source
+RUN mkdir -p /server
+COPY ./server/package.json /server/package.json
+RUN cd /server && npm install
 
 COPY . .
 
-## Installing Client dependecies
-
-WORKDIR /client
-RUN npm install
-
-## Installing Server dependecies
-
-WORKDIR /server
-RUN npm install
-
-
-EXPOSE 3000 3000
+EXPOSE 3000
 
 # Run the app (both client and server)
 WORKDIR /
-CMD ./DockerCMD_Wrapper.sh
+CMD npm start --prefix ./server & npm start --prefix ./client

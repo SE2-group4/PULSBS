@@ -12,7 +12,7 @@ import Lecture from '../entities/lecture';
  *  elementForPage is a configuration parameter to limit the number of entries of the tables showing courses/lectures/students
  *  in the same instance (min value: 2)
  */
-const elementForPage = 2;
+const elementForPage = 4;
 const studentForPage = 10;
 
 class TeacherPage extends React.Component {

@@ -17,13 +17,15 @@ const courses = [
   new Course(1, "Software Engineering 2", 2020),
   new Course(2, "Information Systems Security", 2020),
   new Course(3, "Architetture dei Sistemi di Elaborazione", 2020),
-  new Course(4, "Data Science e Tecnologie per le Basi di Dati", 2020)
+  new Course(4, "Data Science e Tecnologie per le Basi di Dati", 2020),
+  new Course(5, "Programmare in React", 2020)
 ];
 const lectures = [
   new Lecture(1, 1, 1, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE"),
   new Lecture(2, 1, 1, moment().add("2", "day").toISOString(), "1000000", moment().add("1", "day").toISOString(), "REMOTE"),
   new Lecture(3, 2, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE"),
-  new Lecture(4, 1, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE")
+  new Lecture(4, 1, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE"),
+  new Lecture(5, 1, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE")
 ];
 const students = [
   new Student(1, "Francesco", "Rossi", "fr@email.com", "ciao1"),
@@ -92,12 +94,12 @@ describe('Teacher Page suite', () => {
   test('render TeacherPage component (courses API : success), testing next/previous', async () => {
     await fetchCourses();
     let items = screen.getAllByTestId('course-row');
-    expect(items).toHaveLength(2);
+    expect(items).toHaveLength(4);
     expect(screen.getByText("Software Engineering 2")).toBeInTheDocument(); //should be in page 0
     await act(async () => {
       userEvent.click(screen.getByText('Next')); //page 0 -> 1
     });
-    expect(screen.getByText("Architetture dei Sistemi di Elaborazione")).toBeInTheDocument(); //should be in page 1
+    expect(screen.getByText("Programmare in React")).toBeInTheDocument(); //should be in page 1
     await act(async () => {
       userEvent.click(screen.getByText('Previous')); //page 1 -> 0
     });
@@ -131,7 +133,7 @@ describe('Teacher Page suite', () => {
     await fetchLectureSuccess();
     expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
     const items = screen.getAllByTestId('lecture-row');
-    expect(items).toHaveLength(2);
+    expect(items).toHaveLength(4);
     await act(async () => {
       userEvent.click(screen.getAllByText('Next')[1]); //page 0 -> 1
     });
@@ -316,7 +318,7 @@ describe('Teacher Page suite', () => {
       userEvent.click(screen.getByTestId("yes-d-1"));
     });
     let items = screen.getAllByTestId('lecture-row');
-    expect(items).toHaveLength(2); //num lectures 4 -> 3, but pagination still provides 2 lectures
+    expect(items).toHaveLength(4); //num lectures 5 -> 4, but pagination still provides 4 lectures
   });
 
   test('testing DeleteModal component and related buttons (DELETE failure : error)', async () => {

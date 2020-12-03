@@ -117,7 +117,7 @@ function ModalClick(props) {
                     {props.event.extendedProps.status === "expired" &&
                         <strong>This lecture was expired</strong>}
                     {props.event.extendedProps.status === "remote" &&
-                        <strong>This lecture will be errogated remotely</strong>}
+                        <strong>This lecture will be erogated remotely</strong>}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button data-testid="modalClose" variant="secondary" onClick={props.handleClose}>
