@@ -15,46 +15,71 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 
 ### Detailed statistics (da fare)
 
-| Story  | # Tasks | Points | Hours est. | Hours actual | Status |
-|--------|---------|--------|------------|--------------|--------|
-| #0   |         |    -   |            |              |        |
-| | 26 | | 6h | 7h 30m | done   | 
-| | 30 | | 3h | 3h 10m | done   |
-| | 27 | | 5h | 2h 20m | done   |
-| | 48 | | 6h | 2h 30m | done   |
-| | 49 | | 2h | 1h 45m | done   |
-| #1 | | 5  |        |      | |
-| | 29 | | 2h | 2h 30m | done | 
-| | 31 | | 1h 30m | 1h 20m | done | 
-| | 32 | | 1h | 45m    | done   | 
-| | 33 | | 2h | 3h     | done   | 
-| | 40 | | 2h | 4h 20m | done   | 
-| | 41 | | 2h | 2h 20m | review | 
-| | 42 | | 2h | 3h 30m | done | 
-| #2 | | 13 | | | |
-| | 28 | | 4h | 3h     | done | 
-| | 34 | | 5h | 3h     | done | 
-| | 43 | | 6h | 6h 30m | done | 
-| | 35 | | 3h | 4h     | done | 
-| | 36 | | 3h | 1h     | done | 
-| #3 | | 3 | | |     |
-| | 37 | | 2h | 3h 30m | done |
-| | 38 | | 1h 30m | 2h | done |
-| | 44 | | 3h | 2h 50m | review |
-| | 45 | | 2h | 4h     | done |
-| | 46 | | 2h | 1h 15m | done |
-| #4 | | 8 | | | |
-| | 39 | | 2h | 25m    | done |
-| | 47 | | 2h | 0h     | review |
+| Story | Points | # Task | Hours est.   | Hours actual  | Assignee      | Status  |
+| ----- | ------ | ---- | -------------- | ------------- | ------------- |-------- |
+| 1     | 5      |      |                |               |               |         |
+|       |        | 40   | 1              | 1,5           | LolloCecca    |  done   |
+|       |        | 88   | 0,25           | 0,25          | LolloCecca    |  done   |
+| 2     | 13     |      |                |               |               |         |
+|       |        | 43   | 6              | 6,5           | Alberto       |  done   |
+|       |        | 90   | 0,75           | 1,33          | Francesco     |  done   |
+| 3     | 3      |      |                |               |               |         |
+|       |        | 44   | 1              | 3,5           | LolloApp      |  done   |
+| 4     | 8      |      |                |               |               |         |
+|       |        | 47   | 2              | 0,42          | Francesco     |  done   |
+| 5     | 3      |      |                |               |               |         |
+|       |        | 51   | 0,5            | 0,5           | LolloCecca    |  done   |
+|       |        | 52   | 0,25           | 0,08          | LolloCecca    |  done   |
+|       |        | 53   | 0,25           | 0,13          | Paolo         |  done   |
+|       |        | 54   | 0,75           | 0,17          | Paolo         |  done   |
+|       |        | 55   | 0,5            | 0,08          | LolloCecca    |  done   |
+|       |        | 56   | 1              | 0,17          | LolloCecca    |  done   |
+|       |        | 57   | 1,5            | 0,42          | Paolo         |  done   |
+|       |        | 58   | 0,33           | 0,67          | Francesco     |  done   |
+| 6     | 5      |      |                |               |               |         |
+|       |        | 60   | 3              | 5,75          | LolloCecca    |  done   |
+|       |        | 61   | 2              | 2,83          | L&L           |  done   |
+|       |        | 62   | 0,25           | 0,08          | LolloCecca    |  done   |
+|       |        | 63   | 1              | 0,83          | Paolo         |  done   |
+|       |        | 64   | 1              | 0,33          | L&L           |  done   |
+|       |        | 65   | 0,33           | 0,33          | Francesco     |  done   |
+|       |        | 93   | 1,5            | 2             | Paolo         |  done   |
+| 7     | 3      |      |                |               |               |         |
+|       |        | 67   | 1              | 0,5           | trio          |  done   |
+|       |        | 68   | 0,75           | 0,5           | Alberto       |  done   |
+|       |        | 69   | 1              | 0,9166666667  | Francesco     |  done   |
+|       |        | 70   | 1,5            | 1,666666667   | Francesco     |  done   |
+|       |        | 71   | 0,3333333333   | 0,1666666667  | Francesco     |  done   |
+|       |        | 72   | 1              | 0,8333333333  | Francesco     |  done   |
+|       |        | 66   | 1              | 1,5           | Alberto       |  done   |
+| 8     | 8      |      |                |               |               |         |
+|       |        | 73   | 0,5            | 1             | Francesco     |  done   |
+|       |        | 74   | 1              | 1             | Francesco     |  done   |
+|       |        | 76   | 0,5            | 0,08333333333 | Ceccarelli    |  done   |
+|       |        | 77   | 0,25           | 0,1666666667  | Ceccarelli    |  done   |
+| 9     | 3      |      |                |               |               |         |
+|       |        | 75   | 2              | 1,166666667   | Appendini     |  done   |
+|       |        | 78   | 1,5            | 0,25          | Appendini     |  done   |
+|       |        | 79   | 0,5            | 0,33          | Appendini     |  done   |
+|       |        | 80   | 1,5            | 0,33          | Appendini     |  done   |
+|       |        | 81   | 0,5            | 1             | Xia           |  done   |
+|       |        | 82   | 1              | 0,75          | Xia           |  done   |
+|       |        | 83   | 0,33           | 0,5           | Xia           |  done   |
+|       |        | 84   | 0,5            | 1             | Xia           |  done   |
+| 10    | 13     |      |                |               |               |         |
+|       |        | 94   | 4,5            | 8,5           | Pisanello     |  done   |
+|       |        | 95   | 1,5            | 1,33          | trio frontend |  done   |
+|       |        | 96   | 1              | 1             | Pisanello     |  done   |
+|       |        | 97   | 1,5            | 0,66          | Pisanello     |  done   |
 
 > place technical tasks corresponding to story `#0` and leave out story points (not applicable in this case)
 
 - Hours per task (average, standard deviation)
-  - average: 2.77 hours
-  - standard deviation: 1.74 hours 
+  - average: TODO
+  - standard deviation: TODO
 
 - Total task estimation error ratio: sum of total hours estimation / sum of total hours spent from previous table
-  - error ratio: 1.05 
+  - error ratio: TODO
 
 ## QUALITY MEASURES (da fare)
 
