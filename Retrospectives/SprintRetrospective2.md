@@ -107,28 +107,10 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 ## ASSESSMENT (da fare)
 
 - What caused your errors in estimation (if any)?
-  - Task 27 (Learning testing tools for the frontend)  
-    - we thought learning testing tools required a lot of effort, for this reason we overestimated this task
-  - Task 48 (frontend implement login page):
-    - There was a communication issue with the assignee of this task
-  - Task 40 (testing gui student webpage):
-    - learning the new tools was easy but implemented the tests in practice required more effort
-  - Task 42 (Testing: back-end API related to the student/teacher/login): 
-    - there were more use cases than initially predicted, thus it required more time to write the API's tests
-  - Task 34 (Implement email sending service)
-    - we didn't know how to implement mails with node but it has proved easier than expected
-  - Task 36 (Front-end: implement front-end APIs function):
-    - after the effort of implementing the first API, the other ones were much faster to do
-  - Task 37 (Back-end: implement back-end APIs functions related to retrieving all the students booked for a lecture taught by a particular teacher): 
-    - it was tracked an additional part related to setting up the controllers and services routines
-  - Task 45 (Testing: back-end API related to retrieving students): 
-    - same reason as for task 42
-    - it took extra time to readapt the tests after changes were made midway the sprint.
-  - Task 46 (Testing: db and queries related to retrieving the students): 
-    - more effort needed to integrate other modules with the whole system, no more time for this task. 
-  - Task 39 : 
-  - Task 47 (Testing: back-end emailfunctions about seat booking): 
-    - misunderstanding between team members lead to tracking time issues, such as clocking the work log in other similar tasks.
+  - Task 44 (Testing: gui teacher web page)
+    - due to all changes the page received (mostly unexpected ones) during all the sprint the time needed to update tests each time was more than expected
+  - Task 94 (Frontend Teacher Stats Page: create page component)
+    - this task was originally estimated for one person, but during the sprint we decided to allocate two people to it so the time logged results much higher than expected
 
 - What lessons did you learn (both positive and negative) in this sprint?
   - POSITIVE
