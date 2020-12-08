@@ -109,6 +109,8 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 - What caused your errors in estimation (if any)?
   - Task xx (task description)
     - reason
+  - Task 44 (Testing: gui teacher web page)
+    - due to all changes the page received (mostly unexpected ones) during all the sprint the time needed to update tests each time was more than expected
   - Task 58 ("Backend: testing delete booking server API"):
     - there were more use cases to consider to reach the min coverage threshold
   - Task 73 ("Backend: add function that notify the student when a lecture is cancelled"):
@@ -121,6 +123,8 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
     - lost a lot of time in setting up the testing environment
   - Task 90 ("Backend : testing teacher email notifications") [story 2 of SPRINT 2]:
     - there were more use cases to consider to reach the min coverage threshold
+  - Task 94 (Frontend Teacher Stats Page: create page component)
+    - this task was originally estimated for one person, but during the sprint we decided to allocate two people to it so the time logged results much higher than expected
 
 - What lessons did you learn (both positive and negative) in this sprint?
   - POSITIVE
