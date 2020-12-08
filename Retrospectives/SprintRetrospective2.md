@@ -1,9 +1,9 @@
-SPRINT RETROSPECTIVE 1 (TEAM 4)
+SPRINT RETROSPECTIVE 2 (TEAM 4)
 =====================================
 
 ## PROCESS MEASURES 
 
-### Macro statistics
+### Macro statistics (da fare)
 
 - Number of stories committed vs done : 4 vs 1
 - Total points committed vs done : 29 vs 8
@@ -13,7 +13,7 @@ SPRINT RETROSPECTIVE 1 (TEAM 4)
 - Code present on VCS : 2758 lines
 - End-to-End tests performed : 31
 
-### Detailed statistics
+### Detailed statistics (da fare)
 
 | Story  | # Tasks | Points | Hours est. | Hours actual | Status |
 |--------|---------|--------|------------|--------------|--------|
@@ -56,18 +56,18 @@ SPRINT RETROSPECTIVE 1 (TEAM 4)
 - Total task estimation error ratio: sum of total hours estimation / sum of total hours spent from previous table
   - error ratio: 1.05 
 
-## QUALITY MEASURES 
+## QUALITY MEASURES (da fare)
 
 - Unit Testing:
-  - Total hours estimated : 17 hours
-  - Total hours spent : 17 hours 9 minutes
+  - Total hours estimated : 34 hours 30 minutes
+  - Total hours spent : 32 hours 30 minutes
   - Nr of automated unit test cases:
-    - Client-side : 28 tests
-    - Server-side : 20 tests
-  - Coverage : 54.39 %
+    - Client-side : 64 tests
+    - Server-side : 100 tests
+  - Coverage : 87.50 %
 - E2E testing:
-  - Total hours estimated : 4 hours
-  - Total hours spent : 7 hours 30 minutes
+  - Total hours estimated : 3 hours 30 minutes
+  - Total hours spent : 3 hours 45 minutes
 - Code review 
   - Total hours estimated : 0 hours
   - Total hours spent : 0 hours
@@ -79,7 +79,7 @@ SPRINT RETROSPECTIVE 1 (TEAM 4)
   - debt ratio (as reported by SonarQube under "Measures-Maintainability") : 0.0%
   - rating for each quality characteristic reported in SonarQube under "Measures" (namely reliability, security, maintainability ) : A, A, A
 
-## ASSESSMENT
+## ASSESSMENT (da fare)
 
 - What caused your errors in estimation (if any)?
   - Task 27 (Learning testing tools for the frontend)  
