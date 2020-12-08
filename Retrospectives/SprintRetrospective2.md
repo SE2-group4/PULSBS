@@ -128,7 +128,9 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 
 - What lessons did you learn (both positive and negative) in this sprint?
   - POSITIVE
+      - define the system APIs as a group instead of few individuals raised less issues than in the previous iterations 
   - NEGATIVE
+      - again the time allocated, during the sprint planning, for testing was not sufficient
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
 * do more group discussions
@@ -141,3 +143,4 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
 
 - One thing you are proud of as a Team!!
+
