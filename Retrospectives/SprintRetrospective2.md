@@ -13,7 +13,7 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 - Code present on VCS : 2758 lines
 - End-to-End tests performed : 31
 
-### Detailed statistics (da fare)
+### Detailed statistics (missing some tasks)
 
 | Story | Points | # Task | Hours est.   | Hours actual  | Assignee      | Status  |
 | ----- | ------ | ---- | -------------- | ------------- | ------------- |-------- |
@@ -104,66 +104,36 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
   - debt ratio (as reported by SonarQube under "Measures-Maintainability") : 0.0%
   - rating for each quality characteristic reported in SonarQube under "Measures" (namely reliability, security, maintainability ) : A, A, A
 
-## ASSESSMENT (da fare)
+## ASSESSMENT (in progress)
 
 - What caused your errors in estimation (if any)?
-  - Task 27 (Learning testing tools for the frontend)  
-    - we thought learning testing tools required a lot of effort, for this reason we overestimated this task
-  - Task 48 (frontend implement login page):
-    - There was a communication issue with the assignee of this task
-  - Task 40 (testing gui student webpage):
-    - learning the new tools was easy but implemented the tests in practice required more effort
-  - Task 42 (Testing: back-end API related to the student/teacher/login): 
-    - there were more use cases than initially predicted, thus it required more time to write the API's tests
-  - Task 34 (Implement email sending service)
-    - we didn't know how to implement mails with node but it has proved easier than expected
-  - Task 36 (Front-end: implement front-end APIs function):
-    - after the effort of implementing the first API, the other ones were much faster to do
-  - Task 37 (Back-end: implement back-end APIs functions related to retrieving all the students booked for a lecture taught by a particular teacher): 
-    - it was tracked an additional part related to setting up the controllers and services routines
-  - Task 45 (Testing: back-end API related to retrieving students): 
-    - same reason as for task 42
-    - it took extra time to readapt the tests after changes were made midway the sprint.
-  - Task 46 (Testing: db and queries related to retrieving the students): 
-    - more effort needed to integrate other modules with the whole system, no more time for this task. 
-  - Task 39 : 
-  - Task 47 (Testing: back-end emailfunctions about seat booking): 
-    - misunderstanding between team members lead to tracking time issues, such as clocking the work log in other similar tasks.
+  - Task xx (task description)
+    - reason
+  - Task 58 ("Backend: testing delete booking server API"):
+    - there were more use cases to consider to reach the min coverage threshold
+  - Task 73 ("Backend: add function that notify the student when a lecture is cancelled"):
+    - the notification system was not straightforward as initially planned
+  - Task 81 ("Backend : add server API GET/PUT lecture"):
+    - the edge cases of a PUT operation required more carefull thinking
+  - Task 83 ("Backend: add DAO put/get method for a lecture"):
+    - see task 81
+  - Task 84 ("Backend: testing DAO function"):
+    - lost a lot of time in setting up the testing environment
+  - Task 90 ("Backend : testing teacher email notifications") [story 2 of SPRINT 2]:
+    - there were more use cases to consider to reach the min coverage threshold
 
 - What lessons did you learn (both positive and negative) in this sprint?
   - POSITIVE
-    - automation is your best friend
-    - group discussions helps while developing a web application  
-    - defining more detailed tasks was a good choice
   - NEGATIVE
-    - working in parallel on the same file may cause frustration and annoyance. Those were caused in part by:
-      - spending extra time in understanding the code written by other people
-      - distinct structure of a problem's solution (good and bad at the same time)
-    - not having a coherent set of APIs lead to different implementation styles in some part of the system  
-    - testing should not be understimated because it is essential
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
-  - Discuss before making any breaking changes with your
-teammates (or at least the people affected by it)
-PARTIAL
-  - Reflect more in depth about the workload needed by a
-task. It is better to divide a task in subtasks if the
-estimation it is not clear or well defined.
-DONE
-  - Define a coherent and a systematic approach for managing
-the project folder structure.
-DONE
+* do more group discussions
+* code review
+* augment and define threshold for coverage
+* define better APIs
 
 - Which ones you were not able to achieve? Why?
-  - Discuss before making any breaking changes with your
-teammates (or at least the people affected by it)
-    - Lack of proper communication lead to misunderstandings, conflicts in the work.
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
-  - do more group discussions
-  - code review
-  - augment and define threshold for coverage
-  - define better APIs
 
-- One thing you are proud of as a Team!!  
-During this first sprint we built a solid base in our project in order to deploy a very good application at the end!
+- One thing you are proud of as a Team!!
