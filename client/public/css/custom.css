@@ -53,3 +53,10 @@
   position : relative;
   left : 2%
 }
+/* support page */
+.csv-container {
+  text-align: left;
+  padding: 15px;
+  margin: 10px auto;
+}
+

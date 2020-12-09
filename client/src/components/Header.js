@@ -22,6 +22,11 @@ function Header(props) {
           <Nav.Link as={Link} to={"/teacherPage/stats"}><strong>Your Stats</strong></Nav.Link>
         </Nav>
       }
+      {props.user && props.user.type === "SUPPORT" &&
+        <Nav className="mr-auto">
+          <Nav.Link><strong>Setup</strong></Nav.Link>
+        </Nav>
+      }
       {props.isAuth &&
         <Nav className="mr-sm-2">
           <PopoverInfo user={props.user} />

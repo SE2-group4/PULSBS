@@ -13,7 +13,8 @@ const students = [
     new User(4, "TEACHER", "Monica", "Gialli", "mg@email.com", "ciao2"),
     new User(2, "Student", "Gianni", "Verdi", "gn@email.com", "ciao3"),
     new User(6, "Student", "Mario", "Blu", "mr@email.com", "ciao4"),
-    new User(5, "Student", "Luca", "Bianchi", "lc@email.com", "ciao5")
+    new User(5, "Student", "Luca", "Bianchi", "lc@email.com", "ciao5"),
+    new User(7, "SUPPORT", "Lollo", "Appendini", "la@email.com", "ciao6")
 ]
 /** 
  * All the courses of stedent[0] (Francesco Rossi)
