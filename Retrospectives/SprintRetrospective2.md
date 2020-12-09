@@ -88,11 +88,11 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 > place technical tasks corresponding to story `#0` and leave out story points (not applicable in this case)
 
 - Hours per task (average, standard deviation)
-  - average: 1,27
-  - standard deviation: 1,72
+  - average: 1,27 hours
+  - standard deviation: 1,72 hours
 
 - Total task estimation error ratio: sum of total hours estimation / sum of total hours spent from previous table
-  - error ratio: 0,997
+  - error ratio: 0,99
 
 ## QUALITY MEASURES 
 
@@ -142,6 +142,10 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
     - there were more use cases to consider to reach the min coverage threshold
   - Task 94 ("Frontend Teacher Stats Page: create page component"):
     - this task was originally estimated for one person, but during the sprint we decided to allocate two people to it so the time logged results much higher than expected
+  - Task 98 ("Backend : add a new functionality to server API (add query string support"):
+    - understimated the amount of work needed 
+  - Task 99 ("Backend : testing the new functionality on the server API"):
+    - there were more use cases to consider to reach the min coverage threshold
   - Task 100 ("Backend : add function which computes stats"):
     - task not well defined, too general. These statistics has been computed in other parts of the application
 
