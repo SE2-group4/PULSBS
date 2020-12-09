@@ -71,19 +71,19 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 |       |        | 95   | 1,5            | 1,33          | trio frontend |  done   |
 |       |        | 96   | 1              | 1             | Pisanello     |  done   |
 |       |        | 97   | 1,5            | 0,66          | Pisanello     |  done   |
-|       |        | 98   | 0,5            | 50/60         | Xia           |  done   |
-|       |        | 99   | 0,5            | 50/60         | Xia           |  done   |
+|       |        | 98   | 0,5            | 0,83          | Xia           |  done   |
+|       |        | 99   | 0,5            | 0,83          | Xia           |  done   |
 |       |        | 100  | 1,25           | 0,25          | Gastaldi      |  done   |
-|       |        | 101  | 1              | 50/60         | Gastaldi      |  done   |
+|       |        | 101  | 1              | 0,83          | Gastaldi      |  done   |
 | (none)|        | 59   | 0,25           | 0,25          | Gastaldi      |  done   |
 |       |        | 50   | 1              | 1,5           | Mehmood       |  done   |
-|       |        | 85   | 25/60          | 10/60         | Ceccarelli    |  done   |
+|       |        | 85   | 0,42           | 0,17          | Ceccarelli    |  done   |
 |       |        | 86   | 0,5            | 1             | Ceccarelli    |  done   |
 |       |        | 87   | 5              | 5             | -             |  done   |
-|       |        | 89   | 5/60           | 5/60          | Appendini     |  done   |
-|       |        | 91   | 5              | 5 + 5/60      | Ceccarelli    |  done   |
+|       |        | 89   | 0,08           | 0,08          | Appendini     |  done   |
+|       |        | 91   | 5              | 5,08          | Ceccarelli    |  done   |
 |       |        | 92   | 2,5            | 2,5           | Gastaldi      |  done   |
-|       |        | 102  | 1,5            | 50/60         | Appendini     |  done   |
+|       |        | 102  | 1,5            | 0,83          | Appendini     |  done   |
 
 > place technical tasks corresponding to story `#0` and leave out story points (not applicable in this case)
 
