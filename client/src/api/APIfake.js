@@ -119,6 +119,12 @@ async function getBookedLectures(Uid) {
     return new Promise((resolve, reject) =>
         resolve(booked))
 }
+
+async function putInWaitingList(userId, courseId, lectureId) {
+    return new Promise((resolve, reject) => {
+        resolve();
+    })
+}
 /**
  * getCoursesByTeacherId performs a GET request towards the server to gain the all courses of a certain teacher
  */
@@ -140,5 +146,5 @@ async function getStudentsByLectureId(id) {
     return students2;
 }
 
-const APIfake = { userLogin, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, getCoursesByTeacherId, getLecturesByCourseIdT, getStudentsByLectureId };
+const APIfake = { userLogin, getCoursesByStudentId, putInWaitingList, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, getCoursesByTeacherId, getLecturesByCourseIdT, getStudentsByLectureId };
 export default APIfake;

@@ -132,6 +132,17 @@ class Calendar extends React.Component {
                 </Container>
 
             )
+        if (eventInfo.event.extendedProps.status === "inWaitingList")
+            return (
+
+                <Container fluid>
+                    <b>{eventInfo.event.title} <Badge variant="warning">In waiting list</Badge></b><br></br>
+                    <span>You are in waiting list</span><br></br>
+                    <span>Booking deadline : {eventInfo.event.extendedProps.bookingDeadline}</span><br></br>
+                    <span>Classroom : {eventInfo.event.extendedProps.class}</span>
+                </Container>
+
+            )
     }
     /**
     * Handle the event click
@@ -194,15 +205,19 @@ function ModalClick(props) {
                         <strong>This lecture was expired</strong>}
                     {props.event.extendedProps.status === "remote" &&
                         <strong>This lecture will be erogated remotely</strong>}
+                    {props.event.extendedProps.status === "full" &&
+                        <strong>Are you sure you want to add in waiting list?</strong>}
+                    {props.event.extendedProps.status === "inWaitingList" &&
+                        <strong>You are in waiting list for this lecture</strong>}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button data-testid="modalClose" variant="secondary" onClick={props.handleClose}>
                         Close
-                </Button>
-                    {(props.event.extendedProps.status === "booked" || props.event.extendedProps.status === "bookable") &&
+                    </Button>
+                    {(props.event.extendedProps.status === "booked" || props.event.extendedProps.status === "bookable" || props.event.extendedProps.status === "full") &&
                         <Button variant="primary" onClick={props.handleConfirm}>
                             Yes
-                </Button>
+                        </Button>
                     }
                 </Modal.Footer>
             </Modal>
