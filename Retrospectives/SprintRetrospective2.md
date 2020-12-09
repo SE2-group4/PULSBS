@@ -3,7 +3,7 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 
 ## PROCESS MEASURES 
 
-### Macro statistics (TODO review)
+### Macro statistics 
 
 - Number of stories committed vs done : 10 vs 10
 - Total points committed vs done : 64 vs 64
@@ -11,7 +11,7 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 - Unit Tests passing : 164/168
 - Code review completed : 10/10
 - Code present on VCS : 6075 lines
-- End-to-End tests performed : 64/104
+- End-to-End tests performed : 104/104
 
 ### Detailed statistics (missing some tasks)
 
@@ -88,13 +88,13 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 > place technical tasks corresponding to story `#0` and leave out story points (not applicable in this case)
 
 - Hours per task (average, standard deviation)
-  - average: TODO
-  - standard deviation: TODO
+  - average: 1,27
+  - standard deviation: 1,72
 
 - Total task estimation error ratio: sum of total hours estimation / sum of total hours spent from previous table
-  - error ratio: TODO
+  - error ratio: 0,997
 
-## QUALITY MEASURES (da fare)
+## QUALITY MEASURES 
 
 - Unit Testing:
   - Total hours estimated : 34 hours 30 minutes
@@ -148,6 +148,8 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 - What lessons did you learn (both positive and negative) in this sprint?
   - POSITIVE
       - define the system APIs as a group instead of few individuals raised less issues than in the previous iterations 
+      - reviewing code in group allowed us to find some minor flaws 
+      - testing the code allowed us to find other minor bugs
   - NEGATIVE
       - again the time allocated, during the sprint planning, for testing was not sufficient
 
@@ -158,11 +160,13 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
   - define better APIs
 
 - Which ones you were not able to achieve? Why?
-  - everything achieved (?)
+  - we achieved all the improvement goals
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
   - augment threshold for coverage (80%)
   - better discuss the design of the pages
+  - reduce code duplication
 
 - One thing you are proud of as a Team!!
+  - as a team and individuals we are improving and growing everyday as developers. Furthermore the workflow is going very smoothly!
 
