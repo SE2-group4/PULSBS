@@ -9,11 +9,11 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 - Total points committed vs done : 64 vs 64
 - Nr of hours planned vs spent (as a team) : 60h vs 65h 45m
 - Unit Tests passing : 164/168
-- Code review completed : 10/10
+- Code review completed : 10h / 10h
 - Code present on VCS : 6075 lines
 - End-to-End tests performed : 104/104
 
-### Detailed statistics (missing some tasks)
+### Detailed statistics
 
 | Story | Points | # Task | Hours est.   | Hours actual  | Assignee      | Status  |
 | ----- | ------ | ---- | -------------- | ------------- | ------------- |-------- |
@@ -75,7 +75,7 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 |       |        | 99   | 0,5            | 0,83          | Xia           |  done   |
 |       |        | 100  | 1,25           | 0,25          | Gastaldi      |  done   |
 |       |        | 101  | 1              | 0,83          | Gastaldi      |  done   |
-| (none)|        | 59   | 0,25           | 0,25          | Gastaldi      |  done   |
+| 0     |        | 59   | 0,25           | 0,25          | Gastaldi      |  done   |
 |       |        | 50   | 1              | 1,5           | Mehmood       |  done   |
 |       |        | 85   | 0,42           | 0,17          | Ceccarelli    |  done   |
 |       |        | 86   | 0,5            | 1             | Ceccarelli    |  done   |
