@@ -4,6 +4,7 @@ import User from "../entities/user";
 import Course from '../entities/course';
 import Lecture from '../entities/lecture';
 import Student from '../entities/student';
+import LectureWithClassInfo from '../entities/lectureWithClassInfo';
 /**
  * APIfake.js contains fake API which emulates the REST API behaviours
  */
@@ -26,10 +27,12 @@ const courses = [
  * All the lectures
  */
 const lectures = [
-    new Lecture(1, 1, 1, "12-11-2020 12:00", 600000, "12-11-2020 11:00", "inPresence"),
-    new Lecture(2, 1, 1, "11-21-2020 09:01", 600000, "11-20-2020 13:01", "inPresence"),
-    new Lecture(3, 2, 2, "12-12-2020 09:00", 600000, "12-11-2020 09:01", "remote"),
-    new Lecture(4, 1, 2, "11-24-2020 18:18", 600000, "11-23-2020 19:19", "remote")
+    new LectureWithClassInfo(1, 1, 1, "12-11-2020 12:00", 6000000, "12-11-2020 11:00", "inPresence", 12, 20, "12A",),
+    new LectureWithClassInfo(2, 1, 1, "12-08-2020 09:01", 6000000, "12-08-2020 13:01", "inPresence", 19, 20, "12A"),
+    new LectureWithClassInfo(2, 1, 1, "12-21-2020 09:01", 6000000, "11-20-2020 13:01", "inPresence", 19, 20, "12A"),
+    new LectureWithClassInfo(3, 2, 2, "12-12-2020 09:00", 6000000, "12-11-2020 09:01", "REMOTE"),
+    new LectureWithClassInfo(4, 1, 2, "12-12-2020 18:18", 6000000, "12-11-2020 19:19", "inPresence", 2, 20, "A"),
+    new LectureWithClassInfo(5, 2, 2, "12-24-2020 10:00", 6000000, "12-23-2020 23:59", "inPresence", 20, 20, "1")
 ]
 /**
  * All the lessons booked

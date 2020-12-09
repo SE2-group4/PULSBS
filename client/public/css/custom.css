@@ -49,3 +49,7 @@
 .list-title {
   font-weight: 500;
 }
+.buttonEvent {
+  position : relative;
+  left : 2%
+}
