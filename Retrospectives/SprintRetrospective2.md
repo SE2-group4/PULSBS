@@ -8,10 +8,10 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 - Number of stories committed vs done : 10 vs 10
 - Total points committed vs done : 64 vs 64
 - Nr of hours planned vs spent (as a team) : 60h vs 65h 45m
-- Unit Tests passing : 100/103
-- Code review completed : 5/5
+- Unit Tests passing : 164/168
+- Code review completed : 10/10
 - Code present on VCS : 6075 lines
-- End-to-End tests performed : 64/65
+- End-to-End tests performed : 64/104
 
 ### Detailed statistics (missing some tasks)
 
@@ -100,8 +100,8 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
   - Total hours estimated : 34 hours 30 minutes
   - Total hours spent : 32 hours 30 minutes
   - Nr of automated unit test cases:
-    - Client-side : 64 tests
-    - Server-side : 100 tests
+    - Client-side : 65 tests
+    - Server-side : 103 tests
   - Coverage : 87.50 %
 - E2E testing:
   - Total hours estimated : 3 hours 30 minutes
