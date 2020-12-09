@@ -121,15 +121,23 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 
 - What caused your errors in estimation (if any)?
   - Task xx (task description)
-    - reason
+    - reason  
+  - Task 40 ("Testing gui student webpage)
+    - due to stakeholders' issue we changed the whole page and we did testing again
   - Task 44 ("Testing: gui teacher web page"):
     - due to all changes the page received (mostly unexpected ones) during all the sprint the time needed to update tests each time was more than expected
+  - Task 52 ("Frontend API: add delete API")
+    - it required less time because we had already built the skeleton of the APIs
   - Task 54 ("Backend: add server API"):
     - the main effort for this story was in other tasks, overestimated
+  - Task 56 ("Frontend API : testing DELETE"):
+    - see task 52
   - Task 57 ("Backend : testing the new Dao and service function"):
     - repeatitive operations, overestimated
   - Task 58 ("Backend: testing delete booking server API"):
     - there were more use cases to consider to reach the min coverage threshold
+  - Task 60 ("Frontend Student Page : add calendar component")
+    - it required more time for learning FullCalendar library
   - Task 73 ("Backend: add function that notify the student when a lecture is cancelled"):
     - the notification system was not straightforward as initially planned
   - Task 81 ("Backend : add server API GET/PUT lecture"):
@@ -138,6 +146,8 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
     - see task 81
   - Task 84 ("Backend: testing DAO function"):
     - lost a lot of time in setting up the testing environment
+  - Task 86 ( "Setup docker Image")
+    - we had problem with sqlite3 library
   - Task 90 ("Backend : testing teacher email notifications") [story 2 of SPRINT 2]:
     - there were more use cases to consider to reach the min coverage threshold
   - Task 94 ("Frontend Teacher Stats Page: create page component"):
@@ -162,6 +172,7 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
   - code review
   - augment and define threshold for coverage
   - define better APIs
+  - better task estimation
 
 - Which ones you were not able to achieve? Why?
   - we achieved all the improvement goals
