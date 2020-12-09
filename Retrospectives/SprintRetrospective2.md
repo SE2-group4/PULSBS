@@ -133,14 +133,17 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
       - again the time allocated, during the sprint planning, for testing was not sufficient
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
-* do more group discussions
-* code review
-* augment and define threshold for coverage
-* define better APIs
+  - do more group discussions
+  - code review
+  - augment and define threshold for coverage
+  - define better APIs
 
 - Which ones you were not able to achieve? Why?
+  - everything achieved (?)
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
+  - augment and define threshold for coverage (80%)
+  - better discuss the design of the pages
 
 - One thing you are proud of as a Team!!
 
