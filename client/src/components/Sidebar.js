@@ -2,7 +2,7 @@ import React from 'react';
 import Container from 'react-bootstrap/Container';
 import Badge from 'react-bootstrap/Badge';
 
-function Sidebar(){
+function Sidebar() {
   return (
     <Container fluid id="sidebarCalendar">
       <strong>Legend:</strong>
@@ -15,6 +15,8 @@ function Sidebar(){
       <Badge variant="danger">Expired</Badge>
       <br></br>
       <Badge variant="secondary">Remote</Badge>
+      <br></br>
+      <Badge variant="warning">Full</Badge>
       <br></br>
     </Container>
   )

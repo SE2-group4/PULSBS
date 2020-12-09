@@ -267,7 +267,7 @@ describe('Calendar component', () => {
   test('click on close modal', async () => {
     await setupCalendar();
     await act(async () => {
-      userEvent.click(screen.getByText("Elettronica"))
+      userEvent.click(screen.getByText("Elettronica  [ EXPIRED ]"))
     });
     await act(async () => {
       userEvent.click(screen.getByTestId("modalClose"))
