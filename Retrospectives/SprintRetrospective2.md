@@ -142,7 +142,7 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
   - everything achieved (?)
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
-  - augment and define threshold for coverage (80%)
+  - augment threshold for coverage (80%)
   - better discuss the design of the pages
 
 - One thing you are proud of as a Team!!
