@@ -71,6 +71,19 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 |       |        | 95   | 1,5            | 1,33          | trio frontend |  done   |
 |       |        | 96   | 1              | 1             | Pisanello     |  done   |
 |       |        | 97   | 1,5            | 0,66          | Pisanello     |  done   |
+|       |        | 98   | 0,5            | 50/60         | Xia           |  done   |
+|       |        | 99   | 0,5            | 50/60         | Xia           |  done   |
+|       |        | 100  | 1,25           | 0,25          | Gastaldi      |  done   |
+|       |        | 101  | 1              | 50/60         | Gastaldi      |  done   |
+| (none)|        | 59   | 0,25           | 0,25          | Gastaldi      |  done   |
+|       |        | 50   | 1              | 1,5           | Mehmood       |  done   |
+|       |        | 85   | 25/60          | 10/60         | Ceccarelli    |  done   |
+|       |        | 86   | 0,5            | 1             | Ceccarelli    |  done   |
+|       |        | 87   | 5              | 5             | -             |  done   |
+|       |        | 89   | 5/60           | 5/60          | Appendini     |  done   |
+|       |        | 91   | 5              | 5 + 5/60      | Ceccarelli    |  done   |
+|       |        | 92   | 2,5            | 2,5           | Gastaldi      |  done   |
+|       |        | 102  | 1,5            | 50/60         | Appendini     |  done   |
 
 > place technical tasks corresponding to story `#0` and leave out story points (not applicable in this case)
 
@@ -93,12 +106,12 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 - E2E testing:
   - Total hours estimated : 3 hours 30 minutes
   - Total hours spent : 3 hours 45 minutes
-- Code review 
-  - Total hours estimated : 0 hours
-  - Total hours spent : 0 hours
+- Code review
+  - Total hours estimated : 10 hours
+  - Total hours spent : 10 hours 5 minutes
 - Technical Debt management:
-  - Total hours estimated : 0 hours
-  - Total hours spent : 0 hours
+  - Total hours estimated : 25 hours
+  - Total hours spent : 10 hours
   - Hours estimated for remediation by SonarQube : 1 hour
   - Hours spent on remediation : 10 minutes
   - debt ratio (as reported by SonarQube under "Measures-Maintainability") : 0.0%
