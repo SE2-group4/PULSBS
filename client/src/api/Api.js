@@ -138,6 +138,27 @@ async function getBookedLectures(Uid) {
     });
 }
 
+/**
+ * Permit to put the student in waiting list
+ * @param {*} Uid StudentId
+ * @param {*} Cid Course Id
+ * @param {*} Lid Lecture Id
+ */
+async function putInWaitingList(Uid, Cid, Lid) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/students/${Uid}/courses/${Cid}/lectures/${Lid}/queue`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ studentId: Uid }),
+        }).then((response) => {
+            if (response.ok) {
+                resolve()
+            } else reject("Server error")
+        }).catch((err) => { reject("Server cannot communicate") }); // connection errors
+    });
+}
 
 /************************** TEACHER API *****************************/
 /**
@@ -274,7 +295,7 @@ async function deleteLecture(Tid, Cid, Lid) {
 }
 
 const API = {
-    userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, getCoursesByTeacherId,
+    userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
     getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture
 };
 export default API;
