@@ -12,6 +12,7 @@ const path = require("path");
 const Teacher = require("./../entities/Teacher.js");
 const Student = require("./../entities/Student.js");
 const Manager = require("./../entities/Manager.js");
+const Officer = require("./../entities/Officer.js");
 const Lecture = require("./../entities/Lecture.js");
 const Course = require("./../entities/Course.js");
 const Email = require("./../entities/Email.js");
@@ -102,6 +103,9 @@ const login = function (user) {
                     break;
                 case "MANAGER":
                     retUser = Manager.from(row);
+                    break;
+                case "SUPPORT":
+                    retUser = Officer.from(row);
                     break;
                 default:
                     reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type"));
