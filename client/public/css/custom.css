@@ -49,6 +49,9 @@
 .list-title {
   font-weight: 500;
 }
+<<<<<<< HEAD
+
+=======
 .buttonEvent {
   position : relative;
   left : 2%
@@ -59,4 +62,5 @@
   padding: 15px;
   margin: 10px auto;
 }
+>>>>>>> 1e6edaa0f159c898973eda0355e0a58120b7947d
 

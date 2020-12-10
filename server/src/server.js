@@ -13,7 +13,7 @@ const prepareDb = require("./db/preparedb");
 
 const General = require("./controllers/GeneralController");
 const Student = require("./controllers/StudentController");
-const Teacher = require("./controllers/TeacherController");
+const { TeacherRouter, checkForExpiredLectures, nextCheck } = require("./controllers/TeacherController");
 const colors = require("colors");
 const { StandardErr } = require("./utils/utils");
 
@@ -32,80 +32,8 @@ morgan.token("host", function (req) {
 });
 app.use(morgan(":method".blue + " :url :host code: :status :res[content-length] - :response-time ms"));
 
-////////////////////////////////////////////////////////////////////////////////
-
 // GENERAL HANDLERS (NO LOGIN NEEDED)
 app.use(`${BASE_ROUTE}`, General);
-
-app.use(jwt({ secret: JWT_SECRET, algorithms: ['HS256'], resultProperty: 'userId', getToken: (req) => req.cookies.token }).unless({ path: [ '/login', '/logout' ] }));
-// app.use(jwt({ secret: JWT_SECRET, algorithms: ['RS256'] }).unless({ path: [ '/login', '/logout' ] }));
-
-app.use(function (err, req, res, next) {
-    if (err.name === "UnauthorizedError") {
-        res.status(401).json(
-            StandardErr.new(
-                "Login middleware",
-                StandardErr.errno.NOT_ALLOWED,
-                "login must be performed before this action",
-                401
-            )
-        ).end();
-    }
-    else
-        next();
-});
-/*
-// The following routes needs authentication
-app.use((req, res, next) => {
-    console.log('check if the cookie exists...');
-    // if (!req.cookies) res.status(401).json("login must be performed before this action");
-    if(!req.cookies) {
-        res.status(401).json(StandardErr.new('Login middleware', StandardErr.errno.NOT_ALLOWED, 'login must be performed before this action', 401));
-        return;
-    }
-    console.log('check if the cookie exists... - done');
-    console.log('veryfing the cookie...');
-    jwt.verify(req.cookies.token, { key: JWT_SECRET }, function(error, decoded) {
-        console.log('veryfing the cookie... - done');
-        // if (error) res.status(401).json('invalid login token');
-        if(error) {
-            res.status(401).json(StandardErr.new('Login middleware', StandardErr.errno.UNEXPECTED_VALUE, 'invalid login token', 401));
-            return;
-        }
-
-        next(); // else, proceed
-    });
-});
-*/
-
-////////////////////////////////////////////////////////////////////////////////
-
-// STUDENT ROUTES
-app.use(`${BASE_ROUTE}/students`, Student);
-
-////////////////////////////////////////////////////////////////////////////////
-
-// TEACHER ROUTES
-app.get(
-    `${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures/:lectureId/students`,
-    Teacher.teacherGetCourseLectureStudents
-);
-
-app.get(`${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures/:lectureId`, Teacher.teacherGetCourseLecture);
-app.delete(
-    `${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures/:lectureId`,
-    Teacher.teacherDeleteCourseLecture
-);
-app.put(`${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures/:lectureId`, Teacher.teacherPutCourseLecture);
-
-app.get(`${BASE_ROUTE}/teachers/:teacherId/courses/:courseId/lectures`, Teacher.teacherGetCourseLectures);
-
-app.get(`${BASE_ROUTE}/teachers/:teacherId/courses`, Teacher.teacherGetCourses);
-
-// every other routes get handled by this handler
-app.all(`${BASE_ROUTE}`, () => console.log("This route is not supported. Check the openapi doc"));
-
-////////////////////////////////////////////////////////////////////////////////
 
 app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
     try {
@@ -118,9 +46,43 @@ app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
     }
 });
 
+app.use(
+    jwt({
+        secret: JWT_SECRET,
+        algorithms: ["HS256"],
+        resultProperty: "userId",
+        getToken: (req) => req.cookies.token,
+    }).unless({ path: ["/login", "/logout"] })
+);
+
+app.use(function (err, req, res, next) {
+    if (err.name === "UnauthorizedError") {
+        res.status(401)
+            .json(
+                StandardErr.new(
+                    "Login middleware",
+                    StandardErr.errno.NOT_ALLOWED,
+                    "login must be performed before this action",
+                    401
+                )
+            )
+            .end();
+    } else {
+        next();
+    }
+});
+
+app.use(`${BASE_ROUTE}/students`, Student);
+app.use(`${BASE_ROUTE}/teachers`, TeacherRouter);
+
+// every other routes get handled by this handler
+app.all("/*", (req, res) => res.send("This route is not supported. Check the openapi doc"));
+
+////////////////////////////////////////////////////////////////////////////////
+
 // description: for demo purposes we are sending the email right now instead of waiting 23:59; alternatively call Teacher.nextCheck() for setting the time correctly)
 function autorun() {
-    setTimeout(() => Teacher.checkForExpiredLectures(), 0);
+    setTimeout(() => checkForExpiredLectures(), 0);
 }
 
 const systemConf = {
@@ -182,3 +144,28 @@ function printConf() {
         return process.exit(-1);
     }
 })();
+
+// OLD CODE
+/*
+// The following routes needs authentication
+app.use((req, res, next) => {
+    console.log('check if the cookie exists...');
+    // if (!req.cookies) res.status(401).json("login must be performed before this action");
+    if(!req.cookies) {
+        res.status(401).json(StandardErr.new('Login middleware', StandardErr.errno.NOT_ALLOWED, 'login must be performed before this action', 401));
+        return;
+    }
+    console.log('check if the cookie exists... - done');
+    console.log('veryfing the cookie...');
+    jwt.verify(req.cookies.token, { key: JWT_SECRET }, function(error, decoded) {
+        console.log('veryfing the cookie... - done');
+        // if (error) res.status(401).json('invalid login token');
+        if(error) {
+            res.status(401).json(StandardErr.new('Login middleware', StandardErr.errno.UNEXPECTED_VALUE, 'invalid login token', 401));
+            return;
+        }
+
+        next(); // else, proceed
+    });
+});
+*/
