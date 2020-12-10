@@ -14,6 +14,7 @@ const prepareDb = require("./db/preparedb");
 const General = require("./controllers/GeneralController");
 const Student = require("./controllers/StudentController");
 const { TeacherRouter, checkForExpiredLectures, nextCheck } = require("./controllers/TeacherController");
+const { ManagerRouter } = require("./controllers/ManagerController");
 const colors = require("colors");
 const { StandardErr } = require("./utils/utils");
 
@@ -74,6 +75,7 @@ app.use(function (err, req, res, next) {
 
 app.use(`${BASE_ROUTE}/students`, Student);
 app.use(`${BASE_ROUTE}/teachers`, TeacherRouter);
+app.use(`${BASE_ROUTE}/managers`, ManagerRouter);
 
 // every other routes get handled by this handler
 app.all("/*", (req, res) => res.send("This route is not supported. Check the openapi doc"));
