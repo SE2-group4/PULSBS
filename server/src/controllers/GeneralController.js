@@ -5,7 +5,7 @@
  */
 "use strict";
 
-const controller = require('express').Router({ mergeParams : true });
+const controller = require('express').Router({ mergeParams: true });
 const service = require("../services/GeneralService.js");
 const { check, validationResult } = require('express-validator');
 const jsonwebtoken = require('jsonwebtoken');
@@ -21,9 +21,9 @@ const jwtSecret = "1234567890";
  * @returns {Teacher | Student} teacher or student
  */
 controller.post('/login', [
-        check('email').isEmail(),
-        check('password').isString()
-    ], (req, res) => {
+    check('email').isEmail(),
+    check('password').isString()
+], (req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -35,7 +35,7 @@ controller.post('/login', [
     const password = req.body.password;
     service.userLogin(email, password)
         .then((user) => {
-            const token = jsonwebtoken.sign({ userId: user.userId  }, jwtSecret, { expiresIn: expireTime, algorithm: 'HS256' });
+            const token = jsonwebtoken.sign({ userId: user.userId }, jwtSecret, { expiresIn: expireTime, algorithm: 'HS256' });
             // res.cookie('token', token, { httpOnly: true, sameSite: true, maxAge: expireTime });
             res.cookie('token', token);
             res.status(200).json(user).end();

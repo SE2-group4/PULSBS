@@ -41,6 +41,8 @@ INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(19, 
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(20, 'TEACHER', 'Michelle', 'Hunziker', 'teacher20@test.it', 'teacher20');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(21, 'TEACHER', 'Piero', 'Angela', 'teacher21@test.it', 'teacher21');
 
+INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(22, 'MANAGER', 'Bobo', 'Vieri', 'manager@test.it', 'manager');
+
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 1, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 2, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 5, 1);

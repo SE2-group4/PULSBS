@@ -70,7 +70,8 @@ class Calendar extends React.Component {
                     <b>{eventInfo.event.title} <Badge variant="success">Bookable</Badge></b><br></br>
                     <span>Available seats : {eventInfo.event.extendedProps.availableSeats}</span><br></br>
                     <span>Booking deadline : {eventInfo.event.extendedProps.bookingDeadline}</span><br></br>
-                    <span>Classroom : {eventInfo.event.extendedProps.class}</span>
+                    <span>Classroom : {eventInfo.event.extendedProps.class}</span><br></br>
+                    <small>Click here to book for this lecture.</small>
                 </Container>
 
             )
@@ -80,7 +81,9 @@ class Calendar extends React.Component {
                 <Container fluid>
                     <b>{eventInfo.event.title} <Badge variant="primary">Booked</Badge> </b><br></br>
                     <span>Booking deadline : {eventInfo.event.extendedProps.bookingDeadline}</span><br></br>
-                    <span>Classroom : {eventInfo.event.extendedProps.class}</span>
+                    <span>Classroom : {eventInfo.event.extendedProps.class}</span><br></br>
+                    <small>You are booked for this lecture.</small><br></br>
+                    <small>Click here to cancel your reservation.</small>
                 </Container>
 
 
@@ -137,7 +140,7 @@ class Calendar extends React.Component {
 
                 <Container fluid>
                     <b>{eventInfo.event.title} <Badge variant="warning">In waiting list</Badge></b><br></br>
-                    <span>You are in waiting list</span><br></br>
+                    <span>You are in waiting list for this lecture.</span><br></br>
                     <span>Booking deadline : {eventInfo.event.extendedProps.bookingDeadline}</span><br></br>
                     <span>Classroom : {eventInfo.event.extendedProps.class}</span>
                 </Container>

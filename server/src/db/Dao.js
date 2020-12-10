@@ -11,6 +11,7 @@ const path = require("path");
 
 const Teacher = require("./../entities/Teacher.js");
 const Student = require("./../entities/Student.js");
+const Manager = require("./../entities/Manager.js");
 const Lecture = require("./../entities/Lecture.js");
 const Course = require("./../entities/Course.js");
 const Email = require("./../entities/Email.js");
@@ -91,7 +92,6 @@ const login = function (user) {
                 reject(StandardErr.new("Dao", StandardErr.errno.WRONG_VALUE, "incorrect userId or password")); // no more info for security reasons
                 return;
             }
-
             let retUser = null;
             switch (row.type) {
                 case "TEACHER":
@@ -99,6 +99,9 @@ const login = function (user) {
                     break;
                 case "STUDENT":
                     retUser = Student.from(row);
+                    break;
+                case "MANAGER":
+                    retUser = Manager.from(row);
                     break;
                 default:
                     reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type"));

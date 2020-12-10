@@ -4,6 +4,7 @@ import { Switch } from "react-router";
 import Container from "react-bootstrap/Container";
 import StudentPage from "./pages/StudentPage";
 import TeacherRoute from './pages/TeacherRoute';
+import ManagerRoute from './pages/ManagerRoute';
 import SupportPage from './pages/SupportPage';
 import LoginPage from "./pages/LoginPage";
 import Header from "./components/Header";
@@ -66,6 +67,13 @@ class App extends React.Component {
               }}
             ></Route>
             <Route
+              path="/bookingManagerPage"
+              render={() => {
+                if (!this.state.isAuth) return <Redirect to="/login" />;
+                else return <ManagerRoute user={this.state.authUser} />;
+              }}
+            ></Route>
+            <Route
               path="/supportPage"
               render={() => {
                 if (!this.state.isAuth) return <Redirect to="/login" />;
@@ -90,6 +98,8 @@ class App extends React.Component {
                   return <Redirect to="/teacherPage/main" />;
                 else if (this.state.isAuth && this.state.authUser.type === "SUPPORT")
                   return <Redirect to="/supportPage" />;
+                else if (this.state.isAuth && this.state.authUser.type === "MANAGER")
+                  return <Redirect to="/bookingManagerPage/stats" />;
                 else if (!this.state.isAuth)
                   return <Redirect to="/login" />
               }}
@@ -102,4 +112,3 @@ class App extends React.Component {
 }
 
 export default withRouter(App);
-//export default App;
