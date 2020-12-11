@@ -778,7 +778,7 @@ const getLecturesByCoursePlusNumBookings = function (course) {
 exports.getLecturesByCoursePlusNumBookings = getLecturesByCoursePlusNumBookings;
 
 /**
- * Return the number of booked stundets given in a lecture
+ * Return the number of booked stundets given a lecture
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} promise
  */
@@ -822,3 +822,28 @@ const getLecturesByCourseId = function (course) {
     });
 };
 exports.getLecturesByCourseId = getLecturesByCourseId;
+
+// TODO not tested
+// added by Francesco
+/**
+ * check is a lecture belongs to a course
+ * @param {Course} course - courseId needed
+ * @param {Lecture} lecture - lectureId needed
+ * @returns {Promise} promise
+ */
+const checkLectureAndCourse = function (course, lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT COUNT(1) as count FROM Lecture
+            WHERE Lecture.courseId = ? AND Lecture.lectureId = ?`;
+
+        db.get(sql, [course.courseId, lecture.lectureId], (err, row) => {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(row);
+        });
+    });
+};
+exports.checkLectureAndCourse = checkLectureAndCourse;
