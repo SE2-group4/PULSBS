@@ -7,15 +7,37 @@
  * @param {Object} message error arguments. See getErrorMessage
  * @param {Number} statusCode
  */
+
+const defaultStatusCode = {
+    COURSE_NOT_ENROLLED_AA: 400,
+    COURSE_LECTURE_MISMATCH_AA: 400,
+    DB_GENERIC_ERROR: 500,
+    LECTURE_GIVEN: 400,
+    LECTURE_NOT_FOUND: 400,
+    LECTURE_INVALID_DELIVERY_MODE: 400,
+    LECTURE_NOT_CANCELLABLE: 400,
+    LECTURE_NOT_SWITCHABLE: 400,
+    PARAM_NOT_BOOLEAN: 400,
+    PARAM_NOT_DATE: 400,
+    PARAM_NOT_INT: 400,
+    QUERY_PARAM_NOT_ACCEPTED: 400,
+    QUERY_PARAM_NOT_VALUE_ACCEPTED: 400,
+    TEACHER_COURSE_MISMATCH_AA: 400,
+    ROUTE_FORBIDDEN: 401,
+};
+
 class ResponseError {
-    constructor(source, errno, msgArgs, statusCode = 500) {
+    constructor(source, errno, msgArgs, statusCode) {
+        let code = statusCode;
+        if (code === undefined) code = ResponseError.getDefaultStatusCode(errno);
+
         this.payload = {
             source: source,
             errno: errno,
-            message: this.getErrorMessage(errno, msgArgs),
-            statusCode: statusCode,
+            message: ResponseError.getErrorMessage(errno, msgArgs),
+            statusCode: code,
         };
-        this.statusCode = statusCode;
+        this.statusCode = code;
     }
 
     static get COURSE_NOT_ENROLLED_AA() {
@@ -54,6 +76,9 @@ class ResponseError {
     static get QUERY_PARAM_NOT_ACCEPTED() {
         return 4;
     }
+    static get QUERY_PARAM_VALUE_NOT_ACCEPTED() {
+        return 5;
+    }
     static get TEACHER_COURSE_MISMATCH_AA() {
         return 30;
     }
@@ -61,7 +86,25 @@ class ResponseError {
         return 0;
     }
 
-    getErrorMessage(errno, args) {
+    static errno = {
+        COURSE_NOT_ENROLLED_AA: 10,
+        COURSE_LECTURE_MISMATCH_AA: 11,
+        DB_GENERIC_ERROR: 40,
+        LECTURE_GIVEN: 20,
+        LECTURE_NOT_FOUND: 21,
+        LECTURE_INVALID_DELIVERY_MODE: 22,
+        LECTURE_NOT_CANCELLABLE: 23,
+        LECTURE_NOT_SWITCHABLE: 24,
+        PARAM_NOT_BOOLEAN: 1,
+        PARAM_NOT_DATE: 2,
+        PARAM_NOT_INT: 3,
+        QUERY_PARAM_NOT_ACCEPTED: 4,
+        QUERY_PARAM_VALUE_NOT_ACCEPTED: 5,
+        TEACHER_COURSE_MISMATCH_AA: 30,
+        ROUTE_FORBIDDEN: 0,
+    };
+
+    static getErrorMessage(errno, args) {
         switch (errno) {
             case ResponseError.COURSE_NOT_ENROLLED_AA:
                 return `student (student = ${args.studentId}) is not enrolled in this course (courseId = ${args.courseId}) during this AA`;
@@ -103,7 +146,11 @@ class ResponseError {
             }
 
             case ResponseError.QUERY_PARAM_NOT_ACCEPTED:
-                return `Query parameter '${args.param}' is not accepted`;
+                const keyName = Object.keys(args)[0];
+                return `Query parameter '${keyName}' is not accepted`;
+
+            case ResponseError.QUERY_PARAM_VALUE_NOT_ACCEPTED:
+                return `Query paramters 's value must be of type ${args.type}`;
 
             case ResponseError.TEACHER_COURSE_MISMATCH_AA:
                 return `course (courseId = ${args.courseId}) is not taught by this teacher (teacherId = ${args.teacherId})`;
@@ -115,6 +162,18 @@ class ResponseError {
                 return "No message (case default)";
         }
     }
+
+    static getDefaultStatusCode(errno) {
+        return defaultStatusCode[ResponseError.getErrnoName(errno)];
+    }
+
+    static getErrnoName(errno) {
+        for(const [key, value] of Object.entries(ResponseError.errno)) {
+            if (value === errno) return key;
+        }
+
+        return undefined;
+    }
 }
 
-module.exports.ResponseError = ResponseError;
+module.exports = { ResponseError };
