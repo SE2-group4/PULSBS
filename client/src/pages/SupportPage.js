@@ -42,26 +42,31 @@ class SupportPage extends React.Component {
         this.setState({ show: false, elems: null });
     }
 
+    sendFiles = () => {
+        //TO_DO : in case of response ok, message then refresh
+        console.log("done!");
+        this.setState({ show: false, elems: null });
+    }
+
     //la disposizione è ad uno stadio iniziale provvisorio
     render() {
         return <>
             { this.state.show &&
-                <SummaryModal sumClose={this.closeModal} send={this.closeModal} elems={this.state.elems} />}
-            <Container fluid>
-                <Row>
+                <SummaryModal sumClose={this.closeModal} send={this.sendFiles} elems={this.state.elems} />}
+            <Container fluid id="supportContainer">
+                <Row className="justify-content-md-center">
                     <Col sm={6}>
                         <Card>
                             <Card.Body>
                                 <Card.Text>Hi <b>{this.props.user.firstName}</b>, welcome to setup page. If you want to add a certain type of data, click on corresponding <i>header</i>.
                                 Once you have done, click on the <i>button</i> below.</Card.Text>
-                                <Button variant="warning" size="sm" onClick={this.showModal}>Submit your data</Button>
                             </Card.Body>
                         </Card>
                         <br />
                     </Col>
                 </Row>
-                <Row>
-                    <Col sm={4}>
+                <Row className="justify-content-md-center">
+                    <Col sm={6}>
                         <Accordion>
                             <Card>
                                 <Accordion.Toggle as={Card.Header} eventKey="0">
@@ -114,7 +119,11 @@ class SupportPage extends React.Component {
                                 </Accordion.Collapse>
                             </Card>
                         </Accordion>
+                        <br />
                     </Col>
+                </Row>
+                <Row className="justify-content-md-center">
+                    <Button variant="warning" size="m" onClick={this.showModal}>Submit your data</Button>
                 </Row>
             </Container>
         </>;
