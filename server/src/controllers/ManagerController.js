@@ -1,5 +1,6 @@
 const utils = require("../utils/writer");
 const express = require("express");
+const Manager = require("../services/ManagerService");
 const router = express.Router();
 
 router.get("/:managerId/courses/:courseId/lectures/:lectureId", managerGetCourseLecture);
@@ -22,12 +23,7 @@ module.exports.managerGetCourseLecture = managerGetCourseLecture;
 
 // TODO
 function managerGetCourseLectures(req, res) {
-    res.send("not implemented");
-    return;
-    const { managerId, courseId, lectureId } = req.params;
-    console.table(managerId, courseId, lectureId);
-
-    Manager.managerGetCourseLecture()
+    Manager.managerGetCourseLectures(req.params, req.query)
         .then(function (response) {
             utils.writeJson(res, response);
         })
@@ -38,14 +34,7 @@ function managerGetCourseLectures(req, res) {
 module.exports.managerGetCourseLectures = managerGetCourseLectures;
 
 function managerGetCourse(req, res) {
-    res.send("not implemented");
-    return;
-    const managerId = req.params.managerId;
-    const courseId = req.params.courseId;
-    const lectureId = req.params.lectureId;
-    console.table(req.params);
-
-    Manager.managerGetCourseLecture()
+    Manager.managerGetCourse(req.params, req.query)
         .then(function (response) {
             utils.writeJson(res, response);
         })
@@ -56,14 +45,7 @@ function managerGetCourse(req, res) {
 module.exports.managerGetCourse = managerGetCourse;
 
 function managerGetCourses(req, res) {
-    res.send("not implemented");
-    return;
-    const managerId = req.params.managerId;
-    const courseId = req.params.courseId;
-    const lectureId = req.params.lectureId;
-    console.table(req.params);
-
-    Manager.managerGetCourseLecture()
+    Manager.managerGetCourses(req.params, req.query)
         .then(function (response) {
             utils.writeJson(res, response);
         })
