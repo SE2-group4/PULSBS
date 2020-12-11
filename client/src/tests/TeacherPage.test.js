@@ -97,11 +97,11 @@ describe('Teacher Page suite', () => {
     expect(items).toHaveLength(4);
     expect(screen.getByText("Software Engineering 2")).toBeInTheDocument(); //should be in page 0
     await act(async () => {
-      userEvent.click(screen.getByText('Next')); //page 0 -> 1
+      userEvent.click(screen.getByText('>')); //page 0 -> 1
     });
     expect(screen.getByText("Programmare in React")).toBeInTheDocument(); //should be in page 1
     await act(async () => {
-      userEvent.click(screen.getByText('Previous')); //page 1 -> 0
+      userEvent.click(screen.getByText('<')); //page 1 -> 0
     });
     expect(screen.getByText("Information Systems Security")).toBeInTheDocument(); //should be in page 0
   });
@@ -131,14 +131,14 @@ describe('Teacher Page suite', () => {
 
   test('testing interaction CoursePanel-LecturePanel (lectures API : success), testing next/previous', async () => {
     await fetchLectureSuccess();
-    expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
+    expect(screen.getByTestId("selected-course")).toBeInTheDocument();
     const items = screen.getAllByTestId('lecture-row');
     expect(items).toHaveLength(4);
     await act(async () => {
-      userEvent.click(screen.getAllByText('Next')[1]); //page 0 -> 1
+      userEvent.click(screen.getAllByText('>')[1]); //page 0 -> 1
     });
     await act(async () => {
-      userEvent.click(screen.getAllByText('Previous')[1]); //page 1 -> 0
+      userEvent.click(screen.getAllByText('<')[1]); //page 1 -> 0
     });
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
@@ -153,7 +153,7 @@ describe('Teacher Page suite', () => {
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
     });
-    expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
+    expect(screen.getByTestId("selected-course")).toBeInTheDocument();
     expect(screen.getByText('Lecture : application parse error')).toBeInTheDocument();
   });
 
@@ -168,7 +168,7 @@ describe('Teacher Page suite', () => {
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
     });
-    expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
+    expect(screen.getByTestId("selected-course")).toBeInTheDocument();
     expect(screen.getByText('Lecture : invalid parameter error')).toBeInTheDocument();
   });
 
@@ -178,7 +178,7 @@ describe('Teacher Page suite', () => {
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
     });
-    expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
+    expect(screen.getByTestId("selected-course")).toBeInTheDocument();
     expect(screen.getByText('Lecture : server error')).toBeInTheDocument();
   });
 
@@ -188,23 +188,23 @@ describe('Teacher Page suite', () => {
     await act(async () => {
       userEvent.click(screen.getByTestId('c-1'))
     });
-    expect(screen.getByText('Selected course: 1')).toBeInTheDocument();
+    expect(screen.getByTestId("selected-course")).toBeInTheDocument();
     expect(screen.getByText('Lecture : server error')).toBeInTheDocument();
   });
 
   test('testing interaction between LecturePanel-StudentPanel (students API : success), testing next/previous', async () => {
     await fetchStudentSuccess();
-    expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
-    expect(screen.getByText('Number of students: 12')).toBeInTheDocument();
+    expect(screen.getByTestId("selected-course")).toBeInTheDocument();
+    expect(screen.getByTestId("number-students")).toBeInTheDocument();
     let items = screen.getAllByTestId('student-row');
     expect(items).toHaveLength(10);
     await act(async () => {
-      userEvent.click(screen.getAllByText('Next')[2]); //page 0 -> 1
+      userEvent.click(screen.getAllByText('>')[2]); //page 0 -> 1
     });
     items = screen.getAllByTestId('student-row');
     expect(items).toHaveLength(2);
     await act(async () => {
-      userEvent.click(screen.getAllByText('Previous')[2]); //page 1 -> 0
+      userEvent.click(screen.getAllByText('<')[2]); //page 1 -> 0
     });
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))
@@ -219,7 +219,7 @@ describe('Teacher Page suite', () => {
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))
     });
-    expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
+    expect(screen.getByTestId("selected-lecture")).toBeInTheDocument();
     expect(screen.getByText('Student : application parse error')).toBeInTheDocument();
   });
 
@@ -234,7 +234,7 @@ describe('Teacher Page suite', () => {
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))
     });
-    expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
+    expect(screen.getByTestId("selected-lecture")).toBeInTheDocument();
     expect(screen.getByText('Student : invalid parameter error')).toBeInTheDocument();
   });
 
@@ -244,7 +244,7 @@ describe('Teacher Page suite', () => {
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))
     });
-    expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
+    expect(screen.getByTestId("selected-lecture")).toBeInTheDocument();
     expect(screen.getByText('Student : server error')).toBeInTheDocument();
   });
 
@@ -254,7 +254,7 @@ describe('Teacher Page suite', () => {
     await act(async () => {
       userEvent.click(screen.getByTestId('l-1'))
     });
-    expect(screen.getByText('Selected lecture: 1')).toBeInTheDocument();
+    expect(screen.getByTestId("selected-lecture")).toBeInTheDocument();
     expect(screen.getByText('Student : server error')).toBeInTheDocument();
   });
 
@@ -271,7 +271,7 @@ describe('Teacher Page suite', () => {
     await act(async () => {
       userEvent.click(screen.getByTestId("yes-m-1"));
     });
-    let items = screen.getAllByText("REMOTE");
+    let items = screen.getAllByText("Remote");
     expect(items).toHaveLength(2);
   });
 
