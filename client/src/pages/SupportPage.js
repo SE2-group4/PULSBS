@@ -8,11 +8,12 @@ import Modal from 'react-bootstrap/Modal';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import { GoCheck } from 'react-icons/go';
+//import API from '../api/Api';
 
 class SupportPage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { show: null };
+        this.state = { show: null, success: null };
     }
 
     //students, courses, teachers, lectures, and classes
@@ -44,7 +45,18 @@ class SupportPage extends React.Component {
 
     sendFiles = () => {
         //TO_DO : in case of response ok, message then refresh
-        console.log("done!");
+        /*
+        try {
+            let sendStudents= this.state.studentsArray ? await API.uploadList(this.state.user.userId,"students",mapCollection(this.state.studentsArray)) : null;
+            let sendCourses= this.state.coursesArray ? await API.uploadList(this.state.user.userId,"courses",mapCollection(this.state.coursesArray)) : null;
+            let sendProfessors= this.state.professorsArray ? await API.uploadList(this.state.user.userId,"teachers",mapCollection(this.state.professorsArray)) : null;
+            let sendSchedules= this.state.schedulesArray ? await API.uploadList(this.state.user.userId,"lectures",mapCollection(this.state.schedulesArray)) : null;
+            let sendEnrollments= this.state.enrollmentsArray ? await API.uploadList(this.state.user.userId,"classes",mapCollection(this.state.enrollmentsArray)) : null;
+            this.setState({ show: false, elems: null,success: true });
+        } catch (err) {
+            this.setState({ show: false, elems: null,fetchError: true });
+        }
+        */
         this.setState({ show: false, elems: null });
     }
 
@@ -172,6 +184,11 @@ function SummaryModal(props) {
             {props.elems.length !== 0 && <><Button name="yes" variant="secondary" onClick={props.send}>Yes</Button><Button name="no" variant="secondary" onClick={props.sumClose}>No</Button></>}
         </Modal.Footer>
     </Modal>;
+}
+
+function mapCollection(list, type) {
+    //TO_DO 
+    return;
 }
 
 export default SupportPage;
