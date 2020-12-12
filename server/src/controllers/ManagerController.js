@@ -6,8 +6,8 @@ const router = express.Router();
 
 router.get("/:managerId/courses/:courseId/lectures/:lectureId", managerGetCourseLecture);
 router.get("/:managerId/courses/:courseId/lectures", managerGetCourseLectures);
-router.get("/:managerId/courses/:courseId", managerGetCourse);
 router.get("/:managerId/courses", managerGetCourses);
+
 router.get("/:managerId/students", managerGetStudent);
 router.get("/:managerId/tracingReport/:serialNumber", managerGetReport);
 module.exports.ManagerRouter = router;
@@ -24,7 +24,6 @@ function managerGetCourseLecture(req, res) {
 };
 module.exports.managerGetCourseLecture = managerGetCourseLecture;
 
-// TODO
 function managerGetCourseLectures(req, res) {
     Manager.managerGetCourseLectures(req.params, req.query)
         .then(function (response) {
@@ -36,17 +35,6 @@ function managerGetCourseLectures(req, res) {
 };
 module.exports.managerGetCourseLectures = managerGetCourseLectures;
 
-function managerGetCourse(req, res) {
-    Manager.managerGetCourse(req.params, req.query)
-        .then(function (response) {
-            utils.writeJson(res, response);
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response);
-        });
-};
-module.exports.managerGetCourse = managerGetCourse;
-
 function managerGetCourses(req, res) {
     Manager.managerGetCourses(req.params, req.query)
         .then(function (response) {
@@ -57,6 +45,7 @@ function managerGetCourses(req, res) {
         });
 };
 module.exports.managerGetCourses = managerGetCourses;
+
 // TODO (implementing service)
 function managerGetStudent(req, res) {
     Manager.managerGetStudent(req.params, req.query)
@@ -68,6 +57,7 @@ function managerGetStudent(req, res) {
         });
 };
 module.exports.managerGetStudent = managerGetStudent;
+
 // TODO (implementing service)
 function managerGetReport(req, res) {
     Manager.managerGetReport(req.params, req.query)
