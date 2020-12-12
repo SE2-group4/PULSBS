@@ -10,6 +10,9 @@ import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
 import API from '../api/Api'
 import APIfake from '../api/APIfake'
+import moment from 'moment'
+import { jsPDF } from "jspdf";
+import { CSVLink, CSVDownload } from "react-csv";
 import 'react-day-picker/lib/style.css';
 
 class ManagerReportPage extends React.Component {
@@ -51,6 +54,9 @@ class ManagerReportPage extends React.Component {
     handleGenerateNewReport = () => {
         this.setState({ report: null, text: "", date: new Date(), student: null, filterType: null })
     }
+    handleCreatePdf = () => {
+        createPDF(this.state.report, this.state.student, this.state.date)
+    }
     render() {
         if (!this.state.report)
             return (
@@ -78,7 +84,7 @@ class ManagerReportPage extends React.Component {
         if (this.state.report)
             return (
                 <Container>
-                    <TableReport report={this.state.report} handleGenerateNewReport={this.handleGenerateNewReport}></TableReport>
+                    <TableReport report={this.state.report} handleGenerateNewReport={this.handleGenerateNewReport} handleCreatePDF={this.handleCreatePdf}></TableReport>
                 </Container>
             )
 
@@ -112,7 +118,7 @@ function FormBox(props) {
             <Form.Group as={Row}>
                 <Form.Label column sm="3">Date :</Form.Label><br></br>
                 <Col>
-                    <DayPickerInput value={props.date} onDayChange={() => props.selectDate()} />
+                    <DayPickerInput value={props.date} onDayChange={props.selectDate} />
                 </Col>
             </Form.Group>
             <Form.Label>Student selected:</Form.Label>
@@ -177,8 +183,8 @@ class TableReport extends React.Component {
                 <Pagination onClick={(ev) => this.changePage(ev.target.text)}>{items}</Pagination>
                 <Row>
                     <Col><Button variant="warning" onClick={() => this.props.handleGenerateNewReport()}>Generate a new report</Button></Col>
-                    <Col><Button variant="warning" id="buttonPDF">Convert to PDF</Button></Col>
-                    <Col><Button variant="warning" id="buttonCSV">Convert to CSV</Button></Col>
+                    <Col><Button variant="warning" onClick={() => this.props.handleCreatePDF()} id="buttonPDF">Convert to PDF</Button></Col>
+                    <Col><Button variant="warning" id="buttonCSV"><CSVLink data={this.props.report} filename="Report.csv">Convert to CSV</CSVLink></Button></Col>
                 </Row>
             </>
         )
@@ -193,5 +199,21 @@ function TableEntry(props) {
             <td>{props.user.email}</td>
         </tr>
     )
+}
+
+function createPDF(report, student, date) {
+    const doc = new jsPDF();
+
+    doc.text("Report creation date :  " + moment().format("DD/MM/YYYY HH:mm"), 10, 10);
+    doc.text("Positive Student to COVID-19 : " + student.studentId + " " + student.firstName + " " + student.lastName + " " + student.email, 10, 20)
+    doc.text("Swab day : " + moment(date).format("DD/MM/YYYY"), 10, 30)
+    doc.text("List of person who had contacts with the positive student :", 10, 40)
+    let d = 50
+    report.forEach(element => {
+        doc.text(element.studentId + " " + element.firstName + " " + element.lastName + " " + element.email, 10, d)
+        d += 10
+    });
+
+    doc.save("Report_" + student.studentId + ".pdf");
 }
 export default ManagerReportPage;
