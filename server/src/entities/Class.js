@@ -6,10 +6,16 @@
 'use strict';
 
 class Class {
-    constructor(classId = -1, description = null, nSeats = 0) {
+    /**
+     * class constructor
+     * @param {Number} classId 
+     * @param {String} description 
+     * @param {Number} capacity 
+     */
+    constructor(classId = -1, description = null, capacity = 0) {
         this.classId = classId;
         this.description = description;
-        this.nSeats = nSeats;
+        this.capacity = capacity;
     }
 
     /**
