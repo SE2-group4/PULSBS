@@ -1,4 +1,5 @@
 import React from "react";
+import { Redirect } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -13,22 +14,41 @@ import { GoCheck } from 'react-icons/go';
 class SupportPage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { show: null, success: null };
+        this.state = { show: null, success: false, refresh: false };
     }
 
-    //students, courses, teachers, lectures, and classes
+    /**
+     * Sets the states 'name' to the value 'data'
+     * @param {*} data 
+     * @param {*} name 
+     */
     handleOnDrop = (data, name) => {
         this.setState({ [name]: data });
     }
 
+    /**
+     * CSVReader component error handler
+     * @param {*} err 
+     * @param {*} file 
+     * @param {*} inputElem 
+     * @param {*} reason 
+     */
     handleOnError = (err, file, inputElem, reason) => {
         console.log(err);
     }
 
+    /**
+     * Clears the state corresponding to 'name' param
+     * @param {*} data 
+     * @param {*} name 
+     */
     handleOnRemoveFile = (data, name) => {
         this.setState({ [name]: null })
     }
 
+    /**
+     * Calculates the length of each loaded array, then opens the SummaryModal component
+     */
     showModal = () => {
         let students = this.state.studentsArray ? "students: " + this.state.studentsArray.length : "";
         let courses = this.state.coursesArray ? "courses: " + this.state.coursesArray.length : "";
@@ -39,110 +59,133 @@ class SupportPage extends React.Component {
         this.setState({ show: true, elems: elems });
     }
 
+    /**
+     * Closes the SummaryModal component
+     */
     closeModal = () => {
         this.setState({ show: false, elems: null });
     }
 
+    /**
+     * Manages the API calls for each of the type of entry loaded
+     */
     sendFiles = () => {
-        //TO_DO : in case of response ok, message then refresh
+        //TO_DO : in case of all response ok, success message 
         /*
         try {
-            let sendStudents= this.state.studentsArray ? await API.uploadList(this.state.user.userId,"students",mapCollection(this.state.studentsArray)) : null;
-            let sendCourses= this.state.coursesArray ? await API.uploadList(this.state.user.userId,"courses",mapCollection(this.state.coursesArray)) : null;
-            let sendProfessors= this.state.professorsArray ? await API.uploadList(this.state.user.userId,"teachers",mapCollection(this.state.professorsArray)) : null;
-            let sendSchedules= this.state.schedulesArray ? await API.uploadList(this.state.user.userId,"lectures",mapCollection(this.state.schedulesArray)) : null;
-            let sendEnrollments= this.state.enrollmentsArray ? await API.uploadList(this.state.user.userId,"classes",mapCollection(this.state.enrollmentsArray)) : null;
+            let sendStudents= this.state.studentsArray ? await API.uploadList(this.state.user.userId,"students",this.state.studentsArray) : null;
+            let sendCourses= this.state.coursesArray ? await API.uploadList(this.state.user.userId,"courses",this.state.coursesArray) : null;
+            let sendProfessors= this.state.professorsArray ? await API.uploadList(this.state.user.userId,"teachers",this.state.professorsArray) : null;
+            let sendSchedules= this.state.schedulesArray ? await API.uploadList(this.state.user.userId,"lectures",this.state.schedulesArray) : null;
+            let sendEnrollments= this.state.enrollmentsArray ? await API.uploadList(this.state.user.userId,"classes",this.state.enrollmentsArray) : null;
             this.setState({ show: false, elems: null,success: true });
         } catch (err) {
             this.setState({ show: false, elems: null,fetchError: true });
         }
         */
-        this.setState({ show: false, elems: null });
+        this.setState({ show: false, success: true });
     }
 
-    //la disposizione è ad uno stadio iniziale provvisorio
+    /**
+    * Sets the state refresh to 'true', forcing the page to refresh (in the render function) 
+    */
+    refreshPage = () => {
+        this.setState({ refresh: true });
+    }
+
+    /**
+     * Renders the SupportPage component
+     */
     render() {
-        return <>
-            { this.state.show &&
-                <SummaryModal sumClose={this.closeModal} send={this.sendFiles} elems={this.state.elems} />}
-            <Container fluid id="supportContainer">
-                <Row className="justify-content-md-center">
-                    <Col sm={6}>
-                        <Card>
-                            <Card.Body>
-                                <Card.Text>Hi <b>{this.props.user.firstName}</b>, welcome to setup page. If you want to add a certain type of data, click on corresponding <i>header</i>.
+        if (this.state.refresh)
+            return <Redirect to="/" />; //since the user props is still available, the user will be redirected back to this page
+        else
+            return <>
+                { this.state.show &&
+                    <SummaryModal sumClose={this.closeModal} send={this.sendFiles} elems={this.state.elems} />}
+                { this.state.success &&
+                    <SuccessModal successClose={this.refreshPage} />}
+                <Container fluid id="supportContainer">
+                    <Row className="justify-content-md-center">
+                        <Col sm={6}>
+                            <Card>
+                                <Card.Body>
+                                    <Card.Text>Hi <b>{this.props.user.firstName}</b>, welcome to setup page. If you want to add a certain type of data, click on corresponding <i>header</i>.
                                 Once you have done, click on the <i>button</i> below.</Card.Text>
-                            </Card.Body>
-                        </Card>
-                        <br />
-                    </Col>
-                </Row>
-                <Row className="justify-content-md-center">
-                    <Col sm={6}>
-                        <Accordion>
-                            <Card>
-                                <Accordion.Toggle as={Card.Header} eventKey="0">
-                                    <b>STUDENTS</b> {this.state.studentsArray ? <GoCheck size={16} /> : ""}
-                                </Accordion.Toggle>
-                                <Accordion.Collapse eventKey="0">
-                                    <Card.Body>
-                                        <CSVPanel handleOnDrop={this.handleOnDrop} handleOnError={this.handleOnError} handleOnRemoveFile={this.handleOnRemoveFile} stateName="studentsArray" elem="students" />
-                                    </Card.Body>
-                                </Accordion.Collapse>
+                                </Card.Body>
                             </Card>
-                            <Card>
-                                <Accordion.Toggle as={Card.Header} eventKey="1">
-                                    <b>COURSES</b> {this.state.coursesArray ? <GoCheck size={16} /> : ""}
-                                </Accordion.Toggle>
-                                <Accordion.Collapse eventKey="1">
-                                    <Card.Body>
-                                        <CSVPanel handleOnDrop={this.handleOnDrop} handleOnError={this.handleOnError} handleOnRemoveFile={this.handleOnRemoveFile} stateName="coursesArray" elem="courses" />
-                                    </Card.Body>
-                                </Accordion.Collapse>
-                            </Card>
-                            <Card>
-                                <Accordion.Toggle as={Card.Header} eventKey="2">
-                                    <b>PROFESSORS</b> {this.state.professorsArray ? <GoCheck size={16} /> : ""}
-                                </Accordion.Toggle>
-                                <Accordion.Collapse eventKey="2">
-                                    <Card.Body>
-                                        <CSVPanel handleOnDrop={this.handleOnDrop} handleOnError={this.handleOnError} handleOnRemoveFile={this.handleOnRemoveFile} stateName="professorsArray" elem="professors" />
-                                    </Card.Body>
-                                </Accordion.Collapse>
-                            </Card>
-                            <Card>
-                                <Accordion.Toggle as={Card.Header} eventKey="3">
-                                    <b>SCHEDULES</b> {this.state.schedulesArray ? <GoCheck size={16} /> : ""}
-                                </Accordion.Toggle>
-                                <Accordion.Collapse eventKey="3">
-                                    <Card.Body>
-                                        <CSVPanel handleOnDrop={this.handleOnDrop} handleOnError={this.handleOnError} handleOnRemoveFile={this.handleOnRemoveFile} stateName="schedulesArray" elem="schedules" />
-                                    </Card.Body>
-                                </Accordion.Collapse>
-                            </Card>
-                            <Card>
-                                <Accordion.Toggle as={Card.Header} eventKey="4">
-                                    <b>ENROLLMENTS</b> {this.state.enrollmentsArray ? <GoCheck size={16} /> : ""}
-                                </Accordion.Toggle>
-                                <Accordion.Collapse eventKey="4">
-                                    <Card.Body>
-                                        <CSVPanel handleOnDrop={this.handleOnDrop} handleOnError={this.handleOnError} handleOnRemoveFile={this.handleOnRemoveFile} stateName="enrollmentsArray" elem="enrollments" />
-                                    </Card.Body>
-                                </Accordion.Collapse>
-                            </Card>
-                        </Accordion>
-                        <br />
-                    </Col>
-                </Row>
-                <Row className="justify-content-md-center">
-                    <Button variant="warning" size="m" onClick={this.showModal}>Submit your data</Button>
-                </Row>
-            </Container>
-        </>;
+                            <br />
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-md-center">
+                        <Col sm={6}>
+                            <Accordion>
+                                <Card>
+                                    <Accordion.Toggle as={Card.Header} eventKey="0">
+                                        <b>STUDENTS</b> {this.state.studentsArray ? <GoCheck size={16} /> : ""}
+                                    </Accordion.Toggle>
+                                    <Accordion.Collapse eventKey="0">
+                                        <Card.Body>
+                                            <CSVPanel handleOnDrop={this.handleOnDrop} handleOnError={this.handleOnError} handleOnRemoveFile={this.handleOnRemoveFile} stateName="studentsArray" elem="students" />
+                                        </Card.Body>
+                                    </Accordion.Collapse>
+                                </Card>
+                                <Card>
+                                    <Accordion.Toggle as={Card.Header} eventKey="1">
+                                        <b>COURSES</b> {this.state.coursesArray ? <GoCheck size={16} /> : ""}
+                                    </Accordion.Toggle>
+                                    <Accordion.Collapse eventKey="1">
+                                        <Card.Body>
+                                            <CSVPanel handleOnDrop={this.handleOnDrop} handleOnError={this.handleOnError} handleOnRemoveFile={this.handleOnRemoveFile} stateName="coursesArray" elem="courses" />
+                                        </Card.Body>
+                                    </Accordion.Collapse>
+                                </Card>
+                                <Card>
+                                    <Accordion.Toggle as={Card.Header} eventKey="2">
+                                        <b>PROFESSORS</b> {this.state.professorsArray ? <GoCheck size={16} /> : ""}
+                                    </Accordion.Toggle>
+                                    <Accordion.Collapse eventKey="2">
+                                        <Card.Body>
+                                            <CSVPanel handleOnDrop={this.handleOnDrop} handleOnError={this.handleOnError} handleOnRemoveFile={this.handleOnRemoveFile} stateName="professorsArray" elem="professors" />
+                                        </Card.Body>
+                                    </Accordion.Collapse>
+                                </Card>
+                                <Card>
+                                    <Accordion.Toggle as={Card.Header} eventKey="3">
+                                        <b>SCHEDULES</b> {this.state.schedulesArray ? <GoCheck size={16} /> : ""}
+                                    </Accordion.Toggle>
+                                    <Accordion.Collapse eventKey="3">
+                                        <Card.Body>
+                                            <CSVPanel handleOnDrop={this.handleOnDrop} handleOnError={this.handleOnError} handleOnRemoveFile={this.handleOnRemoveFile} stateName="schedulesArray" elem="schedules" />
+                                        </Card.Body>
+                                    </Accordion.Collapse>
+                                </Card>
+                                <Card>
+                                    <Accordion.Toggle as={Card.Header} eventKey="4">
+                                        <b>ENROLLMENTS</b> {this.state.enrollmentsArray ? <GoCheck size={16} /> : ""}
+                                    </Accordion.Toggle>
+                                    <Accordion.Collapse eventKey="4">
+                                        <Card.Body>
+                                            <CSVPanel handleOnDrop={this.handleOnDrop} handleOnError={this.handleOnError} handleOnRemoveFile={this.handleOnRemoveFile} stateName="enrollmentsArray" elem="enrollments" />
+                                        </Card.Body>
+                                    </Accordion.Collapse>
+                                </Card>
+                            </Accordion>
+                            <br />
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-md-center">
+                        <Button variant="warning" size="m" onClick={this.showModal}>Submit your data</Button>
+                    </Row>
+                </Container>
+            </>;
     }
 
 }
-
+/**
+ * Returns the component to let csv files to be loaded and converted in JSON arrays
+ * @param {*} props 
+ */
 function CSVPanel(props) {
     const options = {
         header: true,
@@ -158,7 +201,10 @@ function CSVPanel(props) {
     </CSVReader>;
 }
 
-//testo provvisorio
+/**
+ * Returns the Modal component to summarize all data that will be uploaded
+ * @param {*} props 
+ */
 function SummaryModal(props) {
     return <Modal show={true} onHide={props.sumClose}>
         <Modal.Header closeButton>
@@ -186,9 +232,22 @@ function SummaryModal(props) {
     </Modal>;
 }
 
-function mapCollection(list, type) {
-    //TO_DO 
-    return;
+/**
+ * Returns the Modal component to notify the user of the opersation success
+ * @param {*} props 
+ */
+function SuccessModal(props) {
+    return <Modal show={true} onHide={props.successClose}>
+        <Modal.Header closeButton>
+        </Modal.Header>
+        <Modal.Body>
+            Operation successful!
+        </Modal.Body>
+        <Modal.Footer>
+            <Button name="close" variant="secondary" onClick={props.successClose}>Close</Button>
+        </Modal.Footer>
+    </Modal>;
 }
+
 
 export default SupportPage;
