@@ -61,6 +61,7 @@ const students2 = [
     new Student(5, "Luca", "Bianchi", "lc@email.com", "ciao5")
 ]
 
+
 /**
  * userLogin sends to server the user credentials and it returns success or failure (and the description of them)
  */
@@ -146,5 +147,28 @@ async function getStudentsByLectureId(id) {
     return students2;
 }
 
-const APIfake = { userLogin, getCoursesByStudentId, putInWaitingList, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, getCoursesByTeacherId, getLecturesByCourseIdT, getStudentsByLectureId };
+/************************* MANAGER APIFAKE ******************************/
+
+async function getStudentBySerialNumber(serialNumber) {
+    for (let s of students2)
+        if (s.studentId == serialNumber)
+            return s
+}
+
+async function getStudentBySSN(ssn) {
+    return true;
+}
+
+async function generateReportBySerialNumber(serialNumber, date) {
+    return students2
+}
+
+async function generateReportBySSN(serialNumber, date) {
+    return students2
+}
+/************************************************************************/
+const APIfake = {
+    userLogin, getCoursesByStudentId, putInWaitingList, getLecturesByCourseId, bookALecture, cancelLectureReservation,
+    getBookedLectures, getCoursesByTeacherId, getLecturesByCourseIdT, getStudentsByLectureId, getStudentBySerialNumber, getStudentBySSN, generateReportBySerialNumber, generateReportBySSN
+};
 export default APIfake;

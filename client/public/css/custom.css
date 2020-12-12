@@ -29,6 +29,17 @@
   padding-right:6.5%;
   margin-top:5%;
 }
+#containerReport{
+  align-content:center;
+  width: 800px;
+  height: 700px;
+  background-color: rgba(228, 228, 228, 0.884);
+  border-radius: 10px 10px 10px 10px;
+  padding-top: 3%;
+  padding-left: 6%;
+  padding-right:6.5%;
+  margin-top:5%;
+}
 #logout {
   position: absolute;
   right: 5%;
@@ -49,9 +60,7 @@
 .list-title {
   font-weight: 500;
 }
-<<<<<<< HEAD
 
-=======
 .buttonEvent {
   position : relative;
   left : 2%
@@ -62,5 +71,4 @@
   padding: 15px;
   margin: 10px auto;
 }
->>>>>>> 1e6edaa0f159c898973eda0355e0a58120b7947d
 
