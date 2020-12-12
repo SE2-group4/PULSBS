@@ -294,8 +294,33 @@ async function deleteLecture(Tid, Cid, Lid) {
     });
 }
 
+/************************* SUPPORT OFFICER API *************************************/
+
+/**
+* performs a POST to send a list of elements to back-end
+* @param {*} id officerId
+* @param {*} type string [students,courses,teachers,lectures,classes]
+* @param {*} list array of elements of the specified type
+*/
+async function uploadList(id, type, list) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/supportOfficers/${id}/uploads/${type}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(list),
+        }).then((response) => {
+            if (response.ok)
+                resolve();
+            else
+                reject("Server error")
+        }).catch((err) => { reject("Server cannot communicate") }); // connection errors
+    });
+}
+
 const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
-    getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture
+    getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList
 };
 export default API;

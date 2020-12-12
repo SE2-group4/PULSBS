@@ -66,9 +66,12 @@
   left : 2%
 }
 /* support page */
-.csv-container {
-  text-align: left;
-  padding: 15px;
-  margin: 10px auto;
+#supportContainer{
+  padding-top: 5%;
+}
+/* teacher page */
+.selectedText{
+  position: absolute;
+  right: 5%;
 }
 
