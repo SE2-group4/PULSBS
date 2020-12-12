@@ -849,3 +849,66 @@ const checkLectureAndCourse = function (course, lecture) {
     });
 };
 exports.checkLectureAndCourse = checkLectureAndCourse;
+
+/**
+ * insert a student into a waiting list
+ * @param {Student} student - studentId needed
+ * @param {Lecture} lecture - lectureId needed
+ * @returns {Promise} promise
+ */
+const studentPushQueue = function(student, lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `INSERT INTO WaitingList(studentId, lectureId, date) VALUES (?, ?, ?)`;
+
+        db.get(sql, [student.studentId, lecture.lectureId, (new Date()).toISOString], function(err) {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(this.changes);
+        });
+    });
+}
+exports.studentPushQueue = studentPushQueue;
+
+/**
+ * retrieve the first student from the waiting list given a lecture
+ * it is removed from the waiting list too
+ * @param {Lecture} lecture - lectureId needed
+ * @returns {Promise} promise
+ */
+const studentPopQueue = function(lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT User.* FROM User
+            JOIN WaitingList ON WaitingList.studentId = User.userId
+            WHERE WaitingList.date = (SELECT MAX(date) FROM WaitingList WHERE lectureId = ?)`;
+
+        db.get(sql, [lecture.lectureId], (err, row) => {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+            if(!row) {
+                reject(new StandardErr('Dao', StandardErr.errno.NOT_EXISTS, 'No student found', 404));
+                return;
+            }
+
+            const sqlCleaning = `DELETE FROM WaitingList WHERE userId = ? AND lectureId = ?`;
+
+            db.get(sqlCleaning, [student.studentId, lecture.lectureId], function(err) {
+                if(err) {
+                    reject(StandardErr.fromDao(err));
+                    return;
+                }
+                if(this.changes != 1) {
+                    reject(new StandardErr('Dao', StandardErr.errno.NOT_EXISTS, 'Cannot delete from waiting list', 500));
+                    return;
+                }
+
+                resolve(Student.from(row));
+            });
+        });
+    });
+}
+exports.studentPopQueue = studentPopQueue;
