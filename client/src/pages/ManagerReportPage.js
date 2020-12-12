@@ -7,8 +7,12 @@ import Form from 'react-bootstrap/Form'
 import DayPickerInput from 'react-day-picker/DayPickerInput';
 import Alert from 'react-bootstrap/Alert'
 import Table from 'react-bootstrap/Table'
+import Pagination from 'react-bootstrap/Pagination'
 import API from '../api/Api'
 import APIfake from '../api/APIfake'
+import moment from 'moment'
+import { jsPDF } from "jspdf";
+import { CSVLink } from "react-csv";
 import 'react-day-picker/lib/style.css';
 
 class ManagerReportPage extends React.Component {
@@ -22,12 +26,12 @@ class ManagerReportPage extends React.Component {
     changeTextbox = (textBoxValue) => {
         this.setState({ text: textBoxValue })
         if (this.state.filterType === "SSN") {
-            APIfake.getStudentBySSN(textBoxValue)
+            APIfake.getStudentBySSN(this.props.user.userId, textBoxValue)
                 .then((student) => this.setState({ student: student }))
                 .catch()
         }
         if (this.state.filterType === "Student ID") {
-            APIfake.getStudentBySerialNumber(textBoxValue)
+            APIfake.getStudentBySerialNumber(this.props.user.userId, textBoxValue)
                 .then((student) => this.setState({ student: student }))
                 .catch()
         }
@@ -36,28 +40,27 @@ class ManagerReportPage extends React.Component {
         this.setState({ date: date })
     }
     handleGenerateReport = () => {
-        if (this.state.filterType === "SSN") {
-            APIfake.generateReportBySSN(this.state.text, this.state.date)
-                .then((report) => this.setState({ report: report }))
-                .catch()
-        }
-        if (this.state.filterType === "Student ID") {
-            APIfake.generateReportBySerialNumber(this.state.text, this.state.date)
-                .then((report) => this.setState({ report: report }))
-                .catch()
-        }
+        APIfake.generateReport(this.props.user.userId, this.state.student.studentId, this.state.date)
+            .then((report) => this.setState({ report: report }))
+            .catch()
+
+    }
+    handleGenerateNewReport = () => {
+        this.setState({ report: null, text: "", date: new Date(), student: null, filterType: null })
+    }
+    handleCreatePdf = () => {
+        createPDF(this.state.report, this.state.student, this.state.date)
     }
     render() {
         if (!this.state.report)
             return (
                 <Container fluid id="containerReport">
                     <Row>
-                        <Col sm="3"></Col>
-                        <Alert variant="warning"><b>Select the search method:</b></Alert>
+                        <Col sm="6">
+                            <Alert variant="warning"><b>Choose a student search method:</b></Alert>
+                        </Col>
+                        <PairButtons active={this.state.filterType} selectFilter={this.selectFilter} />
                     </Row>
-                    <br></br>
-                    <Row></Row>
-                    <PairButtons active={this.state.filterType} selectFilter={this.selectFilter} />
                     <br></br>
                     <Row></Row>
                     {
@@ -74,7 +77,7 @@ class ManagerReportPage extends React.Component {
         if (this.state.report)
             return (
                 <Container>
-                    <TableReport report={this.state.report}></TableReport>
+                    <TableReport report={this.state.report} handleGenerateNewReport={this.handleGenerateNewReport} handleCreatePDF={this.handleCreatePdf}></TableReport>
                 </Container>
             )
 
@@ -82,105 +85,129 @@ class ManagerReportPage extends React.Component {
 }
 function PairButtons(props) {
     return (
-        <Row>
-            <Col sm="2"></Col>
-            <Col sm="4">
+        <>
+            <Col sm="2">
                 <Button variant="dark" size="lg" active={props.active === "SSN" ? true : false} onClick={() => props.selectFilter("SSN")}>SSN</Button>
             </Col>
             <Col>
                 <Button variant="dark" size="lg" active={props.active === "Student ID" ? true : false} onClick={() => props.selectFilter("Student ID")}>Serial Number</Button>
             </Col>
-        </Row>
+        </>
     )
 }
 
 function FormBox(props) {
     return (
-        <>
-            {props.filterType === "SSN" &&
-                <Form>
-                    <Form.Group as={Row}>
+        <Form>
+            <Form.Group as={Row}>
 
-                        <Form.Label column sm="3">Student SSN :</Form.Label>
-                        <Col>
-                            <Form.Control as="textarea" value={props.text} rows={1} onChange={(ev) => props.changeTextbox(ev.target.value)} />
-                        </Col>
+                <Form.Label column sm="3"><b>{props.filterType === "SSN" ? "Student SSN :" : "Serial Number :"}</b></Form.Label>
+                <Col>
+                    <Form.Control as="textarea" value={props.text} rows={1} onChange={(ev) => props.changeTextbox(ev.target.value)} />
+                </Col>
 
-                    </Form.Group>
-                    <Form.Group as={Row}>
-                        <Form.Label column sm="3">Date :</Form.Label><br></br>
-                        <Col>
-                            <DayPickerInput value={props.date} onDayChange={() => props.selectDate()} />
-                        </Col>
-                    </Form.Group>
-                    <Form.Label>Student selected:</Form.Label>
-                    {props.student &&
-                        <>
-                            <Form.Control disabled readOnly value={props.student.studentId + " " + props.student.firstName + " " + props.student.lastName + " " + props.student.email} /><br></br><br></br>
-                            <Button variant="warning" onClick={() => props.handleGenerateReport()}>Generate Report Tracing</Button>
-                        </>}
-                    {!props.student &&
-                        <>
-                            <Form.Control disabled readOnly value="No student matches" /><br></br><br></br>
-                            <Button variant="warning" disabled>Generate Report Tracing</Button>
-                        </>}
-
-                </Form>
+            </Form.Group>
+            <br />
+            <Form.Group as={Row}>
+                <Form.Label column sm="3"><b>Swab Date :</b></Form.Label><br></br>
+                <Col>
+                    <DayPickerInput value={props.date} onDayChange={props.selectDate} />
+                </Col>
+            </Form.Group>
+            <br />
+            <Form.Label><b>Student selected:</b></Form.Label>
+            {
+                props.student &&
+                <>
+                    <Table striped bordered hover size="sm">
+                        <thead>
+                            <tr>
+                                <th>Serial Number</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{props.student.studentId}</td>
+                                <td>{props.student.firstName}</td>
+                                <td>{props.student.lastName}</td>
+                                <td>{props.student.email}</td>
+                            </tr>
+                        </tbody>
+                    </Table>
+                    <br></br><br></br>
+                    <Button variant="warning" onClick={() => props.handleGenerateReport()}>Generate Tracing Report</Button>
+                </>
             }
-            {props.filterType === "Student ID" &&
-                <Form>
-                    <Form.Group as={Row}>
+            {
+                !props.student &&
+                <>
+                    <Form.Control disabled readOnly value="No student matches" /><br></br><br></br>
+                    <Button variant="warning" disabled>Generate Tracing Report</Button>
 
-                        <Form.Label column sm="3">Serial Number :</Form.Label>
-                        <Col>
-                            <Form.Control value={props.text} onChange={(ev) => props.changeTextbox(ev.target.value)} as="textarea" rows={1} />
-                        </Col>
 
-                    </Form.Group>
-                    <Form.Group as={Row}>
-                        <Form.Label column sm="3">Date :</Form.Label><br></br>
-                        <Col>
-                            <DayPickerInput value={props.date} onDayChange={() => props.selectDate()} />
-                        </Col>
-                    </Form.Group>
-                    <Form.Label>Student selected:</Form.Label>
-                    {props.student &&
-                        <>
-                            <Form.Control disabled readOnly value={props.student.studentId + " " + props.student.firstName + " " + props.student.lastName + " " + props.student.email} /><br></br><br></br>
-                            <Button variant="warning" onClick={() => props.handleGenerateReport()}>Generate Report Tracing</Button>
-                        </>}
-                    {!props.student &&
-                        <>
-                            <Form.Control disabled readOnly value="No student matches" /><br></br><br></br>
-                            <Button variant="warning" disabled>Generate Report Tracing</Button>
-                        </>}
-                </Form>
+                </>
             }
-        </>
+
+        </Form >
     )
 }
 
-function TableReport(props) {
-    return (
-        <>
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>Serial Number</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {props.report.map((u) => <TableEntry user={u} />)}
-                </tbody>
-            </Table>
-            <Button>Generate a new report</Button>
-            <Button>Convert to PDF</Button>
-            <Button>Convert to CSV</Button>
-        </>
-    )
+class TableReport extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = { active: 1 }
+    }
+    changePage = (number) => {
+        if (number)
+            this.setState({ active: number })
+
+    }
+    render() {
+        let nPages = Math.floor(this.props.report.length / 10) + 1;
+        console.log(nPages)
+        let items = [];
+        for (let number = 1; number <= nPages; number++) {
+            items.push(
+                <Pagination.Item key={number} active={number == this.state.active} >
+                    {number}
+                </Pagination.Item>,
+            );
+        }
+        let tableEntries = [];
+        for (let entry = (this.state.active - 1) * 10; entry <= this.state.active * 10 - 1; entry++) {
+            if (this.props.report[entry])
+                tableEntries.push(<TableEntry user={this.props.report[entry]} />)
+        }
+        return (
+            <>
+                <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>Serial Number</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tableEntries}
+                    </tbody>
+                </Table>
+                <Pagination onClick={(ev) => this.changePage(ev.target.text)}>{items}</Pagination>
+                <Row>
+                    <Col sm="6"><Button variant="warning" onClick={() => this.props.handleGenerateNewReport()}>Generate a new report</Button></Col>
+                    <Col sm="6">
+                        <Button variant="warning" onClick={() => this.props.handleCreatePDF()} id="buttonPDF">Convert to PDF</Button><br /><br />
+                        <Button variant="warning" id="buttonCSV"><CSVLink data={this.props.report} filename="Report.csv">Convert to CSV</CSVLink></Button>
+                    </Col>
+
+                </Row>
+            </>
+        )
+    }
 }
 function TableEntry(props) {
     return (
@@ -191,5 +218,21 @@ function TableEntry(props) {
             <td>{props.user.email}</td>
         </tr>
     )
+}
+
+function createPDF(report, student, date) {
+    const doc = new jsPDF();
+
+    doc.text("Report creation date :  " + moment().format("DD/MM/YYYY HH:mm"), 10, 10);
+    doc.text("Positive Student to COVID-19 : " + student.studentId + " " + student.firstName + " " + student.lastName + " " + student.email, 10, 20)
+    doc.text("Swab day : " + moment(date).format("DD/MM/YYYY"), 10, 30)
+    doc.text("List of person who had contacts with the positive student :", 10, 40)
+    let d = 50
+    report.forEach(element => {
+        doc.text(element.studentId + " " + element.firstName + " " + element.lastName + " " + element.email, 10, d)
+        d += 10
+    });
+
+    doc.save("Report_" + student.studentId + ".pdf");
 }
 export default ManagerReportPage;

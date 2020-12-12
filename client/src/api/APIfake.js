@@ -149,7 +149,7 @@ async function getStudentsByLectureId(id) {
 
 /************************* MANAGER APIFAKE ******************************/
 
-async function getStudentBySerialNumber(serialNumber) {
+async function getStudentBySerialNumber(id, serialNumber) {
     for (let s of students2)
         if (s.studentId == serialNumber)
             return s
@@ -159,16 +159,12 @@ async function getStudentBySSN(ssn) {
     return true;
 }
 
-async function generateReportBySerialNumber(serialNumber, date) {
-    return students2
-}
-
-async function generateReportBySSN(serialNumber, date) {
+async function generateReport(id, serialNumber, date) {
     return students2
 }
 /************************************************************************/
 const APIfake = {
     userLogin, getCoursesByStudentId, putInWaitingList, getLecturesByCourseId, bookALecture, cancelLectureReservation,
-    getBookedLectures, getCoursesByTeacherId, getLecturesByCourseIdT, getStudentsByLectureId, getStudentBySerialNumber, getStudentBySSN, generateReportBySerialNumber, generateReportBySSN
+    getBookedLectures, getCoursesByTeacherId, getLecturesByCourseIdT, getStudentsByLectureId, getStudentBySerialNumber, getStudentBySSN, generateReport
 };
 export default APIfake;

@@ -1,4 +1,5 @@
 import React from 'react';
+import BurgerSidebar from '../components/BurgerSidebar';
 
 class ManagerStatsPage extends React.Component {
     constructor(props) {
@@ -8,7 +9,7 @@ class ManagerStatsPage extends React.Component {
 
     render() {
         return (
-            <h1>Questa è la manager stats page</h1>
+            <BurgerSidebar />
         )
     }
 }
