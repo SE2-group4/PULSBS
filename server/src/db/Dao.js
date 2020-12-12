@@ -850,6 +850,27 @@ const checkLectureAndCourse = function (course, lecture) {
 };
 exports.checkLectureAndCourse = checkLectureAndCourse;
 
+// TODO not tested
+// added by Francesco
+/**
+ * get all courses
+ * @returns {Promise} promise
+ */
+const getAllCourses = function () {
+    return new Promise((resolve, reject) => {
+        const sql = "SELECT * FROM Course";
+
+        db.all(sql, (err, rows) => {
+            if (err) {
+                const courses = [];
+                rows.forEach(course => courses.push(Course.from(course)));
+                resolve(courses);
+            };
+        });
+    });
+}
+exports.getAllCourses = getAllCourses;
+
 /**
  * insert a student into a waiting list
  * @param {Student} student - studentId needed
