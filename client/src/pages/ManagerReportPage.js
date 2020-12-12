@@ -56,12 +56,11 @@ class ManagerReportPage extends React.Component {
             return (
                 <Container fluid id="containerReport">
                     <Row>
-                        <Col sm="3"></Col>
-                        <Alert variant="warning"><b>Select the search method:</b></Alert>
+                        <Col sm="6">
+                            <Alert variant="warning"><b>Choose a student search method:</b></Alert>
+                        </Col>
+                        <PairButtons active={this.state.filterType} selectFilter={this.selectFilter} />
                     </Row>
-                    <br></br>
-                    <Row></Row>
-                    <PairButtons active={this.state.filterType} selectFilter={this.selectFilter} />
                     <br></br>
                     <Row></Row>
                     {
@@ -86,15 +85,14 @@ class ManagerReportPage extends React.Component {
 }
 function PairButtons(props) {
     return (
-        <Row>
-            <Col sm="2"></Col>
-            <Col sm="4">
+        <>
+            <Col sm="2">
                 <Button variant="dark" size="lg" active={props.active === "SSN" ? true : false} onClick={() => props.selectFilter("SSN")}>SSN</Button>
             </Col>
             <Col>
                 <Button variant="dark" size="lg" active={props.active === "Student ID" ? true : false} onClick={() => props.selectFilter("Student ID")}>Serial Number</Button>
             </Col>
-        </Row>
+        </>
     )
 }
 
@@ -103,33 +101,57 @@ function FormBox(props) {
         <Form>
             <Form.Group as={Row}>
 
-                <Form.Label column sm="3">{props.filterType === "SSN" ? "Student SSN :" : "Serial Number :"}</Form.Label>
+                <Form.Label column sm="3"><b>{props.filterType === "SSN" ? "Student SSN :" : "Serial Number :"}</b></Form.Label>
                 <Col>
                     <Form.Control as="textarea" value={props.text} rows={1} onChange={(ev) => props.changeTextbox(ev.target.value)} />
                 </Col>
 
             </Form.Group>
+            <br />
             <Form.Group as={Row}>
-                <Form.Label column sm="3">Date :</Form.Label><br></br>
+                <Form.Label column sm="3"><b>Swab Date :</b></Form.Label><br></br>
                 <Col>
                     <DayPickerInput value={props.date} onDayChange={props.selectDate} />
                 </Col>
             </Form.Group>
-            <Form.Label>Student selected:</Form.Label>
-            {props.student &&
+            <br />
+            <Form.Label><b>Student selected:</b></Form.Label>
+            {
+                props.student &&
                 <>
-                    <Form.Control disabled readOnly value={props.student.studentId + " " + props.student.firstName + " " + props.student.lastName + " " + props.student.email} /><br></br><br></br>
-                    <Button variant="warning" onClick={() => props.handleGenerateReport()}>Generate Report Tracing</Button>
-                </>}
-            {!props.student &&
+                    <Table striped bordered hover size="sm">
+                        <thead>
+                            <tr>
+                                <th>Serial Number</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{props.student.studentId}</td>
+                                <td>{props.student.firstName}</td>
+                                <td>{props.student.lastName}</td>
+                                <td>{props.student.email}</td>
+                            </tr>
+                        </tbody>
+                    </Table>
+                    <br></br><br></br>
+                    <Button variant="warning" onClick={() => props.handleGenerateReport()}>Generate Tracing Report</Button>
+                </>
+            }
+            {
+                !props.student &&
                 <>
                     <Form.Control disabled readOnly value="No student matches" /><br></br><br></br>
-                    <Button variant="warning" disabled>Generate Report Tracing</Button>
+                    <Button variant="warning" disabled>Generate Tracing Report</Button>
 
 
-                </>}
+                </>
+            }
 
-        </Form>
+        </Form >
     )
 }
 

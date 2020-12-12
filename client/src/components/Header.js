@@ -25,7 +25,7 @@ function Header(props) {
       {props.user && props.user.type === "MANAGER" &&
         <Nav className="mr-auto">
           <Nav.Link as={Link} to={"/bookingManagerPage/stats"}><strong>Stats</strong></Nav.Link>
-          <Nav.Link as={Link} to={"/bookingManagerPage/reportTracing"}><strong>Generate a report tracing</strong></Nav.Link>
+          <Nav.Link as={Link} to={"/bookingManagerPage/reportTracing"}><strong>Generate a tracing report</strong></Nav.Link>
         </Nav>
       }
       {props.user && props.user.type === "SUPPORT" &&
