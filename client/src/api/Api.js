@@ -319,8 +319,64 @@ async function uploadList(id, type, list) {
     });
 }
 
+/************************ BOOKING MANAGER ************************************/
+
+async function getStudentBySSN(id, ssn) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/managers/${id}/students?ssn=${ssn}`).then((response) => {
+            if (response.ok) {
+                response.json()
+                    .then((obj) => { resolve(obj.map((s) => Student.from(s))); })
+                    .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
+            } else {
+                // analyze the cause of error
+                response.json()
+                    .then((obj) => { reject({ source: "Student", error: "invalid parameter error" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Student", error: "server error" }) }); // something else
+            }
+        }).catch((err) => { reject({ source: "Student", error: "server error" }) }); // connection errors
+    });
+}
+
+async function getStudentBySerialNumber(id, serialNumber) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/managers/${id}/students?serialNumber=${serialNumber}`).then((response) => {
+            if (response.ok) {
+                response.json()
+                    .then((obj) => { resolve(obj.map((s) => Student.from(s))); })
+                    .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
+            } else {
+                // analyze the cause of error
+                response.json()
+                    .then((obj) => { reject({ source: "Student", error: "invalid parameter error" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Student", error: "server error" }) }); // something else
+            }
+        }).catch((err) => { reject({ source: "Student", error: "server error" }) }); // connection errors
+    });
+}
+
+async function generateReport(id, serialNumber, date) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/managers/${id}/tracingReport/${serialNumber}?date=${date}`).then((response) => {
+            if (response.ok) {
+                response.json()
+                    .then((obj) => { resolve(obj.map((s) => Student.from(s))); })
+                    .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
+            } else {
+                // analyze the cause of error
+                response.json()
+                    .then((obj) => { reject({ source: "Student", error: "invalid parameter error" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Student", error: "server error" }) }); // something else
+            }
+        }).catch((err) => { reject({ source: "Student", error: "server error" }) }); // connection errors
+    });
+}
+
+
+/******************************************************************************/
+
 const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
-    getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList
+    getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport
 };
 export default API;

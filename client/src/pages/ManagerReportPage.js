@@ -12,7 +12,7 @@ import API from '../api/Api'
 import APIfake from '../api/APIfake'
 import moment from 'moment'
 import { jsPDF } from "jspdf";
-import { CSVLink, CSVDownload } from "react-csv";
+import { CSVLink } from "react-csv";
 import 'react-day-picker/lib/style.css';
 
 class ManagerReportPage extends React.Component {
@@ -26,12 +26,12 @@ class ManagerReportPage extends React.Component {
     changeTextbox = (textBoxValue) => {
         this.setState({ text: textBoxValue })
         if (this.state.filterType === "SSN") {
-            APIfake.getStudentBySSN(textBoxValue)
+            APIfake.getStudentBySSN(this.props.user.userId, textBoxValue)
                 .then((student) => this.setState({ student: student }))
                 .catch()
         }
         if (this.state.filterType === "Student ID") {
-            APIfake.getStudentBySerialNumber(textBoxValue)
+            APIfake.getStudentBySerialNumber(this.props.user.userId, textBoxValue)
                 .then((student) => this.setState({ student: student }))
                 .catch()
         }
@@ -40,16 +40,10 @@ class ManagerReportPage extends React.Component {
         this.setState({ date: date })
     }
     handleGenerateReport = () => {
-        if (this.state.filterType === "SSN") {
-            APIfake.generateReportBySSN(this.state.text, this.state.date)
-                .then((report) => this.setState({ report: report }))
-                .catch()
-        }
-        if (this.state.filterType === "Student ID") {
-            APIfake.generateReportBySerialNumber(this.state.text, this.state.date)
-                .then((report) => this.setState({ report: report }))
-                .catch()
-        }
+        APIfake.generateReport(this.props.user.userId, this.state.student.studentId, this.state.date)
+            .then((report) => this.setState({ report: report }))
+            .catch()
+
     }
     handleGenerateNewReport = () => {
         this.setState({ report: null, text: "", date: new Date(), student: null, filterType: null })
