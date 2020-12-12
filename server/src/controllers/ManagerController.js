@@ -57,7 +57,7 @@ function managerGetCourses(req, res) {
         });
 };
 module.exports.managerGetCourses = managerGetCourses;
-
+// TODO (implementing service)
 function managerGetStudent(req, res) {
     Manager.managerGetStudent(req.params, req.query)
         .then(function (response) {
@@ -68,6 +68,7 @@ function managerGetStudent(req, res) {
         });
 };
 module.exports.managerGetStudent = managerGetStudent;
+// TODO (implementing service)
 function managerGetReport(req, res) {
     Manager.managerGetReport(req.params, req.query)
         .then(function (response) {
