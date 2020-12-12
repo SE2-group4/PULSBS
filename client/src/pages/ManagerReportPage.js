@@ -198,9 +198,12 @@ class TableReport extends React.Component {
                 </Table>
                 <Pagination onClick={(ev) => this.changePage(ev.target.text)}>{items}</Pagination>
                 <Row>
-                    <Col><Button variant="warning" onClick={() => this.props.handleGenerateNewReport()}>Generate a new report</Button></Col>
-                    <Col><Button variant="warning" onClick={() => this.props.handleCreatePDF()} id="buttonPDF">Convert to PDF</Button></Col>
-                    <Col><Button variant="warning" id="buttonCSV"><CSVLink data={this.props.report} filename="Report.csv">Convert to CSV</CSVLink></Button></Col>
+                    <Col sm="6"><Button variant="warning" onClick={() => this.props.handleGenerateNewReport()}>Generate a new report</Button></Col>
+                    <Col sm="6">
+                        <Button variant="warning" onClick={() => this.props.handleCreatePDF()} id="buttonPDF">Convert to PDF</Button><br /><br />
+                        <Button variant="warning" id="buttonCSV"><CSVLink data={this.props.report} filename="Report.csv">Convert to CSV</CSVLink></Button>
+                    </Col>
+
                 </Row>
             </>
         )

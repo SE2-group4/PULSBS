@@ -74,4 +74,11 @@
   position: absolute;
   right: 5%;
 }
-
+ #buttonPDF{
+   position : absolute;
+   right : 0%;
+ }
+ #buttonCSV{
+  position : absolute;
+  right : 0%;
+ }
