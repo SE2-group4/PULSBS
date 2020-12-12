@@ -17,6 +17,8 @@ const Lecture = require("./../entities/Lecture.js");
 const Course = require("./../entities/Course.js");
 const Email = require("./../entities/Email.js");
 const EmailQueue = require("./../entities/EmailQueue.js");
+const Booking = require("./../entities/Booking.js");
+const Class = require("./../entities/Class.js");
 const EmailType = require("./../entities/EmailType.js");
 const emailService = require("./../services/EmailService.js");
 const { StandardErr } = require("./../utils/utils.js");
@@ -126,9 +128,9 @@ exports.login = login;
  */
 const addBooking = function (student, lecture) {
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO Booking(studentId, lectureId) VALUES (?, ?)`;
+        const sql = `INSERT INTO Booking(studentId, lectureId) VALUES (?, ?, ?)`;
 
-        db.run(sql, [student.studentId, lecture.lectureId], function (err) {
+        db.run(sql, [student.studentId, lecture.lectureId, Booking.BookingType.UNBOOKED], function (err) {
             if (err) {
                 if (err.errno == 19)
                     err = StandardErr.new("Dao", StandardErr.errno.ALREADY_PRESENT, "The lecture was already booked");
@@ -151,9 +153,9 @@ exports.addBooking = addBooking;
  */
 const deleteBooking = function (student, lecture) {
     return new Promise((resolve, reject) => {
-        const sql = `DELETE FROM Booking WHERE studentId = ? AND lectureId = ?`;
+        const sql = `UPDATE Booking SET status = ? WHERE studentId = ? AND lectureId = ?`;
 
-        db.run(sql, [student.studentId, lecture.lectureId], function (err) {
+        db.run(sql, [Booking.BookingType.UNBOOKED, student.studentId, lecture.lectureId], function (err) {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
