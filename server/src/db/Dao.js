@@ -112,7 +112,7 @@ const getUserById = function (user) {
             if (error) {
                 reject(error);
                 return;
-            };
+            }
 
             resolve(retUser);
         });
@@ -138,7 +138,7 @@ const login = function (user) {
             if (error) {
                 reject(error);
                 return;
-            };
+            }
 
             resolve(retUser);
         });
