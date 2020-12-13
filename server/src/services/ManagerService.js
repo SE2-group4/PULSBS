@@ -5,6 +5,7 @@ const Lecture = require("../entities/Lecture");
 const db = require("../db/Dao");
 const { ResponseError } = require("../utils/ResponseError");
 const { convertToNumbers, convertToBooleans } = require("../utils/converter");
+const { StandardErr } = require("../utils/utils");
 const Student = require("../entities/Student");
 
 const MODULE_NAME = "ManagerService";
@@ -195,8 +196,25 @@ var statsParams = {
     ATTENDACES: "boolean",
 };
 
+/**
+ * get a student by his SSN or serialNumber
+ * @param {*} param 
+ * @param {*} query 
+ */
 async function managerGetStudent({ managerId }, query = { ssn, serialNumber }) {
-
+    if (query.serialNumber) {
+        const serialNumber = Number(query.serialNumber);
+        const student = new Student(serialNumber);
+        const retStudent = await dao.getUserById(student);
+        return retStudent;
+    } else if (query.ssn) {
+        const serialNumber = Number(query.serialNumber);
+        const student = new Student(serialNumber);
+        const retStudent = await dao.getUserBySsn(student);
+        return retStudent;
+    } else {
+        throw new StandardErr('Manager service', StandardErr.errno.GENERIC, 'No query used (expected at least one)', 500);
+    }
 }
 
 /**
