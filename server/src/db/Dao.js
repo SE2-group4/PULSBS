@@ -1023,17 +1023,13 @@ exports.managerGetReport = managerGetReport;
  * @param {User|Teacher|Student|Manager|Support} user 
  */
 const getUserBySsn = function (user) {
-    let userId = user.userId;
-    if (user.teacherId) userId = user.teacherId;
-    else if (user.studentId) userId = user.studentId;
-    else if (user.managerId) userId = user.managerId;
-    else if (user.supportId) userId = user.supportId;
+    let ssn = user.ssn;
 
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User WHERE ssn = ?`;
-        db.get(sql, [userId], (err, row) => {
+        db.get(sql, [ssn], (err, row) => {
             if (err || !row) {
-                reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "incorrect userId"));
+                reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "incorrect ssn"));
                 return;
             }
 
