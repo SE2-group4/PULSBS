@@ -201,7 +201,7 @@ var statsParams = {
  * @param {*} param 
  * @param {*} query 
  */
-async function managerGetStudent({ managerId }, query = { ssn, serialNumber }) {
+exports.managerGetStudent = async function managerGetStudent({ managerId }, query = { ssn, serialNumber }) {
     if (query.serialNumber) {
         const serialNumber = Number(query.serialNumber);
         const student = new Student(serialNumber);
@@ -222,7 +222,7 @@ async function managerGetStudent({ managerId }, query = { ssn, serialNumber }) {
  * @param {Object} param - managerId, serialNumber
  * @param {Object} query - data (optional)
  */
-async function managerGetReport({ managerId, serialNumber }, query) {
+exports.managerGetReport = async function managerGetReport({ managerId, serialNumber }, query) {
     managerId = Number(managerId);
     serialNumber = Number(serialNumber);
     date = query.date ? new Date(query.date) : new Date();
