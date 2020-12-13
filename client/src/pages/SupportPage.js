@@ -9,12 +9,13 @@ import Modal from 'react-bootstrap/Modal';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import { GoCheck } from 'react-icons/go';
-//import API from '../api/Api';
+import API from '../api/Api';
 
 class SupportPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = { show: null, success: false, refresh: false };
+        this.sendFiles = this.sendFiles.bind(this);
     }
 
     /**
@@ -69,16 +70,21 @@ class SupportPage extends React.Component {
     /**
      * Manages the API calls for each of the type of entry loaded
      */
-    sendFiles = () => {
+    async sendFiles() {
         try {
-            this.state.studentsArray ? await API.uploadList(this.state.user.userId, "students", this.state.studentsArray) : null;
-            this.state.coursesArray ? await API.uploadList(this.state.user.userId, "courses", this.state.coursesArray) : null;
-            this.state.professorsArray ? await API.uploadList(this.state.user.userId, "teachers", this.state.professorsArray) : null;
-            this.state.schedulesArray ? await API.uploadList(this.state.user.userId, "lectures", this.state.schedulesArray) : null;
-            this.state.enrollmentsArray ? await API.uploadList(this.state.user.userId, "classes", this.state.enrollmentsArray) : null;
+            if (this.state.studentsArray)
+                await API.uploadList(this.state.user.userId, "students", this.state.studentsArray);
+            if (this.state.coursesArray)
+                await API.uploadList(this.state.user.userId, "courses", this.state.coursesArray);
+            if (this.state.professorsArray)
+                await API.uploadList(this.state.user.userId, "teachers", this.state.professorsArray);
+            if (this.state.schedulesArray)
+                await API.uploadList(this.state.user.userId, "lectures", this.state.schedulesArray);
+            if (this.state.enrollmentsArray)
+                await API.uploadList(this.state.user.userId, "classes", this.state.enrollmentsArray);
             this.setState({ show: false, elems: null, success: true });
         } catch (err) {
-            this.setState({ show: false, elems: null, fetchError: true });
+            this.setState({ show: false, elems: null, fetchError: err.errorMsg });
         }
     }
 
