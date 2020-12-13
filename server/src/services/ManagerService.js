@@ -201,13 +201,12 @@ exports.managerGetStudent = async function managerGetStudent({ managerId }, quer
     if (query.serialNumber) {
         const serialNumber = Number(query.serialNumber);
         const student = new Student(serialNumber);
-        const retStudent = await dao.getUserById(student);
+        const retStudent = await db.getUserById(student);
         return retStudent;
     } else if (query.ssn) {
-        const ssn = Number(query.serialNumber);
         const student = new Student();
-        student.ssn = ssn;
-        const retStudent = await dao.getUserBySsn(student);
+        student.ssn = query.ssn;
+        const retStudent = await db.getUserBySsn(student);
         return retStudent;
     } else {
         throw new StandardErr(
