@@ -127,9 +127,33 @@ controller.get('/:studentId/bookings', [
     if(toDate.isValid())
         periodOfTime.to = toDate;
 
-    const studentId = Number(req.params.studentId, periodOfTime);
+    const studentId = Number(req.params.studentId);
     service.studentGetBookings(studentId)
         .then((lectures) => res.status(200).json(lectures).end())
+        .catch((err) => res.status(err.statusCode).json(err).end());
+});
+
+/**
+ * insert a student into the waiting list
+ */
+controller.get('/:studentId/courses/:courseId/lectures/:lectureId/queue', [
+        check('studentId').isInt(),
+        check('courseId').isInt(),
+        check('lectureId').isInt()
+    ], (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.status(400).json(utils.toStandard(errors, 400)).end();
+        return;
+    }
+
+    const studentId = Number(req.params.studentId);
+    const courseId = Number(req.params.courseId);
+    const lectureId = Number(req.params.lectureId);
+
+    service.studentPushQueue(studentId, courseId, lectureId)
+        .then((retVal) => res.status(200).json(lectures).end())
         .catch((err) => res.status(err.statusCode).json(err).end());
 });
 

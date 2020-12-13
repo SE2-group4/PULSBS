@@ -17,6 +17,8 @@ const Lecture = require("./../entities/Lecture.js");
 const Course = require("./../entities/Course.js");
 const Email = require("./../entities/Email.js");
 const EmailQueue = require("./../entities/EmailQueue.js");
+const Booking = require("./../entities/Booking.js");
+const Class = require("./../entities/Class.js");
 const EmailType = require("./../entities/EmailType.js");
 const emailService = require("./../services/EmailService.js");
 const { StandardErr } = require("./../utils/utils.js");
@@ -126,9 +128,9 @@ exports.login = login;
  */
 const addBooking = function (student, lecture) {
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO Booking(studentId, lectureId) VALUES (?, ?)`;
+        const sql = `INSERT INTO Booking(studentId, lectureId) VALUES (?, ?, ?)`;
 
-        db.run(sql, [student.studentId, lecture.lectureId], function (err) {
+        db.run(sql, [student.studentId, lecture.lectureId, Booking.BookingType.UNBOOKED], function (err) {
             if (err) {
                 if (err.errno == 19)
                     err = StandardErr.new("Dao", StandardErr.errno.ALREADY_PRESENT, "The lecture was already booked");
@@ -151,9 +153,9 @@ exports.addBooking = addBooking;
  */
 const deleteBooking = function (student, lecture) {
     return new Promise((resolve, reject) => {
-        const sql = `DELETE FROM Booking WHERE studentId = ? AND lectureId = ?`;
+        const sql = `UPDATE Booking SET status = ? WHERE studentId = ? AND lectureId = ?`;
 
-        db.run(sql, [student.studentId, lecture.lectureId], function (err) {
+        db.run(sql, [Booking.BookingType.UNBOOKED, student.studentId, lecture.lectureId], function (err) {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
@@ -847,3 +849,90 @@ const checkLectureAndCourse = function (course, lecture) {
     });
 };
 exports.checkLectureAndCourse = checkLectureAndCourse;
+
+// TODO not tested
+// added by Francesco
+/**
+ * get all courses
+ * @returns {Promise} promise
+ */
+const getAllCourses = function () {
+    return new Promise((resolve, reject) => {
+        const sql = "SELECT * FROM Course";
+
+        db.all(sql, (err, rows) => {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            };
+
+            const courses = [];
+            rows.forEach(course => courses.push(Course.from(course)));
+            resolve(courses);
+        });
+    });
+}
+exports.getAllCourses = getAllCourses;
+
+/**
+ * insert a student into a waiting list
+ * @param {Student} student - studentId needed
+ * @param {Lecture} lecture - lectureId needed
+ * @returns {Promise} promise
+ */
+const studentPushQueue = function(student, lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `INSERT INTO WaitingList(studentId, lectureId, date) VALUES (?, ?, ?)`;
+
+        db.get(sql, [student.studentId, lecture.lectureId, (new Date()).toISOString], function(err) {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(this.changes);
+        });
+    });
+}
+exports.studentPushQueue = studentPushQueue;
+
+/**
+ * retrieve the first student from the waiting list given a lecture
+ * it is removed from the waiting list too
+ * @param {Lecture} lecture - lectureId needed
+ * @returns {Promise} promise
+ */
+const studentPopQueue = function(lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT User.* FROM User
+            JOIN WaitingList ON WaitingList.studentId = User.userId
+            WHERE WaitingList.date = (SELECT MAX(date) FROM WaitingList WHERE lectureId = ?)`;
+
+        db.get(sql, [lecture.lectureId], (err, row) => {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+            if(!row) {
+                reject(new StandardErr('Dao', StandardErr.errno.NOT_EXISTS, 'No student found', 404));
+                return;
+            }
+
+            const sqlCleaning = `DELETE FROM WaitingList WHERE userId = ? AND lectureId = ?`;
+
+            db.get(sqlCleaning, [student.studentId, lecture.lectureId], function(err) {
+                if(err) {
+                    reject(StandardErr.fromDao(err));
+                    return;
+                }
+                if(this.changes != 1) {
+                    reject(new StandardErr('Dao', StandardErr.errno.NOT_EXISTS, 'Cannot delete from waiting list', 500));
+                    return;
+                }
+
+                resolve(Student.from(row));
+            });
+        });
+    });
+}
+exports.studentPopQueue = studentPopQueue;

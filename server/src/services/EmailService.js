@@ -4,11 +4,23 @@ const nodemailer = require("nodemailer");
 const defaultTemplates = {
     LESSON_CANCELLED: {
         subject: "Course {0} - LECTURE CANCELLED",
-        message: "Dear student,\nyour lecture scheduled for {0} has been cancelled.",
+        message: "Dear student,\nyour lecture scheduled for {0} has been cancelled.\n",
     },
     LESSON_UPDATE_DELIVERY: {
         subject: "Course {0} - LECTURE UPDATE",
-        message: "Dear student,\nyour lecture scheduled for {0} has been switched to {1} mode.",
+        message: "Dear student,\nyour lecture scheduled for {0} has been switched to {1} mode.\n",
+    },
+    STUDENT_NEW_BOOKING: {
+        subject: "Course {0} - LECTURE BOOKED",
+        message: "Dear student,\n a seat your lecture scheduled for {0} at {1} in class {2} has been correctly booked.\n",
+    },
+    STUDENT_PUSH_QUEUE: {
+        subject: "Course {0} - INSERTED INTO WAITING LIST",
+        message: "Dear student,\n as no more seats are available for the lecture of {0} at {1} you have been inserted into a waiting list.\n",
+    },
+    STUDENT_POP_QUEUE: {
+        subject: "Course {0} - TAKEN FROM THE WAITING LIST",
+        message: "Dear student,\noyu have been picked from the waiting list for the lecture scheduled for {0} at {1} in class {2}. You seat has been properly booked.\n",
     },
 };
 
