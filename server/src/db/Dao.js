@@ -22,6 +22,7 @@ const Class = require("./../entities/Class.js");
 const EmailType = require("./../entities/EmailType.js");
 const emailService = require("./../services/EmailService.js");
 const { StandardErr } = require("./../utils/utils.js");
+const User = require("../entities/User.js");
 
 let db = null;
 
@@ -971,17 +972,47 @@ exports.studentPopQueue = studentPopQueue;
  */
 const managerGetReport = function(student, date) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT User.* FROM User
+        const sqlStudents = `SELECT User.* FROM User
             JOIN Booking ON Booking.studentId = User.userId
+            JOIN Lecture ON Lecture.lectureId = Booking.lectureId
             WHERE Booking.lectureId IN (
                 SELECT Booking.lectureId FROM Booking
                 JOIN User ON User.userId = Booking.studentId
                 WHERE Booking.studentId = ? AND Booking.status = ?
-                    AND DATETIME(Lecture.startingDate) <= 
-            `;
+                    AND DATETIME(Lecture.startingDate, 'start of day') >= DATETIME(?, '-14 day', 'start of day')
+                    AND DATETIME(Lecture.startingDate, 'start of day') <= DATETIME(?, '+14 day', 'start of day')
+                )`;
+        const sqlTeachers = `SELECT User.* FROM User
+            JOIN TeacherCourse ON TeacherCourse.teacherId = User.userId
+            JOIN Lecture ON Lecture.courseId = TeacherCourse.courseId
+            WHERE Lecture.lectureId IN (
+                SELECT Booking.lectureId FROM Booking
+                JOIN User ON User.userId = Booking.studentId
+                WHERE Booking.studentId = ? AND Booking.status = ?
+                    AND DATETIME(Lecture.startingDate, 'start of day') >= DATETIME(?, '-14 day', 'start of day')
+                    AND DATETIME(Lecture.startingDate, 'start of day') <= DATETIME(?, '+14 day', 'start of day')
+                )`;
 
-        db.all(sql, [student.studentId, date], (err, rows) => {
-            
+        date = date ? new Date(date) : new Date();
+
+        db.all(sqlStudents, [student.studentId, Booking.BookingType.BOOKED, date.toISOString(), date.toISOString()], (err, rows) => {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+            const students = rows.map((row) => User.from(row));
+
+            db.all(sqlTeachers, [student.studentId, Booking.BookingType.BOOKED, date.toISOString(), date.toISOString()], (err, rows) => {
+                if(err) {
+                    reject(StandardErr.fromDao(err));
+                    return;
+                }
+                const teachers = rows.map((row) => User.from(row));
+                const users = students.concat(teachers);
+
+                resolve(users);
+            });
+
         });
     });
 }

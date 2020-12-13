@@ -14,10 +14,11 @@ class Student extends User {
      * @param {String} firstName 
      * @param {String} lastName 
      * @param {String} email 
-     * @param {String} password 
+     * @param {String} password
+     * @param {String} ssn
      */
-    constructor(studentId = -1, firstName = null, lastName = null, email = null, password = null) {
-        super(studentId, firstName, lastName, email, password);
+    constructor(studentId = -1, firstName = null, lastName = null, email = null, password = null, ssn = null) {
+        super(studentId, firstName, lastName, email, password, ssn);
         this.studentId = studentId;
     }
 

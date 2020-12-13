@@ -13,13 +13,15 @@ class User {
      * @param {String} lastName 
      * @param {String} email 
      * @param {String} password 
+     * @param {String} snn
      */
-    constructor(userId = -1, firstName = null, lastName = null, email = null, password = null) {
+    constructor(userId = -1, firstName = null, lastName = null, email = null, password = null, snn = null) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.ssn = ssn;
     }
 
     /**
