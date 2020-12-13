@@ -862,10 +862,13 @@ const getAllCourses = function () {
 
         db.all(sql, (err, rows) => {
             if (err) {
-                const courses = [];
-                rows.forEach(course => courses.push(Course.from(course)));
-                resolve(courses);
+                reject(StandardErr.fromDao(err));
+                return;
             };
+
+            const courses = [];
+            rows.forEach(course => courses.push(Course.from(course)));
+            resolve(courses);
         });
     });
 }
