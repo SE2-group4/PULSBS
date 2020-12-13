@@ -404,69 +404,6 @@ const getCourseByLecture = function (lecture) {
 exports.getCourseByLecture = getCourseByLecture;
 
 /**
- * crea a new booking email for a student
- * @param {Student} student - studentId and email needed
- * @param {Lecture} lecture - lectureId, courseId and date needed
- * @returns {Promise} promise
- * @deprecated
- */
-const _createStudentBookingEmail = function (student, lecture) {
-    return new Promise((resolve, reject) => {
-        getCourseByLecture(lecture).then((course) => {
-            const email = new Email(undefined, systemUser, student, new Date(), EmailType.STUDENT_NEW_BOOKING);
-
-            emailService
-                .sendConfirmationBookingEmail(student.email, course.description, lectures.date.toISOString())
-                .then(
-                    addEmail(email)
-                        .then(() => resolve)
-                        .catch((err) => reject(err))
-                )
-                .catch((err) => reject(err));
-        });
-    });
-};
-exports._createStudentBookingEmail = _createStudentBookingEmail;
-
-/**
- * create a new email to inform a teacher about students that will attend his/her lecture
- * @param {Teacher} teacher
- * @param {Lecture} lecture
- * @returns {Promise} promise
- * @deprecated
- */
-const _createTeacherBookingsEmail = function (teacher, lecture) {
-    return new Promise((resolve, reject) => {
-        getCourseByLecture(lecture).then((course) => {
-            getStudentsByLecture(lecture).then((students) => {
-                const email = new Email(
-                    undefined,
-                    systemUser,
-                    teacher,
-                    new Date(),
-                    EmailType.TEACHER_ATTENDING_STUDENTS
-                );
-
-                emailService
-                    .sendStudentNumberEmail(
-                        teacher.email,
-                        course.description,
-                        lecture.date.toISOString(),
-                        students.length
-                    )
-                    .then(
-                        addEmail(email)
-                            .then(() => resolve)
-                            .catch((err) => reject(err))
-                    )
-                    .catch((err) => reject(err));
-            });
-        });
-    });
-};
-exports._createTeacherBookingsEmail = _createTeacherBookingsEmail;
-
-/**
  * get the current academic year
  * based on the server time
  * @returns {Number} year
