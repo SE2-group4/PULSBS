@@ -208,8 +208,9 @@ exports.managerGetStudent = async function managerGetStudent({ managerId }, quer
         const retStudent = await dao.getUserById(student);
         return retStudent;
     } else if (query.ssn) {
-        const serialNumber = Number(query.serialNumber);
-        const student = new Student(serialNumber);
+        const ssn = Number(query.serialNumber);
+        const student = new Student();
+        student.ssn = ssn;
         const retStudent = await dao.getUserBySsn(student);
         return retStudent;
     } else {
