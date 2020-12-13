@@ -4,6 +4,7 @@ const Course = require("../entities/Course");
 const Lecture = require("../entities/Lecture");
 const db = require("../db/Dao");
 const { ResponseError } = require("../utils/ResponseError");
+const { convertToNumbers, convertToBooleans } = require("../utils/converter");
 
 const MODULE_NAME = "ManagerService";
 const errno = ResponseError.errno;
@@ -140,32 +141,6 @@ async function isCourseMatchLecture(cId, lId) {
 
 function genResponseError(errno, error) {
     return new ResponseError(MODULE_NAME, errno, error);
-}
-
-function convertToNumbers(custNumbers) {
-    for (const [name, num] of Object.entries(custNumbers)) {
-        if (!isNaN(num)) {
-            custNumbers[name] = Number(num);
-        } else {
-            return { error: { [name]: num } };
-        }
-    }
-
-    return custNumbers;
-}
-
-function convertToBooleans(custBooleans) {
-    for (const [name, value] of Object.entries(custBooleans)) {
-        custBooleans[name] = convertToBoolean(value);
-    }
-
-    return custBooleans;
-}
-
-function convertToBoolean(value) {
-    if (value === "true") return true;
-    else if (value === "false") return false;
-    else return undefined;
 }
 
 /**

@@ -1,7 +1,6 @@
 const utils = require("../utils/writer");
 const express = require("express");
 const Manager = require("../services/ManagerService");
-const { Duplex } = require("nodemailer/lib/xoauth2");
 const router = express.Router();
 
 router.get("/:managerId/courses/:courseId/lectures/:lectureId", managerGetCourseLecture);
