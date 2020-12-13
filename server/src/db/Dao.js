@@ -906,7 +906,7 @@ const studentPopQueue = function(lecture) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User
             JOIN WaitingList ON WaitingList.studentId = User.userId
-            WHERE WaitingList.date = (SELECT MAX(date) FROM WaitingList WHERE lectureId = ?)`;
+            WHERE WaitingList.date = (SELECT MIN(DATETIME(date)) FROM WaitingList WHERE lectureId = ?)`;
 
         db.get(sql, [lecture.lectureId], (err, row) => {
             if(err) {
