@@ -99,6 +99,6 @@ function isBoolean(value) {
  */
 function isObjectEmpty(obj) {
     return Object.keys(obj).length === 0;
-:
+};
 
 module.exports = { convertToNumbers, convertToBooleans, isObjectEmpty };
