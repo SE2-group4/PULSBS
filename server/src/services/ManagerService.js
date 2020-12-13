@@ -4,14 +4,13 @@ const Course = require("../entities/Course");
 const Lecture = require("../entities/Lecture");
 const db = require("../db/Dao");
 const { ResponseError } = require("../utils/ResponseError");
-const { convertToNumbers, convertToBooleans } = require("../utils/converter");
+const { convertToNumbers, convertToBooleans, isObjectEmpty } = require("../utils/converter");
 const { StandardErr } = require("../utils/utils");
 const Student = require("../entities/Student");
 
 const MODULE_NAME = "ManagerService";
 const errno = ResponseError.errno;
 
-// working
 exports.managerGetCourseLecture = async function managerGetCourseLecture(
     { managerId, courseId, lectureId },
     query = {}
@@ -40,7 +39,7 @@ exports.managerGetCourseLecture = async function managerGetCourseLecture(
     const { bookings, cancellations, attendaces } = convertToBooleans(query);
 
     const lecture = await db.getLectureById(new Lecture(lId));
-    const lectureWithStats = addStatsToLecture(lecture, { bookings, cancellations, attendaces });
+    const [lectureWithStats] = await getLecturesWithStats([lecture], { bookings, cancellations, attendaces });
 
     return lectureWithStats;
 };
@@ -66,7 +65,7 @@ exports.managerGetCourseLectures = async function managerGetCourseLectures({ man
     const { bookings, cancellations, attendaces } = convertToBooleans(query);
 
     const lectures = await db.getLecturesByCourse(new Course(cId));
-    const lectureWithStats = getStatsForLectures(lectures, { bookings, cancellations, attendaces });
+    const lectureWithStats = getLecturesWithStats(lectures, { bookings, cancellations, attendaces });
 
     return lectureWithStats;
 };
@@ -80,21 +79,22 @@ exports.managerGetCourses = async function managerGetCourses({ managerId }, quer
     }
 
     const courses = await db.getAllCourses();
+    return courses;
 
-    const coursesWithLectures = {};
+    //const coursesWithLectures = {};
 
-    await Promise.all(
-        courses.map(async (course) => {
-            const copyQuery = Object.assign({}, query);
-            const lecturesPlusStats = await exports.managerGetCourseLectures(
-                { managerId, courseId: course.courseId },
-                copyQuery
-            );
-            coursesWithLectures[course.courseId] = lecturesPlusStats;
-        })
-    );
+    //await Promise.all(
+    //    courses.map(async (course) => {
+    //        const copyQuery = Object.assign({}, query);
+    //        const lecturesPlusStats = await exports.managerGetCourseLectures(
+    //            { managerId, courseId: course.courseId },
+    //            copyQuery
+    //        );
+    //        coursesWithLectures[course.courseId] = lecturesPlusStats;
+    //    })
+    //);
 
-    return coursesWithLectures;
+    //return coursesWithLectures;
 };
 
 async function addStatsToLecture(lecture, { bookings, cancellations, attendaces }) {
@@ -119,10 +119,6 @@ async function addStatsToLecture(lecture, { bookings, cancellations, attendaces 
 async function getNumBookingsOfLecture(lecture) {
     const numBookings = await db.getNumBookingsOfLecture(lecture);
     return numBookings;
-}
-
-function isObjectEmpty(obj) {
-    return Object.keys(obj).length === 0;
 }
 
 // TODO
@@ -179,7 +175,7 @@ function isBoolean(value) {
     return value === "true" || value === "false";
 }
 
-async function getStatsForLectures(lectures, { bookings, cancellations, attendaces }) {
+async function getLecturesWithStats(lectures, { bookings, cancellations, attendaces }) {
     const lecturesWithStats = await Promise.all(
         lectures.map(async (lecture) => {
             const lectPlusStats = await addStatsToLecture(lecture, { bookings, cancellations, attendaces });
@@ -198,8 +194,8 @@ var statsParams = {
 
 /**
  * get a student by his SSN or serialNumber
- * @param {*} param 
- * @param {*} query 
+ * @param {*} param
+ * @param {*} query
  */
 exports.managerGetStudent = async function managerGetStudent({ managerId }, query = { ssn, serialNumber }) {
     if (query.serialNumber) {
@@ -214,9 +210,14 @@ exports.managerGetStudent = async function managerGetStudent({ managerId }, quer
         const retStudent = await dao.getUserBySsn(student);
         return retStudent;
     } else {
-        throw new StandardErr('Manager service', StandardErr.errno.GENERIC, 'No query used (expected at least one)', 500);
+        throw new StandardErr(
+            "Manager service",
+            StandardErr.errno.GENERIC,
+            "No query used (expected at least one)",
+            500
+        );
     }
-}
+};
 
 /**
  * get the list of students who got a contact with a specific student
@@ -231,4 +232,4 @@ exports.managerGetReport = async function managerGetReport({ managerId, serialNu
     const student = new Student(serialNumber);
     const students = await db.managerGetReport(student, date);
     return students;
-}
+};

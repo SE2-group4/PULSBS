@@ -92,4 +92,13 @@ function isBoolean(value) {
     return value === true || value === false;
 }
 
-module.exports = { convertToNumbers, convertToBooleans };
+/**
+ * check if object is empty 
+ * @param  {Any} value
+ * @returns {Boolean} result of comparison
+ */
+function isObjectEmpty(obj) {
+    return Object.keys(obj).length === 0;
+}
+
+module.exports = { convertToNumbers, convertToBooleans, isObjectEmpty };
