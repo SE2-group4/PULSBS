@@ -6,6 +6,7 @@ const db = require("../db/Dao");
 const { ResponseError } = require("../utils/ResponseError");
 const { convertToNumbers, convertToBooleans } = require("../utils/converter");
 const { StandardErr } = require("../utils/utils");
+const Student = require("../entities/Student");
 
 const MODULE_NAME = "ManagerService";
 const errno = ResponseError.errno;
@@ -216,6 +217,17 @@ async function managerGetStudent({ managerId }, query = { ssn, serialNumber }) {
     }
 }
 
-async function managerGetReport({ managerId, serialNumber }, query = { date }) {
+/**
+ * get the list of students who got a contact with a specific student
+ * @param {Object} param - managerId, serialNumber
+ * @param {Object} query - data (optional)
+ */
+async function managerGetReport({ managerId, serialNumber }, query) {
+    managerId = Number(managerId);
+    serialNumber = Number(serialNumber);
+    date = query.date ? new Date(query.date) : new Date();
 
+    const student = new Student(serialNumber);
+    const students = await db.trackContacts(student, date);
+    return students;
 }

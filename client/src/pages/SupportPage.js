@@ -175,13 +175,14 @@ class SupportPage extends React.Component {
                         </Col>
                     </Row>
                     <Row className="justify-content-md-center">
-                        <Button variant="warning" size="m" onClick={this.showModal}>Submit your data</Button>
+                        <Button variant="warning" size="m" data-testid="submit-button" onClick={this.showModal}>Submit your data</Button>
                     </Row>
                 </Container>
             </>;
     }
 
 }
+
 /**
  * Returns the component to let csv files to be loaded and converted in JSON arrays
  * @param {*} props 
@@ -216,18 +217,14 @@ function SummaryModal(props) {
                 <ul>
                     {props.elems.map((e) => {
                         if (e)
-                            return <>
-                                <li><b>{e}</b></li>
-                            </>;
-                        else
-                            return <></>;
+                            return <li key={e}><b>{e}</b></li>;
                     })}
                 </ul><br />
                 Do you want to upload them?</>}
         </Modal.Body>
         <Modal.Footer>
-            {props.elems.length === 0 && <Button name="close" variant="secondary" onClick={props.sumClose}>Close</Button>}
-            {props.elems.length !== 0 && <><Button name="yes" variant="secondary" onClick={props.send}>Yes</Button><Button name="no" variant="secondary" onClick={props.sumClose}>No</Button></>}
+            {props.elems.length === 0 && <Button name="close" data-testid="sum-close" variant="secondary" onClick={props.sumClose}>Close</Button>}
+            {props.elems.length !== 0 && <><Button name="yes" data-testid="sum-yes" variant="secondary" onClick={props.send}>Yes</Button><Button name="no" data-testid="sum-no" variant="secondary" onClick={props.sumClose}>No</Button></>}
         </Modal.Footer>
     </Modal>;
 }
@@ -244,7 +241,7 @@ function SuccessModal(props) {
             Operation successful!
         </Modal.Body>
         <Modal.Footer>
-            <Button name="close" variant="secondary" onClick={props.successClose}>Close</Button>
+            <Button name="close" data-testid="success-close" variant="secondary" onClick={props.successClose}>Close</Button>
         </Modal.Footer>
     </Modal>;
 }
