@@ -30,6 +30,7 @@ const suite = function () {
 
         let wrongLecture;
         let wrongCourse;
+        let wrongStudent;
 
         before(function (done) {
             done();
@@ -50,6 +51,7 @@ const suite = function () {
             course3 = new Course(3);
             emailQueue1 = new EmailQueue(1);
 
+            wrongStudent = new Student(-1);
             wrongLecture = new Lecture(-1, -1);
             wrongCourse = new Course(-1);
 
@@ -206,7 +208,6 @@ const suite = function () {
             it('non existing student should reject the request', function (done) {
                 dao.deleteBooking(-1, lecture1)
                     .then((modifiedRows) => {
-                        console.log(modifiedRows);
                         assert.strictEqual(modifiedRows, 0, 'Not booking should be deleted');
                         done()
                     })
@@ -565,6 +566,42 @@ const suite = function () {
             });
         })
 
+        describe('managerGetReport', function () {
+            it('correct params should return the list of users', function (done) {
+                dao.managerGetReport(student1)
+                    .then((users) => {
+                        console.log(users);
+                        assert.strictEqual(users.length, 2, 'Wrong number of users');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('not existing student params should return an empty list', function (done) {
+                dao.managerGetReport(wrongStudent)
+                    .then((users) => {
+                        assert.strictEqual(users.length, 0, 'Wrong number of users');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('getClassByLecture', function () {
+            it('correct params should return the class', function (done) {
+                dao.getClassByLecture(lecture1)
+                    .then((currClass) => {
+                        assert.strictEqual(currClass.classId, 1, 'Wrong class retrieved');
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('non existing lecture should throw error', function (done) {
+                dao.getClassByLecture(wrongLecture)
+                    .then((retVal) => done('This must fail'))
+                    .catch((err) => done()); // correct case
+            });
+        });
     });
 }
 module.exports = suite;
