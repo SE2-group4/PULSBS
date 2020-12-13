@@ -32,6 +32,8 @@ let db = null;
  */
 const _transformUser = function(row) {
     let retUser;
+    let error = null;
+
     switch (row.type) {
         case "TEACHER":
             retUser = Teacher.from(row);
@@ -46,10 +48,10 @@ const _transformUser = function(row) {
             retUser = Officer.from(row);
             break;
         default:
-            reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type"));
+            error = StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type");
             return;
     }
-    return retUser;
+    return { retUser, error };
 }
 /*
 let db = new sqlite.Database(dbpath, (err) => {
@@ -105,24 +107,12 @@ const getUserById = function (user) {
                 return;
             }
 
-            let retUser = null;
-            switch (row.type) {
-                case "TEACHER":
-                    retUser = Teacher.from(row);
-                    break;
-                case "STUDENT":
-                    retUser = Student.from(row);
-                    break;
-                case "MANAGER":
-                    retUser = Manager.from(row);
-                    break;
-                case "SUPPORT":
-                    retUser = Officer.from(row);
-                    break;
-                default:
-                    reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type"));
-                    return;
-            }
+            const{ retUser, error } = _transformUser(row);
+            if(error) {
+                reject(error);
+                return;
+            };
+
             resolve(retUser);
         });
     });
@@ -142,24 +132,12 @@ const login = function (user) {
                 reject(StandardErr.new("Dao", StandardErr.errno.WRONG_VALUE, "incorrect userId or password")); // no more info for security reasons
                 return;
             }
-            let retUser = null;
-            switch (row.type) {
-                case "TEACHER":
-                    retUser = Teacher.from(row);
-                    break;
-                case "STUDENT":
-                    retUser = Student.from(row);
-                    break;
-                case "MANAGER":
-                    retUser = Manager.from(row);
-                    break;
-                case "SUPPORT":
-                    retUser = Officer.from(row);
-                    break;
-                default:
-                    reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type"));
-                    return;
-            }
+            
+            const{ retUser, error } = _transformUser(row);
+            if(error) {
+                reject(error);
+                return;
+            };
 
             resolve(retUser);
         });
