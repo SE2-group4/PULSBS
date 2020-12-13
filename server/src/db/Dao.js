@@ -25,6 +25,34 @@ const { StandardErr } = require("./../utils/utils.js");
 
 let db = null;
 
+/**
+ * transform a db row into a specific type of user
+ * @param {Object} row
+ * @returns {User|Teacher|Manager|Support} specific user 
+ */
+const _transformUser = function(row) {
+    let retUser;
+    let error = null;
+
+    switch (row.type) {
+        case "TEACHER":
+            retUser = Teacher.from(row);
+            break;
+        case "STUDENT":
+            retUser = Student.from(row);
+            break;
+        case "MANAGER":
+            retUser = Manager.from(row);
+            break;
+        case "SUPPORT":
+            retUser = Officer.from(row);
+            break;
+        default:
+            error = StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type");
+            return;
+    }
+    return { retUser, error };
+}
 /*
 let db = new sqlite.Database(dbpath, (err) => {
     if (err) throw err;
@@ -79,24 +107,12 @@ const getUserById = function (user) {
                 return;
             }
 
-            let retUser = null;
-            switch (row.type) {
-                case "TEACHER":
-                    retUser = Teacher.from(row);
-                    break;
-                case "STUDENT":
-                    retUser = Student.from(row);
-                    break;
-                case "MANAGER":
-                    retUser = Manager.from(row);
-                    break;
-                case "SUPPORT":
-                    retUser = Officer.from(row);
-                    break;
-                default:
-                    reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type"));
-                    return;
-            }
+            const{ retUser, error } = _transformUser(row);
+            if(error) {
+                reject(error);
+                return;
+            };
+
             resolve(retUser);
         });
     });
@@ -116,24 +132,12 @@ const login = function (user) {
                 reject(StandardErr.new("Dao", StandardErr.errno.WRONG_VALUE, "incorrect userId or password")); // no more info for security reasons
                 return;
             }
-            let retUser = null;
-            switch (row.type) {
-                case "TEACHER":
-                    retUser = Teacher.from(row);
-                    break;
-                case "STUDENT":
-                    retUser = Student.from(row);
-                    break;
-                case "MANAGER":
-                    retUser = Manager.from(row);
-                    break;
-                case "SUPPORT":
-                    retUser = Officer.from(row);
-                    break;
-                default:
-                    reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type"));
-                    return;
-            }
+            
+            const{ retUser, error } = _transformUser(row);
+            if(error) {
+                reject(error);
+                return;
+            };
 
             resolve(retUser);
         });
@@ -968,10 +972,16 @@ exports.studentPopQueue = studentPopQueue;
 const managerGetReport = function(student, date) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User
+            JOIN Booking ON Booking.studentId = User.userId
+            WHERE Booking.lectureId IN (
+                SELECT Booking.lectureId FROM Booking
+                JOIN User ON User.userId = Booking.studentId
+                WHERE Booking.studentId = ? AND Booking.status = ?
+                    AND DATETIME(Lecture.startingDate) <= 
             `;
 
         db.all(sql, [student.studentId, date], (err, rows) => {
-
+            
         });
     });
 }
