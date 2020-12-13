@@ -527,6 +527,22 @@ const suite = function() {
                     .catch((err) => done(err));
             });
         });
+
+        describe('getClassByLecture', function() {
+            it('correct params should return the class', function(done) {
+                dao.getClassByLecture(lecture1)
+                    .then((currClass) => {
+                        assert.strictEqual(currClass.classId, 1, 'Wrong class retrieved');
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('non existing lecture should throw error', function(done) {
+                dao.getClassByLecture(wrongLecture)
+                    .then((retVal) => done('This must fail'))
+                    .catch((err) => done()); // correct case
+            });
+        });
     });
 }
 module.exports = suite;
