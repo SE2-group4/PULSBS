@@ -315,7 +315,7 @@ async function uploadList(id, type, list) {
             if (response.ok)
                 resolve();
             else
-                reject({ errorMsg: "Server error" })
+                reject({ error: { errorMsg: "Server error" } })
         }).catch((err) => { reject({ errorMsg: "Server cannot communicate" }) }); // connection errors
     });
 }
