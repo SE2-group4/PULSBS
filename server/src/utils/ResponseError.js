@@ -22,6 +22,7 @@ const defaultStatusCode = {
     PARAM_NOT_INT: 400,
     QUERY_PARAM_NOT_ACCEPTED: 400,
     QUERY_PARAM_NOT_VALUE_ACCEPTED: 400,
+    ENTITY_TYPE_NOT_VALID: 400,
     TEACHER_COURSE_MISMATCH_AA: 400,
     ROUTE_FORBIDDEN: 401,
 };
@@ -79,6 +80,9 @@ class ResponseError {
     static get QUERY_PARAM_VALUE_NOT_ACCEPTED() {
         return 5;
     }
+    static get ENTITY_TYPE_NOT_VALID() {
+        return 6;
+    }
     static get TEACHER_COURSE_MISMATCH_AA() {
         return 30;
     }
@@ -100,6 +104,7 @@ class ResponseError {
         PARAM_NOT_INT: 3,
         QUERY_PARAM_NOT_ACCEPTED: 4,
         QUERY_PARAM_VALUE_NOT_ACCEPTED: 5,
+        ENTITY_TYPE_NOT_VALID: 6,
         TEACHER_COURSE_MISMATCH_AA: 30,
         ROUTE_FORBIDDEN: 0,
     };
@@ -151,6 +156,9 @@ class ResponseError {
 
             case ResponseError.QUERY_PARAM_VALUE_NOT_ACCEPTED:
                 return `Query paramters 's value must be of type ${args.type}`;
+
+            case ResponseError.ENTITY_TYPE_NOT_VALID:
+                return `Entity type ${args.type} is not valid`;
 
             case ResponseError.TEACHER_COURSE_MISMATCH_AA:
                 return `course (courseId = ${args.courseId}) is not taught by this teacher (teacherId = ${args.teacherId})`;
