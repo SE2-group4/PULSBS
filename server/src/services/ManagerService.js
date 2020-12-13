@@ -211,4 +211,5 @@ async function managerGetReport({ managerId, serialNumber }, query) {
 
     const student = new Student(serialNumber);
     const students = await db.trackContacts(student, date);
+    return students;
 }
