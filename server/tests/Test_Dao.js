@@ -447,7 +447,7 @@ const suite = function () {
                                     assert.strictEqual(currItem.numBookings, 1, 'Wrong number of bookings');
                                     break;
                                 case 4:
-                                    assert.strictEqual(currItem.numBookings, 0, 'Wrong number of bookings');
+                                    assert.strictEqual(currItem.numBookings, 1, 'Wrong number of bookings');
                                     break;
                                 default:
                                     fail('unexpected lecture');
@@ -591,6 +591,7 @@ const suite = function () {
                 dao.getClassByLecture(lecture1)
                     .then((currClass) => {
                         assert.strictEqual(currClass.classId, 1, 'Wrong class retrieved');
+                        done();
                     })
                     .catch((err) => done(err));
             });

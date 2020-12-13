@@ -8,7 +8,8 @@
 const Student = require("../entities/Student.js");
 const Course = require("../entities/Course.js");
 const Lecture = require("../entities/Lecture.js");
-const EmailType = require('./../entities/EmailType.js');
+// const EmailType = require('./../entities/EmailType.js');
+const Email = require('./../entities/Email.js');
 const emailService = require('./EmailService.js');
 const utils = require('../utils/utils.js');
 const { StandardErr } = require('./../utils/utils.js');
@@ -59,7 +60,7 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
                                         const actualClass = values[0];
                                         const actualStudent = values[1];
 
-                                        const defaultEmail = getDefaultEmail(Email.EmailType.STUDENT_NEW_BOOKING, [
+                                        const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_NEW_BOOKING, [
                                             actualCourse.description,
                                             utils.formatDate(actualLecture.date),
                                             actualClass.description
@@ -108,7 +109,7 @@ exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
 
                                 this.studentBookLecture(waitingStudent.studentId, courseId, lectureId)
                                 .then((retVal) => {
-                                    const defaultEmail = getDefaultEmail(Email.EmailType.STUDENT_POP_QUEUE, [
+                                    const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_POP_QUEUE, [
                                             actualCourse.description,
                                             actualLecture.date.toISOString(),
                                             actualClass.description
@@ -124,7 +125,7 @@ exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
                             })
                             .catch(reject);
                     })
-                    .catch(modifiedBookings); // if no students are waiting
+                    .catch((err) => resolve(modifiedBookings)); // if no students are waiting, not an error
             })
             .catch(reject);
     });
@@ -220,7 +221,7 @@ exports.studentPushQueue = function(studentId, courseId, lectureId) {
                             .then((retVal) => {
                                 dao.getUserById(student)
                                 .then((currStudent) => {
-                                    const defaultEmail = getDefaultEmail(Email.EmailType.STUDENT_PUSH_QUEUE, [
+                                    const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_PUSH_QUEUE, [
                                             actualCourse.description,
                                             actualLecture.date.toISOString()
                                         ]);
