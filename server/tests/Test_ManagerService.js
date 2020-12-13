@@ -10,7 +10,7 @@ const assert = require('assert');
 const path = require('path');
 
 const dao = require('../src/db/Dao.js');
-const service = require('../src/services/GeneralService.js');
+const service = require('../src/services/ManagerService.js');
 const Student = require('../src/entities/Student.js');
 const Teacher = require('../src/entities/Teacher.js');
 const Lecture = require('../src/entities/Lecture.js');
@@ -18,6 +18,7 @@ const Course = require('../src/entities/Course.js');
 const EmailType = require('../src/entities/EmailType.js');
 const Email = require('../src/entities/Email.js');
 const prepare = require('../src/db/preparedb.js');
+const { italic } = require('colors');
 
 const suite = function() {
     let student2;
@@ -27,7 +28,7 @@ const suite = function() {
     });
 
     beforeEach(function(done) {
-        done();
+        reset(done);
     });
 
     const reset = (done) => {
@@ -39,6 +40,25 @@ const suite = function() {
     };
 
     describe('ManagerService', function() {   
+        describe('managerGetReport', function() {
+            it('correct params should return a list of users', function(done) {
+                service.managerGetReport({ managerId: 1, serialNumber: 1 }, {})
+                    .then((users) => {
+                        assert.strictEqual(users.length, 2, 'Wrong number of users');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('non existing student should return an empty list', function(done) {
+                service.managerGetReport({ managerId: 1, serialNumber: -1 }, {})
+                    .then((users) => {
+                        assert.strictEqual(users.length, 0, 'Wrong number of users');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
     });
 }
 module.exports = suite;

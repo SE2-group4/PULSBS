@@ -221,14 +221,14 @@ exports.managerGetStudent = async function managerGetStudent({ managerId }, quer
 /**
  * get the list of students who got a contact with a specific student
  * @param {Object} param - managerId, serialNumber
- * @param {Object} query - data (optional)
+ * @param {Object} query - date (optional)
  */
-exports.managerGetReport = async function managerGetReport({ managerId, serialNumber }, query) {
+exports.managerGetReport = async function managerGetReport({ managerId, serialNumber }, { date }) {
     managerId = Number(managerId);
     serialNumber = Number(serialNumber);
-    date = query.date ? new Date(query.date) : new Date();
+    date = date ? new Date(date) : new Date();
 
     const student = new Student(serialNumber);
-    const students = await db.trackContacts(student, date);
+    const students = await db.managerGetReport(student, date);
     return students;
 }

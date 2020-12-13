@@ -182,7 +182,7 @@ const suite = function() {
             it('correct params should return the list of courses the student is enrolled in', function(done) {
                 service.studentGetCourses(student2.studentId)
                     .then((courses) => {
-                        assert.strictEqual(courses.length, 1, 'Wrong number of courses retrieved');
+                        assert.strictEqual(courses.length, 2, 'Wrong number of courses retrieved');
                         done();
                     })
                     .catch((err) => done(err));
@@ -207,7 +207,7 @@ const suite = function() {
             it('correct params should return a list of lectures the student is booked for', function(done) {
                 service.studentGetBookings(student2.studentId)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.length, 1, 'Wrong number of bookings retrieved');
+                        assert.strictEqual(lectures.length, 2, 'Wrong number of bookings retrieved');
                         done();
                     })
                     .catch((err) => done(err));
@@ -240,7 +240,7 @@ const suite = function() {
                 };
                 service.studentGetBookings(student1.studentId, periodOfTime)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
+                        assert.strictEqual(lectures.length, 2, 'Wrong number of lectures retrieved');
                         done();
                     })
                     .catch((err) => done(err));
