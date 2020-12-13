@@ -5,7 +5,8 @@ class MultiselectComp extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            options: [{ name: 'Srigar', id: 1 }, { name: 'Sam', id: 2 }]
+            options: this.props.options,
+            selectedValues: null
         };
     }
 

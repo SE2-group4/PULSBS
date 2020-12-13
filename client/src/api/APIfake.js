@@ -162,9 +162,14 @@ async function getStudentBySSN(ssn) {
 async function generateReport(id, serialNumber, date) {
     return students2
 }
+
+async function getAllCourses() {
+    return courses
+}
 /************************************************************************/
 const APIfake = {
     userLogin, getCoursesByStudentId, putInWaitingList, getLecturesByCourseId, bookALecture, cancelLectureReservation,
-    getBookedLectures, getCoursesByTeacherId, getLecturesByCourseIdT, getStudentsByLectureId, getStudentBySerialNumber, getStudentBySSN, generateReport
+    getBookedLectures, getCoursesByTeacherId, getLecturesByCourseIdT, getStudentsByLectureId, getStudentBySerialNumber,
+    getStudentBySSN, generateReport, getAllCourses
 };
 export default APIfake;
