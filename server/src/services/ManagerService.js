@@ -193,3 +193,11 @@ var statsParams = {
     CANCELLATIONS: "boolean",
     ATTENDACES: "boolean",
 };
+
+async function managerGetStudent({ managerId }, query = { ssn, serialNumber }) {
+
+}
+
+async function managerGetReport({ managerId, serialNumber }, query = { date }) {
+
+}
