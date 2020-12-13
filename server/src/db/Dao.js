@@ -62,10 +62,14 @@ exports.init = init;
 
 /**
  * get a user by its id
- * @param {Teacher|Student} user - teacher or student
+ * @param {User|Teacher|Student|Manager|Support} user - teacher or student
  */
 const getUserById = function (user) {
-    const userId = user.teacherId ? user.teacherId : user.studentId;
+    let userId = user.userId;
+    if(user.teacherId) userId = user.teacherId;
+    else if(user.studentId) userId = user.studentId;
+    else if(user.managerId) userId = user.managerId;
+    else if(user.supportId) userId = user.supportId;
 
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User WHERE userId = ?`;
@@ -75,8 +79,25 @@ const getUserById = function (user) {
                 return;
             }
 
-            const fullUser = user.teacherId ? Teacher.from(row) : Student.from(row);
-            resolve(fullUser);
+            let retUser = null;
+            switch (row.type) {
+                case "TEACHER":
+                    retUser = Teacher.from(row);
+                    break;
+                case "STUDENT":
+                    retUser = Student.from(row);
+                    break;
+                case "MANAGER":
+                    retUser = Manager.from(row);
+                    break;
+                case "SUPPORT":
+                    retUser = Officer.from(row);
+                    break;
+                default:
+                    reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type"));
+                    return;
+            }
+            resolve(retUser);
         });
     });
 };
@@ -936,3 +957,22 @@ const studentPopQueue = function(lecture) {
     });
 }
 exports.studentPopQueue = studentPopQueue;
+
+/**
+ * get a list of students and teachers that a specific student has been in contact to
+ * from the specificied date to the previous 14 days
+ * @param {Student} student - studentId
+ * @param {Date} date 
+ * @returns {Promise} promise
+ */
+const managerGetReport = function(student, date) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT User.* FROM User
+            `;
+
+        db.all(sql, [student.studentId, date], (err, rows) => {
+
+        });
+    });
+}
+exports.managerGetReport = managerGetReport;
