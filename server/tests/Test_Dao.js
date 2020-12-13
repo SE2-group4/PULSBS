@@ -103,11 +103,11 @@ const suite = function() {
         });
 
         describe('getCoursesByStudent', function() {
-            it('non empty course should get the list of students', function(done) {
+            it('non empty course should get the list of courses', function(done) {
                 dao.getCoursesByStudent(student2)
                     .then((courses) => {
                         assert.ok(courses, 'No returned valued received');
-                        assert.strictEqual(courses.length, 1, 'Wrong number of courses');
+                        assert.strictEqual(courses.length, 2, 'Wrong number of courses');
                         done();
                     })
                     .catch((err) => done(err));
@@ -167,7 +167,7 @@ const suite = function() {
                 dao.getCoursesByTeacher(teacher4)
                     .then((courses) => {
                         assert.ok(courses, 'No returned valued received');
-                        assert.ok(courses.length == 2, 'Wrong number of courses');
+                        assert.ok(courses.length == 3, 'Wrong number of courses');
                         done();
                     })
                     .catch((err) => done(err));
@@ -239,7 +239,7 @@ const suite = function() {
             it('not specified period of time should return the list of lectures', function(done) {
                 dao.getBookingsByStudentAndPeriodOfTime(student1)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
+                        assert.strictEqual(lectures.length, 3, 'Wrong number of lectures');
                         done();
                     })
                     .catch((err) => done(err));
@@ -263,7 +263,7 @@ const suite = function() {
                 };
                 dao.getBookingsByStudentAndPeriodOfTime(student1, periodOfTime)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
+                        assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
                         done();
                     })
                     .catch((err) => done(err));
@@ -511,7 +511,6 @@ const suite = function() {
             it('correct params should return the list of users', function(done) {
                 dao.managerGetReport(student1)
                     .then((users) => {
-                        console.log(users);
                         assert.strictEqual(users.length, 2, 'Wrong number of users');
                         done();
                     })
