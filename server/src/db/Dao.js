@@ -112,7 +112,7 @@ const getUserById = function (user) {
             if (error) {
                 reject(error);
                 return;
-            };
+            }
 
             resolve(retUser);
         });
@@ -138,7 +138,7 @@ const login = function (user) {
             if (error) {
                 reject(error);
                 return;
-            };
+            }
 
             resolve(retUser);
         });
@@ -154,7 +154,7 @@ exports.login = login;
  */
 const addBooking = function (student, lecture) {
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO Booking(studentId, lectureId) VALUES (?, ?, ?)`;
+        const sql = `INSERT INTO Booking(studentId, lectureId, status) VALUES (?, ?, ?)`;
 
         db.run(sql, [student.studentId, lecture.lectureId, Booking.BookingType.UNBOOKED], function (err) {
             if (err) {
@@ -402,69 +402,6 @@ const getCourseByLecture = function (lecture) {
     });
 };
 exports.getCourseByLecture = getCourseByLecture;
-
-/**
- * crea a new booking email for a student
- * @param {Student} student - studentId and email needed
- * @param {Lecture} lecture - lectureId, courseId and date needed
- * @returns {Promise} promise
- * @deprecated
- */
-const _createStudentBookingEmail = function (student, lecture) {
-    return new Promise((resolve, reject) => {
-        getCourseByLecture(lecture).then((course) => {
-            const email = new Email(undefined, systemUser, student, new Date(), EmailType.STUDENT_NEW_BOOKING);
-
-            emailService
-                .sendConfirmationBookingEmail(student.email, course.description, lectures.date.toISOString())
-                .then(
-                    addEmail(email)
-                        .then(() => resolve)
-                        .catch((err) => reject(err))
-                )
-                .catch((err) => reject(err));
-        });
-    });
-};
-exports._createStudentBookingEmail = _createStudentBookingEmail;
-
-/**
- * create a new email to inform a teacher about students that will attend his/her lecture
- * @param {Teacher} teacher
- * @param {Lecture} lecture
- * @returns {Promise} promise
- * @deprecated
- */
-const _createTeacherBookingsEmail = function (teacher, lecture) {
-    return new Promise((resolve, reject) => {
-        getCourseByLecture(lecture).then((course) => {
-            getStudentsByLecture(lecture).then((students) => {
-                const email = new Email(
-                    undefined,
-                    systemUser,
-                    teacher,
-                    new Date(),
-                    EmailType.TEACHER_ATTENDING_STUDENTS
-                );
-
-                emailService
-                    .sendStudentNumberEmail(
-                        teacher.email,
-                        course.description,
-                        lecture.date.toISOString(),
-                        students.length
-                    )
-                    .then(
-                        addEmail(email)
-                            .then(() => resolve)
-                            .catch((err) => reject(err))
-                    )
-                    .catch((err) => reject(err));
-            });
-        });
-    });
-};
-exports._createTeacherBookingsEmail = _createTeacherBookingsEmail;
 
 /**
  * get the current academic year
@@ -965,7 +902,7 @@ exports.studentPopQueue = studentPopQueue;
 
 /**
  * get a list of students and teachers that a specific student has been in contact to
- * from the specificied date to the previous 14 days
+ * from the specificied date to the previous or in the next 14 days
  * @param {Student} student - studentId
  * @param {Date} date 
  * @returns {Promise} promise
@@ -974,42 +911,44 @@ const managerGetReport = function (student, date) {
     return new Promise((resolve, reject) => {
         const sqlStudents = `SELECT User.* FROM User
             JOIN Booking ON Booking.studentId = User.userId
-            JOIN Lecture ON Lecture.lectureId = Booking.lectureId
-            WHERE Booking.lectureId IN (
-                SELECT Booking.lectureId FROM Booking
-                JOIN User ON User.userId = Booking.studentId
-                WHERE Booking.studentId = ? AND Booking.status = ?
+            WHERE Booking.status = ? AND Booking.lectureId IN (
+                SELECT Booking.lectureId FROM Booking AS Booking2
+                JOIN Lecture ON Lecture.LectureId = Booking2.lectureId
+                WHERE Booking2.studentId = ? AND Booking2.status = ?
                     AND DATETIME(Lecture.startingDate, 'start of day') >= DATETIME(?, '-14 day', 'start of day')
                     AND DATETIME(Lecture.startingDate, 'start of day') <= DATETIME(?, '+14 day', 'start of day')
-                )`;
+                )
+            GROUP BY User.userId`;
         const sqlTeachers = `SELECT User.* FROM User
             JOIN TeacherCourse ON TeacherCourse.teacherId = User.userId
             JOIN Lecture ON Lecture.courseId = TeacherCourse.courseId
             WHERE Lecture.lectureId IN (
                 SELECT Booking.lectureId FROM Booking
-                JOIN User ON User.userId = Booking.studentId
+                JOIN Lecture AS Lecture2 ON Lecture2.LectureId = Booking.lectureId
                 WHERE Booking.studentId = ? AND Booking.status = ?
-                    AND DATETIME(Lecture.startingDate, 'start of day') >= DATETIME(?, '-14 day', 'start of day')
-                    AND DATETIME(Lecture.startingDate, 'start of day') <= DATETIME(?, '+14 day', 'start of day')
-                )`;
+                    AND DATETIME(Lecture2.startingDate, 'start of day') >= DATETIME(?, '-14 day', 'start of day')
+                    AND DATETIME(Lecture2.startingDate, 'start of day') <= DATETIME(?, '+14 day', 'start of day')
+                )
+            GROUP BY User.userId`;
 
         date = date ? new Date(date) : new Date();
 
-        db.all(sqlStudents, [student.studentId, Booking.BookingType.BOOKED, date.toISOString(), date.toISOString()], (err, rows) => {
+        db.all(sqlStudents, [Booking.BookingType.PRESENT, student.studentId, Booking.BookingType.PRESENT, date.toISOString(), date.toISOString()], (err, rows) => {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
-            const students = rows.map((row) => User.from(row));
+            let students = rows.map((row) => User.from(row));
+            students = students.filter((currStudent) => currStudent.userId != student.userId); // not the student passed as parametre
 
-            db.all(sqlTeachers, [student.studentId, Booking.BookingType.BOOKED, date.toISOString(), date.toISOString()], (err, rows) => {
+            db.all(sqlTeachers, [student.studentId, Booking.BookingType.PRESENT, date.toISOString(), date.toISOString()], (err, rows) => {
                 if (err) {
                     reject(StandardErr.fromDao(err));
                     return;
                 }
                 const teachers = rows.map((row) => User.from(row));
                 const users = students.concat(teachers);
-
+                
                 resolve(users);
             });
 
@@ -1023,17 +962,13 @@ exports.managerGetReport = managerGetReport;
  * @param {User|Teacher|Student|Manager|Support} user 
  */
 const getUserBySsn = function (user) {
-    let userId = user.userId;
-    if (user.teacherId) userId = user.teacherId;
-    else if (user.studentId) userId = user.studentId;
-    else if (user.managerId) userId = user.managerId;
-    else if (user.supportId) userId = user.supportId;
+    let ssn = user.ssn;
 
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User WHERE ssn = ?`;
-        db.get(sql, [userId], (err, row) => {
+        db.get(sql, [ssn], (err, row) => {
             if (err || !row) {
-                reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "incorrect userId"));
+                reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "incorrect ssn"));
                 return;
             }
 
@@ -1048,3 +983,26 @@ const getUserBySsn = function (user) {
     });
 };
 exports.getUserBySsn = getUserBySsn;
+
+/**
+ * get the class from a lecture
+ * @param {Lecture} lecture 
+ * @retuns {Promise} promise
+ */
+const getClassByLecture = function(lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT Class.* FROM Class
+            JOIN Lecture ON Lecture.classId = Class.classId
+            WHERE Lecture.lectureId = ?`;
+        
+        db.get(sql, [lecture.lectureId], (err, row) => {
+            if (err || !row) {
+                reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "incorrect userId"));
+                return;
+            }
+
+            resolve(Class.from(row));
+        })
+    });
+}
+exports.getClassByLecture = getClassByLecture;

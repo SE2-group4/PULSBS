@@ -20,8 +20,8 @@ const EmailQueue = require('../src/entities/EmailQueue.js');
 const prepare = require('../src/db/preparedb.js');
 const { fail } = require('assert');
 
-const suite = function() {
-    describe('Dao', function() {
+const suite = function () {
+    describe('Dao', function () {
         let student1, student2;
         let teacher4;
         let lecture1, lecture2, lecture3;
@@ -30,12 +30,13 @@ const suite = function() {
 
         let wrongLecture;
         let wrongCourse;
+        let wrongStudent;
 
-        before(function(done) {
+        before(function (done) {
             done();
         });
 
-        beforeEach(function(done) {
+        beforeEach(function (done) {
             reset(done);
         });
 
@@ -50,6 +51,7 @@ const suite = function() {
             course3 = new Course(3);
             emailQueue1 = new EmailQueue(1);
 
+            wrongStudent = new Student(-1);
             wrongLecture = new Lecture(-1, -1);
             wrongCourse = new Course(-1);
 
@@ -58,8 +60,8 @@ const suite = function() {
                 .catch((err) => done(err));
         }
 
-        describe('login', function() {
-            it('correct data should perform login', function(done) {
+        describe('login', function () {
+            it('correct data should perform login', function (done) {
                 dao.login(student2)
                     .then((retStudent) => {
                         assert.strictEqual(retStudent.studentId, student2.studentId, 'Wrong user retrieved');
@@ -68,7 +70,7 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('incorrect data should not perform login', function(done) {
+            it('incorrect data should not perform login', function (done) {
                 dao.login(new Student(-1, 'invalid', 'invalid', 'invalid', 'invalid'))
                     .then((retStudent) => {
                         done('No user should be retrieved');
@@ -77,8 +79,8 @@ const suite = function() {
             });
         });
 
-        describe('addBooking', function() {
-            it('correct data should insert a new booking', function(done) {
+        describe('addBooking', function () {
+            it('correct data should insert a new booking', function (done) {
                 dao.addBooking(student1, lecture2)
                     .then((retVal) => {
                         assert.ok(retVal > 0, 'Booking not added');
@@ -88,8 +90,8 @@ const suite = function() {
             });
         });
 
-        describe('getLecturesByStudent', function() {
-            it('non empty lecture should get the list of students', function(done) {
+        describe('getLecturesByStudent', function () {
+            it('non empty lecture should get the list of students', function (done) {
                 dao.getLecturesByStudent(student1)
                     .then((lectures) => {
                         assert.ok(lectures, 'No returned valued received');
@@ -101,19 +103,19 @@ const suite = function() {
         });
 
         describe('getCoursesByStudent', function() {
-            it('non empty course should get the list of students', function(done) {
+            it('non empty course should get the list of courses', function(done) {
                 dao.getCoursesByStudent(student2)
                     .then((courses) => {
                         assert.ok(courses, 'No returned valued received');
-                        assert.strictEqual(courses.length, 1, 'Wrong number of courses');
+                        assert.strictEqual(courses.length, 2, 'Wrong number of courses');
                         done();
                     })
                     .catch((err) => done(err));
             });
         });
 
-        describe('getLecturesByCourse', function() {
-            it('non empty course should get the list of lectures', function(done) {
+        describe('getLecturesByCourse', function () {
+            it('non empty course should get the list of lectures', function (done) {
                 dao.getLecturesByCourse(course3)
                     .then((lectures) => {
                         assert.ok(lectures, 'No returned valued received');
@@ -124,8 +126,8 @@ const suite = function() {
             });
         });
 
-        describe('getStudentsByLecture', function() {
-            it('non empty lecture should get the list of students', function(done) {
+        describe('getStudentsByLecture', function () {
+            it('non empty lecture should get the list of students', function (done) {
                 dao.getStudentsByLecture(lecture3)
                     .then((students) => {
                         assert.ok(students, 'No returned valued received');
@@ -136,8 +138,8 @@ const suite = function() {
             });
         });
 
-        describe('getStudentsByCourse', function() {
-            it('non empty coure should get the list of students', function(done) {
+        describe('getStudentsByCourse', function () {
+            it('non empty coure should get the list of students', function (done) {
                 dao.getStudentsByCourse(course3)
                     .then((students) => {
                         assert.ok(students, 'No returned valued received');
@@ -148,8 +150,8 @@ const suite = function() {
             });
         });
 
-        describe('getLecturesByTeacher', function() {
-            it('non empty teacher should get the list of lectures', function(done) {
+        describe('getLecturesByTeacher', function () {
+            it('non empty teacher should get the list of lectures', function (done) {
                 dao.getLecturesByTeacher(teacher4)
                     .then((lectures) => {
                         assert.ok(lectures, 'No returned valued received');
@@ -160,28 +162,28 @@ const suite = function() {
             });
         });
 
-        describe('getCoursesByTeacher', function() {
-            it('non empty teacher should get the list of courses', function(done) {
+        describe('getCoursesByTeacher', function () {
+            it('non empty teacher should get the list of courses', function (done) {
                 dao.getCoursesByTeacher(teacher4)
                     .then((courses) => {
                         assert.ok(courses, 'No returned valued received');
-                        assert.ok(courses.length == 2, 'Wrong number of courses');
+                        assert.ok(courses.length == 3, 'Wrong number of courses');
                         done();
                     })
                     .catch((err) => done(err));
             });
         });
 
-        describe('_getCurrentAcademicYear', function() {
-            it('should get this year', function(done) {
+        describe('_getCurrentAcademicYear', function () {
+            it('should get this year', function (done) {
                 const retVal = dao._getCurrentAcademicYear();
                 assert.ok(retVal === 2020, 'Wrong academic year'); // check this manually
                 done();
             });
         });
 
-        describe('addEmail', function() {
-            it('correct data should insert a new email', function(done) {
+        describe('addEmail', function () {
+            it('correct data should insert a new email', function (done) {
                 const emailType = EmailType.STUDENT_NEW_BOOKING;
                 const email = new Email(undefined, teacher4, student1, new Date(), emailType, 'test subject', 'test body');
                 dao.addEmail(email)
@@ -193,8 +195,8 @@ const suite = function() {
             });
         });
 
-        describe('deleteBooking', function() {
-            it('correct params should remove the booking', function(done) {
+        describe('deleteBooking', function () {
+            it('correct params should remove the booking', function (done) {
                 dao.deleteBooking(student1, lecture1)
                     .then((modifiedRows) => {
                         assert.strictEqual(modifiedRows, 1, 'Booking not inserted');
@@ -203,10 +205,9 @@ const suite = function() {
                     .catch((err) => done());
             });
 
-            it('non existing student should reject the request', function(done) {
+            it('non existing student should reject the request', function (done) {
                 dao.deleteBooking(-1, lecture1)
                     .then((modifiedRows) => {
-                        console.log(modifiedRows);
                         assert.strictEqual(modifiedRows, 0, 'Not booking should be deleted');
                         done()
                     })
@@ -214,8 +215,8 @@ const suite = function() {
             });
         });
 
-        describe('getBookingsByStudent', function() {
-            it('correct params should return the list of lectures', function(done) {
+        describe('getBookingsByStudent', function () {
+            it('correct params should return the list of lectures', function (done) {
                 dao.getBookingsByStudent(student2)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 1, 'Wrong number of bookings');
@@ -224,7 +225,7 @@ const suite = function() {
                     .catch((err) => done());
             });
 
-            it('non existing student should return an empty list', function(done) {
+            it('non existing student should return an empty list', function (done) {
                 dao.getBookingsByStudent(-1)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 0, 'Wrong number of bookings');
@@ -234,9 +235,33 @@ const suite = function() {
             });
         });
 
-        describe('getBookingsByStudentAndPeriodOfTime', function() {
-            it('not specified period of time should return the list of lectures', function(done) {
+        describe('getBookingsByStudentAndPeriodOfTime', function () {
+            it('not specified period of time should return the list of lectures', function (done) {
                 dao.getBookingsByStudentAndPeriodOfTime(student1)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 3, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('only periodOfTime.from setted should return the list of lectures', function (done) {
+                const periodOfTime = {
+                    from: moment().startOf('day').add(2, 'day')
+                };
+                dao.getBookingsByStudentAndPeriodOfTime(student1, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('only periodOfTime.to setted should return the list of lectures', function (done) {
+                const periodOfTime = {
+                    to: moment().endOf('day').add(1, 'day')
+                };
+                dao.getBookingsByStudentAndPeriodOfTime(student1, periodOfTime)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
                         done();
@@ -244,34 +269,10 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('only periodOfTime.from setted should return the list of lectures', function(done) {
+            it('both periodOfTime.from and periodOfTime.to setted should return the list of lectures', function (done) {
                 const periodOfTime = {
-                    from : moment().startOf('day').add(2, 'day')
-                };
-                dao.getBookingsByStudentAndPeriodOfTime(student1, periodOfTime)
-                    .then((lectures) => {
-                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
-
-            it('only periodOfTime.to setted should return the list of lectures', function(done) {
-                const periodOfTime = {
-                    to : moment().endOf('day').add(1, 'day')
-                };
-                dao.getBookingsByStudentAndPeriodOfTime(student1, periodOfTime)
-                    .then((lectures) => {
-                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
-
-            it('both periodOfTime.from and periodOfTime.to setted should return the list of lectures', function(done) {
-                const periodOfTime = {
-                    from : moment().add(2, 'day').startOf('day'),
-                    to : moment().add(3, 'day').endOf('day')
+                    from: moment().add(2, 'day').startOf('day'),
+                    to: moment().add(3, 'day').endOf('day')
                 };
                 dao.getBookingsByStudentAndPeriodOfTime(student1, periodOfTime)
                     .then((lectures) => {
@@ -282,8 +283,8 @@ const suite = function() {
             });
         });
 
-        describe('getLecturesByCourseAndPeriodOfTime', function() {
-            it('not specified period of time should return the list of lectures', function(done) {
+        describe('getLecturesByCourseAndPeriodOfTime', function () {
+            it('not specified period of time should return the list of lectures', function (done) {
                 dao.getLecturesByCourseAndPeriodOfTime(course1)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
@@ -292,9 +293,9 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('only periodOfTime.from setted should return the list of lectures', function(done) {
+            it('only periodOfTime.from setted should return the list of lectures', function (done) {
                 const periodOfTime = {
-                    from : moment().startOf('day').add(2, 'day')
+                    from: moment().startOf('day').add(2, 'day')
                 };
                 dao.getLecturesByCourseAndPeriodOfTime(course1, periodOfTime)
                     .then((lectures) => {
@@ -304,9 +305,9 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('only periodOfTime.to setted should return the list of lectures', function(done) {
+            it('only periodOfTime.to setted should return the list of lectures', function (done) {
                 const periodOfTime = {
-                    to : moment().endOf('day').add(1, 'day')
+                    to: moment().endOf('day').add(1, 'day')
                 };
                 dao.getLecturesByCourseAndPeriodOfTime(course1, periodOfTime)
                     .then((lectures) => {
@@ -316,10 +317,10 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('both periodOfTime.from and periodOfTime.to setted should return the list of lectures', function(done) {
+            it('both periodOfTime.from and periodOfTime.to setted should return the list of lectures', function (done) {
                 const periodOfTime = {
-                    from : moment().add(2, 'day').startOf('day'),
-                    to : moment().add(3, 'day').endOf('day')
+                    from: moment().add(2, 'day').startOf('day'),
+                    to: moment().add(3, 'day').endOf('day')
                 };
                 dao.getLecturesByCourseAndPeriodOfTime(course1, periodOfTime)
                     .then((lectures) => {
@@ -330,8 +331,8 @@ const suite = function() {
             });
         });
 
-        describe('getLectureById', function() {
-            it('correct params should return a lecture', function(done) {
+        describe('getLectureById', function () {
+            it('correct params should return a lecture', function (done) {
                 dao.getLectureById(lecture1)
                     .then((lecture) => {
                         assert.strictEqual(lecture.lectureId, lecture1.lectureId, 'Incorrect lectureId');
@@ -342,8 +343,8 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('wrong params should return an error', function(done) {
-                dao.getLectureById({ lectureId : -1 })
+            it('wrong params should return an error', function (done) {
+                dao.getLectureById({ lectureId: -1 })
                     .then((lecture) => {
                         done('This must fail');
                     })
@@ -351,8 +352,8 @@ const suite = function() {
             });
         });
 
-        describe('deleteLectureById', function() {
-            it('correct params should accept the request', function(done) {
+        describe('deleteLectureById', function () {
+            it('correct params should accept the request', function (done) {
                 dao.deleteLectureById(lecture1)
                     .then((modifiedRows) => {
                         assert.strictEqual(modifiedRows, 1, 'Lecture not deleted');
@@ -361,28 +362,8 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('non existing lecture should deny the request', function(done) {
-                dao.deleteLectureById({ lectureId : -1 })
-                .then((modifiedRows) => {
-                    assert.strictEqual(modifiedRows, 0, 'Wrong DB content modified');
-                    done();
-                })
-                .catch((err) => done(err));
-            });
-        });
-
-        describe('deleteEmailQueueById', function() {
-            it('correct params should accept the request', function(done) {
-                dao.deleteEmailQueueById(emailQueue1)
-                    .then((modifiedRows) => {
-                        assert.strictEqual(modifiedRows, 1, 'Email queue not deleted');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
-
-            it('incorrect params should deny the request', function(done) {
-                dao.deleteEmailQueueById({ queueId : -1 })
+            it('non existing lecture should deny the request', function (done) {
+                dao.deleteLectureById({ lectureId: -1 })
                     .then((modifiedRows) => {
                         assert.strictEqual(modifiedRows, 0, 'Wrong DB content modified');
                         done();
@@ -391,8 +372,28 @@ const suite = function() {
             });
         });
 
-        describe('getEmailsInQueueByEmailType', function() {
-            it('correct params should return the list of email queues', function(done) {
+        describe('deleteEmailQueueById', function () {
+            it('correct params should accept the request', function (done) {
+                dao.deleteEmailQueueById(emailQueue1)
+                    .then((modifiedRows) => {
+                        assert.strictEqual(modifiedRows, 1, 'Email queue not deleted');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('incorrect params should deny the request', function (done) {
+                dao.deleteEmailQueueById({ queueId: -1 })
+                    .then((modifiedRows) => {
+                        assert.strictEqual(modifiedRows, 0, 'Wrong DB content modified');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('getEmailsInQueueByEmailType', function () {
+            it('correct params should return the list of email queues', function (done) {
                 dao.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED)
                     .then((emailQueues) => {
                         assert.strictEqual(emailQueues.length, 1, 'Wrong number of email queues');
@@ -401,7 +402,7 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('non existing email type should return an empty list', function(done) {
+            it('non existing email type should return an empty list', function (done) {
                 dao.getEmailsInQueueByEmailType('Unexisting type')
                     .then((emailQueues) => {
                         assert.strictEqual(emailQueues.length, 0, 'Wrong number of email queues');
@@ -411,8 +412,8 @@ const suite = function() {
             });
         });
 
-        describe('updateLectureDeliveryMode', function() {
-            it('correct params should accept the request', function(done) {
+        describe('updateLectureDeliveryMode', function () {
+            it('correct params should accept the request', function (done) {
                 lecture1.delivery = Lecture.DeliveryType.REMOTE;
                 dao.updateLectureDeliveryMode(lecture1)
                     .then((modifiedRows) => {
@@ -422,8 +423,8 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('non existing lecture should deny the request', function(done) {
-                dao.updateLectureDeliveryMode({ lectureId : -1, delivery : Lecture.DeliveryType.REMOTE })
+            it('non existing lecture should deny the request', function (done) {
+                dao.updateLectureDeliveryMode({ lectureId: -1, delivery: Lecture.DeliveryType.REMOTE })
                     .then((modifiedRows) => {
                         assert.strictEqual(modifiedRows, 0, 'Wrong DB content modified');
                         done();
@@ -432,21 +433,21 @@ const suite = function() {
             });
         });
 
-        describe('getLecturesByCoursePlusNumBookings', function() {
-            it('correct params should return a complex list', function(done) {
+        describe('getLecturesByCoursePlusNumBookings', function () {
+            it('correct params should return a complex list', function (done) {
                 dao.getLecturesByCoursePlusNumBookings(course1)
                     .then((list) => {
                         assert.ok(list);
                         assert.ok(list[0]);
                         assert.strictEqual(list.length, 2, 'Wrong number of lectures');
-                        
-                        for(let currItem of list) {
-                            switch(currItem.lecture.lectureId) {
+
+                        for (let currItem of list) {
+                            switch (currItem.lecture.lectureId) {
                                 case 1:
                                     assert.strictEqual(currItem.numBookings, 1, 'Wrong number of bookings');
                                     break;
                                 case 4:
-                                    assert.strictEqual(currItem.numBookings, 0, 'Wrong number of bookings');
+                                    assert.strictEqual(currItem.numBookings, 1, 'Wrong number of bookings');
                                     break;
                                 default:
                                     fail('unexpected lecture');
@@ -457,8 +458,8 @@ const suite = function() {
                     .catch((err) => done(err));
             });
 
-            it('non existing course should return an empty list', function(done) {
-                dao.getLecturesByCoursePlusNumBookings({ courseId : -1 })
+            it('non existing course should return an empty list', function (done) {
+                dao.getLecturesByCoursePlusNumBookings({ courseId: -1 })
                     .then((list) => {
                         assert.ok(list);
                         assert.strictEqual(list.length, 0, 'Wrong number of lectures');
@@ -468,8 +469,8 @@ const suite = function() {
             });
         });
 
-        describe('getNumBookingsOfLecture', function() {
-            it('correct params should return the number of bookings', function(done) {
+        describe('getNumBookingsOfLecture', function () {
+            it('correct params should return the number of bookings', function (done) {
                 dao.getNumBookingsOfLecture(lecture2)
                     .then((nBooking) => {
                         assert.strictEqual(nBooking, 1, 'Wrong number of bookings');
@@ -477,7 +478,7 @@ const suite = function() {
                     })
                     .catch((err) => done(err));
             });
-            it('non existing lecture should return zero', function(done) {
+            it('non existing lecture should return zero', function (done) {
                 dao.getNumBookingsOfLecture(wrongLecture)
                     .then((nBooking) => {
                         assert.strictEqual(nBooking, 0, 'Wrong number of bookings');
@@ -487,8 +488,8 @@ const suite = function() {
             });
         });
 
-        describe('getLecturesByCourseId', function() {
-            it('correct params should return a list of lectures', function(done) {
+        describe('getLecturesByCourseId', function () {
+            it('correct params should return a list of lectures', function (done) {
                 dao.getLecturesByCourseId(course1)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
@@ -496,13 +497,109 @@ const suite = function() {
                     })
                     .catch((err) => done(err));
             });
-            it('non existing course should return an empty list', function(done) {
+            it('non existing course should return an empty list', function (done) {
                 dao.getLecturesByCourseId(wrongCourse)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 0, 'Wrong number of lectures');
                         done();
                     })
                     .catch((err) => done(err));
+            });
+        });
+
+        describe('getUserById', function () {
+            it('correct params should return a student', function (done) {
+                dao.getUserById(student1)
+                    .then((user) => {
+                        assert.strictEqual(typeof (user), typeof (new Student()), "student received.")
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+            it('correct params should return a teacher', function (done) {
+                dao.getUserById(teacher4)
+                    .then((user) => {
+                        assert.strictEqual(typeof (user), typeof (new Teacher()), "teacher received.")
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+            it('non existing user should fail the request', function (done) {
+                let errStudent = new Student(-1, 'invalid', 'invalid', 'invalid', 'invalid');
+                dao.getUserById(errStudent)
+                    .then((user) => {
+                        done('No user should be returned');
+                    })
+                    .catch((err) => done()) //ok
+            });
+        })
+
+        describe('getUserBySsn', function () {
+            it('correct params should return a student', function (done) {
+                let studentSsn = new Student();
+                studentSsn.ssn = 'aldo1';
+                dao.getUserBySsn(studentSsn)
+                    .then((user) => {
+                        assert.strictEqual(typeof (user), typeof (new Student()), "student received.")
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+            it('correct params should return a teacher', function (done) {
+                let teacherSsn = new Teacher();
+                teacherSsn.ssn = 'giacomo4';
+                dao.getUserBySsn(teacherSsn)
+                    .then((user) => {
+                        assert.strictEqual(typeof (user), typeof (new Teacher()), "teacher received.")
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+            it('non existing user should fail the request', function (done) {
+                let errStudent = new Student(-1, 'invalid', 'invalid', 'invalid', 'invalid');
+                errStudent.ssn = 'invalid';
+                dao.getUserBySsn(errStudent)
+                    .then((user) => {
+                        done('No user should be returned');
+                    })
+                    .catch((err) => done()) //ok
+            });
+        })
+
+        describe('managerGetReport', function () {
+            it('correct params should return the list of users', function (done) {
+                dao.managerGetReport(student1)
+                    .then((users) => {
+                        assert.strictEqual(users.length, 2, 'Wrong number of users');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('not existing student params should return an empty list', function (done) {
+                dao.managerGetReport(wrongStudent)
+                    .then((users) => {
+                        assert.strictEqual(users.length, 0, 'Wrong number of users');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('getClassByLecture', function () {
+            it('correct params should return the class', function (done) {
+                dao.getClassByLecture(lecture1)
+                    .then((currClass) => {
+                        assert.strictEqual(currClass.classId, 1, 'Wrong class retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('non existing lecture should throw error', function (done) {
+                dao.getClassByLecture(wrongLecture)
+                    .then((retVal) => done('This must fail'))
+                    .catch((err) => done()); // correct case
             });
         });
     });

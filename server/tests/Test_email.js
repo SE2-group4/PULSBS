@@ -39,7 +39,8 @@ const suite = function () {
                 response.then((done) => {
                     done.response.should.be.exactly("nodemailer-mock success");
                 }).catch((err) => {
-                    console.log(err);
+                    // console.log(err);
+                    done(err);
                 })
             });
 
@@ -68,14 +69,16 @@ const suite = function () {
                 response.then((done) => {
                     done.response.should.be.exactly("nodemailer-mock success");
                 }).catch((err) => {
-                    console.log(err);
+                    // console.log(err);
+                    done(err);
                 })
             });
             it("should verify that the confirmation booking email cannot send because the to is a nullish value", async () => {
                 const response = EmailService.sendConfirmationBookingEmail(null, "SE2", "13:00");
                 response.catch((err) => {
-                    console.log(err);
+                    // console.log(err);
                     err.should.be.exactly("Undefined recipient")
+                    done();
                 })
             });
         })
@@ -109,7 +112,8 @@ const suite = function () {
                     //console.log(done);
                     done.response.should.be.exactly("nodemailer-mock success");
                 }).catch((err) => {
-                    console.log(err);
+                    // console.log(err);
+                    done(err);
                 })
             });
 
@@ -125,6 +129,7 @@ const suite = function () {
                 // a test for our response
                 response.then((done) => {
                     response.error.should.be.exactly(err);
+                    done();
                 })
             });
 
@@ -140,14 +145,16 @@ const suite = function () {
                 response.then((done) => {
                     done.response.should.be.exactly("nodemailer-mock success");
                 }).catch((err) => {
-                    console.log(err);
+                    // console.log(err);
+                    done(err);
                 })
             });
             it("should verify that the email cannot send because the to is a nullish value", async () => {
                 const response = EmailService.sendStudentNumberEmail(null, "SE2", "13:00", 3); // <-- your code here
                 response.catch((err) => {
-                    console.log(err);
-                    err.should.be.exactly("Undefined recipient")
+                    // console.log(err);
+                    err.should.be.exactly("Undefined recipient");
+                    done();
                 })
             });
         })
@@ -181,7 +188,8 @@ const suite = function () {
                     //console.log(done);
                     done.response.should.be.exactly("nodemailer-mock success");
                 }).catch((err) => {
-                    console.log(err);
+                    // console.log(err);
+                    done(err);
                 })
             });
 
@@ -197,6 +205,7 @@ const suite = function () {
                 // a test for our response
                 response.then((done) => {
                     response.error.should.be.exactly(err);
+                    done();
                 })
             });
 
@@ -212,7 +221,8 @@ const suite = function () {
                 response.then((done) => {
                     done.response.should.be.exactly("nodemailer-mock success");
                 }).catch((err) => {
-                    console.log(err);
+                    // console.log(err);
+                    done(err);
                 })
             });
             it("should verify that the custom email cannot send because 'to' is a nullish value", async () => {
@@ -225,12 +235,12 @@ const suite = function () {
         describe('Tests EmailService.getDefaultEmail', async () => {
             it('default template does not have the property', async () => {
                 let response = EmailService.getDefaultEmail("ThisIsNotAProperty")
-                console.log(response)
+                // console.log(response)
                 assert.ok(Object.keys(response).length === 0 && response.constructor === Object)
             })
             it('return correct default email', async () => {
                 let response = EmailService.getDefaultEmail("LESSON_CANCELLED", ["BestCourse"], ["00:00:00"]);
-                console.log(response)
+                // console.log(response)
                 assert.ok(response.hasOwnProperty("subject") && response.hasOwnProperty("message"))
             })
         })
