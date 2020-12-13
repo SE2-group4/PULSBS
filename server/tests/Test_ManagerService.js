@@ -59,6 +59,14 @@ const suite = function () {
                     .catch((err) => done(err));
             });
 
+            it('correct serialNumber should not return a teacher', function (done) {
+                service.managerGetStudent({ managerId: 1 }, { serialNumber: '4' })
+                    .then((user) => {
+                        done('No user should be returned');
+                    })
+                    .catch((err) => done()); //ok
+            });
+
             it('non existing user should fail the request', function (done) {
                 service.managerGetStudent({ managerId: 1 }, { ssn: 'invalid' })
                     .then((user) => {
