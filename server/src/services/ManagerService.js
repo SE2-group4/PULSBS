@@ -207,7 +207,7 @@ async function managerGetStudent({ managerId }, query = { ssn, serialNumber }) {
 async function managerGetReport({ managerId, serialNumber }, query) {
     managerId = Number(managerId);
     serialNumber = Number(serialNumber);
-    date = query.date ? new Date(query.date) : query.date;
+    date = query.date ? new Date(query.date) : new Date();
 
     const student = new Student(serialNumber);
     const students = await db.trackContacts(student, date);
