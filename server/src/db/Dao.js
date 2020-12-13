@@ -30,7 +30,7 @@ let db = null;
  * @param {Object} row
  * @returns {User|Teacher|Manager|Support} specific user 
  */
-const _transformUser = function(row) {
+const _transformUser = function (row) {
     let retUser;
     let error = null;
 
@@ -94,10 +94,10 @@ exports.init = init;
  */
 const getUserById = function (user) {
     let userId = user.userId;
-    if(user.teacherId) userId = user.teacherId;
-    else if(user.studentId) userId = user.studentId;
-    else if(user.managerId) userId = user.managerId;
-    else if(user.supportId) userId = user.supportId;
+    if (user.teacherId) userId = user.teacherId;
+    else if (user.studentId) userId = user.studentId;
+    else if (user.managerId) userId = user.managerId;
+    else if (user.supportId) userId = user.supportId;
 
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User WHERE userId = ?`;
@@ -107,8 +107,8 @@ const getUserById = function (user) {
                 return;
             }
 
-            const{ retUser, error } = _transformUser(row);
-            if(error) {
+            const { retUser, error } = _transformUser(row);
+            if (error) {
                 reject(error);
                 return;
             };
@@ -132,9 +132,9 @@ const login = function (user) {
                 reject(StandardErr.new("Dao", StandardErr.errno.WRONG_VALUE, "incorrect userId or password")); // no more info for security reasons
                 return;
             }
-            
-            const{ retUser, error } = _transformUser(row);
-            if(error) {
+
+            const { retUser, error } = _transformUser(row);
+            if (error) {
                 reject(error);
                 return;
             };
@@ -905,12 +905,12 @@ exports.getAllCourses = getAllCourses;
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} promise
  */
-const studentPushQueue = function(student, lecture) {
+const studentPushQueue = function (student, lecture) {
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO WaitingList(studentId, lectureId, date) VALUES (?, ?, ?)`;
 
-        db.get(sql, [student.studentId, lecture.lectureId, (new Date()).toISOString], function(err) {
-            if(err) {
+        db.get(sql, [student.studentId, lecture.lectureId, (new Date()).toISOString], function (err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
@@ -927,30 +927,30 @@ exports.studentPushQueue = studentPushQueue;
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} promise
  */
-const studentPopQueue = function(lecture) {
+const studentPopQueue = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User
             JOIN WaitingList ON WaitingList.studentId = User.userId
             WHERE WaitingList.date = (SELECT MIN(DATETIME(date)) FROM WaitingList WHERE lectureId = ?)`;
 
         db.get(sql, [lecture.lectureId], (err, row) => {
-            if(err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
-            if(!row) {
+            if (!row) {
                 reject(new StandardErr('Dao', StandardErr.errno.NOT_EXISTS, 'No student found', 404));
                 return;
             }
 
             const sqlCleaning = `DELETE FROM WaitingList WHERE userId = ? AND lectureId = ?`;
 
-            db.get(sqlCleaning, [student.studentId, lecture.lectureId], function(err) {
-                if(err) {
+            db.get(sqlCleaning, [student.studentId, lecture.lectureId], function (err) {
+                if (err) {
                     reject(StandardErr.fromDao(err));
                     return;
                 }
-                if(this.changes != 1) {
+                if (this.changes != 1) {
                     reject(new StandardErr('Dao', StandardErr.errno.NOT_EXISTS, 'Cannot delete from waiting list', 500));
                     return;
                 }
@@ -969,7 +969,7 @@ exports.studentPopQueue = studentPopQueue;
  * @param {Date} date 
  * @returns {Promise} promise
  */
-const managerGetReport = function(student, date) {
+const managerGetReport = function (student, date) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User
             JOIN Booking ON Booking.studentId = User.userId
@@ -981,8 +981,39 @@ const managerGetReport = function(student, date) {
             `;
 
         db.all(sql, [student.studentId, date], (err, rows) => {
-            
+
         });
     });
 }
 exports.managerGetReport = managerGetReport;
+
+/**
+ * get a user by its ssn
+ * @param {User|Teacher|Student|Manager|Support} user 
+ */
+const getUserBySsn = function (user) {
+    let userId = user.userId;
+    if (user.teacherId) userId = user.teacherId;
+    else if (user.studentId) userId = user.studentId;
+    else if (user.managerId) userId = user.managerId;
+    else if (user.supportId) userId = user.supportId;
+
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT User.* FROM User WHERE ssn = ?`;
+        db.get(sql, [userId], (err, row) => {
+            if (err || !row) {
+                reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "incorrect userId"));
+                return;
+            }
+
+            const { retUser, error } = _transformUser(row);
+            if (error) {
+                reject(error);
+                return;
+            };
+
+            resolve(retUser);
+        });
+    });
+};
+exports.getUserBySsn = getUserBySsn;
