@@ -4,9 +4,11 @@ import { Multiselect } from 'multiselect-react-dropdown';
 class MultiselectComp extends React.Component {
     constructor(props) {
         super(props);
+        this.onSelect = this.onSelect.bind(this);
+        this.onRemove = this.onRemove.bind(this);
         this.state = {
             options: this.props.options,
-            selectedValues: null
+            selectedValues: []
         };
     }
 
@@ -23,11 +25,11 @@ class MultiselectComp extends React.Component {
     }
 
     onSelect(selectedList, selectedItem) {
-
+        this.setState({ selectedValues: selectedList })
     }
 
     onRemove(selectedList, removedItem) {
-
+        this.setState({ selectedValues: selectedList })
     }
 }
 

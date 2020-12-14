@@ -8,19 +8,14 @@ class BurgerSidebar extends React.Component {
         super(props);
         this.state = {
             user: this.props.user,
-            typeOptions: [{ name: 'bookings', id: 1 }, { name: 'cancellations', id: 2 }, { name: 'attendance', id: 3 }],
-            courseNames: []
+            typeOptions: [{ name: 'bookings', id: 1 }, { name: 'cancellations', id: 2 }, { name: 'attendance', id: 3 }]
         }
     }
 
     async componentDidMount() {
         if (!this.props.fetchError)
             try {
-                let cMap = new Map();
-                this.state.courses.forEach(function (item) {
-                    cMap.set(item.description, item.courseId);
-                });
-                this.setState({ courseNames: cMap })
+
             } catch (error) {
                 let errormsg = error.source + " : " + error.error;
                 this.setState({ fetchError: errormsg, loading: false })
