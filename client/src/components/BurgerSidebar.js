@@ -10,20 +10,32 @@ class BurgerSidebar extends React.Component {
         super(props);
         this.handleFromChange = this.handleFromChange.bind(this);
         this.handleToChange = this.handleToChange.bind(this);
+        this.multiselectCoursesHandle = this.multiselectCoursesHandle.bind(this);
+        this.multiselectTypesHandle = this.multiselectTypesHandle.bind(this);
         this.state = {
             user: this.props.user,
-            typeOptions: [{ name: 'bookings', id: 1 }, { name: 'cancellations', id: 2 }, { name: 'attendance', id: 3 }],
-            from: undefined, to: undefined
+            from: undefined, to: undefined, selectedCourses: [], selectedTypes: []
         }
     }
 
+    multiselectCoursesHandle = (selectedCourses) => {
+        this.setState({ selectedCourses: selectedCourses })
+        this.props.generateGraph(selectedCourses, this.state.selectedTypes, this.state.from, this.state.to)
+    }
+
+    multiselectTypesHandle = (selectedTypes) => {
+        this.setState({ selectedTypes: selectedTypes })
+        this.props.generateGraph(this.state.selectedCourses, selectedTypes, this.state.from, this.state.to)
+    }
+
     handleFromChange(from) {
-        // Change the from date and focus the "to" input field
-        this.setState({ from });
+        this.setState({ from: from });
+        this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, from, this.state.to)
     }
 
     handleToChange(to) {
-        this.setState({ to }, this.showFromMonth);
+        this.setState({ to: to }, this.showFromMonth);
+        this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.from, to)
     }
 
     async componentDidMount() {
@@ -82,8 +94,10 @@ class BurgerSidebar extends React.Component {
                             onDayChange={this.handleToChange}
                         />
                     </span> </div></a>
-                <a id="course" className="menu-item" >Courses <MultiselectComp options={this.props.courses} display="description" ></MultiselectComp></a>
-                <a id="type" className="menu-item" >Type <MultiselectComp options={this.state.typeOptions} display="name"></MultiselectComp></a>
+                <a id="course" className="menu-item" >Courses
+                <MultiselectComp handle={this.multiselectCoursesHandle} options={this.props.courses} display="description" ></MultiselectComp></a>
+                <a id="type" className="menu-item" >Type
+                <MultiselectComp handle={this.multiselectTypesHandle} options={this.props.typeOptions} display="name"></MultiselectComp></a>
             </Menu >
         )
     }

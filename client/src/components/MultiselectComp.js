@@ -25,11 +25,13 @@ class MultiselectComp extends React.Component {
     }
 
     onSelect(selectedList, selectedItem) {
-        this.setState({ selectedValues: selectedList })
+        //this.setState({ selectedValues: selectedList })
+        this.props.handle(selectedList)
     }
 
     onRemove(selectedList, removedItem) {
-        this.setState({ selectedValues: selectedList })
+        //this.setState({ selectedValues: selectedList })
+        this.props.handle(selectedList)
     }
 }
 
