@@ -253,7 +253,7 @@ class TableReport extends React.Component {
         let items = [];
         for (let number = 1; number <= nPages; number++) {
             items.push(
-                <Pagination.Item className="paginationItemReport" key={number} active={number == this.state.active} >
+                <Pagination.Item data-testid={"paginationItem-" + number} className="paginationItemReport" key={number} active={number == this.state.active} >
                     {number}
                 </Pagination.Item>,
             );
