@@ -9,18 +9,18 @@ import APIfake from '../api/APIfake';
 class ManagerStatsPage extends React.Component {
     constructor(props) {
         super(props);
+        this.generateGraph = this.generateGraph.bind(this);
         this.state = {
-            courses: null, fetchError: false
+            courses: null, fetchError: false,
+            selectedCourses: [], from: undefined, to: undefined
         }
     }
-    /*
-    generateGraph = (coursesScelto,from,to) =>{
-        this.setState(coursesScelto : coursesScelto,)
+
+    generateGraph = (selectedCourses, from, to) => {
+        this.setState({ selectedCourses: selectedCourses, from: from, to: to })
     }
-    */
+
     async componentDidMount() {
-        //let allCourses = []
-        //allCourses.push(await APIfake.getAllCourses())
         APIfake.getAllCourses()
             .then((c) => {
                 this.setState({ courses: c })
@@ -29,7 +29,6 @@ class ManagerStatsPage extends React.Component {
                 let errormsg = error.source + " : " + error.error;
                 this.setState({ fetchError: errormsg, loading: false })
             })
-        //console.log(allCourses)
     }
 
     render() {
