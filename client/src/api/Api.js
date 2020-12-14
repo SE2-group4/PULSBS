@@ -303,19 +303,20 @@ async function deleteLecture(Tid, Cid, Lid) {
 * @param {*} list array of elements of the specified type
 */
 async function uploadList(id, type, list) {
+    let listToUpload = list.map((l) => l.data);
     return new Promise((resolve, reject) => {
         fetch(baseURL + `/supportOfficers/${id}/uploads/${type}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(list),
+            body: JSON.stringify(listToUpload),
         }).then((response) => {
             if (response.ok)
                 resolve();
             else
-                reject("Server error")
-        }).catch((err) => { reject("Server cannot communicate") }); // connection errors
+                reject({ error: { errorMsg: "Server error" } })
+        }).catch((err) => { reject({ errorMsg: "Server cannot communicate" }) }); // connection errors
     });
 }
 

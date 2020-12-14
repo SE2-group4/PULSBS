@@ -198,16 +198,36 @@ var statsParams = {
  * @param {*} query
  */
 exports.managerGetStudent = async function managerGetStudent({ managerId }, query = { ssn, serialNumber }) {
-    if (query.serialNumber) {
-        const serialNumber = Number(query.serialNumber);
-        const student = new Student(serialNumber);
-        const retStudent = await db.getUserById(student);
-        return retStudent;
-    } else if (query.ssn) {
-        const student = new Student();
-        student.ssn = query.ssn;
-        const retStudent = await db.getUserBySsn(student);
-        return retStudent;
+    if (query.serialNumber && query.ssn) {
+        throw new StandardErr(
+            "Manager service",
+            StandardErr.errno.GENERIC,
+            "Both query used (invalid)",
+            500
+        );
+    } else if (query.serialNumber || query.ssn) {
+        let student = new Student();
+        query.serialNumber ? student.studentId = Number(query.serialNumber) : student.ssn = query.ssn;
+        let retUser;
+        try {
+            retUser = query.serialNumber ? await db.getUserById(student) : await db.getUserBySsn(student);
+        } catch (err) {
+            throw new StandardErr(
+                "Manager service",
+                StandardErr.errno.NOT_EXISTS,
+                "Student not found",
+                404
+            );
+        }
+        if (retUser.type === 'STUDENT')
+            return retUser;
+        else
+            throw new StandardErr(
+                "Manager service",
+                StandardErr.errno.NOT_EXISTS,
+                "Student not found",
+                404
+            );
     } else {
         throw new StandardErr(
             "Manager service",
