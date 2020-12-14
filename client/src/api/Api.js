@@ -309,13 +309,12 @@ async function uploadList(id, type, list) {
     let limit = 100; //kB
     let num = Math.ceil(kB / limit); //num of pack needed
     let chunkLength = Math.ceil(listToUpload.length / num); //elem/pack
-    let i = 0, j, currentChunk = [];
+    let i = 0, currentChunk = [];
     try {
         for (let n = 0; n < num; n++) {
-            j = i + chunkLength;
-            currentChunk = JSON.stringify(listToUpload.slice(i, j));
+            currentChunk = JSON.stringify(listToUpload.slice(i, i + chunkLength));
             await uploadChunck(id, type, currentChunk);
-            i += packLength;
+            i += chunkLength;
         }
         return new Promise((resolve, reject) => resolve()); //success
     } catch (err) {
