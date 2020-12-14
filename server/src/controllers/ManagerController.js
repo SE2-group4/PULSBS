@@ -52,7 +52,7 @@ function managerGetStudent(req, res) {
             utils.writeJson(res, response);
         })
         .catch(function (response) {
-            utils.writeJson(res, response);
+            utils.writeJson(res, response, response.statusCode);
         });
 };
 module.exports.managerGetStudent = managerGetStudent;

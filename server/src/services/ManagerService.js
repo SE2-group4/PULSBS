@@ -247,7 +247,7 @@ exports.managerGetReport = async function managerGetReport({ managerId, serialNu
     managerId = Number(managerId);
     serialNumber = Number(serialNumber);
     date = date ? new Date(date) : new Date();
-
+    console.log(date)
     const student = new Student(serialNumber);
     const students = await db.managerGetReport(student, date);
     return students;

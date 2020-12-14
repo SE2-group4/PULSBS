@@ -347,15 +347,16 @@ async function getStudentBySSN(id, ssn) {
         fetch(baseURL + `/managers/${id}/students?ssn=${ssn}`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { resolve(obj.map((s) => Student.from(s))); })
+                    .then((obj) => { resolve(obj) })
                     .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
-                response.json()
-                    .then((obj) => { reject({ source: "Student", error: "invalid parameter error" }); }) // error msg in the response body
-                    .catch((err) => { reject({ source: "Student", error: "server error" }) }); // something else
+                if (response.status === 404)
+                    reject()
+                else reject("err")
+
             }
-        }).catch((err) => { reject({ source: "Student", error: "server error" }) }); // connection errors
+        }).catch((err) => { reject("err") }); // connection errors
     });
 }
 
@@ -364,15 +365,15 @@ async function getStudentBySerialNumber(id, serialNumber) {
         fetch(baseURL + `/managers/${id}/students?serialNumber=${serialNumber}`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { resolve(obj.map((s) => Student.from(s))); })
+                    .then((obj) => { resolve(obj) })
                     .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
-                response.json()
-                    .then((obj) => { reject({ source: "Student", error: "invalid parameter error" }); }) // error msg in the response body
-                    .catch((err) => { reject({ source: "Student", error: "server error" }) }); // something else
+                if (response.status === 404)
+                    reject()
+                else reject("err")
             }
-        }).catch((err) => { reject({ source: "Student", error: "server error" }) }); // connection errors
+        }).catch((err) => { reject("err") }); // connection errors
     });
 }
 
@@ -381,7 +382,7 @@ async function generateReport(id, serialNumber, date) {
         fetch(baseURL + `/managers/${id}/tracingReport/${serialNumber}?date=${date}`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { resolve(obj.map((s) => Student.from(s))); })
+                    .then((obj) => { console.log(obj); resolve(obj) })
                     .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
@@ -393,11 +394,29 @@ async function generateReport(id, serialNumber, date) {
     });
 }
 
+async function getAllCourses(id) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/managers/${id}/courses`).then((response) => {
+            if (response.ok) {
+                response.json()
+                    .then((obj) => { console.log(obj); resolve(obj) })
+                    .catch((err) => { reject({ source: "Course", error: "application parse error" }) }); // something else
+            } else {
+                // analyze the cause of error
+                response.json()
+                    .then((obj) => { reject({ source: "Course", error: "invalid parameter error" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Course", error: "server error" }) }); // something else
+            }
+        }).catch((err) => { reject({ source: "Course", error: "server error" }) }); // connection errors
+    });
+}
+
 
 /******************************************************************************/
 
 const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
-    getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport
+    getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport,
+    getAllCourses
 };
 export default API;
