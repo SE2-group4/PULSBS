@@ -23,6 +23,7 @@ const EmailType = require("./../entities/EmailType.js");
 const emailService = require("./../services/EmailService.js");
 const { StandardErr } = require("./../utils/utils.js");
 const User = require("../entities/User.js");
+const { POINT_CONVERSION_COMPRESSED } = require("constants");
 
 let db = null;
 
@@ -1007,7 +1008,6 @@ const getClassByLecture = function(lecture) {
 }
 exports.getClassByLecture = getClassByLecture;
 
-
 // TODO not tested
 // added by Francesco
 /**
@@ -1028,3 +1028,41 @@ const execBatch = function (queries) {
     });
 }
 exports.execBatch = execBatch;
+
+/**
+ * 
+ * @param {Student} student - studentId needed
+ * @param {Object} periodOfTime - {Date} from (optional), {Date} to (optional)
+ */
+const getWaitingsByStudentAndPeriodOfTime = function(student, periodOfTime) {
+    return new Promise((resolve, reject) => {
+        const sqlParams = [];
+        let sql = `SELECT Lecture.* FROM Lecture
+            JOIN WaitingList ON WaitingList.lectureId = Lecture.LectureId
+            WHERE WaitingList.studentId = ?`;
+        sqlParams.push(student.studentId);
+
+        // composing the SQL query
+        if (periodOfTime.from && moment(periodOfTime.from).isValid()) {
+            sql += ` AND DATETIME(Lecture.startingDate) >= DATETIME(?)`;
+            sqlParams.push(moment(periodOfTime.from).toISOString());
+        }
+        if (periodOfTime.to && moment(periodOfTime.to).isValid()) {
+            sql += ` AND DATETIME(Lecture.startingDate) <= DATETIME(?)`;
+            sqlParams.push(moment(periodOfTime.to).toISOString());
+        }
+        sql += ` ORDER BY DATETIME(Lecture.startingDate)`;
+
+        db.all(sql, sqlParams, (err, rows) => {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            const lectures = [];
+            rows.forEach((row) => lectures.push(Lecture.from(row)));
+            resolve(lectures);
+        });
+    });
+}
+exports.getWaitingsByStudentAndPeriodOfTime = getWaitingsByStudentAndPeriodOfTime;
