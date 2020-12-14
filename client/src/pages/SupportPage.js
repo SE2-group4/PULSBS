@@ -9,7 +9,7 @@ import Modal from 'react-bootstrap/Modal';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import { GoCheck } from 'react-icons/go';
-//import API from '../api/Api';
+import API from '../api/Api';
 
 class SupportPage extends React.Component {
     constructor(props) {
@@ -69,21 +69,22 @@ class SupportPage extends React.Component {
     /**
      * Manages the API calls for each of the type of entry loaded
      */
-    sendFiles = () => {
-        //TO_DO : in case of all response ok, success message 
-        /*
+    sendFiles = async () => {
         try {
-            let sendStudents= this.state.studentsArray ? await API.uploadList(this.state.user.userId,"students",this.state.studentsArray) : null;
-            let sendCourses= this.state.coursesArray ? await API.uploadList(this.state.user.userId,"courses",this.state.coursesArray) : null;
-            let sendProfessors= this.state.professorsArray ? await API.uploadList(this.state.user.userId,"teachers",this.state.professorsArray) : null;
-            let sendSchedules= this.state.schedulesArray ? await API.uploadList(this.state.user.userId,"lectures",this.state.schedulesArray) : null;
-            let sendEnrollments= this.state.enrollmentsArray ? await API.uploadList(this.state.user.userId,"classes",this.state.enrollmentsArray) : null;
-            this.setState({ show: false, elems: null,success: true });
+            if (this.state.studentsArray)
+                await API.uploadList(this.props.user.userId, "students", this.state.studentsArray);
+            if (this.state.coursesArray)
+                await API.uploadList(this.props.user.userId, "courses", this.state.coursesArray);
+            if (this.state.professorsArray)
+                await API.uploadList(this.props.user.userId, "teachers", this.state.professorsArray);
+            if (this.state.schedulesArray)
+                await API.uploadList(this.props.user.userId, "lectures", this.state.schedulesArray);
+            if (this.state.enrollmentsArray)
+                await API.uploadList(this.props.user.userId, "classes", this.state.enrollmentsArray);
+            this.setState({ show: false, elems: null, success: true });
         } catch (err) {
-            this.setState({ show: false, elems: null,fetchError: true });
+            this.setState({ show: false, elems: null, fetchError: err.errorMsg });
         }
-        */
-        this.setState({ show: false, success: true });
     }
 
     /**

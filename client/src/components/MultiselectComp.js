@@ -5,7 +5,8 @@ class MultiselectComp extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            options: [{ name: 'Srigar', id: 1 }, { name: 'Sam', id: 2 }]
+            options: this.props.options,
+            selectedValues: null
         };
     }
 
@@ -16,7 +17,7 @@ class MultiselectComp extends React.Component {
                 selectedValues={this.state.selectedValue} // Preselected value to persist in dropdown
                 onSelect={this.onSelect} // Function will trigger on select event
                 onRemove={this.onRemove} // Function will trigger on remove event
-                displayValue="name" // Property name to display in the dropdown options
+                displayValue={this.props.display} // Property name to display in the dropdown options
             />
         )
     }
