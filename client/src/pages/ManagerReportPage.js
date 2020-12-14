@@ -22,9 +22,18 @@ class ManagerReportPage extends React.Component {
         super(props);
         this.state = { text: "", date: moment().toISOString() }
     }
+    /**
+     * Change the filter (SSn, Serial Number)
+     * @param {String} type 
+     */
     selectFilter = (type) => {
         this.setState({ filterType: type, text: "", student: null });
     }
+
+    /**
+     * Change every time a new letter is inserted in the textbox
+     * @param {String} textBoxValue  (this value can be an ssn or a serial number)
+     */
     changeTextbox = (textBoxValue) => {
         this.setState({ text: textBoxValue, loading: true, fetchError: false })
         if (!textBoxValue)
@@ -48,21 +57,40 @@ class ManagerReportPage extends React.Component {
                 })
         }
     }
+
+    /**
+     * Change the swab date
+     * @param {String} date 
+     */
     selectDate = (date) => {
         this.setState({ date: moment(date).toISOString() })
     }
+
+    /**
+     * Handle the click on generate report button
+     */
     handleGenerateReport = () => {
         API.generateReport(this.props.user.userId, this.state.student.studentId, this.state.date)
             .then((report) => this.setState({ report: report }))
             .catch()
 
     }
+
+    /**
+     * Handle the click on generate new report button
+     */
     handleGenerateNewReport = () => {
         this.setState({ report: null, text: "", date: moment().toISOString(), student: null, filterType: null })
     }
+
+    /**
+     * Handle the click on download PDF button
+     */
     handleCreatePdf = () => {
         createPDF(this.state.report, this.state.student, this.state.date)
     }
+
+
     render() {
         if (!this.state.report)
             return (
@@ -86,6 +114,7 @@ class ManagerReportPage extends React.Component {
 
                 </Container >
             )
+
         if (this.state.report)
             return (
                 <Container>
@@ -95,6 +124,10 @@ class ManagerReportPage extends React.Component {
 
     }
 }
+/**
+ * Display the two filter buttons
+ * @param {*} props 
+ */
 function PairButtons(props) {
     return (
         <>
@@ -107,7 +140,10 @@ function PairButtons(props) {
         </>
     )
 }
-
+/**
+ * Display the form
+ * @param {*} props 
+ */
 function FormBox(props) {
     return (
         <Form>
@@ -115,7 +151,7 @@ function FormBox(props) {
 
                 <Form.Label column sm="3"><b>{props.filterType === "SSN" ? "Student SSN :" : "Serial Number :"}</b></Form.Label>
                 <Col>
-                    <Form.Control as="textarea" value={props.text} rows={1} onChange={(ev) => props.changeTextbox(ev.target.value)} />
+                    <Form.Control data-testid="textBox" as="textarea" value={props.text} rows={1} onChange={(ev) => props.changeTextbox(ev.target.value)} />
                 </Col>
 
             </Form.Group>
@@ -123,7 +159,7 @@ function FormBox(props) {
             <Form.Group as={Row}>
                 <Form.Label column sm="3"><b>Swab Date :</b></Form.Label><br></br>
                 <Col>
-                    <DayPickerInput value={moment(props.date).format("DD-MM-YYYY")} onDayChange={props.selectDate} />
+                    <DayPickerInput value={moment(props.date).format("DD-MM-YYYY")} placeholder={moment(props.date).format("DD-MM-YYYY")} onDayChange={props.selectDate} />
                 </Col>
             </Form.Group>
             <br />
@@ -159,7 +195,7 @@ function FormBox(props) {
             {
                 !props.student && !props.fetchError &&
                 <>
-                    <Form.Control disabled readOnly value="No student matches" /><br></br><br></br>
+                    <Form.Control data-testid="fd" disabled readOnly value="No student matches" /><br></br><br></br>
                     <Button variant="warning" disabled>Generate Tracing Report</Button>
 
 
@@ -176,17 +212,26 @@ function FormBox(props) {
         </Form >
     )
 }
-
+/**
+ * Display the report table
+ */
 class TableReport extends React.Component {
     constructor(props) {
         super(props)
         this.state = { active: 1 }
     }
+    /**
+     * Handle the click on other page in pagination mechanism
+     * @param {Number} number 
+     */
     changePage = (number) => {
         if (number)
             this.setState({ active: number })
 
     }
+    /**
+     * Not supported for now
+     */
     downloadCSV = () => {
         this.setState({ downloadCSV: true })
     }
@@ -247,6 +292,10 @@ class TableReport extends React.Component {
         )
     }
 }
+/**
+ * Display an entry of report table
+ * @param {*} props 
+ */
 function TableEntry(props) {
     return (
         <tr>
@@ -258,7 +307,12 @@ function TableEntry(props) {
         </tr>
     )
 }
-
+/**
+ * Create and download the report pdf
+ * @param {*} report 
+ * @param {*} student 
+ * @param {*} date 
+ */
 function createPDF(report, student, date) {
     const doc = new jsPDF();
 
@@ -274,4 +328,6 @@ function createPDF(report, student, date) {
 
     doc.save("Report_" + student.studentId + ".pdf");
 }
+
+
 export default ManagerReportPage;
