@@ -7,7 +7,7 @@ class BurgerSidebar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: props.user, courses: props.courses,
+            user: this.props.user,
             typeOptions: [{ name: 'bookings', id: 1 }, { name: 'cancellations', id: 2 }, { name: 'attendance', id: 3 }],
             courseNames: []
         }
@@ -33,11 +33,13 @@ class BurgerSidebar extends React.Component {
 
 
     render() {
+        if (!this.props.courses)
+            return (<></>)
         return (
             <Menu isOpen={true}>
                 <a id="from" className="menu-item" >From <DayPickerInput /></a>
                 <a id="to" className="menu-item" >To <DayPickerInput /></a>
-                <a id="course" className="menu-item" >Courses <MultiselectComp options={this.state.courses} display="description" ></MultiselectComp></a>
+                <a id="course" className="menu-item" >Courses <MultiselectComp options={this.props.courses} display="description" ></MultiselectComp></a>
                 <a id="type" className="menu-item" >Type <MultiselectComp options={this.state.typeOptions} display="name"></MultiselectComp></a>
             </Menu >
         )

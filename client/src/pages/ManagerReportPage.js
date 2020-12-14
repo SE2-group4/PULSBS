@@ -322,7 +322,7 @@ function createPDF(report, student, date) {
     doc.text("List of person who had contacts with the positive student :", 10, 40)
     let d = 50
     report.forEach(element => {
-        doc.text(element.studentId + " " + element.firstName + " " + element.lastName + " " + element.email, 10, d)
+        doc.text(element.userId + " " + element.firstName + " " + element.lastName + " " + element.email, 10, d)
         d += 10
     });
 

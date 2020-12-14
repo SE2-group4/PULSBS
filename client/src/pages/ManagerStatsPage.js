@@ -13,26 +13,23 @@ class ManagerStatsPage extends React.Component {
             courses: null, fetchError: false
         }
     }
-
+    /*
+    generateGraph = (coursesScelto,from,to) =>{
+        this.setState(coursesScelto : coursesScelto,)
+    }
+    */
     async componentDidMount() {
-        if (!this.props.fetchError)
-            try {
-                //let allCourses = []
-                //allCourses.push(await APIfake.getAllCourses())
-                APIfake.getAllCourses()
-                    .then((c) => {
-                        this.setState({ courses: c })
-                    })
-                    .catch()
-                //console.log(allCourses)
-
-
-            } catch (error) {
+        //let allCourses = []
+        //allCourses.push(await APIfake.getAllCourses())
+        APIfake.getAllCourses()
+            .then((c) => {
+                this.setState({ courses: c })
+            })
+            .catch((error) => {
                 let errormsg = error.source + " : " + error.error;
                 this.setState({ fetchError: errormsg, loading: false })
-            }
-        else
-            this.setState({ fetchError: this.props.fetchError, loading: false });
+            })
+        //console.log(allCourses)
     }
 
     render() {
@@ -40,7 +37,7 @@ class ManagerStatsPage extends React.Component {
             <Container fluid>
                 <Row>
 
-                    <BurgerSidebar courses={this.state.courses} />
+                    <BurgerSidebar courses={this.state.courses} generateGraph={this.generateGraph} />
 
                 </Row>
             </Container>
