@@ -14,12 +14,12 @@ class ManagerStatsPage extends React.Component {
         this.state = {
             courses: null, fetchError: false,
             typeOptions: [{ name: 'bookings', id: 1 }, { name: 'cancellations', id: 2 }, { name: 'attendance', id: 3 }],
-            selectedCourses: [], selectedTypes: [], from: undefined, to: undefined
+            selectedCourses: [], selectedTypes: [], from: undefined, to: undefined, granularity: null
         }
     }
 
-    generateGraph = (selectedCourses, selectedTypes, from, to) => {
-        this.setState({ selectedCourses: selectedCourses, selectedTypes: selectedTypes, from: from, to: to })
+    generateGraph = (selectedCourses, selectedTypes, from, to, granularity) => {
+        this.setState({ selectedCourses: selectedCourses, selectedTypes: selectedTypes, from: from, to: to, granularity: granularity })
     }
 
     async componentDidMount() {
