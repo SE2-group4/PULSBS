@@ -152,7 +152,31 @@ exports.studentGetCourseLectures = function(studentId, courseId, periodOfTime = 
                 }
                 
                 dao.getLecturesByCourseAndPeriodOfTime(course, periodOfTime)
-                    .then(resolve)
+                    .then((lectures) => {
+                        const classPromises = [];
+                        const bookingsPromises = [];
+                        for(const currLecture of lectures) {
+                            classPromises.push(dao.getClassByLecture(currLecture));
+                            bookingsPromises.push(dao.getNumBookingsOfLecture(currLecture));
+                        }
+
+                        Promise.all(classPromises)
+                            .then((classes) => {
+                                Promise.all(bookingsPromises)
+                                .then((bookings) => {
+                                    const retLectures = [];
+                                    for(let i=0; i<lectures.length; i++) {
+                                        retLectures.push({
+                                            lecture : lectures[i],
+                                            class_ : classes[i],
+                                            nBookings : bookings[i]
+                                        });
+                                    }
+                                })
+                                .catch(reject);
+                            })
+                            .catch(reject);
+                    })
                     .catch(reject);
             });
     });
@@ -170,7 +194,7 @@ exports.studentGetCourses = function(studentId) {
 };
 
 /**
- * get the list of lectures booked
+ * get the list of lectures booked and waited for
  * @param {Number} studentId 
  * @param {Object} periodOfTime
  * @returns {Promise} promise
@@ -178,7 +202,18 @@ exports.studentGetCourses = function(studentId) {
 exports.studentGetBookings = function(studentId, periodOfTime) {
     const student = new Student(studentId);
 
-    return dao.getBookingsByStudentAndPeriodOfTime(student, periodOfTime);
+    Promise.all([
+            dao.getBookingsByStudentAndPeriodOfTime(student, periodOfTime),
+            dao.getWaitingsByStudentAndPeriodOfTime(student, periodOfTime)
+        ])
+        .then((values) => {
+            const lectures = {
+                booked : values[0],
+                waited : values[1]
+            } 
+            resolve(lectures);
+        })
+        .catch(reject);
 };
 
 /**
