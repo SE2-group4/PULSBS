@@ -70,21 +70,22 @@ class SupportPage extends React.Component {
      * Manages the API calls for each of the type of entry loaded
      */
     sendFiles = async () => {
-        try {
-            if (this.state.studentsArray)
-                await API.uploadList(this.props.user.userId, "students", this.state.studentsArray);
-            if (this.state.coursesArray)
-                await API.uploadList(this.props.user.userId, "courses", this.state.coursesArray);
-            if (this.state.professorsArray)
-                await API.uploadList(this.props.user.userId, "teachers", this.state.professorsArray);
-            if (this.state.schedulesArray)
-                await API.uploadList(this.props.user.userId, "lectures", this.state.schedulesArray);
-            if (this.state.enrollmentsArray)
-                await API.uploadList(this.props.user.userId, "classes", this.state.enrollmentsArray);
-            this.setState({ show: false, elems: null, success: true });
-        } catch (err) {
-            this.setState({ show: false, elems: null, fetchError: err.errorMsg });
-        }
+
+        let promises = [];
+        if (this.state.studentsArray)
+            promises.push(API.uploadList(this.props.user.userId, "students", this.state.studentsArray));
+        if (this.state.coursesArray)
+            promises.push(API.uploadList(this.props.user.userId, "courses", this.state.coursesArray));
+        if (this.state.professorsArray)
+            promises.push(API.uploadList(this.props.user.userId, "teachers", this.state.professorsArray));
+        if (this.state.schedulesArray)
+            promises.push(API.uploadList(this.props.user.userId, "lectures", this.state.schedulesArray));
+        if (this.state.enrollmentsArray)
+            promises.push(API.uploadList(this.props.user.userId, "classes", this.state.enrollmentsArray));
+        Promise.all(promises)
+            .then(() => this.setState({ show: false, elems: null, success: true }))
+            .catch((err) => this.setState({ show: false, elems: null, fetchError: err.errorMsg }))
+
     }
 
     /**
