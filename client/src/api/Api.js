@@ -2,6 +2,7 @@ import User from '../entities/user';
 import Course from '../entities/course';
 import Lecture from '../entities/lecture';
 import Student from '../entities/student';
+var sizeof = require('object-sizeof');
 /**
  * API.js contains all the API for server communications
  */
@@ -304,13 +305,32 @@ async function deleteLecture(Tid, Cid, Lid) {
 */
 async function uploadList(id, type, list) {
     let listToUpload = list.map((l) => l.data);
+    let kB = sizeof(listToUpload) / 1024; //kB
+    let limit = 100; //kB
+    let num = Math.ceil(kB / limit); //num of pack needed
+    let chunkLength = Math.ceil(listToUpload.length / num); //elem/pack
+    let i = 0, j, currentChunk = [];
+    try {
+        for (let n = 0; n < num; n++) {
+            j = i + chunkLength;
+            currentChunk = JSON.stringify(listToUpload.slice(i, j));
+            await uploadChunck(id, type, currentChunk);
+            i += packLength;
+        }
+        return new Promise((resolve, reject) => resolve()); //success
+    } catch (err) {
+        return new Promise((resolve, reject) => reject(err)); //at least one POST fails
+    }
+}
+
+async function uploadChunck(id, type, list) {
     return new Promise((resolve, reject) => {
         fetch(baseURL + `/supportOfficers/${id}/uploads/${type}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(listToUpload),
+            body: list,
         }).then((response) => {
             if (response.ok)
                 resolve();

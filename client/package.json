@@ -20,6 +20,7 @@
     "moment": "^2.29.1",
     "multiselect-react-dropdown": "^1.6.2",
     "nyc": "^15.1.0",
+    "object-sizeof": "^1.6.1",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.0",
     "react-burger-menu": "^3.0.2",
