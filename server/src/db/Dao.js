@@ -1006,3 +1006,25 @@ const getClassByLecture = function(lecture) {
     });
 }
 exports.getClassByLecture = getClassByLecture;
+
+
+// TODO not tested
+// added by Francesco
+/**
+ * get all courses
+ * @returns {Promise} promise
+ */
+const execBatch = function (queries) {
+    return new Promise((resolve, reject) => {
+        db.run(queries, (err) => {
+            if (err) {
+                console.log(err);
+                reject("ERRORE execBatch");
+                return;
+            };
+
+            resolve("OK batch");
+        });
+    });
+}
+exports.execBatch = execBatch;
