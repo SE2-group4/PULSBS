@@ -25,22 +25,24 @@ class ManagerReportPage extends React.Component {
     }
     changeTextbox = (textBoxValue) => {
         this.setState({ text: textBoxValue })
-        if (this.state.filterType === "SSN") {
-            APIfake.getStudentBySSN(this.props.user.userId, textBoxValue)
+        if (!textBoxValue)
+            this.setState({ student: null })
+        else if (this.state.filterType === "SSN") {
+            API.getStudentBySSN(this.props.user.userId, textBoxValue)
                 .then((student) => this.setState({ student: student }))
-                .catch()
+                .catch(() => this.setState({ student: null }))
         }
-        if (this.state.filterType === "Student ID") {
-            APIfake.getStudentBySerialNumber(this.props.user.userId, textBoxValue)
-                .then((student) => this.setState({ student: student }))
-                .catch()
+        else if (this.state.filterType === "Student ID") {
+            API.getStudentBySerialNumber(this.props.user.userId, textBoxValue)
+                .then((student) => { console.log(student); this.setState({ student: student }) })
+                .catch((err) => console.log(err))
         }
     }
     selectDate = (date) => {
         this.setState({ date: date })
     }
     handleGenerateReport = () => {
-        APIfake.generateReport(this.props.user.userId, this.state.student.studentId, this.state.date)
+        API.generateReport(this.props.user.userId, this.state.student.studentId, this.state.date)
             .then((report) => this.setState({ report: report }))
             .catch()
 

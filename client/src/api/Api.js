@@ -343,7 +343,7 @@ async function getStudentBySerialNumber(id, serialNumber) {
         fetch(baseURL + `/managers/${id}/students?serialNumber=${serialNumber}`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { resolve(obj.map((s) => Student.from(s))); })
+                    .then((obj) => { resolve(obj) })
                     .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
@@ -360,7 +360,7 @@ async function generateReport(id, serialNumber, date) {
         fetch(baseURL + `/managers/${id}/tracingReport/${serialNumber}?date=${date}`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { resolve(obj.map((s) => Student.from(s))); })
+                    .then((obj) => { console.log(obj); resolve(obj) })
                     .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
