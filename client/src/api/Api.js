@@ -327,15 +327,16 @@ async function getStudentBySSN(id, ssn) {
         fetch(baseURL + `/managers/${id}/students?ssn=${ssn}`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { resolve(obj.map((s) => Student.from(s))); })
+                    .then((obj) => { resolve(obj) })
                     .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
-                response.json()
-                    .then((obj) => { reject({ source: "Student", error: "invalid parameter error" }); }) // error msg in the response body
-                    .catch((err) => { reject({ source: "Student", error: "server error" }) }); // something else
+                if (response.status === 404)
+                    reject()
+                else reject("err")
+
             }
-        }).catch((err) => { reject({ source: "Student", error: "server error" }) }); // connection errors
+        }).catch((err) => { reject("err") }); // connection errors
     });
 }
 
@@ -348,11 +349,11 @@ async function getStudentBySerialNumber(id, serialNumber) {
                     .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
-                response.json()
-                    .then((obj) => { reject({ source: "Student", error: "invalid parameter error" }); }) // error msg in the response body
-                    .catch((err) => { reject({ source: "Student", error: "server error" }) }); // something else
+                if (response.status === 404)
+                    reject()
+                else reject("err")
             }
-        }).catch((err) => { reject({ source: "Student", error: "server error" }) }); // connection errors
+        }).catch((err) => { reject("err") }); // connection errors
     });
 }
 

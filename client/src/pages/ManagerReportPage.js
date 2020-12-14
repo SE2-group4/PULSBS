@@ -8,38 +8,48 @@ import DayPickerInput from 'react-day-picker/DayPickerInput';
 import Alert from 'react-bootstrap/Alert'
 import Table from 'react-bootstrap/Table'
 import Pagination from 'react-bootstrap/Pagination'
+import Spinner from 'react-bootstrap/Spinner'
+import ErrorMsg from '../components/ErrorMsg'
 import API from '../api/Api'
 import APIfake from '../api/APIfake'
 import moment from 'moment'
 import { jsPDF } from "jspdf";
-import { CSVLink } from "react-csv";
+import { CSVLink, CSVDownload } from "react-csv";
 import 'react-day-picker/lib/style.css';
 
 class ManagerReportPage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { text: "", date: new Date() }
+        this.state = { text: "", date: moment().toISOString() }
     }
     selectFilter = (type) => {
         this.setState({ filterType: type, text: "", student: null });
     }
     changeTextbox = (textBoxValue) => {
-        this.setState({ text: textBoxValue })
+        this.setState({ text: textBoxValue, loading: true, fetchError: false })
         if (!textBoxValue)
-            this.setState({ student: null })
+            this.setState({ student: null, loading: false, fetchError: false })
         else if (this.state.filterType === "SSN") {
             API.getStudentBySSN(this.props.user.userId, textBoxValue)
-                .then((student) => this.setState({ student: student }))
-                .catch(() => this.setState({ student: null }))
+                .then((student) => this.setState({ student: student, loading: false }))
+                .catch((err) => {
+                    if (err === "err")
+                        this.setState({ loading: false, fetchError: true, student: null })
+                    else this.setState({ student: null, loading: false, })
+                })
         }
         else if (this.state.filterType === "Student ID") {
             API.getStudentBySerialNumber(this.props.user.userId, textBoxValue)
-                .then((student) => { console.log(student); this.setState({ student: student }) })
-                .catch((err) => console.log(err))
+                .then((student) => { this.setState({ student: student, loading: false }) })
+                .catch((err) => {
+                    if (err === "err")
+                        this.setState({ loading: false, fetchError: true, student: null })
+                    else this.setState({ student: null, loading: false })
+                })
         }
     }
     selectDate = (date) => {
-        this.setState({ date: date })
+        this.setState({ date: moment(date).toISOString() })
     }
     handleGenerateReport = () => {
         API.generateReport(this.props.user.userId, this.state.student.studentId, this.state.date)
@@ -48,7 +58,7 @@ class ManagerReportPage extends React.Component {
 
     }
     handleGenerateNewReport = () => {
-        this.setState({ report: null, text: "", date: new Date(), student: null, filterType: null })
+        this.setState({ report: null, text: "", date: moment().toISOString(), student: null, filterType: null })
     }
     handleCreatePdf = () => {
         createPDF(this.state.report, this.state.student, this.state.date)
@@ -69,7 +79,7 @@ class ManagerReportPage extends React.Component {
                         this.state.filterType &&
                         <>
                             <FormBox text={this.state.text} filterType={this.state.filterType} changeTextbox={this.changeTextbox} student={this.state.student}
-                                selectDate={this.selectDate} date={this.state.date} handleGenerateReport={this.handleGenerateReport} />
+                                selectDate={this.selectDate} date={this.state.date} handleGenerateReport={this.handleGenerateReport} loading={this.state.loading} fetchError={this.state.fetchError} />
 
                         </>
                     }
@@ -89,10 +99,10 @@ function PairButtons(props) {
     return (
         <>
             <Col sm="2">
-                <Button variant="dark" size="lg" active={props.active === "SSN" ? true : false} onClick={() => props.selectFilter("SSN")}>SSN</Button>
+                <Button variant="secondary" size="lg" active={props.active === "SSN" ? true : false} onClick={() => props.selectFilter("SSN")}>SSN</Button>
             </Col>
             <Col>
-                <Button variant="dark" size="lg" active={props.active === "Student ID" ? true : false} onClick={() => props.selectFilter("Student ID")}>Serial Number</Button>
+                <Button variant="secondary" size="lg" active={props.active === "Student ID" ? true : false} onClick={() => props.selectFilter("Student ID")}>Serial Number</Button>
             </Col>
         </>
     )
@@ -113,11 +123,14 @@ function FormBox(props) {
             <Form.Group as={Row}>
                 <Form.Label column sm="3"><b>Swab Date :</b></Form.Label><br></br>
                 <Col>
-                    <DayPickerInput value={props.date} onDayChange={props.selectDate} />
+                    <DayPickerInput value={moment(props.date).format("DD-MM-YYYY")} onDayChange={props.selectDate} />
                 </Col>
             </Form.Group>
             <br />
             <Form.Label><b>Student selected:</b></Form.Label>
+            {props.loading &&
+                <Spinner size="sm" animation="border" />
+            }
             {
                 props.student &&
                 <>
@@ -132,7 +145,7 @@ function FormBox(props) {
                         </thead>
                         <tbody>
                             <tr>
-                                <td>{props.student.studentId}</td>
+                                <td>{props.student.userId}</td>
                                 <td>{props.student.firstName}</td>
                                 <td>{props.student.lastName}</td>
                                 <td>{props.student.email}</td>
@@ -144,7 +157,7 @@ function FormBox(props) {
                 </>
             }
             {
-                !props.student &&
+                !props.student && !props.fetchError &&
                 <>
                     <Form.Control disabled readOnly value="No student matches" /><br></br><br></br>
                     <Button variant="warning" disabled>Generate Tracing Report</Button>
@@ -152,7 +165,14 @@ function FormBox(props) {
 
                 </>
             }
+            {
+                props.fetchError &&
+                <>
+                    <ErrorMsg msg="Error during server communication" />
+                    <Button variant="warning" disabled>Generate Tracing Report</Button>
+                </>
 
+            }
         </Form >
     )
 }
@@ -167,13 +187,28 @@ class TableReport extends React.Component {
             this.setState({ active: number })
 
     }
+    downloadCSV = () => {
+        this.setState({ downloadCSV: true })
+    }
     render() {
+        if (this.props.report.length === 0)
+            return (
+                <>
+                    <Alert variant="dark"><b>The selected student had not contacts with other people</b></Alert><br />
+                    <Button variant="warning" onClick={() => this.props.handleGenerateNewReport()}>Generate a new report</Button>
+                </>
+            )
+        if (this.state.downloadCSV === true) {
+            this.setState({ downloadCSV: false })
+            return (
+                <CSVDownload data={this.props.report} filename="Report_CSV.csv" />
+            )
+        }
         let nPages = Math.floor(this.props.report.length / 10) + 1;
-        console.log(nPages)
         let items = [];
         for (let number = 1; number <= nPages; number++) {
             items.push(
-                <Pagination.Item key={number} active={number == this.state.active} >
+                <Pagination.Item className="paginationItemReport" key={number} active={number == this.state.active} >
                     {number}
                 </Pagination.Item>,
             );
@@ -189,6 +224,7 @@ class TableReport extends React.Component {
                     <thead>
                         <tr>
                             <th>Serial Number</th>
+                            <th>Type</th>
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Email</th>
@@ -198,12 +234,12 @@ class TableReport extends React.Component {
                         {tableEntries}
                     </tbody>
                 </Table>
-                <Pagination onClick={(ev) => this.changePage(ev.target.text)}>{items}</Pagination>
+                {nPages > 1 && <Pagination onClick={(ev) => this.changePage(ev.target.text)}>{items}</Pagination>}
                 <Row>
                     <Col sm="6"><Button variant="warning" onClick={() => this.props.handleGenerateNewReport()}>Generate a new report</Button></Col>
                     <Col sm="6">
-                        <Button variant="warning" onClick={() => this.props.handleCreatePDF()} id="buttonPDF">Convert to PDF</Button><br /><br />
-                        <Button variant="warning" id="buttonCSV"><CSVLink data={this.props.report} filename="Report.csv">Convert to CSV</CSVLink></Button>
+                        <Button variant="warning" onClick={() => this.props.handleCreatePDF()} id="buttonPDF">Download PDF</Button><br /><br />
+                        {/*<Button variant="warning" onClick={() => this.downloadCSV()}>Convert to CSV</Button>*/}
                     </Col>
 
                 </Row>
@@ -214,7 +250,8 @@ class TableReport extends React.Component {
 function TableEntry(props) {
     return (
         <tr>
-            <td>{props.user.studentId}</td>
+            <td>{props.user.userId}</td>
+            <td>{props.user.type}</td>
             <td>{props.user.firstName}</td>
             <td>{props.user.lastName}</td>
             <td>{props.user.email}</td>
