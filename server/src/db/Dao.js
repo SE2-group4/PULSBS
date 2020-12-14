@@ -1013,7 +1013,7 @@ exports.getClassByLecture = getClassByLecture;
  * @param {Student} student - studentId needed
  * @param {Object} periodOfTime - {Date} from (optional), {Date} to (optional)
  */
-const getWaitingsByStudentAndPeriodOfTime = function(student, periodOfTime) {
+const getWaitingsByStudentAndPeriodOfTime = function(student, periodOfTime = {}) {
     return new Promise((resolve, reject) => {
         const sqlParams = [];
         let sql = `SELECT Lecture.* FROM Lecture
