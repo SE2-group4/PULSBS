@@ -18,12 +18,16 @@ const Course = require('../src/entities/Course.js');
 const EmailType = require('../src/entities/EmailType.js');
 const Email = require('../src/entities/Email.js');
 const prepare = require('../src/db/preparedb.js');
+const { pseudoRandomBytes } = require('crypto');
+const { Server } = require('http');
 
 const suite = function() {
     let student1;
     let student2;
+    let student3;
     let lecture1;
     let lecture2;
+    let lecture6;
     let course5;
 
     before(function(done) {
@@ -37,8 +41,10 @@ const suite = function() {
     const reset = (done) => {
         student1 = new Student(1);
         student2 = new Student(2);
+        student3 = new Student(3);
         lecture1 = new Lecture(1, 1);
         lecture2 = new Lecture(2, 2);
+        lecture6 = new Lecture(6, 6);
         course5 = new Course(5);
 
         prepare('testing.db', 'testing.sql', false)
@@ -103,7 +109,23 @@ const suite = function() {
             it('wrong params should refuse the unbooking request', function(done) {
                 service.studentUnbookLecture(-1, lecture1.courseId, lecture1.lectureId)
                     .then((retVal) => done('This should fail'))
-                    .catch((err) => done());
+                    .catch((err) => done()); // correct case
+            });
+
+            it('correct params should remove the student and pick a student from the waiting list', function(done) {
+                service.studentUnbookLecture(student3.studentId, lecture6.courseId, lecture6.lectureId)
+                    .then((retVal) => {
+                        assert.ok(retVal, 'Not modified DB');
+                        service.studentGetBookings(student2.studentId)
+                            .then((lectures) => {
+                                console.log(lectures);
+                                assert.ok(lectures.waited.find((currLecture) => currLecture.lectureId === lecture6.lectureId) == undefined, 'Student waiting not resolved');
+                                assert.ok(lectures.booked.find((currLecture) => currLecture.lectureId === lecture6.lectureId) != undefined, 'Student booking not added');
+                                done();
+                            })
+                            .catch((err) => done(err));
+                    })
+                    .catch((err) => done(err));
             });
         });
 
@@ -207,7 +229,7 @@ const suite = function() {
             it('correct params should return a list of lectures the student is booked for', function(done) {
                 service.studentGetBookings(student2.studentId)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.length, 2, 'Wrong number of bookings retrieved');
+                        assert.strictEqual(lectures.booked.length, 2, 'Wrong number of bookings retrieved');
                         done();
                     })
                     .catch((err) => done(err));
@@ -216,7 +238,7 @@ const suite = function() {
             it('non-existing student should return an empty list of lectures', function(done) {
                 service.studentGetBookings(-1)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.length, 0, 'Wrong number of bookings retrieved');
+                        assert.strictEqual(lectures.booked.length, 0, 'Wrong number of bookings retrieved');
                         done();
                     })
                     .catch((err) => done(err));
@@ -228,7 +250,7 @@ const suite = function() {
                 };
                 service.studentGetBookings(student1.studentId, periodOfTime)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
+                        assert.strictEqual(lectures.booked.length, 1, 'Wrong number of lectures retrieved');
                         done();
                     })
                     .catch((err) => done(err));
@@ -240,7 +262,7 @@ const suite = function() {
                 };
                 service.studentGetBookings(student1.studentId, periodOfTime)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.length, 2, 'Wrong number of lectures retrieved');
+                        assert.strictEqual(lectures.booked.length, 2, 'Wrong number of lectures retrieved');
                         done();
                     })
                     .catch((err) => done(err));
@@ -253,10 +275,49 @@ const suite = function() {
                 };
                 service.studentGetBookings(student1.studentId, periodOfTime)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
+                        assert.strictEqual(lectures.booked.length, 1, 'Wrong number of lectures retrieved');
                         done();
                     })
                     .catch((err) => done(err));
+            });
+        });
+
+        describe('studentPushQueue', function() {
+            beforeEach(function(done) {
+                reset(done);
+            });
+
+            it('correct params should accept the waiting request', function(done) {
+                service.studentPushQueue(student1.studentId, lecture2.courseId, lecture2.lectureId)
+                    .then((retVal) => {
+                        assert.ok(retVal > 0, 'Unable to wait a lecture');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('already waited lecture should refuse the waiting request', function(done) {
+                service.studentPushQueue(student1.studentId, lecture6.courseId, lecture6.lectureId)
+                    .then((retVal) => done('This should fail'))
+                    .catch((err) => done());
+            });
+            
+            it('not existing lecture should refuse the waiting request', function(done) {
+                service.studentPushQueue(student1.studentId, lecture1.lectureId, -1)
+                    .then((retVal) => done('This should fail'))
+                    .catch((err) => done());
+            });
+
+            it('existing student is not enrolled in that course should refuse the waiting request', function(done) {
+                service.studentPushQueue(student2.studentId, lecture1.courseId, lecture1.lectureId)
+                    .then((retVal) => done('This should fail'))
+                    .catch((err) => done());
+            });
+
+            it('course and lecture mistmatch should refuse the waiting request', function(done) {
+                service.studentPushQueue(student1.studentId, lecture1.courseId, lecture2.lectureId)
+                    .then((retVal) => done('This should fail'))
+                    .catch((err) => done());
             });
         });
     });

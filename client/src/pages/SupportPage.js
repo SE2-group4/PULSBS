@@ -8,13 +8,14 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
-import { GoCheck } from 'react-icons/go';
+import { GoChevronDown, GoCheck } from 'react-icons/go';
+import Spinner from 'react-bootstrap/Spinner';
 import API from '../api/Api';
 
 class SupportPage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { show: null, success: false, refresh: false };
+        this.state = { show: null, success: false, refresh: false, genError: null, loading: false };
     }
 
     /**
@@ -22,8 +23,12 @@ class SupportPage extends React.Component {
      * @param {*} data 
      * @param {*} name 
      */
-    handleOnDrop = (data, name) => {
-        this.setState({ [name]: data });
+    handleOnDrop = (data, name, filename) => {
+        let type = filename.type;
+        if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel")
+            this.setState({ [name]: data });
+        else
+            this.setState({ genError: filename.name + " is not a valid file (expected type: csv)." });
     }
 
     /**
@@ -43,7 +48,8 @@ class SupportPage extends React.Component {
      * @param {*} name 
      */
     handleOnRemoveFile = (data, name) => {
-        this.setState({ [name]: null })
+        if (!this.state.loading)
+            this.setState({ [name]: null })
     }
 
     /**
@@ -70,7 +76,6 @@ class SupportPage extends React.Component {
      * Manages the API calls for each of the type of entry loaded
      */
     sendFiles = async () => {
-
         let promises = [];
         if (this.state.studentsArray)
             promises.push(API.uploadList(this.props.user.userId, "students", this.state.studentsArray));
@@ -79,13 +84,16 @@ class SupportPage extends React.Component {
         if (this.state.professorsArray)
             promises.push(API.uploadList(this.props.user.userId, "teachers", this.state.professorsArray));
         if (this.state.schedulesArray)
-            promises.push(API.uploadList(this.props.user.userId, "lectures", this.state.schedulesArray));
+            promises.push(API.uploadList(this.props.user.userId, "schedules", this.state.schedulesArray));
         if (this.state.enrollmentsArray)
-            promises.push(API.uploadList(this.props.user.userId, "classes", this.state.enrollmentsArray));
+            promises.push(API.uploadList(this.props.user.userId, "enrollments", this.state.enrollmentsArray));
         Promise.all(promises)
-            .then(() => this.setState({ show: false, elems: null, success: true }))
-            .catch((err) => this.setState({ show: false, elems: null, fetchError: err.errorMsg }))
-
+            .then(() => this.setState({ elems: null, success: true, loading: false }))
+            .catch((err) => {
+                let errormsg = err.source + " : " + err.error;
+                this.setState({ elems: null, genError: errormsg, loading: false })
+            })
+        this.setState({ show: false, loading: true });
     }
 
     /**
@@ -95,6 +103,9 @@ class SupportPage extends React.Component {
         this.setState({ refresh: true });
     }
 
+    closeError = () => {
+        this.setState({ genError: null });
+    }
     /**
      * Renders the SupportPage component
      */
@@ -105,8 +116,8 @@ class SupportPage extends React.Component {
             return <>
                 { this.state.show &&
                     <SummaryModal sumClose={this.closeModal} send={this.sendFiles} elems={this.state.elems} />}
-                { this.state.success &&
-                    <SuccessModal successClose={this.refreshPage} />}
+                { (this.state.success || this.state.genError) &&
+                    <GenericModal successClose={this.refreshPage} errorClose={this.closeError} success={this.state.success} error={this.state.genError} />}
                 <Container fluid id="supportContainer">
                     <Row className="justify-content-md-center">
                         <Col sm={6}>
@@ -124,7 +135,7 @@ class SupportPage extends React.Component {
                             <Accordion>
                                 <Card>
                                     <Accordion.Toggle as={Card.Header} eventKey="0">
-                                        <b>STUDENTS</b> {this.state.studentsArray ? <GoCheck size={16} /> : ""}
+                                        <GoChevronDown size={16} /> <b>STUDENTS</b> {this.state.studentsArray ? <GoCheck size={16} /> : ""}
                                     </Accordion.Toggle>
                                     <Accordion.Collapse eventKey="0">
                                         <Card.Body>
@@ -134,7 +145,7 @@ class SupportPage extends React.Component {
                                 </Card>
                                 <Card>
                                     <Accordion.Toggle as={Card.Header} eventKey="1">
-                                        <b>COURSES</b> {this.state.coursesArray ? <GoCheck size={16} /> : ""}
+                                        <GoChevronDown size={16} /> <b>COURSES</b> {this.state.coursesArray ? <GoCheck size={16} /> : ""}
                                     </Accordion.Toggle>
                                     <Accordion.Collapse eventKey="1">
                                         <Card.Body>
@@ -144,7 +155,7 @@ class SupportPage extends React.Component {
                                 </Card>
                                 <Card>
                                     <Accordion.Toggle as={Card.Header} eventKey="2">
-                                        <b>PROFESSORS</b> {this.state.professorsArray ? <GoCheck size={16} /> : ""}
+                                        <GoChevronDown size={16} /> <b>PROFESSORS</b> {this.state.professorsArray ? <GoCheck size={16} /> : ""}
                                     </Accordion.Toggle>
                                     <Accordion.Collapse eventKey="2">
                                         <Card.Body>
@@ -154,7 +165,7 @@ class SupportPage extends React.Component {
                                 </Card>
                                 <Card>
                                     <Accordion.Toggle as={Card.Header} eventKey="3">
-                                        <b>SCHEDULES</b> {this.state.schedulesArray ? <GoCheck size={16} /> : ""}
+                                        <GoChevronDown size={16} /> <b>SCHEDULES</b> {this.state.schedulesArray ? <GoCheck size={16} /> : ""}
                                     </Accordion.Toggle>
                                     <Accordion.Collapse eventKey="3">
                                         <Card.Body>
@@ -164,7 +175,7 @@ class SupportPage extends React.Component {
                                 </Card>
                                 <Card>
                                     <Accordion.Toggle as={Card.Header} eventKey="4">
-                                        <b>ENROLLMENTS</b> {this.state.enrollmentsArray ? <GoCheck size={16} /> : ""}
+                                        <GoChevronDown size={16} /> <b>ENROLLMENTS</b> {this.state.enrollmentsArray ? <GoCheck size={16} /> : ""}
                                     </Accordion.Toggle>
                                     <Accordion.Collapse eventKey="4">
                                         <Card.Body>
@@ -177,7 +188,10 @@ class SupportPage extends React.Component {
                         </Col>
                     </Row>
                     <Row className="justify-content-md-center">
-                        <Button variant="warning" size="m" data-testid="submit-button" onClick={this.showModal}>Submit your data</Button>
+                        <Button variant="warning" size="m" data-testid="submit-button" onClick={this.showModal} disabled={this.state.loading}>Submit your data</Button>
+                    </Row>
+                    <Row className="justify-content-md-center">
+                        {this.state.loading && <label><br />Uploading data...&emsp;&emsp;<Spinner animation="border" /></label>}
                     </Row>
                 </Container>
             </>;
@@ -195,7 +209,7 @@ function CSVPanel(props) {
     };
     return <CSVReader
         config={options}
-        onDrop={(data) => props.handleOnDrop(data, props.stateName)}
+        onDrop={(data, name) => props.handleOnDrop(data, props.stateName, name)}
         onError={props.handleOnError}
         addRemoveButton
         onRemoveFile={(data) => props.handleOnRemoveFile(data, props.stateName)}
@@ -235,15 +249,16 @@ function SummaryModal(props) {
  * Returns the Modal component to notify the user of the opersation success
  * @param {*} props 
  */
-function SuccessModal(props) {
-    return <Modal show={true} onHide={props.successClose}>
+function GenericModal(props) {
+    return <Modal show={true} onHide={props.success ? props.successClose : props.errorClose}>
         <Modal.Header closeButton>
+            <Modal.Title>{props.success ? <>Done</> : <>Error</>}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-            Operation successful!
+            {props.success ? <>Operation successful!</> : <>{props.error}</>}
         </Modal.Body>
         <Modal.Footer>
-            <Button name="close" data-testid="success-close" variant="secondary" onClick={props.successClose}>Close</Button>
+            <Button name="close" data-testid="success-close" variant="secondary" onClick={props.success ? props.successClose : props.errorClose}>Close</Button>
         </Modal.Footer>
     </Modal>;
 }

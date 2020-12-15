@@ -41,8 +41,9 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
         let count = 0; // line counter
 
         const dataSql = fs.readFileSync(dbscript).toString();
-        const dataArr = dataSql.toString().split(/\r?\n/);
+        let dataArr = dataSql.toString().split(/\r?\n/);
         dataArr.forEach((query, index, array) => (array[index] = query.trim()));
+        dataArr = dataArr.filter((item) => !item.startsWith('--'));
 
         db.serialize(() => {
             // db.run runs your SQL query against the DB

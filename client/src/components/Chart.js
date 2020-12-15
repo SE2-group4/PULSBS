@@ -18,62 +18,167 @@ class Chart extends React.Component {
             'rgba(214, 114, 77,0.6)',
             'rgba(217, 196, 76,0.6)'
         ]
-        var description = courseName(this.props.courses, this.props.lecture.courseId);
-        var week = avgWeek(this.props.lectures, this.props.lecture);
-        var month = avgMonth(this.props.lectures, this.props.lecture);
-        return (<div>
-            <Bar
-                data={
-                    {
-                        labels: [moment(this.props.lecture.startingDate).format('DD/MM/YYYY'),
-                        ["average week", moment(this.props.lecture.startingDate).startOf('week').format('DD/MM/YYYY') + " - " + moment(this.props.lecture.startingDate).endOf('week').format('DD/MM/YYYY')],
-                        ["average month", moment(this.props.lecture.startingDate).startOf('month').format('DD/MM/YYYY') + " - " + moment(this.props.lecture.startingDate).endOf('month').format('DD/MM/YYYY')]],
-                        datasets: [{
-                            label: description,
-                            data: [this.props.lecture.numBookings, week.toFixed(2), month.toFixed(2)],
-                            backgroundColor: colors[getColorIndex(this.props.courses, this.props.lecture.courseId)],
-                            borderWidth: 2,
-                        }]
-                    }
-                }
-                height={600}
-                width={600}
-                options={{
-                    maintainAspectRatio: false,
-                    scales: {
-                        yAxes: [
-                            {
-                                ticks: {
-                                    beginAtZero: true,
-                                    fontSize: 15,
-                                    precision: 2,
-                                },
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: '# bookings',
-                                    fontSize: 15,
-                                    fontStyle: 'bold',
-                                }
-                            }
-                        ],
-                        xAxes: [
-                            {
-                                ticks: {
-                                    fontSize: 15,
-                                }
-                            }
-                        ]
-                    },
-                    legend: {
-                        labels: {
-                            fontSize: 15,
-                            fontStyle: 'bold',
+        //var description = courseName(this.props.courses, this.props.lecture.courseId);
+        //var week = avgWeek(this.props.lectures, this.props.lecture);
+        //var month = avgMonth(this.props.lectures, this.props.lecture);
+        if (this.props.granularity == "daily")
+            return (<div>
+                <Bar
+                    data={
+                        {
+                            labels: [],
+                            datasets: [{
+                                label: [],
+                                data: [],
+                                borderWidth: 2,
+                            }]
                         }
                     }
+                    height={600}
+                    width={600}
+                    options={{
+                        maintainAspectRatio: false,
+                        scales: {
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true,
+                                        fontSize: 15,
+                                        precision: 2,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'stats',
+                                        fontSize: 15,
+                                        fontStyle: 'bold',
+                                    }
+                                }
+                            ],
+                            xAxes: [
+                                {
+                                    ticks: {
+                                        fontSize: 15,
+                                    }
+                                }
+                            ]
+                        },
+                        legend: {
+                            labels: {
+                                fontSize: 15,
+                                fontStyle: 'bold',
+                            }
+                        }
 
-                }}
-            />
-        </div>)
+                    }}
+                />
+            </div>)
+        else if (this.props.granularity == "weekly")
+            return (<div>
+                <Bar
+                    data={
+                        {
+                            labels: this.props.weeks,
+                            datasets: [{
+                                label: "stats",
+                                data: [4, 3, 2],
+                                backgroundColor: "red",
+                                borderWidth: 2,
+                            }]
+                        }
+                    }
+                    height={600}
+                    width={600}
+                    options={{
+                        maintainAspectRatio: false,
+                        scales: {
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true,
+                                        fontSize: 15,
+                                        precision: 2,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'stats',
+                                        fontSize: 15,
+                                        fontStyle: 'bold',
+                                    }
+                                }
+                            ],
+                            xAxes: [
+                                {
+                                    ticks: {
+                                        fontSize: 15,
+                                    }
+                                }
+                            ]
+                        },
+                        legend: {
+                            labels: {
+                                fontSize: 15,
+                                fontStyle: 'bold',
+                            }
+                        }
+
+                    }}
+                />
+            </div>)
+        else if (this.props.granularity == "monthly")
+            return (<div>
+                <Bar
+                    data={
+                        {
+                            labels: this.props.months,
+                            datasets: [{
+                                label: [],
+                                data: [2, 3, 4],
+                                backgroundColor: "green",
+                                borderWidth: 2,
+                            }]
+                        }
+                    }
+                    height={600}
+                    width={600}
+                    options={{
+                        maintainAspectRatio: false,
+                        scales: {
+                            yAxes: [
+                                {
+                                    ticks: {
+                                        beginAtZero: true,
+                                        fontSize: 15,
+                                        precision: 2,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'stats',
+                                        fontSize: 15,
+                                        fontStyle: 'bold',
+                                    }
+                                }
+                            ],
+                            xAxes: [
+                                {
+                                    ticks: {
+                                        fontSize: 15,
+                                    }
+                                }
+                            ]
+                        },
+                        legend: {
+                            labels: {
+                                fontSize: 15,
+                                fontStyle: 'bold',
+                            }
+                        }
+
+                    }}
+                />
+            </div>)
+        else {
+            return (<></>)
+        }
     }
 }
 

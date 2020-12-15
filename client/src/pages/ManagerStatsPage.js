@@ -15,7 +15,7 @@ class ManagerStatsPage extends React.Component {
         this.state = {
             courses: null, fetchError: false,
             typeOptions: [{ name: 'bookings', id: 1 }, { name: 'cancellations', id: 2 }, { name: 'attendance', id: 3 }],
-            selectedCourses: [], selectedTypes: [], selectedMonths: [], selectedWeeks: [], from: undefined, to: undefined, granularity: null
+            selectedCourses: [], selectedTypes: [], selectedMonths: [], selectedWeeks: [], from: undefined, to: undefined, granularity: "daily"
         }
     }
 
@@ -42,6 +42,10 @@ class ManagerStatsPage extends React.Component {
             <Container fluid>
                 <Row>
                     <BurgerSidebar courses={this.state.courses} typeOptions={this.state.typeOptions} generateGraph={this.generateGraph} />
+                    <Col sm="6">
+                        <Chart courses={this.state.selectedCourses} types={this.state.selectedTypes} weeks={this.state.selectedWeeks}
+                            months={this.state.selectedMonths} granularity={this.state.granularity} />
+                    </Col>
                 </Row>
             </Container>
         )

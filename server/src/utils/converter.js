@@ -113,6 +113,9 @@ function isValueOfType(acceptedType, value) {
         case "boolean": {
             return isBoolean(toBoolean(value));
         }
+        case "string": {
+            return typeof value === "string";
+        }
         default: {
             console.log(`${type} not implemented in isValueOfType`);
             return false;
