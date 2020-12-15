@@ -7,7 +7,6 @@ class MultiselectComp extends React.Component {
         this.onSelect = this.onSelect.bind(this);
         this.onRemove = this.onRemove.bind(this);
         this.state = {
-            options: this.props.options,
             selectedValues: []
         };
     }
@@ -15,7 +14,7 @@ class MultiselectComp extends React.Component {
     render() {
         return (
             <Multiselect
-                options={this.state.options} // Options to display in the dropdown
+                options={this.props.options} // Options to display in the dropdown
                 selectedValues={this.state.selectedValue} // Preselected value to persist in dropdown
                 onSelect={this.onSelect} // Function will trigger on select event
                 onRemove={this.onRemove} // Function will trigger on remove event
@@ -25,12 +24,10 @@ class MultiselectComp extends React.Component {
     }
 
     onSelect(selectedList, selectedItem) {
-        //this.setState({ selectedValues: selectedList })
         this.props.handle(selectedList)
     }
 
     onRemove(selectedList, removedItem) {
-        //this.setState({ selectedValues: selectedList })
         this.props.handle(selectedList)
     }
 }

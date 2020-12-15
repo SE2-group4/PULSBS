@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment'
 import Container from "react-bootstrap/Container";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -14,12 +15,15 @@ class ManagerStatsPage extends React.Component {
         this.state = {
             courses: null, fetchError: false,
             typeOptions: [{ name: 'bookings', id: 1 }, { name: 'cancellations', id: 2 }, { name: 'attendance', id: 3 }],
-            selectedCourses: [], selectedTypes: [], from: undefined, to: undefined, granularity: null
+            selectedCourses: [], selectedTypes: [], selectedMonths: [], selectedWeeks: [], from: undefined, to: undefined, granularity: null
         }
     }
 
-    generateGraph = (selectedCourses, selectedTypes, from, to, granularity) => {
-        this.setState({ selectedCourses: selectedCourses, selectedTypes: selectedTypes, from: from, to: to, granularity: granularity })
+    generateGraph = (selectedCourses, selectedTypes, selectedWeeks, selectedMonths, from, to, granularity) => {
+        this.setState({
+            selectedCourses: selectedCourses, selectedTypes: selectedTypes, selectedWeeks: selectedWeeks,
+            selectedMonths: selectedMonths, from: from, to: to, granularity: granularity
+        })
     }
 
     async componentDidMount() {
@@ -38,7 +42,6 @@ class ManagerStatsPage extends React.Component {
             <Container fluid>
                 <Row>
                     <BurgerSidebar courses={this.state.courses} typeOptions={this.state.typeOptions} generateGraph={this.generateGraph} />
-
                 </Row>
             </Container>
         )
