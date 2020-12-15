@@ -24,9 +24,11 @@ class StudentPage extends React.Component {
     async componentDidMount() {
         try {
             const courses = await API.getCoursesByStudentId(this.state.user.userId);
-            const bookedLectures = await API.getBookedLectures(this.state.user.userId);
+            const bookedOrWaitingLectures = await API.getBookedLectures(this.state.user.userId);
+            const bookedLectures = bookedOrWaitingLectures.booked;
+            const waitedLectures = bookedOrWaitingLectures.waited;
             const allLectures = await this.getAllLectures(courses);
-            const events = buildEvents(bookedLectures, allLectures, courses); //build the events for the calendar
+            const events = buildEvents(bookedLectures, waitedLectures, allLectures, courses); //build the events for the calendar
             this.setState({ courses: courses, events: events, loading: false });
         } catch (err) {
             this.setState({ fetchError: err, loading: false })
@@ -41,6 +43,7 @@ class StudentPage extends React.Component {
             let lectures = []
             for (let c of courses)
                 lectures.push(await API.getLecturesByCourseId(this.state.user.userId, c.courseId))
+            console.log(lectures)
             return lectures;
         } catch (err) {
             throw err;
@@ -127,13 +130,19 @@ class StudentPage extends React.Component {
  * @param {Array of Lectures} all all lectures
  * @param {Array of Courses} courses all courses
  */
-function buildEvents(booked, all, courses) {
+function buildEvents(booked, waited, all, courses) {
+    console.log(waited);
+    console.log(booked);
+    console.log(all);
+    console.log(courses);
     const events = []
     for (let array of all)
         for (let lecture of array) {
             let availableSeats = lecture.classCapacity - lecture.numBookings;
             if (moment(lecture.startingDate).isBefore(moment()))
                 events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "black", "past", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
+            else if (isWaited(lecture, waited))
+                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "orange", "inWaitingList", lecture.lectureId, lecture.courseId, lecture.bookingDeadline, availableSeats, lecture.className))
             else if (lecture.delivery === "REMOTE")
                 events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "grey", "remote", lecture.lectureId, lecture.courseId, lecture.bookingDeadline))
             else if (isBooked(lecture, booked))
@@ -147,6 +156,12 @@ function buildEvents(booked, all, courses) {
     return events;
 }
 
+function isWaited(lecture, waited) {
+    for (let l of waited)
+        if (l.lectureId === lecture.lectureId)
+            return true
+    return false
+}
 /**
  * Check if a lecture is booked
  * @param {Lecture} lecture 
