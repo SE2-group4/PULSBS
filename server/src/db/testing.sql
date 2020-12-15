@@ -11,12 +11,12 @@ INSERT INTO User(userId, type, firstName, lastName, email, password,ssn) VALUES(
 INSERT INTO User(userId, type, firstName, lastName, email, password,ssn) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni','giovanni2');
 INSERT INTO User(userId, type, firstName, lastName, email, password,ssn) VALUES(3, 'STUDENT', 'Silvana', 'Fallisi', 'silvana.fallisi@agg.it', 'silvana','silvana3');
 
-INSERT INTO Course(courseId, description, year) VALUES(1, 'Software enginnering 2', 2020);
-INSERT INTO Course(courseId, description, year) VALUES(2, 'Computer system security', 2020);
-INSERT INTO Course(courseId, description, year) VALUES(3, 'Machine learning and artificial intelligence', 2020);
-INSERT INTO Course(courseId, description, year) VALUES(4, 'Web application', 2020);
-INSERT INTO Course(courseId, description, year) VALUES(5, 'Formal languages and compilers', 2020);
-INSERT INTO Course(courseId, description, year) VALUES(6, 'Big data', 2020);
+INSERT INTO Course(courseId, description, year) VALUES(1, 'Software enginnering 2', 1);
+INSERT INTO Course(courseId, description, year) VALUES(2, 'Computer system security', 1);
+INSERT INTO Course(courseId, description, year) VALUES(3, 'Machine learning and artificial intelligence', 2);
+INSERT INTO Course(courseId, description, year) VALUES(4, 'Web application', 2);
+INSERT INTO Course(courseId, description, year) VALUES(5, 'Formal languages and compilers', 1);
+INSERT INTO Course(courseId, description, year) VALUES(6, 'Big data', 2);
 
 INSERT INTO User(userId, type, firstName, lastName, email, password,ssn) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'jamaree.bretley@extraale.com', 'giacomo','giacomo4');
 INSERT INTO User(userId, type, firstName, lastName, email, password,ssn) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'enis.laron@extraale.com', 'marina','marina5');
@@ -28,15 +28,15 @@ INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(5, 4, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(5, 5, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 6, 1);
 
-INSERT INTO Enrollment(studentId, courseId) VALUES(1, 1);
-INSERT INTO Enrollment(studentId, courseId) VALUES(1, 2);
-INSERT INTO Enrollment(studentId, courseId) VALUES(1, 3);
-INSERT INTO Enrollment(studentId, courseId) VALUES(2, 3);
-INSERT INTO Enrollment(studentId, courseId) VALUES(3, 3);
-INSERT INTO Enrollment(studentId, courseId) VALUES(3, 4);
-INSERT INTO Enrollment(studentId, courseId) VALUES(1, 5);
-INSERT INTO Enrollment(studentId, courseId) VALUES(1, 6);
-INSERT INTO Enrollment(studentId, courseId) VALUES(2, 6);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(1, 1, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(1, 2, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(1, 3, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(2, 3, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(3, 3, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(3, 4, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(1, 5, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(1, 6, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(2, 6, 2020);
 
 INSERT INTO Class(classId, description, capacity) VALUES(1, '1A', 10);
 INSERT INTO Class(classId, description, capacity) VALUES(2, '2B', 10);

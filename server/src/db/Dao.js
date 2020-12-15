@@ -232,7 +232,7 @@ const getCoursesByStudent = function (student) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Course.* FROM Course
         JOIN Enrollment ON Enrollment.courseId = Course.courseId
-        WHERE Enrollment.studentId = ? AND year = ?`;
+        WHERE Enrollment.studentId = ? AND Enrollment.year = ?`;
 
         db.all(sql, [student.studentId, _getCurrentAcademicYear()], (err, rows) => {
             if (err) {
@@ -312,7 +312,7 @@ const getStudentsByCourse = function (course) {
         const sql = `SELECT User.* FROM User
         JOIN Enrollment ON User.userId = Enrollment.studentId
         JOIN Course ON Enrollment.courseId = Course.courseId
-        WHERE Course.courseId = ? AND Course.year = ? AND User.type = ?`;
+        WHERE Course.courseId = ? AND Enrollment.year = ? AND User.type = ?`;
 
         db.all(sql, [course.courseId, _getCurrentAcademicYear(), "STUDENT"], (err, rows) => {
             if (err) {
@@ -366,7 +366,7 @@ const getCoursesByTeacher = function (teacher) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Course.* FROM Course
         JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId
-        WHERE TeacherCourse.teacherId = ? AND Course.year = ?`;
+        WHERE TeacherCourse.teacherId = ? AND Enrollment.year = ?`;
 
         db.all(sql, [teacher.teacherId, _getCurrentAcademicYear()], (err, rows) => {
             if (err) {

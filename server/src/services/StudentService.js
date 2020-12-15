@@ -172,6 +172,7 @@ exports.studentGetCourseLectures = function(studentId, courseId, periodOfTime = 
                                             nBookings : bookings[i]
                                         });
                                     }
+                                    resolve(retLectures);
                                 })
                                 .catch(reject);
                             })
@@ -202,7 +203,8 @@ exports.studentGetCourses = function(studentId) {
 exports.studentGetBookings = function(studentId, periodOfTime) {
     const student = new Student(studentId);
 
-    Promise.all([
+    return new Promise((resolve, reject) => {
+        Promise.all([
             dao.getBookingsByStudentAndPeriodOfTime(student, periodOfTime),
             dao.getWaitingsByStudentAndPeriodOfTime(student, periodOfTime)
         ])
@@ -210,10 +212,12 @@ exports.studentGetBookings = function(studentId, periodOfTime) {
             const lectures = {
                 booked : values[0],
                 waited : values[1]
-            } 
+            }
             resolve(lectures);
         })
         .catch(reject);
+    });
+
 };
 
 /**
