@@ -141,7 +141,7 @@ describe('Support Page suite', () => {
         expect(screen.getByText("Upload : Server connection error")).toBeInTheDocument();
     })
 
-    test('load of remaining CSVPanels', async () => {
+    test('upload of remaining CSVPanels (API success + failure)', async () => {
         await setupPage();
         let input = screen.getByTestId('csv3');
         await act(async () => {
@@ -158,6 +158,16 @@ describe('Support Page suite', () => {
         });
         expect(screen.getByText('schedules: 4')).toBeInTheDocument();
         expect(screen.getByText('enrollments: 4')).toBeInTheDocument();
+        fetch.mockResponses(
+            [JSON.stringify({ body: "ok" }), { status: 200 }],
+        ).mockReject();
+        await act(async () => {
+            userEvent.click(screen.getByTestId('submit-button'));
+        });
+        await act(async () => {
+            userEvent.click(screen.getByTestId('sum-yes'));
+        });
+        expect(screen.getByText("Upload : Server connection error")).toBeInTheDocument();
     })
 
 });
