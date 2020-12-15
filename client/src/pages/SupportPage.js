@@ -15,7 +15,7 @@ import API from '../api/Api';
 class SupportPage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { show: null, success: false, refresh: false, fetchError: null, loading: false };
+        this.state = { show: null, success: false, refresh: false, genError: null, loading: false };
     }
 
     /**
@@ -28,7 +28,7 @@ class SupportPage extends React.Component {
         if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel")
             this.setState({ [name]: data });
         else
-            console.log("type mismatch");
+            this.setState({ genError: filename.name + " is not a valid file (expected type: csv)." });
     }
 
     /**
@@ -91,7 +91,7 @@ class SupportPage extends React.Component {
             .then(() => this.setState({ elems: null, success: true, loading: false }))
             .catch((err) => {
                 let errormsg = err.source + " : " + err.error;
-                this.setState({ elems: null, fetchError: errormsg, loading: false })
+                this.setState({ elems: null, genError: errormsg, loading: false })
             })
         this.setState({ show: false, loading: true });
     }
@@ -104,7 +104,7 @@ class SupportPage extends React.Component {
     }
 
     closeError = () => {
-        this.setState({ fetchError: null });
+        this.setState({ genError: null });
     }
     /**
      * Renders the SupportPage component
@@ -116,8 +116,8 @@ class SupportPage extends React.Component {
             return <>
                 { this.state.show &&
                     <SummaryModal sumClose={this.closeModal} send={this.sendFiles} elems={this.state.elems} />}
-                { (this.state.success || this.state.fetchError) &&
-                    <SuccessModal successClose={this.refreshPage} errorClose={this.closeError} success={this.state.success} error={this.state.fetchError} />}
+                { (this.state.success || this.state.genError) &&
+                    <GenericModal successClose={this.refreshPage} errorClose={this.closeError} success={this.state.success} error={this.state.genError} />}
                 <Container fluid id="supportContainer">
                     <Row className="justify-content-md-center">
                         <Col sm={6}>
@@ -249,9 +249,10 @@ function SummaryModal(props) {
  * Returns the Modal component to notify the user of the opersation success
  * @param {*} props 
  */
-function SuccessModal(props) {
-    return <Modal show={true} onHide={props.successClose}>
+function GenericModal(props) {
+    return <Modal show={true} onHide={props.success ? props.successClose : props.errorClose}>
         <Modal.Header closeButton>
+            <Modal.Title>{props.success ? <>Done</> : <>Error</>}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
             {props.success ? <>Operation successful!</> : <>{props.error}</>}
