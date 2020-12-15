@@ -67,7 +67,7 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
  *
  * teacherId {Integer}
  * courseId {Integer}
- * queryString {Object} {from: <date>, to: <date>, numBookinks = true}
+ * queryString {Object} {from: <date>, to: <date>, bookings = true}
  * returns {Array} array of lectures. In case of error an ResponseError
  **/
 exports.teacherGetCourseLectures = async function (teacherId, courseId, queryString) {
@@ -76,7 +76,7 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
         throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    let { err, dateFilter, numBookings } = extractOptions(queryString);
+    let { err, dateFilter, bookings } = extractOptions(queryString);
     if (err instanceof ResponseError) throw err;
 
     if (!dateFilter) dateFilter = {};
@@ -84,7 +84,7 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
     console.info(
         `Date filter:     ${Object.keys(dateFilter).length === 0 ? "no filter" : JSON.stringify(dateFilter)}`.magenta
     );
-    console.info(`Num of bookings: ${numBookings === undefined ? false : numBookings}`.magenta);
+    console.info(`Num of bookings: ${bookings === undefined ? false : bookings}`.magenta);
 
     // check if the teacher is in charge of this course during this academic year
     let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
@@ -99,12 +99,12 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
 
     const course = new Course(cId);
     const courseLectures = await db.getLecturesByCourseAndPeriodOfTime(course, dateFilter);
-    if (!numBookings) return courseLectures;
+    if (!bookings) return courseLectures;
 
     let lecturesPlusNumBookings = await Promise.all(
         courseLectures.map(async (lecture) => {
             const totBookings = await db.getNumBookingsOfLecture(lecture);
-            return { lecture, numBookings: totBookings };
+            return { lecture, bookings: totBookings };
         })
     );
 
@@ -395,8 +395,8 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 
 /**
  * Extract the options from a query string
- * @param {Object} queryString. E.g. queryString = {from: <dateString>, to: <dateString>, numBookings: "false"}
- * @returns {Object} e.g. options = {dateFilter: { from: <new Date()>, to: <new Date()> }, numBookings: false }. In case of error returns a ResponseError
+ * @param {Object} queryString. E.g. queryString = {from: <dateString>, to: <dateString>, bookings: "false"}
+ * @returns {Object} e.g. options = {dateFilter: { from: <new Date()>, to: <new Date()> }, bookings: false }. In case of error returns a ResponseError
  */
 function extractOptions(queryString) {
     if (!(queryString instanceof Object) || Object.keys(queryString).length === 0) {
@@ -445,23 +445,30 @@ function extractOptions(queryString) {
                 options.dateFilter.to = toDate;
                 break;
             }
-            case "numBookings": {
+            case "bookings": {
                 if (value !== "false" && value !== "true") {
                     return {
                         err: new ResponseError(
                             "TeacherService",
                             ResponseError.PARAM_NOT_BOOLEAN,
-                            { numBookings: queryString[key] },
+                            { bookings: queryString[key] },
                             400
                         ),
                     };
                 }
 
-                options.numBookings = value === "false" ? false : true;
+                options.bookings = value === "false" ? false : true;
                 break;
             }
             default:
-                return new ResponseError("TeacherService", ResponseError.QUERY_PARAM_NOT_ACCEPTED, { param: key }, 400);
+                return {
+                    err: new ResponseError(
+                        "TeacherService",
+                        ResponseError.errno.QUERY_PARAM_NOT_ACCEPTED,
+                        { query: { [key]: value } },
+                        400
+                    ),
+                };
         }
     }
 
