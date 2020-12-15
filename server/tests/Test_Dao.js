@@ -95,7 +95,7 @@ const suite = function () {
                 dao.getLecturesByStudent(student1)
                     .then((lectures) => {
                         assert.ok(lectures, 'No returned valued received');
-                        assert.ok(lectures.length === 3, 'Wrong number of lectures');
+                        assert.ok(lectures.length === 4, 'Wrong number of lectures');
                         done();
                     })
                     .catch((err) => done(err));
@@ -155,7 +155,7 @@ const suite = function () {
                 dao.getLecturesByTeacher(teacher4)
                     .then((lectures) => {
                         assert.ok(lectures, 'No returned valued received');
-                        assert.ok(lectures.length === 3, 'Wrong number of lectures');
+                        assert.ok(lectures.length === 4, 'Wrong number of lectures');
                         done();
                     })
                     .catch((err) => done(err));
@@ -600,6 +600,63 @@ const suite = function () {
                 dao.getClassByLecture(wrongLecture)
                     .then((retVal) => done('This must fail'))
                     .catch((err) => done()); // correct case
+            });
+        });
+
+        describe('getWaitingsByStudentAndPeriodOfTime', function(done) {
+            it('not specified periodOfTime return the list of students', function(done) {
+                dao.getWaitingsByStudentAndPeriodOfTime(student1)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('only periodOfTime.from setted should return the list of students', function(done) {
+                const periodOfTime = {
+                    from: moment().startOf('day').add(-2, 'day')
+                };
+                dao.getWaitingsByStudentAndPeriodOfTime(student1, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('only periodOfTime.to setted return the list of students', function(done) {
+                const periodOfTime = {
+                    to: moment().endOf('day').add(-1, 'day')
+                };
+                dao.getWaitingsByStudentAndPeriodOfTime(student1, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 0, 'Wrong number of lectures retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('both periodOfTime.from and periodOfTime.to setted  should return the list of students', function(done) {
+                const periodOfTime = {
+                    from: moment().add(-2, 'day').startOf('day'),
+                    to: moment().add(3, 'day').endOf('day')
+                };
+                dao.getWaitingsByStudentAndPeriodOfTime(student1, periodOfTime)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('incorrect params should return an empty list', function(done) {
+                dao.getWaitingsByStudentAndPeriodOfTime(wrongStudent)
+                    .then((lectures) => {
+                        assert.strictEqual(lectures.length, 0, 'Wrong number of lectures retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
             });
         });
     });
