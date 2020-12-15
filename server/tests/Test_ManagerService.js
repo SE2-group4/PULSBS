@@ -21,7 +21,7 @@ const prepare = require('../src/db/preparedb.js');
 const { italic } = require('colors');
 
 const suite = function () {
-    let student2;
+    // let student2;
 
     before(function (done) {
         done();
@@ -32,7 +32,7 @@ const suite = function () {
     });
 
     const reset = (done) => {
-        student2 = new Student(2, 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
+        // student2 = new Student(2, 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
 
         prepare('testing.db', 'testing.sql', false)
             .then(() => done())

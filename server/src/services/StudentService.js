@@ -30,8 +30,15 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
 
     return new Promise((resolve, reject) => {
         // logical checks
-        dao.getLecturesByCourse(course)
-            .then((currLectures) => {
+
+        Promise.all([
+                dao.getLecturesByCourse(course),
+                dao.getCoursesByStudent(student)
+            ])
+            .then((values) => {
+                const currLectures = values[0];
+                const currCourses = values[1];
+
                 const actualLectures = currLectures.filter(l => l.lectureId === lecture.lectureId);
                 if(actualLectures.length === 0) {
                     reject(StandardErr.new('Student service', StandardErr.errno.PARAMS_MISMATCH, 'The lecture is not related to this course', 404));
@@ -43,15 +50,20 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
                     reject(StandardErr.new('Student service', StandardErr.errno.WRONG_VALUE, 'The booking time is expired', 404));
                     return;
                 }
+                
+                const actualCourses = currCourses.filter(c => c.courseId === course.courseId);
+                if(actualCourses.length === 0) {
+                    reject(StandardErr.new('Student service', StandardErr.errno.PARAMS_MISMATCH, 'The student is not enrolled in this course', 404));
+                    return;
+                }
+                const actualCourse = actualCourses[0];
 
-                dao.getCoursesByStudent(student)
-                    .then((currCourses) => {
-                        const actualCourses = currCourses.filter(c => c.courseId === course.courseId);
-                        if(actualCourses.length === 0) {
-                            reject(StandardErr.new('Student service', StandardErr.errno.PARAMS_MISMATCH, 'The student is not enrolled in this course', 404));
+                dao.lectureHasFreeSeats(lecture)
+                    .then((nSeats) => {
+                        if(nSeats <= 0) {
+                            reject(StandardErr.new('studentService', StandardErr.errno.NOT_AVAILABLE, 'No more free seats for this booking', 404));
                             return;
                         }
-                        const actualCourse = actualCourses[0];
 
                         dao.addBooking(student, lecture)
                             .then((retVal) => {
@@ -59,7 +71,7 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
                                     .then((values) => {
                                         const actualClass = values[0];
                                         const actualStudent = values[1];
-
+        
                                         const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_NEW_BOOKING, [
                                             actualCourse.description,
                                             utils.formatDate(actualLecture.date),
@@ -75,9 +87,11 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
                                     .catch(reject)
                             })
                             .catch(reject);
-                    });
-            });
-    });
+                    })
+                    .catch(reject);
+            })
+            .catch(reject);
+        });
 };
 
 /**
@@ -99,29 +113,29 @@ exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
                     reject(new StandardErr('StudentService', StandardErr.errno.NOT_EXISTS, 'This booking does not exists', 404));
                     return;
                 }
-                dao.studentPopQueue(lecture)
+                dao.studentPopQueue(lecture) // try to pick a student from the queue
                     .then((waitingStudent) => {
                         Promise.all([dao.getCourseByLecture(lecture), dao.getLectureById(lecture), dao.getClassByLecture(lecture)])
                             .then((values) => {
-                                const actualCourse = values[1];
+                                const actualCourse = values[0];
                                 const actualLecture = values[1];
                                 const actualClass = values[2];
-
-                                this.studentBookLecture(waitingStudent.studentId, courseId, lectureId)
-                                .then((retVal) => {
-                                    const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_POP_QUEUE, [
-                                            actualCourse.description,
-                                            actualLecture.date.toISOString(),
-                                            actualClass.description
-                                        ]);
-                                    emailService.sendCustomMail(
-                                            currStudent.email,
-                                            defaultEmail.subject,
-                                            defaultEmail.message
-                                    );
-                                    resolve(retVal);
-                                })
-                                .catch(reject);
+                                
+                                this.studentBookLecture(waitingStudent.studentId, courseId, lectureId) // record the new booking
+                                    .then((retVal) => {
+                                        const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_POP_QUEUE, [
+                                                actualCourse.description,
+                                                utils.formatDate(actualLecture.date),
+                                                actualClass.description
+                                            ]);
+                                        emailService.sendCustomMail( // inform the student he/she has been picked from the queue
+                                                waitingStudent.email,
+                                                defaultEmail.subject,
+                                                defaultEmail.message
+                                        );
+                                        resolve(retVal);
+                                    })
+                                    .catch(reject);
                             })
                             .catch(reject);
                     })
@@ -172,6 +186,7 @@ exports.studentGetCourseLectures = function(studentId, courseId, periodOfTime = 
                                             nBookings : bookings[i]
                                         });
                                     }
+                                    resolve(retLectures);
                                 })
                                 .catch(reject);
                             })
@@ -202,7 +217,8 @@ exports.studentGetCourses = function(studentId) {
 exports.studentGetBookings = function(studentId, periodOfTime) {
     const student = new Student(studentId);
 
-    Promise.all([
+    return new Promise((resolve, reject) => {
+        Promise.all([
             dao.getBookingsByStudentAndPeriodOfTime(student, periodOfTime),
             dao.getWaitingsByStudentAndPeriodOfTime(student, periodOfTime)
         ])
@@ -210,10 +226,12 @@ exports.studentGetBookings = function(studentId, periodOfTime) {
             const lectures = {
                 booked : values[0],
                 waited : values[1]
-            } 
+            }
             resolve(lectures);
         })
         .catch(reject);
+    });
+
 };
 
 /**
@@ -255,21 +273,24 @@ exports.studentPushQueue = function(studentId, courseId, lectureId) {
                         dao.studentPushQueue(student, lecture)
                             .then((retVal) => {
                                 dao.getUserById(student)
-                                .then((currStudent) => {
-                                    const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_PUSH_QUEUE, [
-                                            actualCourse.description,
-                                            actualLecture.date.toISOString()
-                                        ]);
-                                    emailService.sendCustomMail(
-                                            currStudent.email,
-                                            defaultEmail.subject,
-                                            defaultEmail.message
-                                    );
-                                    resolve(retVal); // do not wait the email has been sent
-                                })
+                                    .then((currStudent) => {
+                                        const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_PUSH_QUEUE, [
+                                                actualCourse.description,
+                                                utils.formatDate(actualLecture.date),
+                                            ]);
+                                        emailService.sendCustomMail(
+                                                currStudent.email,
+                                                defaultEmail.subject,
+                                                defaultEmail.message
+                                        );
+                                        resolve(retVal); // do not wait the email has been sent
+                                    })
+                                    .catch(reject);
                             })
                             .catch(reject);
-                    });
-            });
+                    })
+                    .catch(reject);
+            })
+            .catch(reject);
     });
 }

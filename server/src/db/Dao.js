@@ -232,7 +232,7 @@ const getCoursesByStudent = function (student) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Course.* FROM Course
         JOIN Enrollment ON Enrollment.courseId = Course.courseId
-        WHERE Enrollment.studentId = ? AND year = ?`;
+        WHERE Enrollment.studentId = ? AND Enrollment.year = ?`;
 
         db.all(sql, [student.studentId, _getCurrentAcademicYear()], (err, rows) => {
             if (err) {
@@ -312,7 +312,7 @@ const getStudentsByCourse = function (course) {
         const sql = `SELECT User.* FROM User
         JOIN Enrollment ON User.userId = Enrollment.studentId
         JOIN Course ON Enrollment.courseId = Course.courseId
-        WHERE Course.courseId = ? AND Course.year = ? AND User.type = ?`;
+        WHERE Course.courseId = ? AND Enrollment.year = ? AND User.type = ?`;
 
         db.all(sql, [course.courseId, _getCurrentAcademicYear(), "STUDENT"], (err, rows) => {
             if (err) {
@@ -366,9 +366,9 @@ const getCoursesByTeacher = function (teacher) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Course.* FROM Course
         JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId
-        WHERE TeacherCourse.teacherId = ? AND Course.year = ?`;
+        WHERE TeacherCourse.teacherId = ?`;
 
-        db.all(sql, [teacher.teacherId, _getCurrentAcademicYear()], (err, rows) => {
+        db.all(sql, [teacher.teacherId], (err, rows) => {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
@@ -844,7 +844,7 @@ exports.checkLectureAndCourse = checkLectureAndCourse;
  */
 const getAllCourses = function () {
     return new Promise((resolve, reject) => {
-        const sql = "SELECT * FROM Course";
+        const sql = "SELECT Course.* FROM Course";
 
         db.all(sql, (err, rows) => {
             if (err) {
@@ -870,7 +870,7 @@ const studentPushQueue = function (student, lecture) {
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO WaitingList(studentId, lectureId, date) VALUES (?, ?, ?)`;
 
-        db.get(sql, [student.studentId, lecture.lectureId, (new Date()).toISOString], function (err) {
+        db.run(sql, [student.studentId, lecture.lectureId, (new Date()).toISOString], function (err) {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
@@ -892,7 +892,7 @@ const studentPopQueue = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User
             JOIN WaitingList ON WaitingList.studentId = User.userId
-            WHERE WaitingList.date = (SELECT MIN(DATETIME(date)) FROM WaitingList WHERE lectureId = ?)`;
+            WHERE DATETIME(WaitingList.date) = (SELECT MIN(DATETIME(date)) FROM WaitingList WHERE lectureId = ?)`;
 
         db.get(sql, [lecture.lectureId], (err, row) => {
             if (err) {
@@ -904,9 +904,10 @@ const studentPopQueue = function (lecture) {
                 return;
             }
 
-            const sqlCleaning = `DELETE FROM WaitingList WHERE userId = ? AND lectureId = ?`;
+            const student = Student.from(row);
+            const sqlCleaning = `DELETE FROM WaitingList WHERE studentId = ? AND lectureId = ?`;
 
-            db.get(sqlCleaning, [student.studentId, lecture.lectureId], function (err) {
+            db.run(sqlCleaning, [student.studentId, lecture.lectureId], function (err) {
                 if (err) {
                     reject(StandardErr.fromDao(err));
                     return;
@@ -916,7 +917,7 @@ const studentPopQueue = function (lecture) {
                     return;
                 }
 
-                resolve(Student.from(row));
+                resolve(student);
             });
         });
     });
@@ -1088,3 +1089,24 @@ const getWaitingsByStudentAndPeriodOfTime = function(student, periodOfTime = {})
     });
 }
 exports.getWaitingsByStudentAndPeriodOfTime = getWaitingsByStudentAndPeriodOfTime;
+
+/**
+ * check how many free seats a lecture has
+ * @param {Lecture} lecture 
+ * @returns {Number} number of free seats
+ */
+const lectureHasFreeSeats = function(lecture) {
+    return new Promise((resolve, reject) => {
+        Promise.all([
+                getNumBookingsOfLecture(lecture),
+                getClassByLecture(lecture)
+            ])
+            .then((values) => {
+                const currBookings = values[0];
+                const classCapacity = values[1];
+                resolve(classCapacity - currBookings);
+            })
+            .catch(reject);
+    });
+}
+exports.lectureHasFreeSeats = lectureHasFreeSeats;

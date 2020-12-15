@@ -36,7 +36,8 @@ class StandardErr {
         UNEXPECTED_TYPE : 732,
         ALREADY_PRESENT : 733,
         NOT_EXISTS : 734,
-        WRONG_VALUE : 735
+        WRONG_VALUE : 735,
+        NOT_AVAILABLE : 736
         // add more here
     }
 

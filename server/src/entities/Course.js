@@ -6,6 +6,12 @@
 'use strict';
 
 class Course {
+    /**
+     * class constructor
+     * @param {Number} courseId 
+     * @param {String} description 
+     * @param {Number} year - relative year (eg. 1 = first year of the master degree)
+     */
     constructor(courseId = -1, description = null, year = -1) {
         this.courseId = courseId;
         this.description = description;

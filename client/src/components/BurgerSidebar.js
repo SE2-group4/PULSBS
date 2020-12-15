@@ -73,7 +73,12 @@ class BurgerSidebar extends React.Component {
                     startDate.add(7, 'days');
                     weeks.push([startDateWeek, endDateWeek]);
                 }
-                this.setState({ weeks: weeks })
+                let allweeks = weeks.map((w) => {
+                    return { "name": w[0] + " " + w[1] }
+                })
+                //console.log(allweeks)
+                this.setState({ weeks: allweeks })
+
             } catch (error) {
                 let errormsg = error.source + " : " + error.error;
                 this.setState({ fetchError: errormsg, loading: false })
@@ -163,7 +168,7 @@ class BurgerSidebar extends React.Component {
                         <Button onClick={this.handleGranChange3}>Monthly</Button>
                     </ButtonGroup>
                     <a id="weekly" className="menu-item" >Select weeks:
-                <MultiselectComp handle={this.multiselectWeeksHandle} options={this.state.weeks} ></MultiselectComp></a>
+                <MultiselectComp handle={this.multiselectWeeksHandle} options={this.state.weeks} display="name" selectedValues={this.state.selectedWeeks} ></MultiselectComp></a>
                     <a id="course" className="menu-item" >Courses:
                 <MultiselectComp handle={this.multiselectCoursesHandle} options={this.props.courses} display="description" ></MultiselectComp></a>
                     <a id="type" className="menu-item" >Type:
@@ -181,7 +186,7 @@ class BurgerSidebar extends React.Component {
                         <Button onClick={this.handleGranChange3}>Monthly</Button>
                     </ButtonGroup>
                     <a id="monthly" className="menu-item" >Select months:
-                <MultiselectComp handle={this.multiselectMonthsHandle} options={this.state.months} display="name" ></MultiselectComp></a>
+                <MultiselectComp handle={this.multiselectMonthsHandle} options={this.state.months} display="name" selectedValues={this.state.selectedMonths}></MultiselectComp></a>
                     <a id="course" className="menu-item" >Courses:
                 <MultiselectComp handle={this.multiselectCoursesHandle} options={this.props.courses} display="description" ></MultiselectComp></a>
                     <a id="type" className="menu-item" >Type:
