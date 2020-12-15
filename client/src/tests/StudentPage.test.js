@@ -7,6 +7,8 @@ import Lecture from '../entities/lecture';
 import fetchMock from "jest-fetch-mock";
 import moment from 'moment';
 import userEvent from '@testing-library/user-event';
+import Class from '../entities/class'
+import LectureWithClassInfo from '../entities/lectureWithClassInfo';
 
 fetchMock.enableMocks();
 
@@ -15,7 +17,10 @@ beforeEach(() => {
 });
 
 const user = new User(1, "Student", "Lorenzo", "Ceccarelli", "fr@email.com", "ciao");
-
+const classes = [
+  new Class(1, "1", 10),
+  new Class(2, "2", 20)
+]
 const courses = [
   new Course(1, "Web Application 1", "2020"),
   new Course(2, "Data Science", "2020"),
@@ -26,7 +31,7 @@ const courses = [
 ]
 const lecturesCourse1 = [
   new Lecture(1, 1, 1, moment().add("1", "hours").toISOString(), 600000, moment().subtract("1", "days").toISOString(), "inPresence"),
-  new Lecture(4, 1, 2, moment().add("1", "months").toISOString(), 600000, "11-23-2020 19:19", "remote")
+  new Lecture(4, 1, 2, moment().add("1", "months").toISOString(), 600000, "11-23-2020 19:19", "remote", 10, 25, "12A")
 ]
 const lecturesCourse2 = [
   new Lecture(2, 2, 1, moment().add("3", "hours").toISOString(), 600000, moment().add("5", "minutes").toISOString(), "inPresence"),
@@ -47,19 +52,21 @@ const lecturesCourse6 = [
 const booked = [
   bookedLesson
 ];
-
+const waited = [
+  lecturesCourse4[0]
+]
 async function setupCalendar() {
   let allCourses = JSON.stringify(courses);
-  let bookedLectures = JSON.stringify(booked);
-  let allLecturesCourse1 = JSON.stringify(lecturesCourse1);
-  let allLecturesCourse2 = JSON.stringify(lecturesCourse2);
-  let allLecturesCourse3 = JSON.stringify(lecturesCourse3);
-  let allLecturesCourse4 = JSON.stringify(lecturesCourse4);
-  let allLecturesCourse5 = JSON.stringify(lecturesCourse5);
-  let allLecturesCourse6 = JSON.stringify(lecturesCourse6)
+  let bookedAndWaitedLectures = JSON.stringify({ "booked": booked, "waited": waited });
+  let allLecturesCourse1 = JSON.stringify(lecturesCourse1.map((l) => { return { "lecture": l, "class_": classes[0], "nBookings": 5 } }));
+  let allLecturesCourse2 = JSON.stringify(lecturesCourse2.map((l) => { return { "lecture": l, "class_": classes[0], "nBookings": 5 } }));
+  let allLecturesCourse3 = JSON.stringify(lecturesCourse3.map((l) => { return { "lecture": l, "class_": classes[0], "nBookings": 5 } }));
+  let allLecturesCourse4 = JSON.stringify(lecturesCourse4.map((l) => { return { "lecture": l, "class_": classes[0], "nBookings": 5 } }));
+  let allLecturesCourse5 = JSON.stringify(lecturesCourse5.map((l) => { return { "lecture": l, "class_": classes[0], "nBookings": 5 } }));
+  let allLecturesCourse6 = JSON.stringify(lecturesCourse6.map((l) => { return { "lecture": l, "class_": classes[0], "nBookings": 5 } }));
   fetch.mockResponses(
     [allCourses],
-    [bookedLectures],
+    [bookedAndWaitedLectures],
     [allLecturesCourse1],
     [allLecturesCourse2],
     [allLecturesCourse3],
@@ -75,7 +82,7 @@ async function setupCalendar() {
 describe('Student Page suite', () => {
   test("render StudentPage component (all API called : success)", async () => {
     await setupCalendar();
-    expect(screen.getByText("Legend:")).toBeInTheDocument()
+    expect(screen.getByText("today")).toBeInTheDocument()
   })
   test("render StudentPage component (getCoursesByStudentId : communication error)", async () => {
 
@@ -246,7 +253,7 @@ describe('Calendar component', () => {
   test('click on expired event', async () => {
     await setupCalendar();
     await act(async () => {
-      userEvent.click(screen.getByText("Elettronica"))
+      userEvent.click(screen.getByText("Web Application 1"))
     });
     expect(screen.getByText('This lecture was expired')).toBeInTheDocument();
   })
@@ -255,7 +262,7 @@ describe('Calendar component', () => {
     await act(async () => {
       userEvent.click(screen.getByText("OS"))
     });
-    expect(screen.getByText('This lecture will be errogated remotely')).toBeInTheDocument();
+    expect(screen.getByText('This lecture will be erogated remotely')).toBeInTheDocument();
   })
   test('click on past event', async () => {
     await setupCalendar();
@@ -267,7 +274,7 @@ describe('Calendar component', () => {
   test('click on close modal', async () => {
     await setupCalendar();
     await act(async () => {
-      userEvent.click(screen.getByText("Elettronica  [ EXPIRED ]"))
+      userEvent.click(screen.getByText("Computer Systems Programming"))
     });
     await act(async () => {
       userEvent.click(screen.getByTestId("modalClose"))

@@ -62,7 +62,6 @@ class Calendar extends React.Component {
         )
     }
     renderEventContent = (eventInfo) => {
-        console.log(eventInfo.event.extendedProps.status)
         if (eventInfo.event.extendedProps.status === "bookable")
             return (
 
