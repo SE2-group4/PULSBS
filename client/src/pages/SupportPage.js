@@ -25,6 +25,7 @@ class SupportPage extends React.Component {
      */
     handleOnDrop = (data, name, filename) => {
         let type = filename.type;
+        console.log(type)
         if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel")
             this.setState({ [name]: data });
         else

@@ -2,12 +2,8 @@ import { render, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import ManagerReportPage from "../pages/ManagerReportPage"
 import User from '../entities/user'
-import Course from '../entities/course';
-import Lecture from '../entities/lecture';
 import fetchMock from "jest-fetch-mock";
-import moment from 'moment';
 import userEvent from '@testing-library/user-event';
-import Manager from '../../../server/src/entities/Manager';
 
 fetchMock.enableMocks();
 

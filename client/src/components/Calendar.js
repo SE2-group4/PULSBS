@@ -7,15 +7,9 @@ import listPlugin from '@fullcalendar/list'
 import Container from 'react-bootstrap/Container'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
-import ListGroup from 'react-bootstrap/ListGroup'
 import Spinner from 'react-bootstrap/Spinner'
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
-import Tooltip from 'react-bootstrap/Tooltip'
-import Jumbotron from 'react-bootstrap/Jumbotron'
 import Badge from 'react-bootstrap/Badge'
-import Col from 'react-bootstrap/Col'
-import Row from 'react-bootstrap/Row'
-import moment from 'moment'
+
 /**
  * Calendar component
  */
