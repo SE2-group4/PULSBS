@@ -4,38 +4,44 @@ const db = require("../db/Dao");
 
 const errno = ResponseError.errno;
 const MODULE_NAME = "SupportOfficerService";
-const ACCEPTED_ENTITIES = ["STUDENTS", "COURSES", "TEACHERS", "LECTURES", "CLASSES"];
+const ACCEPTED_ENTITIES = ["STUDENTS", "COURSES", "TEACHERS", "SCHEDULES", "ENROLLMENTS"];
+// domande
+// avere id + userId
+// o tenere un campo solo
+//
 // user
 // userId, firstName, lastName, email, password, ssn
+//
 // student
 // studentId + userId, firstName, lastName, email, password, ssn
 // teacher
 // teacherId + userId, firstName, lastName, email, password, MISSING ssn
 //
-// id, name, surname, city, officialEmail, Birthday, SSN
 const DB_TABLES = {
     STUDENTS: {
         name: "User",
-        //fields: ["userId", "type", "firstName", "lastName", "email", "password", "ssn"],
-        fields: ["firstName", "lastName", "email", "password"],
-        aaa: ["Name", "Surname", "OfficialEmail", "password"],
+        fields: ["type", "firstName", "lastName", "email", "ssn", "birthday", "city"],
+        jsonFields: ["type", "Name", "Surname", "OfficialEmail", "SSN", "Birthday", "City"],
     },
     TEACHERS: {
         name: "User",
-        //fields: ["userId", "type", "firstName", "lastName", "email", "password", "ssn"],
-        fields: ["userId", "firstName", "lastName", "email", "password", "ssn"],
+        fields: ["type", "firstName", "lastName", "email", "ssn"],
+        jsonFields: ["type", "GivenName", "Surname", "OfficialEmail", "SSN"],
     },
     COURSES: {
-        name: "COURSE",
-        fields: ["courseId", "description", "year"],
+        name: "Course",
+        fields: ["description", "year", "code", "semester"],
+        jsonFields: ["Course", "Year", "Code", "Semester"],
     },
-    LECTURES: {
-        name: "LECTURE",
-        fields: ["lectureId", "courseId", "classId", "startingDate", "duration", "bookingDeadline", "delivery"],
+    ENROLLMENTS: {
+        name: "Enrollment",
+        fields: ["studentId", "courseId"],
+        jsonFields: ["Student", "Code"]
     },
-    CLASSES: {
-        name: "CLASS",
-        fields: ["classId", "description", "capacity"],
+    SCHEDULES: {
+        name: "Schedule",
+        fields: ["code", "room", "dayOfWeek", "seats", "startingTime"],
+        jsonFields: ["Code", "Room", "Day", "Seats", "Time"],
     },
 };
 
@@ -47,7 +53,11 @@ async function manageEntitiesUpload(entities, path) {
 
     entities = entities.map((e) => {
         const s = {};
-        for (const name of DB_TABLES[entityType].aaa) {
+        if (entityType === "STUDENTS" || entityType === "TEACHERS") {
+            e.type = entityType.slice(0, entityType.length - 1);
+        }
+
+        for (const name of DB_TABLES[entityType].jsonFields) {
             s[name] = e[name];
         }
         return s;
@@ -61,12 +71,10 @@ function mapObjsToEntities(entityType, entities) {}
 async function genSqlQueries(queryType, entityType, entities, maxQuery) {
     switch (queryType) {
         case "INSERT": {
-            const queries = genInsertSqlQueries(entityType, entities);
-            const str = queries.join("; ");
-            console.log(str);
-            const aaa = `INSERT INTO USER(firstName, lastName, email, password) VALUES("Ambra", "Ferri", "s900000@students.politu.it", "undefined");`
-            await db.execBatch(aaa);
-            console.log("DONE");
+            const queriesArray = genInsertSqlQueries(entityType, entities);
+            const queriesString = queriesArray.join("; ");
+            console.log(queriesString);
+            await db.execBatch(queriesString);
             break;
         }
         default: {
@@ -100,7 +108,9 @@ function genResponseError(errno, error) {
 function getEntityNameFromPath(path) {
     const tokens = path.split("/");
     const possibleEntity = tokens[tokens.length - 1].toUpperCase();
+    console.log(possibleEntity);
     const ret = ACCEPTED_ENTITIES.find((entity) => entity === possibleEntity);
+    console.log("SONO RET", ret);
     return ret;
 }
 
