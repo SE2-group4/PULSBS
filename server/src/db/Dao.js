@@ -366,7 +366,7 @@ const getCoursesByTeacher = function (teacher) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Course.* FROM Course
         JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId
-        WHERE TeacherCourse.teacherId = ? AND Enrollment.year = ?`;
+        WHERE TeacherCourse.teacherId = ?`;
 
         db.all(sql, [teacher.teacherId, _getCurrentAcademicYear()], (err, rows) => {
             if (err) {
