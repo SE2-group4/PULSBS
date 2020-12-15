@@ -196,7 +196,7 @@ async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, book
     let qfrom = dateFrom ? "from=" + dateFrom : "";
     let qto = dateTo ? "to=" + dateTo : "";
     qto = qfrom && qto ? "&" + qto : qto;
-    let qbook = bookings ? "numBookings=true" : "";
+    let qbook = bookings ? "bookings=true" : "";
     qbook = qbook && (qfrom || qto) ? "&" + qbook : qbook;
     let query = qfrom || qto || qbook ? "?" + qfrom + qto + qbook : "";
 
@@ -209,7 +209,7 @@ async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, book
                             resolve(obj.map((l) => Lecture.from(l)));
                         else {
                             resolve(obj.map((l) => {
-                                l.lecture["numBookings"] = l.numBookings;
+                                l.lecture["numBookings"] = l.bookings;
                                 return Lecture.from(l.lecture);
                             }));
                         }
