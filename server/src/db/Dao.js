@@ -744,7 +744,7 @@ const getLecturesByCoursePlusNumBookings = function (course) {
 exports.getLecturesByCoursePlusNumBookings = getLecturesByCoursePlusNumBookings;
 
 /**
- * Return the number of booked stundets given a lecture
+ * Return the number of booked students given a lecture
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} promise
  */
@@ -763,6 +763,28 @@ const getNumBookingsOfLecture = function (lecture) {
     });
 };
 exports.getNumBookingsOfLecture = getNumBookingsOfLecture;
+
+/**
+ * Return the number of bookings given a lecture and a status
+ * @param {Lecture} lecture - lectureId needed
+ * @param {String} status - {BOOKED, PRESENT, CANCELLED, NOT_PRESENT}
+ * @returns {Promise} promise
+ */
+const getNumBookingsOfLectureByStatus = function (lecture, status) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT COUNT(*) as count FROM Booking WHERE lectureId = ? AND status = ?`;
+
+        db.get(sql, [lecture.lectureId, status], function (err, res) {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(res);
+        });
+    });
+};
+exports.getNumBookingsOfLectureByStatus = getNumBookingsOfLectureByStatus;
 
 /**
  * Get a list of lectures related to a specific course
@@ -1011,12 +1033,12 @@ exports.getClassByLecture = getClassByLecture;
 // TODO not tested
 // added by Francesco
 /**
- * get all courses
+ * execute a batch of sql statements
  * @returns {Promise} promise
  */
 const execBatch = function (queries) {
     return new Promise((resolve, reject) => {
-        db.run(queries, (err) => {
+        db.exec(queries, (err) => {
             if (err) {
                 console.log(err);
                 reject("ERRORE execBatch");
