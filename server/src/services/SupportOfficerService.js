@@ -22,13 +22,13 @@ const ACCEPTED_ENTITIES = ["STUDENTS", "COURSES", "TEACHERS", "SCHEDULES", "ENRO
 const DB_TABLES = {
     STUDENTS: {
         name: "User",
-        fields: ["type", "firstName", "lastName", "email", "ssn", "birthday", "city"],
-        jsonFields: ["type", "Name", "Surname", "OfficialEmail", "SSN", "Birthday", "City"],
+        fields: ["type", "firstName", "lastName", "email", "ssn", "birthday", "city", "serialNumber"],
+        jsonFields: ["type", "Name", "Surname", "OfficialEmail", "SSN", "Birthday", "City", "Id"],
     },
     TEACHERS: {
         name: "User",
-        fields: ["type", "firstName", "lastName", "email", "ssn"],
-        jsonFields: ["type", "GivenName", "Surname", "OfficialEmail", "SSN"],
+        fields: ["type", "firstName", "lastName", "email", "ssn", "serialNumber"],
+        jsonFields: ["type", "GivenName", "Surname", "OfficialEmail", "SSN", "Number"],
     },
     COURSES: {
         name: "Course",
