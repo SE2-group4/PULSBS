@@ -4,12 +4,18 @@ const Course = require("../entities/Course");
 const Lecture = require("../entities/Lecture");
 const db = require("../db/Dao");
 const { ResponseError } = require("../utils/ResponseError");
-const { convertToNumbers, convertToBooleans, isObjectEmpty } = require("../utils/converter");
+const { convertToNumbers, convertToBooleans, isObjectEmpty, isValueOfType } = require("../utils/converter");
 const { StandardErr } = require("../utils/utils");
 const Student = require("../entities/Student");
 
 const MODULE_NAME = "ManagerService";
 const errno = ResponseError.errno;
+
+const PARAMS = {
+    BOOKINGS: "boolean",
+    CANCELLATIONS: "boolean",
+    ATTENDACES: "boolean",
+};
 
 exports.managerGetCourseLecture = async function managerGetCourseLecture(
     { managerId, courseId, lectureId },
@@ -27,13 +33,12 @@ exports.managerGetCourseLecture = async function managerGetCourseLecture(
     const { courseId: cId, lectureId: lId } = convertedNumbers;
 
     const isAMatch = await isCourseMatchLecture(cId, lId);
-    if (!isAMatch) throw genResponseError(errno.COURSE_LECTURE_MISMATCH, { courseId, lectureId });
+    if (!isAMatch) throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
 
     if (!isObjectEmpty(query)) {
         const areValid = areValidParams(query);
 
-        // TODO fix QUERY_PARAM_NOT_ACCEPTER message
-        if (!areValid) throw genResponseError(errno.QUERY_PARAM_NOT_ACCEPTED, { todo: "todo" });
+        if (!areValid) throw genResponseError(errno.QUERY_PARAM_NOT_ACCEPTED, { query });
     }
 
     const { bookings, cancellations, attendaces } = convertToBooleans(query);
@@ -44,6 +49,7 @@ exports.managerGetCourseLecture = async function managerGetCourseLecture(
     return lectureWithStats;
 };
 
+// a non existing course, returns []
 exports.managerGetCourseLectures = async function managerGetCourseLectures({ managerId, courseId }, query = {}) {
     const { error, ...convertedNumbers } = convertToNumbers({
         managerId,
@@ -58,8 +64,7 @@ exports.managerGetCourseLectures = async function managerGetCourseLectures({ man
     if (!isObjectEmpty(query)) {
         const areValid = areValidParams(query);
 
-        // TODO fix QUERY_PARAM_NOT_ACCEPTER message
-        if (!areValid) throw genResponseError(errno.QUERY_PARAM_NOT_ACCEPTED, { todo: "todo" });
+        if (!areValid) throw genResponseError(errno.QUERY_PARAM_NOT_ACCEPTED, { query });
     }
 
     const { bookings, cancellations, attendaces } = convertToBooleans(query);
@@ -79,22 +84,8 @@ exports.managerGetCourses = async function managerGetCourses({ managerId }, quer
     }
 
     const courses = await db.getAllCourses();
+
     return courses;
-
-    //const coursesWithLectures = {};
-
-    //await Promise.all(
-    //    courses.map(async (course) => {
-    //        const copyQuery = Object.assign({}, query);
-    //        const lecturesPlusStats = await exports.managerGetCourseLectures(
-    //            { managerId, courseId: course.courseId },
-    //            copyQuery
-    //        );
-    //        coursesWithLectures[course.courseId] = lecturesPlusStats;
-    //    })
-    //);
-
-    //return coursesWithLectures;
 };
 
 async function addStatsToLecture(lecture, { bookings, cancellations, attendaces }) {
@@ -117,18 +108,19 @@ async function addStatsToLecture(lecture, { bookings, cancellations, attendaces 
 }
 
 async function getNumBookingsOfLecture(lecture) {
-    const numBookings = await db.getNumBookingsOfLecture(lecture);
-    return numBookings;
+    const { count } = await db.getNumBookingsOfLectureByStatus(lecture, "BOOKED");
+    console.log("SONO QUI", count);
+    return count;
 }
 
-// TODO
 async function getNumCancellationsOfLecture(lecture) {
-    return -1;
+    const { count } = await db.getNumBookingsOfLectureByStatus(lecture, "CANCELLED");
+    return count;
 }
 
-// TODO
 async function getNumAttendacesOfLecture(lecture) {
-    return -2;
+    const { count } = await db.getNumBookingsOfLectureByStatus(lecture, "PRESENT");
+    return count;
 }
 
 async function isCourseMatchLecture(cId, lId) {
@@ -142,37 +134,22 @@ function genResponseError(errno, error) {
 }
 
 /**
+ * check if params contains only accepted params. For a list of valid params, look at PARAMS
+ *
  */
 function areValidParams(params) {
-    for (let [name, value] of Object.entries(params)) {
+    for (let [name, type] of Object.entries(params)) {
         name = name.toUpperCase();
 
-        const acceptedType = statsParams[name];
+        const acceptedType = PARAMS[name];
         if (acceptedType === undefined) return false;
 
-        if (!isValueOfType(acceptedType, value)) {
+        if (!isValueOfType(acceptedType, type)) {
             return false;
         }
     }
 
     return true;
-}
-
-function isValueOfType(acceptedType, value) {
-    const type = acceptedType.toLowerCase();
-    switch (type) {
-        case "boolean": {
-            return isBoolean(value.toLowerCase());
-        }
-        default: {
-            console.log(`${type} not implemented in isValueOfType`);
-            return false;
-        }
-    }
-}
-
-function isBoolean(value) {
-    return value === "true" || value === "false";
 }
 
 async function getLecturesWithStats(lectures, { bookings, cancellations, attendaces }) {
@@ -186,12 +163,6 @@ async function getLecturesWithStats(lectures, { bookings, cancellations, attenda
     return lecturesWithStats;
 }
 
-var statsParams = {
-    BOOKINGS: "boolean",
-    CANCELLATIONS: "boolean",
-    ATTENDACES: "boolean",
-};
-
 /**
  * get a student by his SSN or serialNumber
  * @param {*} param
@@ -199,35 +170,18 @@ var statsParams = {
  */
 exports.managerGetStudent = async function managerGetStudent({ managerId }, query = { ssn, serialNumber }) {
     if (query.serialNumber && query.ssn) {
-        throw new StandardErr(
-            "Manager service",
-            StandardErr.errno.GENERIC,
-            "Both query used (invalid)",
-            500
-        );
+        throw new StandardErr("Manager service", StandardErr.errno.GENERIC, "Both query used (invalid)", 500);
     } else if (query.serialNumber || query.ssn) {
         let student = new Student();
-        query.serialNumber ? student.studentId = Number(query.serialNumber) : student.ssn = query.ssn;
+        query.serialNumber ? (student.studentId = Number(query.serialNumber)) : (student.ssn = query.ssn);
         let retUser;
         try {
             retUser = query.serialNumber ? await db.getUserById(student) : await db.getUserBySsn(student);
         } catch (err) {
-            throw new StandardErr(
-                "Manager service",
-                StandardErr.errno.NOT_EXISTS,
-                "Student not found",
-                404
-            );
+            throw new StandardErr("Manager service", StandardErr.errno.NOT_EXISTS, "Student not found", 404);
         }
-        if (retUser.type === 'STUDENT')
-            return retUser;
-        else
-            throw new StandardErr(
-                "Manager service",
-                StandardErr.errno.NOT_EXISTS,
-                "Student not found",
-                404
-            );
+        if (retUser.type === "STUDENT") return retUser;
+        else throw new StandardErr("Manager service", StandardErr.errno.NOT_EXISTS, "Student not found", 404);
     } else {
         throw new StandardErr(
             "Manager service",
@@ -247,7 +201,7 @@ exports.managerGetReport = async function managerGetReport({ managerId, serialNu
     managerId = Number(managerId);
     serialNumber = Number(serialNumber);
     date = date ? new Date(date) : new Date();
-    console.log(date)
+    console.log(date);
     const student = new Student(serialNumber);
     const students = await db.managerGetReport(student, date);
     return students;
