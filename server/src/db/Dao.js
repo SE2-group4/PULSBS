@@ -368,7 +368,7 @@ const getCoursesByTeacher = function (teacher) {
         JOIN TeacherCourse ON Course.courseId = TeacherCourse.courseId
         WHERE TeacherCourse.teacherId = ?`;
 
-        db.all(sql, [teacher.teacherId, _getCurrentAcademicYear()], (err, rows) => {
+        db.all(sql, [teacher.teacherId], (err, rows) => {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
