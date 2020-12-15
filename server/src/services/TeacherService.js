@@ -77,10 +77,8 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
     }
 
     let { err, dateFilter, bookings } = extractOptions(queryString);
-    console.log("sono qui", err);
     if (err instanceof ResponseError) throw err;
 
-    console.log("CIAO");
     if (!dateFilter) dateFilter = {};
 
     console.info(
