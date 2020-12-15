@@ -25,7 +25,8 @@ class SupportPage extends React.Component {
      */
     handleOnDrop = (data, name, filename) => {
         let type = filename.type;
-        if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel")
+        let match = filename.name.match(/.+(\.csv)$/);
+        if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel" || match)
             this.setState({ [name]: data });
         else
             this.setState({ genError: filename.name + " is not a valid file (expected type: csv)." });
