@@ -9,7 +9,6 @@ import CalendarEvent from "../entities/calendarEvent";
 import ErrorMsg from '../components/ErrorMsg';
 import moment from "moment";
 import Spinner from 'react-bootstrap/Spinner';
-import Apifake from '../api/APIfake';
 import APIfake from '../api/APIfake';
 /**
  * Student Page component
@@ -24,8 +23,8 @@ class StudentPage extends React.Component {
      */
     async componentDidMount() {
         try {
-            const courses = await APIfake.getCoursesByStudentId(this.state.user.userId);
-            const bookedLectures = await APIfake.getBookedLectures(this.state.user.userId);
+            const courses = await API.getCoursesByStudentId(this.state.user.userId);
+            const bookedLectures = await API.getBookedLectures(this.state.user.userId);
             const allLectures = await this.getAllLectures(courses);
             const events = buildEvents(bookedLectures, allLectures, courses); //build the events for the calendar
             this.setState({ courses: courses, events: events, loading: false });
@@ -41,7 +40,7 @@ class StudentPage extends React.Component {
         try {
             let lectures = []
             for (let c of courses)
-                lectures.push(await APIfake.getLecturesByCourseId(this.state.user.userId, c.courseId))
+                lectures.push(await API.getLecturesByCourseId(this.state.user.userId, c.courseId))
             return lectures;
         } catch (err) {
             throw err;
@@ -58,7 +57,7 @@ class StudentPage extends React.Component {
     handleConfirm = async (status, courseId, lectureId) => {
         return new Promise((resolve, reject) => {
             if (status === "booked") {
-                APIfake.cancelLectureReservation(this.state.user.userId, courseId, lectureId)
+                API.cancelLectureReservation(this.state.user.userId, courseId, lectureId)
                     .then(async () => {
                         let changedEvent = await this.changeEvent(lectureId, "green", "bookable")
                         resolve(changedEvent)
@@ -66,7 +65,7 @@ class StudentPage extends React.Component {
                     .catch(() => reject())
             }
             if (status === "bookable") {
-                APIfake.bookALecture(this.state.user.userId, courseId, lectureId)
+                API.bookALecture(this.state.user.userId, courseId, lectureId)
                     .then(async () => {
                         let changedEvent = await this.changeEvent(lectureId, "blue", "booked")
                         resolve(changedEvent)
@@ -74,7 +73,7 @@ class StudentPage extends React.Component {
                     .catch(() => reject())
             }
             if (status === "full") {
-                APIfake.putInWaitingList(this.state.userId, courseId, lectureId)
+                API.putInWaitingList(this.state.userId, courseId, lectureId)
                     .then(async () => {
                         let changedEvent = await this.changeEvent(lectureId, "orange", "inWaitingList")
                         resolve(changedEvent)

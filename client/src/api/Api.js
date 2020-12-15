@@ -63,7 +63,7 @@ async function getCoursesByStudentId(id) {
         fetch(baseURL + `/students/${id}/courses`).then((response) => {
             if (response.ok)
                 resolve(response.json());
-            else reject("Server error (getCoursesByStudentId)");
+            else { console.log(response.json()); reject("Server error (getCoursesByStudentId)"); }
         }).catch((err) => { reject("Server cannot communicate") })
     }
     );
