@@ -603,7 +603,7 @@ const suite = function () {
             });
         });
 
-        describe('getWaitingsByStudentAndPeriodOfTime', function(done) {
+        describe('getWaitingsByStudentAndPeriodOfTime', function() {
             it('not specified periodOfTime return the list of students', function(done) {
                 dao.getWaitingsByStudentAndPeriodOfTime(student1)
                     .then((lectures) => {
