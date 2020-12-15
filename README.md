@@ -61,6 +61,9 @@ docker run -p 3000:3000 se2group4/pulsbs:release1
 - Teacher :
   - Email : fakeTeacher.se2@gmail.com
   - Password : giacomo
+- Booking Manager : 
+  - Email : manager@test.it
+  - Password : manager
 ## Description
 
 ### Client
