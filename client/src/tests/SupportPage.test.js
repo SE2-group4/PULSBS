@@ -17,12 +17,14 @@ beforeEach(() => {
 
 const officer = new User(1, "SUPPORT", "Lollo", "Appendini", "officer1@agg.it", "officer1");
 
-const csv1content = [`Code,Year,Semester,Course,Teacher
+const csvcontent = [`Code,Year,Semester,Course,Teacher
 XY1211,1,1,Metodi di finanziamento delle imprese,d9000
 XY4911,1,1,Chimica,d9001
 XY8612,1,2,Informatica,d9002
 XY2312,1,2,Fisica I,d9003`];
-const csv1 = new File(csv1content, "file1.csv", { type: "text/csv" });
+const csv = new File(csvcontent, "file.csv", { type: "text/csv" });
+
+const badTypeFile = new File(["ciao"], "file1.html", { type: "text/plain" });
 
 async function setupPage() {
     render(<SupportPage user={officer} />);
@@ -70,25 +72,74 @@ describe('Support Page suite', () => {
         });
     })
 
-    test('upload of a file .csv into CSVPanel component (beta version)', async () => {
+    test('upload of a file with invalid type into CSVPanel component', async () => {
+        await setupPage();
+        let input = screen.getByTestId('csv1');
+        await act(async () => {
+            userEvent.upload(input, badTypeFile);
+        });
+        await new Promise((r) => setTimeout(r, 3000)); //waiting for file loading
+        expect(screen.getByText("file1.html is not a valid file (expected type: csv).")).toBeInTheDocument();
+    })
+
+    test('upload of a file .csv into CSVPanel component (API success)', async () => {
         await setupPageWithRouter();
         let input = screen.getByTestId('csv1');
         await act(async () => {
-            userEvent.upload(input, csv1);
+            userEvent.upload(input, csv);
         });
-        await new Promise((r) => setTimeout(r, 2000));
+        await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
         await act(async () => {
             userEvent.click(screen.getByTestId('submit-button'));
         });
         expect(screen.getByText('courses: 4')).toBeInTheDocument();
+        fetch.mockResponseOnce(JSON.stringify({ body: "ok" }), { status: 201 });
         await act(async () => {
             userEvent.click(screen.getByTestId('sum-yes'));
         });
         expect(screen.getByText("Operation successful!")).toBeInTheDocument();
-        //redirect
         await act(async () => {
             userEvent.click(screen.getByTestId('success-close'));
         });
+    })
+
+    test('upload of a file .csv into CSVPanel component (API failure : server error)', async () => {
+        await setupPageWithRouter();
+        let input = screen.getByTestId('csv0');
+        await act(async () => {
+            userEvent.upload(input, csv);
+        });
+        await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
+        await act(async () => {
+            userEvent.click(screen.getByTestId('submit-button'));
+        });
+        expect(screen.getByText('students: 4')).toBeInTheDocument();
+        fetch.mockResponseOnce(JSON.stringify({ body: "not ok" }), { status: 400 });
+        await act(async () => {
+            userEvent.click(screen.getByTestId('sum-yes'));
+        });
+        expect(screen.getByText("Upload : Server error")).toBeInTheDocument();
+        await act(async () => {
+            userEvent.click(screen.getByTestId('success-close'));
+        });
+    })
+
+    test('upload of a file .csv into CSVPanel component (API failure : connection error)', async () => {
+        await setupPageWithRouter();
+        let input = screen.getByTestId('csv0');
+        await act(async () => {
+            userEvent.upload(input, csv);
+        });
+        await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
+        await act(async () => {
+            userEvent.click(screen.getByTestId('submit-button'));
+        });
+        expect(screen.getByText('students: 4')).toBeInTheDocument();
+        fetch.mockRejectOnce();
+        await act(async () => {
+            userEvent.click(screen.getByTestId('sum-yes'));
+        });
+        expect(screen.getByText("Upload : Server connection error")).toBeInTheDocument();
     })
 
 });

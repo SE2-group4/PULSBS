@@ -2,6 +2,8 @@ import User from '../entities/user';
 import Course from '../entities/course';
 import Lecture from '../entities/lecture';
 import Student from '../entities/student';
+import LectureWithClassInfo from '../entities/lectureWithClassInfo';
+
 var sizeof = require('object-sizeof');
 /**
  * API.js contains all the API for server communications
@@ -63,7 +65,7 @@ async function getCoursesByStudentId(id) {
         fetch(baseURL + `/students/${id}/courses`).then((response) => {
             if (response.ok)
                 resolve(response.json());
-            else { console.log(response.json()); reject("Server error (getCoursesByStudentId)"); }
+            else { reject("Server error (getCoursesByStudentId)"); }
         }).catch((err) => { reject("Server cannot communicate") })
     }
     );
@@ -76,13 +78,20 @@ async function getCoursesByStudentId(id) {
 async function getLecturesByCourseId(Uid, Cid) {
     return new Promise((resolve, reject) => {
         fetch(baseURL + `/students/${Uid}/courses/${Cid}/lectures`).then((response) => {
-            if (response.ok)
-                resolve(response.json());
+            if (response.ok) {
+                response.json()
+                    .then((lectures) => resolve(parseLectures(lectures)))
+            }
+
             else reject("Server error (getLecturesByCourseId)");
         }).catch((err) => { reject("Server cannot communicate") })
     });
 }
 
+function parseLectures(lectures) {
+    return lectures.map((lecture) => new LectureWithClassInfo(lecture.lecture.lectureId, lecture.lecture.courseId, lecture.lecture.classId, lecture.lecture.startingDate,
+        lecture.lecture.duration, lecture.lecture.bookingDeadline, lecture.lecture.delivery, lecture.nBookings, lecture.class_.capacity, lecture.class_.description))
+}
 
 /**
  * bookALecture sends to server the course, student and lecture IDs in order to book the lecture
@@ -335,7 +344,7 @@ async function uploadChunck(id, type, list) {
                 resolve();
             else
                 reject({ source: "Upload", error: "Server error" })
-        }).catch((err) => { reject({ source: "Upload", error: "Server comunication error" }) }); // connection errors
+        }).catch((err) => { reject({ source: "Upload", error: "Server connection error" }) }); // connection errors
     });
 }
 
