@@ -131,7 +131,8 @@ class Calendar extends React.Component {
                     <b>{eventInfo.event.title} <Badge variant="warning">Full</Badge></b><br></br>
                     <span>This lecture is full.</span><br></br>
                     <span>Booking deadline : {eventInfo.event.extendedProps.bookingDeadline}</span><br></br>
-                    <span>Classroom : {eventInfo.event.extendedProps.class}</span>
+                    <span>Classroom : {eventInfo.event.extendedProps.class}</span><br />
+                    <small>Click here to put yourself in waiting list</small>
                 </Container>
 
             )
