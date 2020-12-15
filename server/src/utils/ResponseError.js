@@ -10,7 +10,7 @@
 
 const defaultStatusCode = {
     COURSE_NOT_ENROLLED_AA: 400,
-    COURSE_LECTURE_MISMATCH_AA: 400,
+    COURSE_LECTURE_MISMATCH_AA: 404,
     DB_GENERIC_ERROR: 500,
     LECTURE_GIVEN: 400,
     LECTURE_NOT_FOUND: 400,
@@ -23,7 +23,7 @@ const defaultStatusCode = {
     QUERY_PARAM_NOT_ACCEPTED: 400,
     QUERY_PARAM_NOT_VALUE_ACCEPTED: 400,
     ENTITY_TYPE_NOT_VALID: 400,
-    TEACHER_COURSE_MISMATCH_AA: 400,
+    TEACHER_COURSE_MISMATCH_AA: 404,
     ROUTE_FORBIDDEN: 401,
 };
 
@@ -111,59 +111,64 @@ class ResponseError {
 
     static getErrorMessage(errno, args) {
         switch (errno) {
-            case ResponseError.COURSE_NOT_ENROLLED_AA:
+            case ResponseError.errno.COURSE_NOT_ENROLLED_AA:
                 return `student (student = ${args.studentId}) is not enrolled in this course (courseId = ${args.courseId}) during this AA`;
 
-            case ResponseError.COURSE_LECTURE_MISMATCH_AA:
+            case ResponseError.errno.COURSE_LECTURE_MISMATCH_AA:
                 return `lecture (lectureId = ${args.lectureId}) does not belong to this course (courseId = ${args.courseId}) or lecture has already been taught`;
 
-            case ResponseError.DB_GENERIC_ERROR:
+            case ResponseError.errno.DB_GENERIC_ERROR:
                 return args;
 
-            case ResponseError.LECTURE_GIVEN:
+            case ResponseError.errno.LECTURE_GIVEN:
                 return "message not implemented";
 
-            case ResponseError.LECTURE_NOT_CANCELLABLE:
+            case ResponseError.errno.LECTURE_NOT_CANCELLABLE:
                 return `Lecture with lectureId = ${args.lectureId} is not cancellable`;
 
-            case ResponseError.LECTURE_NOT_SWITCHABLE:
+            case ResponseError.errno.LECTURE_NOT_SWITCHABLE:
                 return `Lecture with lectureId = ${args.lectureId} is not switchable`;
 
-            case ResponseError.LECTURE_NOT_FOUND:
+            case ResponseError.errno.LECTURE_NOT_FOUND:
                 return `lecture with lectureId = ${args.lectureId} not found`;
 
-            case ResponseError.LECTURE_INVALID_DELIVERY_MODE:
+            case ResponseError.errno.LECTURE_INVALID_DELIVERY_MODE:
                 return `Delivery mode ${args.delivery} is not a valid input`;
 
-            case ResponseError.PARAM_NOT_DATE: {
+            case ResponseError.errno.PARAM_NOT_DATE: {
                 const keyName = Object.keys(args)[0];
                 return `'${args[keyName]}' is not a valid date`;
             }
 
-            case ResponseError.PARAM_NOT_INT: {
+            case ResponseError.errno.PARAM_NOT_INT: {
                 const keyName = Object.keys(args)[0];
                 return `'${keyName}' parameter is not an integer: ${args[keyName]}`;
             }
 
-            case ResponseError.PARAM_NOT_BOOLEAN: {
+            case ResponseError.errno.PARAM_NOT_BOOLEAN: {
                 const keyName = Object.keys(args)[0];
                 return `'${keyName}' parameter is not a boolean: ${args[keyName]}`;
             }
 
-            case ResponseError.QUERY_PARAM_NOT_ACCEPTED:
-                const keyName = Object.keys(args)[0];
-                return `Query parameter '${keyName}' is not accepted`;
+            case ResponseError.errno.QUERY_PARAM_NOT_ACCEPTED: {
+                let str = [];
+                for (const [key, value] of Object.entries(args.query)) {
+                    str.push(`(${key}, ${value})`);
+                }
 
-            case ResponseError.QUERY_PARAM_VALUE_NOT_ACCEPTED:
+                return `Query '${str.join(", ")}' not accepted`;
+            }
+
+            case ResponseError.errno.QUERY_PARAM_VALUE_NOT_ACCEPTED:
                 return `Query paramters 's value must be of type ${args.type}`;
 
-            case ResponseError.ENTITY_TYPE_NOT_VALID:
+            case ResponseError.errno.ENTITY_TYPE_NOT_VALID:
                 return `Entity type ${args.type} is not valid`;
 
-            case ResponseError.TEACHER_COURSE_MISMATCH_AA:
+            case ResponseError.errno.TEACHER_COURSE_MISMATCH_AA:
                 return `course (courseId = ${args.courseId}) is not taught by this teacher (teacherId = ${args.teacherId})`;
 
-            case ResponseError.ROUTE_FORBIDDEN:
+            case ResponseError.errno.ROUTE_FORBIDDEN:
                 return "message not implemented";
 
             default:

@@ -101,4 +101,22 @@ function isObjectEmpty(obj) {
     return Object.keys(obj).length === 0;
 };
 
-module.exports = { convertToNumbers, convertToBooleans, isObjectEmpty };
+/**
+ * check if value is of type acceptedType
+ * @param  {Any} value
+ * @returns {Boolean} result of comparison
+ */
+function isValueOfType(acceptedType, value) {
+    const type = acceptedType.toLowerCase();
+
+    switch (type) {
+        case "boolean": {
+            return isBoolean(toBoolean(value));
+        }
+        default: {
+            console.log(`${type} not implemented in isValueOfType`);
+            return false;
+        }
+    }
+}
+module.exports = { convertToNumbers, convertToBooleans, isObjectEmpty, isValueOfType };
