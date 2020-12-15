@@ -972,7 +972,7 @@ const managerGetReport = function (student, date) {
                 }
                 const teachers = rows.map((row) => User.from(row));
                 const users = students.concat(teachers);
-                
+
                 resolve(users);
             });
 
@@ -1000,7 +1000,7 @@ const getUserBySsn = function (user) {
             if (error) {
                 reject(error);
                 return;
-            };
+            }
 
             resolve(retUser);
         });
@@ -1013,12 +1013,12 @@ exports.getUserBySsn = getUserBySsn;
  * @param {Lecture} lecture 
  * @retuns {Promise} promise
  */
-const getClassByLecture = function(lecture) {
+const getClassByLecture = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Class.* FROM Class
             JOIN Lecture ON Lecture.classId = Class.classId
             WHERE Lecture.lectureId = ?`;
-        
+
         db.get(sql, [lecture.lectureId], (err, row) => {
             if (err || !row) {
                 reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "incorrect userId"));
@@ -1057,7 +1057,7 @@ exports.execBatch = execBatch;
  * @param {Student} student - studentId needed
  * @param {Object} periodOfTime - {Date} from (optional), {Date} to (optional)
  */
-const getWaitingsByStudentAndPeriodOfTime = function(student, periodOfTime = {}) {
+const getWaitingsByStudentAndPeriodOfTime = function (student, periodOfTime = {}) {
     return new Promise((resolve, reject) => {
         const sqlParams = [];
         let sql = `SELECT Lecture.* FROM Lecture
@@ -1095,12 +1095,12 @@ exports.getWaitingsByStudentAndPeriodOfTime = getWaitingsByStudentAndPeriodOfTim
  * @param {Lecture} lecture 
  * @returns {Number} number of free seats
  */
-const lectureHasFreeSeats = function(lecture) {
+const lectureHasFreeSeats = function (lecture) {
     return new Promise((resolve, reject) => {
         Promise.all([
-                getNumBookingsOfLecture(lecture),
-                getClassByLecture(lecture)
-            ])
+            getNumBookingsOfLecture(lecture),
+            getClassByLecture(lecture)
+        ])
             .then((values) => {
                 const currBookings = values[0];
                 const classCapacity = values[1];
