@@ -335,7 +335,7 @@ async function uploadChunck(id, type, list) {
                 resolve();
             else
                 reject({ source: "Upload", error: "Server error" })
-        }).catch((err) => { reject({ source: "Upload", error: "Server comunication error" }) }); // connection errors
+        }).catch((err) => { reject({ source: "Upload", error: "Server connection error" }) }); // connection errors
     });
 }
 
