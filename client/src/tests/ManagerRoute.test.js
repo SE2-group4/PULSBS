@@ -5,11 +5,8 @@ import { Router } from 'react-router-dom';
 import '@testing-library/jest-dom/extend-expect';
 import App from '../App';
 import User from '../entities/user';
-import Course from '../entities/course';
 import userEvent from '@testing-library/user-event';
 import fetchMock from "jest-fetch-mock";
-import moment from 'moment';
-import TeacherStatsPage from '../pages/TeacherStatsPage';
 
 fetchMock.enableMocks();
 
