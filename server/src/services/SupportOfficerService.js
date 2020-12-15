@@ -1,6 +1,8 @@
 const { ResponseError } = require("../utils/ResponseError");
+const { isValueOfType } = require("../utils/converter");
 const Student = require("../entities/Student");
 const db = require("../db/Dao");
+const fs = require("fs");
 
 const errno = ResponseError.errno;
 const MODULE_NAME = "SupportOfficerService";
@@ -36,14 +38,41 @@ const DB_TABLES = {
     ENROLLMENTS: {
         name: "Enrollment",
         fields: ["studentId", "courseId"],
-        jsonFields: ["Student", "Code"]
+        jsonFields: ["Student", "Code"],
     },
     SCHEDULES: {
         name: "Schedule",
-        fields: ["code", "room", "dayOfWeek", "seats", "startingTime"],
-        jsonFields: ["Code", "Room", "Day", "Seats", "Time"],
+        fields: ["code", "AAyear", "semester", "roomId", "seats", "dayOfWeek", "startingTime", "endingTime"],
+        jsonFields: [
+            "Code",
+            { func: { name: getAAyear, args: undefined } },
+            { func: { name: getSemester, args: undefined } },
+            "Room",
+            "Seats",
+            "Day",
+            { func: { name: getStartingTime, args: ["Time"] } },
+            { func: { name: getEndingTime, args: ["Time"] } },
+        ],
     },
 };
+
+function getAAyear() {
+    return 2020;
+}
+
+function getSemester() {
+    return 1;
+}
+
+function getStartingTime(orario) {
+    const tokens = orario.split("-");
+    return tokens[0];
+}
+
+function getEndingTime(orario) {
+    const tokens = orario.split("-");
+    return tokens[1];
+}
 
 async function manageEntitiesUpload(entities, path) {
     const entityType = getEntityNameFromPath(path);
@@ -51,30 +80,90 @@ async function manageEntitiesUpload(entities, path) {
         return genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: entityType });
     }
 
-    entities = entities.map((e) => {
-        const s = {};
-        if (entityType === "STUDENTS" || entityType === "TEACHERS") {
-            e.type = entityType.slice(0, entityType.length - 1);
-        }
-
-        for (const name of DB_TABLES[entityType].jsonFields) {
-            s[name] = e[name];
-        }
-        return s;
-    });
-
+    entities = mapEntities(entityType, entities);
     await genSqlQueries("INSERT", entityType, entities);
 }
 
-function mapObjsToEntities(entityType, entities) {}
+function mapUserEntities(entities, entityType) {
+    return entities.map((e) => {
+        e.type = entityType.slice(0, entityType.length - 1);
+
+        const tableFields = DB_TABLES[entityType].fields;
+        const jsonFields = DB_TABLES[entityType].jsonFields;
+        return applyAction(e, jsonFields, tableFields);
+    });
+}
+
+function mapGenericEntities(entities, entityType) {
+    console.log(entities);
+    console.log(entityType);
+    return entities.map((e) => {
+        const tableFields = DB_TABLES[entityType].fields;
+        const jsonFields = DB_TABLES[entityType].jsonFields;
+        return applyAction(e, jsonFields, tableFields);
+    });
+}
+
+function applyAction(entity, fromFields, toFields) {
+    const ret = {};
+
+    for (let i = 0; i < fromFields.length; i++) {
+        if (isValueOfType("string", toFields[i])) {
+            ret[toFields[i]] = entity[fromFields[i]];
+        } else {
+            const func = fromFields[i].func.name;
+            let args = fromFields[i].func.args;
+            if (args === undefined) {
+                ret[toFields[i]] = func();
+            } else {
+                args = args.map((arg) => entity[arg]);
+                ret[toFields[i]] = func(...args);
+            }
+        }
+    }
+
+    return ret;
+}
+
+function log(queries) {
+    let date = new Date();
+    fs.writeFile("./queries.log", date.toString(), function (err) {
+        if (err) return console.log(err);
+        console.log("Date > queries.log");
+    });
+    fs.writeFile("./queries.log", queries, function (err) {
+        if (err) return console.log(err);
+        console.log("queries > queries.log");
+    });
+}
+
+function mapEntities(entityType, entities) {
+    switch (entityType) {
+        case "STUDENTS": {
+            return mapUserEntities(entities, entityType);
+        }
+        case "TEACHERS": {
+            return mapUserEntities(entities, entityType);
+        }
+        case "COURSES": {
+            return mapGenericEntities(entities, entityType);
+        }
+        case "ENROLLMENTS": {
+            return "";
+        }
+        case "SCHEDULES": {
+            return mapGenericEntities(entities, entityType);
+        }
+    }
+}
 
 async function genSqlQueries(queryType, entityType, entities, maxQuery) {
     switch (queryType) {
         case "INSERT": {
             const queriesArray = genInsertSqlQueries(entityType, entities);
-            const queriesString = queriesArray.join("; ");
-            console.log(queriesString);
-            await db.execBatch(queriesString);
+            const queriesString = queriesArray.join(";\n");
+            log(queriesString);
+            //await db.execBatch(queriesString);
             break;
         }
         default: {
@@ -86,14 +175,14 @@ async function genSqlQueries(queryType, entityType, entities, maxQuery) {
 
 function genInsertSqlQueries(entityType, entities) {
     const table = DB_TABLES[entityType];
-    let queryTemplate = `INSERT INTO ${table.name}(${table.fields.join(", ")}) VALUES`;
+    const queryTemplate = `INSERT INTO ${table.name}(${table.fields.join(", ")}) VALUES`;
 
     const queries = entities.map(
         (entity) =>
             queryTemplate +
             "(" +
             Object.values(entity)
-                .map((a) => `"${a}"`)
+                .map((field) => `"${field}"`)
                 .join(", ") +
             ")"
     );
@@ -108,9 +197,9 @@ function genResponseError(errno, error) {
 function getEntityNameFromPath(path) {
     const tokens = path.split("/");
     const possibleEntity = tokens[tokens.length - 1].toUpperCase();
-    console.log(possibleEntity);
+
     const ret = ACCEPTED_ENTITIES.find((entity) => entity === possibleEntity);
-    console.log("SONO RET", ret);
+
     return ret;
 }
 
