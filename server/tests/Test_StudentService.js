@@ -6,20 +6,63 @@
 'use strict'
 
 const assert = require('assert');
-const path = require('path');
 const moment = require('moment');
+const mockery = require('mockery');
+const nodemailerMock = require('nodemailer-mock');
+const GraphQLClient = require('@testmail.app/graphql-request').GraphQLClient;
 
-const dao = require('../src/db/Dao.js');
 const service = require('../src/services/StudentService.js');
 const Student = require('../src/entities/Student.js');
 const Teacher = require('../src/entities/Teacher.js');
 const Lecture = require('../src/entities/Lecture.js');
 const Course = require('../src/entities/Course.js');
-const EmailType = require('../src/entities/EmailType.js');
 const Email = require('../src/entities/Email.js');
 const prepare = require('../src/db/preparedb.js');
-const { pseudoRandomBytes } = require('crypto');
-const { Server } = require('http');
+// const EmailService = require('../src/services/EmailService');
+
+const API_KEY = '1714443a-b87e-4616-8c6f-19d1d6cf2eee';
+const NAMESPACE = 'tjw85';
+const MAIL_URL = `https://api.testmail.app/api/json?apikey=${API_KEY}&namespace=${NAMESPACE}&pretty=true`;
+
+const testmailClient = new GraphQLClient(
+    // API endpoint:
+    'https://api.testmail.app/api/graphql',
+    // Use your API key:
+    { headers: { 'Authorization': `Bearer ${API_KEY}`, 'Context-type': 'Application/JSON' } }
+);
+
+/**
+ * get emails from api.testmail.app
+ * only emails obtained from now
+ * @param {String} from_tag 
+ * @returns {Object} result
+ */
+const retrieveMails = function(from_tag) {
+    return new Promise((resolve, reject) => {
+        testmailClient.request(`{
+            inbox (
+                namespace:"${NAMESPACE}"
+                tag:"${from_tag}"
+                timestamp_from:${moment().subtract('20 second').milliseconds()}
+                livequery:true
+            ) {
+                result
+                message
+                emails {
+                    from
+                    from_parsed {
+                        address
+                        name
+                    }
+                    subject
+                }
+            }
+        }`)
+        .then(resolve)
+        .catch(reject);
+    });
+}
+
 
 const suite = function() {
     let student1;
@@ -99,8 +142,9 @@ const suite = function() {
 
             it('correct params should accept the unbooking request', function(done) {
                 service.studentUnbookLecture(student1.studentId, lecture1.courseId, lecture1.lectureId)
-                    .then((retVal) => {
-                        assert.ok(retVal > 0, 'Unable to unbook a lecture');
+                    .then((availableSeats) => {
+                        console.log(availableSeats);
+                        assert.ok(availableSeats >= 0, 'Unable to unbook a lecture');
                         done();
                     })
                     .catch((err) => done(err));
@@ -114,14 +158,25 @@ const suite = function() {
 
             it('correct params should remove the student and pick a student from the waiting list', function(done) {
                 service.studentUnbookLecture(student3.studentId, lecture6.courseId, lecture6.lectureId)
-                    .then((retVal) => {
-                        assert.ok(retVal, 'Not modified DB');
+                    .then((availableSeats) => {
                         service.studentGetBookings(student2.studentId)
                             .then((lectures) => {
-                                console.log(lectures);
                                 assert.ok(lectures.waited.find((currLecture) => currLecture.lectureId === lecture6.lectureId) == undefined, 'Student waiting not resolved');
                                 assert.ok(lectures.booked.find((currLecture) => currLecture.lectureId === lecture6.lectureId) != undefined, 'Student booking not added');
-                                done();
+
+                                this.timeout(1000 * 60); // extra timeout for this check
+                                setTimeout(() => {
+                                    console.log('Checking emails...');
+                                    retrieveMails('student.storti')
+                                        .then((response) => {
+                                            console.log('Checking emails... - done');
+                                            const data = response.inbox;
+                                            console.log(data);
+                                            assert.strictEqual(data.emails.length, 2, 'Wrong number of emails received');
+                                            done();
+                                        })
+                                        .catch((err) => done(err));
+                                }, 15);
                             })
                             .catch((err) => done(err));
                     })
@@ -229,7 +284,7 @@ const suite = function() {
             it('correct params should return a list of lectures the student is booked for', function(done) {
                 service.studentGetBookings(student2.studentId)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.booked.length, 2, 'Wrong number of bookings retrieved');
+                        assert.strictEqual(lectures.booked.length, 1, 'Wrong number of bookings retrieved');
                         done();
                     })
                     .catch((err) => done(err));
@@ -262,7 +317,7 @@ const suite = function() {
                 };
                 service.studentGetBookings(student1.studentId, periodOfTime)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.booked.length, 2, 'Wrong number of lectures retrieved');
+                        assert.strictEqual(lectures.booked.length, 1, 'Wrong number of lectures retrieved');
                         done();
                     })
                     .catch((err) => done(err));
