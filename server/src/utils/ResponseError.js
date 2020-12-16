@@ -23,6 +23,7 @@ const defaultStatusCode = {
     QUERY_PARAM_NOT_ACCEPTED: 400,
     QUERY_PARAM_NOT_VALUE_ACCEPTED: 400,
     ENTITY_TYPE_NOT_VALID: 400,
+    ENTITY_NOT_FOUND: 404,
     TEACHER_COURSE_MISMATCH_AA: 404,
     ROUTE_FORBIDDEN: 401,
 };
@@ -83,6 +84,9 @@ class ResponseError {
     static get ENTITY_TYPE_NOT_VALID() {
         return 6;
     }
+    static get ENTITY_NOT_FOUND() {
+        return 7;
+    }
     static get TEACHER_COURSE_MISMATCH_AA() {
         return 30;
     }
@@ -105,6 +109,7 @@ class ResponseError {
         QUERY_PARAM_NOT_ACCEPTED: 4,
         QUERY_PARAM_VALUE_NOT_ACCEPTED: 5,
         ENTITY_TYPE_NOT_VALID: 6,
+        ENTITY_NOT_FOUND: 7,
         TEACHER_COURSE_MISMATCH_AA: 30,
         ROUTE_FORBIDDEN: 0,
     };
@@ -118,7 +123,7 @@ class ResponseError {
                 return `lecture (lectureId = ${args.lectureId}) does not belong to this course (courseId = ${args.courseId}) or lecture has already been taught`;
 
             case ResponseError.errno.DB_GENERIC_ERROR:
-                return args;
+                return `DB failure`;
 
             case ResponseError.errno.LECTURE_GIVEN:
                 return "message not implemented";
@@ -164,6 +169,9 @@ class ResponseError {
 
             case ResponseError.errno.ENTITY_TYPE_NOT_VALID:
                 return `Entity type ${args.type} is not valid`;
+
+            case ResponseError.errno.ENTITY_NOT_FOUND:
+                return `Entity ${args.type} not found`;
 
             case ResponseError.errno.TEACHER_COURSE_MISMATCH_AA:
                 return `course (courseId = ${args.courseId}) is not taught by this teacher (teacherId = ${args.teacherId})`;
