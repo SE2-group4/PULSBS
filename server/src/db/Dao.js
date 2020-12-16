@@ -161,7 +161,7 @@ const addBooking = function (student, lecture) {
                 if (err.errno == 19) { // already present
                     // err = StandardErr.new("Dao", StandardErr.errno.ALREADY_PRESENT, "The lecture was already booked");
                     const sql = `UPDATE Booking SET status = ? WHERE studentId = ? AND lectureId = ?`;
-                    db.run(sql, [student.studentId, lecture.lectureId, Booking.BookingType.BOOKED], function (err) {
+                    db.run(sql, [Booking.BookingType.BOOKED, student.studentId, lecture.lectureId], function (err) {
                         if (err) {
                             reject(StandardErr.fromDao(err));
                             return;
