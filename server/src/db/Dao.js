@@ -296,9 +296,9 @@ const getStudentsByLecture = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User
             JOIN Booking on User.userId = Booking.studentId
-            WHERE Booking.lectureId = ? AND User.type = ?`;
+            WHERE Booking.lectureId = ? AND User.type = ? AND Booking.status`;
 
-        db.all(sql, [lecture.lectureId, "STUDENT"], (err, rows) => {
+        db.all(sql, [lecture.lectureId, "STUDENT", Booking.BookingType.BOOKED], (err, rows) => {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
@@ -735,11 +735,11 @@ const getLecturesByCoursePlusNumBookings = function (course) {
         const sql = `SELECT lect.*, COUNT(book.studentId) as numBookings
             FROM Lecture lect 
             LEFT JOIN Booking book ON lect.lectureId = book.lectureId 
-            WHERE lect.courseId = ? 
+            WHERE lect.courseId = ? AND Booking.status = ?
             GROUP BY lect.lectureId
             ORDER BY DATETIME(lect.startingDate)`;
 
-        db.all(sql, [course.courseId], function (err, rows) {
+        db.all(sql, [course.courseId, Booking.BookingType.BOOKED], function (err, rows) {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
