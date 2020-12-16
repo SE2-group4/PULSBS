@@ -36,16 +36,18 @@ class ManagerStatsPage extends React.Component {
     }
 
     render() {
-        return (
+        return (<>
+            <BurgerSidebar courses={this.state.courses} typeOptions={this.state.typeOptions} generateGraph={this.generateGraph} />
             <Container fluid>
                 <Row>
-                    <BurgerSidebar courses={this.state.courses} typeOptions={this.state.typeOptions} generateGraph={this.generateGraph} />
-                    <Col sm="6">
+                    <Col sm="4"><></></Col>
+                    <Col sm="8">
                         <Chart courses={this.state.selectedCourses} types={this.state.selectedTypes} weeks={this.state.selectedWeeks}
                             months={this.state.selectedMonths} granularity={this.state.granularity} />
                     </Col>
                 </Row>
             </Container>
+        </>
         )
     }
 }
