@@ -99,7 +99,7 @@ function isBoolean(value) {
  */
 function isObjectEmpty(obj) {
     return Object.keys(obj).length === 0;
-};
+}
 
 /**
  * check if value is of type acceptedType
