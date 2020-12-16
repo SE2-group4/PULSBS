@@ -9,9 +9,9 @@ DELETE FROM EmailQueue;
 DELETE FROM WaitingList;
 DELETE FROM Schedule;
 
-INSERT INTO User(userId, type, firstName, lastName, email, password,ssn) VALUES(1, 'STUDENT', 'Aldo', 'Baglio', 'ulric.kaven@extraale.com', 'aldo','aldo1');
-INSERT INTO User(userId, type, firstName, lastName, email, password,ssn) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni','giovanni2');
-INSERT INTO User(userId, type, firstName, lastName, email, password,ssn) VALUES(3, 'STUDENT', 'Silvana', 'Fallisi', 'silvana.fallisi@agg.it', 'silvana','silvana3');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber, birthday) VALUES(1, 'STUDENT', 'Aldo', 'Baglio', 'tjw85.student.baglio@inbox.testmail.app', 'aldo', 'aldo1', 'Turin', '1', DATETIME('now', '-20 year', 'start of day'));
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber, birthday) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni', 'giacomo2', 'Turin', '3', DATETIME('now', '-20 year', 'start of day'));
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber, birthday) VALUES(3, 'STUDENT', 'Silvana', 'Fallisi', 'tjw85.student.fallisi@inbox.testmail.app', 'silvana', 'silvana3', 'Turin', '4', DATETIME('now', '-20 year', 'start of day'));
 
 INSERT INTO Course(courseId, description, year) VALUES(1, 'Software enginnering 2', 1);
 INSERT INTO Course(courseId, description, year) VALUES(2, 'Computer system security', 1);
@@ -20,8 +20,8 @@ INSERT INTO Course(courseId, description, year) VALUES(4, 'Web application', 2);
 INSERT INTO Course(courseId, description, year) VALUES(5, 'Formal languages and compilers', 1);
 INSERT INTO Course(courseId, description, year) VALUES(6, 'Big data', 2);
 
-INSERT INTO User(userId, type, firstName, lastName, email, password,ssn) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'jamaree.bretley@extraale.com', 'giacomo','giacomo4');
-INSERT INTO User(userId, type, firstName, lastName, email, password,ssn) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'enis.laron@extraale.com', 'marina','marina5');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber, birthday) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'tjw85.teacher.poretti@inbox.testmail.app', 'giacomo', 'giacomo4', 'Turin', '4', DATETIME('now', '-20 year', 'start of day'));
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber, birthday) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'tjw85.teacher.massironi@inbox.testmail.app', 'marina', 'marina5', 'Turin', '5', DATETIME('now', '-20 year', 'start of day'));
 
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 1, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 2, 1);

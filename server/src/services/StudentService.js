@@ -133,13 +133,20 @@ exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
                                                 defaultEmail.subject,
                                                 defaultEmail.message
                                         );
-                                        resolve(retVal);
+                                        
+                                        dao.lectureHasFreeSeats(lecture)
+                                            .then(resolve)
+                                            .catch(reject);
                                     })
                                     .catch(reject);
                             })
                             .catch(reject);
                     })
-                    .catch((err) => resolve(modifiedBookings)); // if no students are waiting, not an error
+                    .catch((err) => {
+                        dao.lectureHasFreeSeats(lecture)
+                            .then(resolve)
+                            .catch(reject);
+                    }); // if no students are waiting, not an error
             })
             .catch(reject);
     });

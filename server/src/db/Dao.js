@@ -157,10 +157,21 @@ const addBooking = function (student, lecture) {
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO Booking(studentId, lectureId, status) VALUES (?, ?, ?)`;
 
-        db.run(sql, [student.studentId, lecture.lectureId, Booking.BookingType.UNBOOKED], function (err) {
+        db.run(sql, [student.studentId, lecture.lectureId, Booking.BookingType.BOOKED], function (err) {
             if (err) {
-                if (err.errno == 19)
-                    err = StandardErr.new("Dao", StandardErr.errno.ALREADY_PRESENT, "The lecture was already booked");
+                if (err.errno == 19) { // already present
+                    // err = StandardErr.new("Dao", StandardErr.errno.ALREADY_PRESENT, "The lecture was already booked");
+                    const sql = `UPDATE Booking SET status = ? WHERE studentId = ? AND lectureId = ?`;
+                    db.run(sql, [student.studentId, lecture.lectureId, Booking.BookingType.BOOKED], function (err) {
+                        if (err) {
+                            reject(StandardErr.fromDao(err));
+                            return;
+                        }
+
+                        resolve(this.changes);
+                        return;
+                    });
+                }
                 else err = StandardErr.fromDao(err);
                 reject(err);
                 return;
@@ -508,10 +519,10 @@ const getBookingsByStudent = function (student) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Lecture.* FROM Lecture
             JOIN Booking ON Booking.lectureId = Lecture.lectureId
-            WHERE Booking.studentId = ?
+            WHERE Booking.studentId = ? AND Booking.status = ?
             ORDER BY DATETIME(Lecture.startingDate)`;
 
-        db.all(sql, [student.studentId], (err, rows) => {
+        db.all(sql, [student.studentId, Booking.BookingType.BOOKED], (err, rows) => {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
@@ -536,8 +547,8 @@ const getBookingsByStudentAndPeriodOfTime = function (student, periodOfTime = {}
         const sqlParams = [];
         let sql = `SELECT Lecture.* FROM Lecture
             JOIN Booking ON Booking.lectureId = Lecture.lectureId
-            WHERE Booking.studentId = ?`;
-        sqlParams.push(student.studentId);
+            WHERE Booking.studentId = ? AND Booking.status = ?`;
+        sqlParams.push(student.studentId, Booking.BookingType.BOOKED);
 
         // composing the SQL query
         if (periodOfTime.from && moment(periodOfTime.from).isValid()) {
@@ -1178,9 +1189,10 @@ const lectureHasFreeSeats = function (lecture) {
             getClassByLecture(lecture)
         ])
             .then((values) => {
-                const currBookings = values[0];
-                const classCapacity = values[1];
-                resolve(classCapacity - currBookings);
+                const currBookings = Number(values[0]);
+                const classCapacity = Number(values[1].capacity);
+                const availableSeats = classCapacity - currBookings;
+                resolve(availableSeats);
             })
             .catch(reject);
     });

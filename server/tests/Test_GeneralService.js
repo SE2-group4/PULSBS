@@ -30,7 +30,7 @@ const suite = function() {
     });
 
     const reset = (done) => {
-        student2 = new Student(2, 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
+        student2 = new Student(2, 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni');
 
         prepare('testing.db', 'testing.sql', false)
             .then(() => done())

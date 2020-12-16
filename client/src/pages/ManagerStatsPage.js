@@ -1,12 +1,10 @@
 import React from 'react';
-import moment from 'moment'
 import Container from "react-bootstrap/Container";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import BurgerSidebar from '../components/BurgerSidebar';
 import Chart from '../components/Chart';
 import API from '../api/Api';
-import APIfake from '../api/APIfake';
 
 class ManagerStatsPage extends React.Component {
     constructor(props) {
@@ -38,16 +36,18 @@ class ManagerStatsPage extends React.Component {
     }
 
     render() {
-        return (
+        return (<>
+            <BurgerSidebar courses={this.state.courses} typeOptions={this.state.typeOptions} generateGraph={this.generateGraph} />
             <Container fluid>
                 <Row>
-                    <BurgerSidebar courses={this.state.courses} typeOptions={this.state.typeOptions} generateGraph={this.generateGraph} />
-                    <Col sm="6">
+                    <Col sm="4"><></></Col>
+                    <Col sm="8">
                         <Chart courses={this.state.selectedCourses} types={this.state.selectedTypes} weeks={this.state.selectedWeeks}
                             months={this.state.selectedMonths} granularity={this.state.granularity} />
                     </Col>
                 </Row>
             </Container>
+        </>
         )
     }
 }

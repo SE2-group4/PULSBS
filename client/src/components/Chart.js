@@ -11,13 +11,14 @@ class Chart extends React.Component {
     }
 
     render() {
+        /*
         const colors = [
             'rgba(0, 222, 255, 0.6)',
             'rgba(255, 99, 132, 0.6)',
             'rgba(182, 255, 108, 0.6)',
             'rgba(214, 114, 77,0.6)',
             'rgba(217, 196, 76,0.6)'
-        ]
+        ]*/
         //var description = courseName(this.props.courses, this.props.lecture.courseId);
         //var week = avgWeek(this.props.lectures, this.props.lecture);
         //var month = avgMonth(this.props.lectures, this.props.lecture);
@@ -81,8 +82,8 @@ class Chart extends React.Component {
                                 return w.name
                             }),
                             datasets: [{
-                                label: "stats",
-                                data: [4, 3, 2],
+                                label: [],
+                                data: [],
                                 backgroundColor: "red",
                                 borderWidth: 2,
                             }]
@@ -136,7 +137,7 @@ class Chart extends React.Component {
                             }),
                             datasets: [{
                                 label: [],
-                                data: [2, 3, 4],
+                                data: [],
                                 backgroundColor: "green",
                                 borderWidth: 2,
                             }]

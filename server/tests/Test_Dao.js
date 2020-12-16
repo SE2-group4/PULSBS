@@ -42,7 +42,7 @@ const suite = function () {
 
         const reset = (done) => {
             student1 = new Student(1, 'Aldo', 'Baglio');
-            student2 = new Student(2, 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
+            student2 = new Student(2, 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni');
             teacher4 = new Teacher(4);
             lecture2 = new Lecture(2);
             lecture1 = new Lecture(1, 1, 1);
@@ -239,7 +239,7 @@ const suite = function () {
             it('not specified period of time should return the list of lectures', function (done) {
                 dao.getBookingsByStudentAndPeriodOfTime(student1)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.length, 3, 'Wrong number of lectures');
+                        assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
                         done();
                     })
                     .catch((err) => done(err));
@@ -263,7 +263,7 @@ const suite = function () {
                 };
                 dao.getBookingsByStudentAndPeriodOfTime(student1, periodOfTime)
                     .then((lectures) => {
-                        assert.strictEqual(lectures.length, 2, 'Wrong number of lectures');
+                        assert.strictEqual(lectures.length, 1, 'Wrong number of lectures');
                         done();
                     })
                     .catch((err) => done(err));
@@ -603,7 +603,9 @@ const suite = function () {
             });
         });
 
-        describe('getWaitingsByStudentAndPeriodOfTime', function() {
+        describe('getWaitingsByStudentAndPeriodOfTime', function(
+
+        ) {
             it('not specified periodOfTime return the list of students', function(done) {
                 dao.getWaitingsByStudentAndPeriodOfTime(student1)
                     .then((lectures) => {
