@@ -161,14 +161,14 @@ const suite = function() {
                 this.timeout(1000 * 60); // extra timeout for this check
 
                 retrieveEmails('student.storti')
-                    .then((response) => {
-                        let emails = response.inbox.emails;
-                        const nPrevEmails = emails.length;
-                        emails = emails.map((currEmail) => {
+                    .then((prevResponse) => {
+                        let prevEmails = prevResponse.inbox.emails;
+                        const nPrevEmails = prevEmails.length;
+                        prevEmails = prevEmails.map((currEmail) => {
                             currEmail.timestamp = new Date(currEmail.timestamp).toISOString();
                             return currEmail;
                         });
-                        console.log(emails);
+                        console.log(prevEmails);
 
                         service.studentUnbookLecture(student3.studentId, lecture6.courseId, lecture6.lectureId)
                             .then((availableSeats) => {
@@ -188,6 +188,7 @@ const suite = function() {
                                                 });
                                                 console.log(emails);
                                                 assert.strictEqual(nPrevEmails - emails.length, 2, 'Wrong number of emails received');
+                                                
                                                 done();
                                             })
                                             .catch((err) => done(err));
