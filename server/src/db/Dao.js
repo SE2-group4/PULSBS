@@ -294,7 +294,7 @@ const getStudentsByLecture = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User
             JOIN Booking on User.userId = Booking.studentId
-            WHERE Booking.lectureId = ? AND User.type = ? AND Booking.status`;
+            WHERE Booking.lectureId = ? AND User.type = ? AND Booking.status = ?`;
 
         db.all(sql, [lecture.lectureId, "STUDENT", Booking.BookingType.BOOKED], (err, rows) => {
             if (err) {
@@ -733,7 +733,7 @@ const getLecturesByCoursePlusNumBookings = function (course) {
         const sql = `SELECT lect.*, COUNT(book.studentId) as numBookings
             FROM Lecture lect 
             LEFT JOIN Booking book ON lect.lectureId = book.lectureId 
-            WHERE lect.courseId = ? AND Booking.status = ?
+            WHERE lect.courseId = ? AND book.status = ?
             GROUP BY lect.lectureId
             ORDER BY DATETIME(lect.startingDate)`;
 
