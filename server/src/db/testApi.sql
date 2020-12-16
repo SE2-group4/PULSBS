@@ -33,7 +33,7 @@ INSERT INTO Enrollment(studentId, courseId, year) VALUES(3, 3, 2020);
 INSERT INTO Enrollment(studentId, courseId, year) VALUES(3, 4, 2020);
 
 INSERT INTO Class(classId, description, capacity) VALUES(1, '1A', 3);
-INSERT INTO Class(classId, description, capacity) VALUES(2, '2B', 3);
+INSERT INTO Class(classId, description, capacity) VALUES(2, '2B', 1);
 INSERT INTO Class(classId, description, capacity) VALUES(3, '3C', 3);
 
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(1, 1, 1, DATETIME('now', '-1 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', '-2 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
