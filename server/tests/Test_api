@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "7243e747-d6cd-4bd4-a594-d83eac56a8ae",
+		"_postman_id": "8d82a64b-9c1c-4325-a7dc-dc8f671960ce",
 		"name": "PULSBS Copy",
 		"description": "se2 project",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -15,7 +15,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "bc6d346f-a7a4-42a8-8998-e5346b734d3b",
+								"id": "37ddaa52-fa9f-4cbf-bd1c-8f63d586b3fd",
 								"exec": [
 									"pm.test(\"Status code of POST /login\", function () {\r",
 									"    pm.response.to.have.status(401);\r",
@@ -31,7 +31,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "58393a7e-9ee9-45f5-8edb-4eb7f83259af",
+								"id": "8e6d32ba-bbaf-44fa-977e-5fc90e5b992a",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -89,7 +89,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "359500a3-9061-4338-ba03-ea7bb3f62b3c",
+								"id": "a0556a60-895c-4a1a-ba16-da8723414ff3",
 								"exec": [
 									"pm.test(\"Status code of POST /login\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -106,7 +106,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "9306abe8-5717-4725-84f2-eafe7605b9c2",
+								"id": "b18d3672-4940-4fc7-98f0-673f6bfc5d10",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -164,7 +164,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "ff8cb825-c65b-465a-8056-7a2d3b28ca07",
+								"id": "cd48ba58-2966-4830-9840-59f84aeb1289",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -190,7 +190,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "04267f0b-c9c0-4122-be5b-28b3615ca725",
+								"id": "bd62df95-f6de-4ccd-b730-6df66a5fd685",
 								"exec": [
 									"pm.test(\"Status code of POST /logout\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -225,7 +225,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "0cf44e25-5350-4131-b396-132cfaf8d244",
+								"id": "ecfe4fc2-c1fe-4734-87d3-fa6fd2c68d01",
 								"exec": [
 									"pm.test(\"Status code of POST /login\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -242,7 +242,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "6a002cf7-7f9e-4263-8eb3-d8e5bcae9aca",
+								"id": "53b1e5e4-f60d-4fbe-b778-067d8a0c6df7",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -309,7 +309,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "78629b99-ef64-4fe9-a262-c45f2ff4586f",
+										"id": "fc425b1d-b678-4b98-831a-5c1d02e45524",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -335,7 +335,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "04a0fd7b-5fc1-4e01-a9b9-daa2f0ce9838",
+										"id": "d8d914d1-6216-44a5-a1d9-5f88a4c2f82e",
 										"exec": [
 											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
@@ -380,7 +380,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "aa952c1b-6388-481d-ad09-885ff8fabb10",
+										"id": "26fe6202-aab1-4208-a817-77f3f87b2bdc",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -406,7 +406,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "54dd630e-01bf-4d25-9060-3cabaa5eba7b",
+										"id": "744a64b7-222c-48e0-b071-fdc99e70ebaf",
 										"exec": [
 											"pm.test(\"Status code of  GET /teachers/4/courses/\\\"foo\\\"/lectures\", function () {\r",
 											"    pm.response.to.have.status(400);\r",
@@ -448,7 +448,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "2e10b438-ef00-4ca9-a544-b90afc93c4fe",
+										"id": "fb06ba90-7c8a-4da8-9ec1-1fcbc05cd47c",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -474,7 +474,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "1916c593-ab9e-4f5b-98e3-e43a56269af5",
+										"id": "a5b17ffb-4aca-4c17-8779-e225da931574",
 										"exec": [
 											"pm.test(\"Status code of GET /teachers/5/courses/4/lectures\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
@@ -510,12 +510,12 @@
 							"response": []
 						},
 						{
-							"name": "teachers -> courses -> lectures | numBookings",
+							"name": "teachers -> courses -> lectures | bookings",
 							"event": [
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "16056e4a-58fa-41c7-ae9c-ef6df73e2684",
+										"id": "95c4a079-f5ed-4e6b-a876-27657eeea5b3",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -541,19 +541,19 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "07a11e10-54ae-4195-bd26-9b813541d17a",
+										"id": "7899c1bf-fa04-4ae9-9ae8-993bc3e9ae54",
 										"exec": [
-											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures?numBookings=true\", function () {\r",
+											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures?bookings=true\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
 											"});\r",
 											"\r",
-											"pm.test(\"Response body of GET /teachers/4/courses/1/lectures?numBookings=true\", function () {\r",
+											"pm.test(\"Response body of GET /teachers/4/courses/1/lectures?bookings=true\", function () {\r",
 											"    const responseJson = pm.response.json();\r",
 											"    pm.expect(responseJson).to.be.an(\"array\");\r",
 											"    pm.expect(responseJson).to.have.length(3);\r",
 											"    const expectedNumBookings = [1, 0, 0]\r",
 											"    for (let i = 0; i < responseJson.length; i++) {\r",
-											"        pm.expect(responseJson[i].numBookings).to.be.equal(expectedNumBookings[i]);  \r",
+											"        pm.expect(responseJson[i].bookings).to.be.equal(expectedNumBookings[i]);  \r",
 											"    }\r",
 											"});"
 										],
@@ -565,7 +565,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/teachers/4/courses/1/lectures?numBookings=true",
+									"raw": "{{base_url}}/teachers/4/courses/1/lectures?bookings=true",
 									"host": [
 										"{{base_url}}"
 									],
@@ -578,7 +578,7 @@
 									],
 									"query": [
 										{
-											"key": "numBookings",
+											"key": "bookings",
 											"value": "true"
 										}
 									]
@@ -592,7 +592,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e2c0feba-6320-45bd-aa0e-f1ee5b7472d3",
+										"id": "58ff49d1-52aa-4f8a-9b52-397145206bd1",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -619,7 +619,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "456666b3-4e21-4a44-ac83-6d3b8dfe075c",
+										"id": "77ad3034-0b03-45b8-b0cc-47adfd1e066c",
 										"exec": [
 											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures?from=\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
@@ -664,7 +664,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "7986edd9-0a3a-4159-85cf-ef6092dea4ae",
+										"id": "490d3215-fe75-4045-bb7c-24f61b620f53",
 										"exec": [
 											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
@@ -682,7 +682,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "02af63ea-e193-4de1-92d7-2a8e9d9ad65d",
+										"id": "3eb3e859-dddc-41ff-90e5-d8d5908dd0cf",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -734,7 +734,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "dfa239ea-6b11-40d1-b7b8-788e13ea9faf",
+										"id": "2d4e7c38-8260-467e-9e38-56e9d40347fd",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -760,7 +760,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "acf9628a-7dda-4317-b9d2-eda7a086fc20",
+										"id": "de6756f8-04d8-4989-bbfe-9ad8adddcb83",
 										"exec": [
 											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
 											"    pm.response.to.have.status(204);\r",
@@ -796,7 +796,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "a4f288d7-2a1c-4f5a-b13e-42ed7d734ddd",
+										"id": "b69014e4-2026-4ccd-ae81-5315505f5bc4",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -822,7 +822,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "a2fbec02-6953-43b7-8b28-225925b89891",
+										"id": "09fdba44-47f0-4f81-b148-ea5e31df7221",
 										"exec": [
 											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
 											"    pm.response.to.have.status(409);\r",
@@ -865,7 +865,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "3e83d84d-e28f-4c9b-8424-6ee8f28dba6e",
+										"id": "c2af1abf-2eba-4bf1-9a9e-2c452d95de54",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -891,7 +891,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "ed9ec99c-21b3-452d-88ce-7f0f70429ab6",
+										"id": "7670c29c-1fc7-4df4-9db8-1cef6e3c7b81",
 										"exec": [
 											"pm.test(\"Status code of PUT /teachers/4/courses/2/lectures/4?switchTo=remote\", function () {\r",
 											"    pm.response.to.have.status(204);\r",
@@ -934,7 +934,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "eab0ba39-2952-4612-a8df-7cab89633a43",
+										"id": "77a766a6-312c-487b-bf75-e17c4072c342",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -960,7 +960,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "0383b818-d362-47cc-a45a-9f31cf4b523b",
+										"id": "c9c3b779-bdc1-4f14-8a31-83d24a849274",
 										"exec": [
 											"pm.test(\"Status code of PUT /teachers/4/courses/1/lectures/3?switchTo=fail\", function () {\r",
 											"    pm.response.to.have.status(400);\r",
@@ -1010,7 +1010,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "c98a676a-a205-4936-b402-8df559ca7365",
+										"id": "c635d353-f1ca-44c0-ae5b-aa54a404ccdb",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -1036,7 +1036,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "db854054-c398-43a5-a5fe-1daf1711b62c",
+										"id": "874041a1-8d1a-4ff6-87df-6825a9918008",
 										"exec": [
 											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures/1\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
@@ -1071,84 +1071,13 @@
 								}
 							},
 							"response": []
-						},
-						{
-							"name": "students -> courses -> lectures | from",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"id": "4087db05-3055-4aaf-ae18-730510579153",
-										"exec": [
-											"function sendRequest(req) {\r",
-											"    return new Promise((resolve, reject) => {\r",
-											"        pm.sendRequest(req, (err, res) => {\r",
-											"            if (err) {\r",
-											"                return reject(err);\r",
-											"            }\r",
-											"            return resolve(res);\r",
-											"        })\r",
-											"    });\r",
-											"}\r",
-											"\r",
-											"(async function main() {\r",
-											"    const baseUrl = pm.globals.get(\"base_url\");\r",
-											"    pm.request.url.query.add(\"from=\" + (new Date()).toISOString());\r",
-											"    const result = await sendRequest(`${baseUrl}/reset`);\r",
-											"    console.log('Reset', result);\r",
-											"})();"
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"id": "12771e2b-c6bc-4a00-903d-060e7df56dc9",
-										"exec": [
-											"pm.test(\"Status code of GET /students/1/courses/1/lectures\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Response body of GET /students/1/courses/1/lectures\", function () {\r",
-											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson).to.be.an(\"array\");\r",
-											"    pm.expect(responseJson).to.have.length(2);\r",
-											"    expectedLectureId = [2, 3];\r",
-											"    for(let i = 0; i < responseJson.length; i++) {\r",
-											"        responseJson[i].lectureId = expectedLectureId[i];\r",
-											"    }\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/students/1/courses/1/lectures",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"students",
-										"1",
-										"courses",
-										"1",
-										"lectures"
-									]
-								}
-							},
-							"response": []
 						}
 					],
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "610ec9a8-1084-4527-be83-cd1cbdffbd0c",
+								"id": "fed313d8-0f08-4771-9500-736ac03a93f3",
 								"type": "text/javascript",
 								"exec": [
 									""
@@ -1158,7 +1087,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "60cdcc62-9f8a-4ba5-9dd8-0c693d02c0f9",
+								"id": "3c0524bb-b8e4-4760-acc6-adc2563b4727",
 								"type": "text/javascript",
 								"exec": [
 									""
@@ -1175,7 +1104,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "e625d782-df32-4257-9fcf-6f151b08e39b",
+								"id": "f499afdb-d1f6-4cd3-b3a5-0cd9edff3424",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/1/courses\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -1193,7 +1122,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "4496cad0-695c-40af-97de-648aaebf5fc8",
+								"id": "bb934d45-0a71-464b-8552-36646ac4d9ae",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1244,7 +1173,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "61de9f20-d2a7-4f3d-a74d-0e3e979b15ec",
+								"id": "6823dbf4-17dc-4ea0-9454-e139c8d7680e",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -1286,7 +1215,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "94bd353a-e304-496c-b0c3-c0326581c802",
+								"id": "780c0e90-782f-4c3b-9b46-5beb7df78624",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/fail/courses\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -1305,7 +1234,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "fffab6b1-0a87-4393-9fa0-ffb763ace6cc",
+								"id": "267a1e2c-8ae6-4261-ac09-76dd8ea24090",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1353,7 +1282,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "0257a8f9-98f4-4b36-9eaa-409bd7e83693",
+								"id": "f32b1aca-e639-41ab-a05b-1af9eb4a42b4",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1379,7 +1308,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "eced6e3b-5af4-416e-a05c-420340de6819",
+								"id": "1aee3f0c-84d5-467f-bc58-87f4863301ab",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/fail/courses/1/lectures\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -1421,7 +1350,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "1a15bae3-a5bf-48bc-b33c-d24b27f1aa3b",
+								"id": "7fb186c9-1d78-47d8-9865-43db066988f4",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1447,7 +1376,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "b9e87eec-148b-48c8-b8e4-e1507de7d9ec",
+								"id": "5b3885d0-30aa-4e73-993c-d111a1def621",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/1/courses/fail/lectures\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -1489,7 +1418,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "55ee59ee-ad96-4816-a6a3-b6dbcf6bc96b",
+								"id": "31d58630-95e8-404e-8c03-d2c217acf60f",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/5/courses/1/lectures\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
@@ -1508,7 +1437,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "54e9ca46-c16e-4563-ba46-ae4b284b36a8",
+								"id": "c0874245-2798-472e-a6be-48a837bb8c09",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1561,7 +1490,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "0be06171-168a-4424-9b74-1d649b995997",
+								"id": "105819b5-ef85-4696-a4b6-ed65fd328097",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1587,7 +1516,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "3562f13a-6c03-4ea1-adab-a5ce8d913b3c",
+								"id": "09b5c8db-d063-47e6-8f53-88da0e41e409",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -1647,7 +1576,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "a24904ed-ae9c-43f7-8527-a58c7d973681",
+								"id": "d396cdf6-9900-4d87-a6f5-432806331b50",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1673,7 +1602,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "04577256-f62d-4973-b600-c0b597e026e7",
+								"id": "e4ca3022-1851-4972-af02-8dd0a4cd0b74",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/1/courses/fail/lectures\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -1718,7 +1647,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "94ba8ec5-f552-4391-8203-13f1ee534bb1",
+								"id": "c358c5c5-96d9-4975-b08e-266f46e55c23",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1744,7 +1673,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "f254b436-99a1-4f7a-bb1f-aba8d578c41f",
+								"id": "483ecd98-4ec9-4c4d-8ae4-c00fa7ab58c6",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/fail/courses/1/lectures/2/students\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -1788,7 +1717,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "6db075bf-b7a7-437a-82b0-b39fada1f111",
+								"id": "c4f4cdfb-26bd-46e0-a397-9f6f811dff1e",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1814,7 +1743,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "ab8b725f-d97e-46b0-b566-13a190d1a577",
+								"id": "8f8e5c8f-85db-48aa-ba77-3ec984c2dd26",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/fail/lectures/2/students\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -1858,7 +1787,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "5d7497ce-0871-415f-890d-5053fb4f694c",
+								"id": "528a7a46-c04a-4f34-94f8-48672bb9a425",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1884,7 +1813,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "18cdbfe8-3c3f-4b95-bb7a-8826ae4fbd89",
+								"id": "91a421de-daee-4e97-b32a-24438631a8e7",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/1/lectures/fail/students\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -1929,7 +1858,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "492e47a6-421e-4e60-aaea-6cacdbe4b7ee",
+								"id": "83f4a31c-9b96-4303-8471-780f53694a91",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -1955,7 +1884,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "270abaea-8e4a-4a05-bd38-e26a3e9111fa",
+								"id": "296b9ee5-7bf4-4a6a-b169-e6fe6e892623",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/3/lectures/1/students\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
@@ -1999,7 +1928,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "18ebfa50-b807-4735-a0e6-087f208e4935",
+								"id": "b8cbf701-625d-4574-b7ad-239f2b8b5772",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -2025,7 +1954,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "0a81320b-6952-4609-b43c-c44fed33803b",
+								"id": "452c1cdd-9493-49a3-9969-1d42468233e3",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/3/lectures/1/students\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
@@ -2069,7 +1998,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "f9b8947f-3c7f-4cb5-a13f-b5e663dad1b1",
+								"id": "0346777c-beab-40d8-8679-6554f235974b",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -2095,7 +2024,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "2aed959e-abe2-4f66-aa04-546d12c935b5",
+								"id": "d6d5edff-480d-4a56-baa8-a5f2701ce0e1",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/1/lectures/1/students\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -2147,7 +2076,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "a2f56692-18a7-4515-946e-e6b9de5ea72d",
+								"id": "54e58f18-e5bc-4b4b-8a34-bde4565b4a41",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -2173,7 +2102,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "583c2630-c7eb-4319-a853-96c3db90cb45",
+								"id": "29d3dedd-fd2b-4470-afa2-4c5529c99695",
 								"exec": [
 									"pm.test(\"Status code of GET /teachers/4/courses/1/lectures/1/students\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -2225,7 +2154,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "6d28f74b-35fd-4d1c-a887-3ace5323eff8",
+										"id": "08deec71-2593-4036-8bee-ee6da11c2b4a",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -2251,7 +2180,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "a21aeff3-dfd9-4460-94f7-508c5e5a8b96",
+										"id": "a17c411c-7ada-484b-a461-1aa19ac128cf",
 										"exec": [
 											"pm.test(\"Status code of GET /teachers/4/courses/1/lectures\", function () {\r",
 											"    pm.response.to.have.status(204);\r",
@@ -2287,7 +2216,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "9adafba2-3b9f-4041-bfaf-8584a15bbde5",
+										"id": "5692b6fd-6cac-478b-8b35-561710adff32",
 										"exec": [
 											"pm.test(\"Status code of DELETE /students/1/courses/1/lectures/\\\"foo\\\"\", function () {\r",
 											"    pm.response.to.have.status(400);\r",
@@ -2329,7 +2258,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "92bacc4b-5aa7-451b-8457-79708ffa3a4f",
+										"id": "c906fbda-bd33-494a-9671-35c93cec6373",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -2355,7 +2284,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "eb5c5d75-0924-4549-b7f1-61b59837db74",
+										"id": "c904c828-36f6-4c37-8800-83c93a1fa550",
 										"exec": [
 											"pm.test(\"Status code of GET /students/1/bookings\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
@@ -2363,11 +2292,12 @@
 											"\r",
 											"pm.test(\"Response body of GET /students/1/bookings\", function () {\r",
 											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson).to.be.an(\"array\");\r",
-											"    pm.expect(responseJson).to.have.length(1);\r",
-											"    const expectedLectureId = [1];\r",
-											"    for(let i = 0; i < responseJson.length; i++) {\r",
-											"        responseJson[i].lectureId = expectedLectureId[i]; \r",
+											"    pm.expect(responseJson).to.be.an(\"object\");\r",
+											"    expectedFields = [\"booked\", \"waited\"];\r",
+											"    expectedLength = [1, 0]; \r",
+											"    pm.expect(responseJson).to.have.all.keys(expectedFields);\r",
+											"    for(let i = 0; i < expectedFields.length; i++) {\r",
+											"        pm.expect(responseJson[expectedFields[i]].length).to.be.eq(expectedLength[i]);\r",
 											"    }\r",
 											"});"
 										],
@@ -2398,7 +2328,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "0c956356-5854-4b5e-9d08-67eb116c6d2c",
+										"id": "4dd363a6-0b7e-4bde-9d8b-3ef38f50bc98",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -2424,7 +2354,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "23ec4450-4939-4d84-ae74-9e3966b00faa",
+										"id": "dd308884-b7c7-4e2c-a1d2-545bce07b850",
 										"exec": [
 											"pm.test(\"Status code of GET /students/6/bookings\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
@@ -2432,8 +2362,13 @@
 											"\r",
 											"pm.test(\"Response body of GET /students/6/bookings\", function () {\r",
 											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson).to.be.an(\"array\");\r",
-											"    pm.expect(responseJson).to.have.length(0);\r",
+											"    pm.expect(responseJson).to.be.an(\"object\");\r",
+											"    expectedFields = [\"booked\", \"waited\"];\r",
+											"    expectedLength = [0, 0]; \r",
+											"    pm.expect(responseJson).to.have.all.keys(expectedFields);\r",
+											"    for(let i = 0; i < expectedFields.length; i++) {\r",
+											"        pm.expect(responseJson[expectedFields[i]].length).to.be.eq(expectedLength[i]);\r",
+											"    }\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -2463,7 +2398,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "98515816-ec2d-4085-9de4-8252426d735c",
+										"id": "ed5c2696-c4b6-473a-99a3-fa77c20bf0f4",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -2489,7 +2424,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "c862cade-03f9-49e2-986f-680c08b67928",
+										"id": "3ab3bdb0-1940-47db-8b2b-564815a7f909",
 										"exec": [
 											"pm.test(\"Status code of GET /students/1/courses/1/lectures\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
@@ -2534,7 +2469,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e4ca48f7-0715-4f72-a200-12a1b2006aa0",
+										"id": "8bf806fe-bd13-41d8-a151-4565658d4778",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -2560,7 +2495,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "753a6482-98c3-467e-8e2a-34d3fd9997f2",
+										"id": "0012fbe9-b2e7-4ed8-a9a2-ad58532aa65a",
 										"exec": [
 											"pm.test(\"Status code of GET /students/1/courses/4/lectures\", function () {\r",
 											"    pm.response.to.have.status(404);\r",
@@ -2602,7 +2537,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "10ea9f6f-9c12-4faa-a12e-bb0fc0ef4678",
+										"id": "3e6b3880-ca82-440e-ac64-baacef149083",
 										"exec": [
 											"function sendRequest(req) {\r",
 											"    return new Promise((resolve, reject) => {\r",
@@ -2628,7 +2563,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "a9f1b6cb-7baa-4f79-ac8a-37628aedb73d",
+										"id": "2512e3e1-16ea-4397-a608-27b199f81c05",
 										"exec": [
 											"pm.test(\"Status code of GET /students/1/courses/1/lectures\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
@@ -2677,7 +2612,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "27853af6-4ec9-457e-93e8-2fc0f9d52d1f",
+								"id": "29614f72-cd65-47a5-a3f3-48ed145df54e",
 								"exec": [
 									"pm.test(\"Status code of GET /students/6/courses\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -2695,7 +2630,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "5ef943f1-c71a-4c34-a8b3-cfa4408b831c",
+								"id": "1f563349-479a-4527-844c-c25f5c5872fa",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -2742,7 +2677,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "16e0eb8a-0ea5-4f26-a7eb-fc2da180d8d3",
+								"id": "ae4f6dd5-8cb3-4150-af97-346f358867bf",
 								"exec": [
 									"pm.test(\"Status code of GET /students/1/courses\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -2759,7 +2694,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "6b0bd5c2-7de7-4319-beb0-e2b21a0ad2e3",
+								"id": "29323509-cf40-4122-84c2-36b636e4921b",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -2806,7 +2741,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "ec27fe33-e5bd-4b2c-94a8-d846a0564466",
+								"id": "c687bc07-bf8f-4972-ba7c-f80d83d1da34",
 								"exec": [
 									"pm.test(\"Status code of GET /students/fail/courses\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -2824,7 +2759,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "404a63ce-763e-4107-9a95-4ead9e43b2df",
+								"id": "5a67b2ef-2efd-447c-be0c-d0348b031a29",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -2872,7 +2807,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "52ca2021-475d-4c13-ab18-32051256140d",
+								"id": "91eba188-e1ad-4bf3-9567-62ce6cc4c11d",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -2898,7 +2833,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "0097f623-7ee1-4f3e-a4b0-ad7954b942b0",
+								"id": "c18787bb-a854-42e7-9b24-4149a74dc2c6",
 								"exec": [
 									"pm.test(\"Status code of GET /students/fail/courses/1/lectures\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -2939,7 +2874,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "3b4d1acf-95b1-41a5-8d0f-45527fe79308",
+								"id": "8ce2ee4d-6301-4e71-bab4-0e76e2c86496",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -2965,7 +2900,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "483ba643-ec90-4148-b206-975e67e8c794",
+								"id": "960f7fb0-5175-4960-b1d6-38bb4a78d559",
 								"exec": [
 									"pm.test(\"Status code of GET /students/1/courses/fail/lectures\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -3006,7 +2941,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "45561900-c1bc-43cf-ba38-f51eaddd204e",
+								"id": "f767dbf9-0f2c-4c04-90da-ad1a59355d75",
 								"exec": [
 									"pm.test(\"Status code of GET /students/1/courses/4/lectures\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
@@ -3025,7 +2960,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "e12178b6-8d45-4589-ab14-c69a255be2a8",
+								"id": "5dbf59cc-f428-4b40-86b6-9fb4b143fde9",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -3074,7 +3009,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "55ae466f-b5a0-4c0a-9868-3515d45b4d3c",
+								"id": "552d346f-1e4a-4274-9ea9-2cf3f1b90a97",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -3100,7 +3035,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "90743c31-c9fc-43cb-962b-7d9bf0b16dd9",
+								"id": "d55fb77d-585d-4238-b69e-08f99f5d08ae",
 								"exec": [
 									"pm.test(\"Status code of GET /students/1/courses/1/lectures\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -3108,7 +3043,12 @@
 									"\r",
 									"pm.test(\"Response body of GET /students/1/courses/1/lectures\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    console.log(responseJson)\r",
+									"    const expectedLength = 3;\r",
+									"    const expectedFields = [\"lecture\", \"class_\", \"nBookings\"]\r",
+									"    pm.expect(responseJson.length).to.be.eq(expectedLength);\r",
+									"    for(let i = 0; i < expectedLength; i++) {\r",
+									"        pm.expect(responseJson[i]).to.have.all.keys(expectedFields);\r",
+									"    }\r",
 									"    const datetime1 = new Date();\r",
 									"    const datetime2 = new Date();\r",
 									"    const datetime3 = new Date();\r",
@@ -3119,15 +3059,8 @@
 									"    datetime3.setDate(datetime3.getUTCDate() + 2);\r",
 									"    datetime3.setHours(8, 30, 00, 00);\r",
 									"    const datetime = [datetime1, datetime2, datetime3];\r",
-									"    const expected = [ [1, 1, 1, datetime1.toISOString(), 5400000, \"PRESENCE\"],\r",
-									"    [2, 1, 1, datetime2.toISOString(), 5400000, \"PRESENCE\"],\r",
-									"    [3, 1, 3, datetime3.toISOString(), 5400000, \"PRESENCE\"]]\r",
-									"    const keys = [\"lectureId\", \"courseId\", \"classId\", \"startingDate\", \"duration\", \"delivery\"]\r",
 									"    for(let i = 0; i < 3; i++) {\r",
-									"        pm.expect(responseJson[i]).to.have.any.keys(...keys);\r",
-									"        for(let j = 0; j < keys.length; j++) {\r",
-									"          pm.expect(responseJson[i][keys[j]]).to.eq(expected[i][j]);\r",
-									"        } \r",
+									"        pm.expect(responseJson[i][\"lecture\"][\"startingDate\"]).to.eq(datetime[i].toISOString());\r",
 									"    }\r",
 									"});"
 								],
@@ -3160,7 +3093,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "5dd65383-2bdd-415d-9b77-78defbd323cf",
+								"id": "788776b7-5340-4903-9d88-93d2c0354441",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -3186,7 +3119,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "b0dce7b1-dd1f-46dc-b6b1-f0033b003937",
+								"id": "c82cc365-6020-444d-9632-2d2ef91f7f59",
 								"exec": [
 									"pm.test(\"Status code of GET /students/3/courses/4/lectures\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -3227,7 +3160,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "43495250-1136-4a49-8c50-8d83440976b2",
+								"id": "8683c760-24ca-4009-b732-67dbe92fdcae",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -3253,7 +3186,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "a3eca9ad-b783-48fc-a399-b536bb99006b",
+								"id": "46ad3b33-b202-45a4-8de5-ebc3fa507940",
 								"exec": [
 									"pm.test(\"Status code of GET /students/fail/courses/1/lectures/2\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -3295,7 +3228,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "59c91fa4-82cd-4d58-a7c7-fdc7c6376997",
+								"id": "267668b4-76d7-4040-bfbb-6a8a5a7daf52",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -3321,7 +3254,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "281846e8-2afa-402d-8d6a-4b89e85d8ad5",
+								"id": "adb3444a-f542-4202-8081-de4bb6b1541c",
 								"exec": [
 									"pm.test(\"Status code of POST /students/1/courses/fail/lectures/2\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -3363,7 +3296,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "1bbe99ec-45a5-4b1f-996c-25fe2225e5f1",
+								"id": "3c2923e0-17a7-481f-8532-154c9dec1ade",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -3389,7 +3322,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "a87d8991-3d20-481d-acd1-c5ffb6e8460a",
+								"id": "765b6aca-f904-46c2-be44-746911fa7892",
 								"exec": [
 									"pm.test(\"Status code of POST /students/1/courses/1/lectures/fail\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
@@ -3432,7 +3365,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "d9846572-edbd-4da1-84f9-1a83ddf78601",
+								"id": "1658db54-a64d-4a1d-bdf3-c4dd840f3f62",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -3458,7 +3391,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "7ddd7421-6f52-4fa7-adc7-cbb1907baf3e",
+								"id": "2fe9c42a-0c1a-47d2-97ac-ae2bf92b4458",
 								"exec": [
 									"pm.test(\"Status code of POST /students/2/courses/1/lectures/1\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
@@ -3500,7 +3433,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "dbfef179-3cd4-4472-8cd6-9ac5a5e15297",
+								"id": "5d06a2a8-6b6d-4f57-8f10-41d964379c7c",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -3526,7 +3459,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "8f318a25-aaf6-4751-883a-b44196ac93d5",
+								"id": "8f86927e-2c65-4049-a61b-c31f41d8ac75",
 								"exec": [
 									"pm.test(\"Status code of POST /students/1/courses/1/lectures/2\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
@@ -3568,7 +3501,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "630e2c1b-3bc4-40df-905a-06e21e784005",
+								"id": "9a24faea-9fe7-44aa-b523-3c885c82ea6c",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -3594,7 +3527,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "0754570d-62c9-4ac3-ad24-5c8cea87a723",
+								"id": "3ef6281c-7a1b-4a07-aa22-ce2e4edb0ae7",
 								"exec": [
 									"pm.test(\"Status code of POST /students/2/courses/1/lectures/1\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
@@ -3636,7 +3569,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "73382b4a-6cf0-4849-9ec4-ce43cad01c53",
+								"id": "2497fd3e-ab32-46f7-9416-00c80eb29419",
 								"exec": [
 									"function sendRequest(req) {\r",
 									"    return new Promise((resolve, reject) => {\r",
@@ -3662,7 +3595,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "70ef86f7-17e6-4bdc-8e88-128c3ebe11a3",
+								"id": "a204a6e5-bbed-4653-a72a-ad1172f68caf",
 								"exec": [
 									"pm.test(\"Status code of POST /students/2/courses/1/lectures/1\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
