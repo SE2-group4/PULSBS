@@ -16,8 +16,8 @@ class Teacher extends User {
      * @param {String} email 
      * @param {String} password 
      */
-    constructor(teacherId = -1, firstName = null, lastName = null, email = null, password = null, ssn = null) {
-        super(teacherId, firstName, lastName, email, password, ssn);
+    constructor(teacherId = -1, firstName = null, lastName = null, email = null, password = null, ssn = null, serialNumber = null) {
+        super(teacherId, firstName, lastName, email, password, ssn, serialNumber);
         this.teacherId = teacherId;
     }
 
