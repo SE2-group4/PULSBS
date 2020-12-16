@@ -84,7 +84,7 @@ describe('Support Page suite', () => {
 
     test('upload of a file .csv into CSVPanel component (API success)', async () => {
         await setupPageWithRouter();
-        let input = screen.getByTestId('csv1');
+        let input = screen.getByTestId('csv1'); //courses
         await act(async () => {
             userEvent.upload(input, csv);
         });
@@ -105,7 +105,7 @@ describe('Support Page suite', () => {
 
     test('upload of a file .csv into CSVPanel component (API failure : server error)', async () => {
         await setupPage();
-        let input = screen.getByTestId('csv0');
+        let input = screen.getByTestId('csv0'); //students
         await act(async () => {
             userEvent.upload(input, csv);
         });
@@ -118,7 +118,7 @@ describe('Support Page suite', () => {
         await act(async () => {
             userEvent.click(screen.getByTestId('sum-yes'));
         });
-        expect(screen.getByText("Upload : Server error")).toBeInTheDocument();
+        expect(screen.getByTestId("text-error")).toBeInTheDocument();
         await act(async () => {
             userEvent.click(screen.getByTestId('success-close'));
         });
@@ -126,7 +126,7 @@ describe('Support Page suite', () => {
 
     test('upload of a file .csv into CSVPanel component (API failure : connection error)', async () => {
         await setupPage();
-        let input = screen.getByTestId('csv2');
+        let input = screen.getByTestId('csv2'); //teachers 
         await act(async () => {
             userEvent.upload(input, csv);
         });
@@ -138,17 +138,17 @@ describe('Support Page suite', () => {
         await act(async () => {
             userEvent.click(screen.getByTestId('sum-yes'));
         });
-        expect(screen.getByText("Upload : Server connection error")).toBeInTheDocument();
+        expect(screen.getByTestId("text-error")).toBeInTheDocument();
     })
 
     test('upload of remaining CSVPanels (API success + failure)', async () => {
         await setupPage();
-        let input = screen.getByTestId('csv3');
+        let input = screen.getByTestId('csv3'); //schedules
         await act(async () => {
             userEvent.upload(input, csv);
         });
         await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
-        let input1 = screen.getByTestId('csv4');
+        let input1 = screen.getByTestId('csv4'); //enrollments
         await act(async () => {
             userEvent.upload(input1, csv);
         });
@@ -167,7 +167,7 @@ describe('Support Page suite', () => {
         await act(async () => {
             userEvent.click(screen.getByTestId('sum-yes'));
         });
-        expect(screen.getByText("Upload : Server connection error")).toBeInTheDocument();
+        expect(screen.getByTestId("text-error")).toBeInTheDocument();
     })
 
 });

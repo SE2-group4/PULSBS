@@ -821,8 +821,6 @@ const getLecturesByCourseId = function (course) {
 };
 exports.getLecturesByCourseId = getLecturesByCourseId;
 
-// TODO not tested
-// added by Francesco
 /**
  * check is a lecture belongs to a course
  * @param {Course} course - courseId needed
@@ -846,11 +844,9 @@ const checkLectureAndCourse = function (course, lecture) {
 };
 exports.checkLectureAndCourse = checkLectureAndCourse;
 
-// TODO not tested
-// added by Francesco
 /**
  * get all courses
- * @returns {Promise} promise
+ * @returns {Array} of Course 
  */
 const getAllCourses = function () {
     return new Promise((resolve, reject) => {
@@ -1101,6 +1097,7 @@ exports.getStudentBySN = getStudentBySN;
 
 /**
  * get all students
+ * @returns {Array} of Student 
  */
 const getAllStudents = function() {
     return new Promise((resolve, reject) => {
@@ -1121,6 +1118,7 @@ exports.getAllStudents = getAllStudents;
 
 /**
  * get all teachers 
+ * @returns {Array} of Teacher 
  */
 const getAllTeachers = function() {
     return new Promise((resolve, reject) => {
