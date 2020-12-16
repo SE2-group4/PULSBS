@@ -172,8 +172,7 @@ const addBooking = function (student, lecture) {
                         return;
                     });
                 }
-                else err = StandardErr.fromDao(err);
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return;
             }
 

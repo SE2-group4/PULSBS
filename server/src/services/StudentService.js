@@ -135,7 +135,10 @@ exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
                                         );
                                         
                                         dao.lectureHasFreeSeats(lecture)
-                                            .then(resolve)
+                                            .then((availableSeats) => {
+                                                console.log('StudentService::availableSeats ' + availableSeats);
+                                                resolve(availableSeats);
+                                            })
                                             .catch(reject);
                                     })
                                     .catch(reject);
