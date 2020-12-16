@@ -1041,17 +1041,93 @@ const execBatch = function (queries) {
     return new Promise((resolve, reject) => {
         db.exec(queries, (err) => {
             if (err) {
-                console.log(err);
-                reject("ERRORE execBatch");
+                reject(err);
                 return;
             };
 
-            resolve("OK batch");
+            resolve();
         });
     });
 }
 exports.execBatch = execBatch;
 
+/**
+ * get course given its code 
+ * @param {Integer} code 
+ */
+const getCourseByCode = function(code) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT Course.* FROM Course WHERE code = ?`;
+        db.get(sql, [code], (err, row) => {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(Course.from(row));
+        });
+    });
+};
+exports.getCourseByCode = getCourseByCode;
+
+/**
+ * get a student given his serial number 
+ * @param {Integer} serialNumber 
+ */
+const getStudentBySN = function(serialNumber) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT User.* FROM User WHERE type = STUDENT AND serialNumber = ?`;
+        db.get(sql, [serialNumber], (err, row) => {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(Student.from(row));
+        });
+    });
+};
+exports.getStudentBySN = getStudentBySN;
+
+/**
+ * get all students
+ */
+const getAllStudents = function() {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT User.* FROM User WHERE type = "STUDENT"`;
+        db.all(sql, (err, rows) => {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            const res = [];
+            rows.forEach(row => res.push(Student.from(row)));
+            resolve(res);
+        });
+    });
+};
+exports.getAllStudents = getAllStudents;
+
+/**
+ * get all teachers 
+ */
+const getAllTeachers = function() {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT User.* FROM User WHERE type = "TEACHER"`;
+        db.all(sql, (err, rows) => {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            const res = [];
+            rows.forEach(row => res.push(Teacher.from(row)));
+            resolve(res);
+        });
+    });
+};
+exports.getAllTeachers = getAllTeachers;
 /**
  * 
  * @param {Student} student - studentId needed
