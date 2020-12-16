@@ -14,6 +14,7 @@ DELETE FROM Booking;
 DELETE FROM Enrollment;
 DELETE FROM EmailQueue;
 DELETE FROM WaitingList;
+DELETE FROM Schedule;
 
 -- << Default values >>
 

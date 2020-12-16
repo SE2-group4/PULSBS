@@ -7,6 +7,7 @@ DELETE FROM Booking;
 DELETE FROM Enrollment;
 DELETE FROM EmailQueue;
 DELETE FROM WaitingList;
+DELETE FROM Schedule;
 
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(1, 'STUDENT', 'Aldo', 'Baglio', 'fakeStudent.se2@gmail.com', 'aldo');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');

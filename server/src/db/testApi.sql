@@ -6,6 +6,7 @@ DELETE FROM Lecture;
 DELETE FROM Booking;
 DELETE FROM Enrollment;
 DELETE FROM EmailQueue;
+DELETE FROM Schedule;
 
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(1, 'STUDENT', 'Aldo', 'Baglio', 'tjw85.student.baglio@inbox.testmail.app', 'aldo');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni');
