@@ -574,7 +574,7 @@ const suite = function () {
             })
 
 
-            it('Should have returned those elements', function (done) {
+            it('Should have returned these elements', function (done) {
                 const expectedCourseId = [1, 2, 3, 4, 5, 6]
                 dao.getAllCourses()
                     .then((res) => {
@@ -607,7 +607,7 @@ const suite = function () {
             })
 
 
-            it('Should have returned those elements', function (done) {
+            it('Should have returned these elements', function (done) {
                 const expectedStudentId = [1, 2, 3, 6];
                 dao.getAllStudents()
                     .then((res) => {
@@ -640,7 +640,7 @@ const suite = function () {
             })
 
 
-            it('Should have returned those elements', function (done) {
+            it('Should have returned these elements', function (done) {
                 const expectedTeacherId = [4, 5, 7]
                 dao.getAllTeachers()
                     .then((res) => {
@@ -782,5 +782,4 @@ const suite = function () {
     });
 }
 
-suite();
 module.exports = suite;
