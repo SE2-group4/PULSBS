@@ -24,7 +24,7 @@ class BurgerSidebar extends React.Component {
             user: this.props.user,
             from: undefined, to: undefined, selectedCourses: [], selectedTypes: [], selectedWeeks: [], selectedMonths: [],
             granularity: "daily",
-            months: [{ name: "September 2020" }, { name: "October 2020" }, { name: "November 2020" }, { name: "December 2020" }, { name: "January 2021" }, { name: "February 2021" }],
+            months: [],
             weeks: []
         }
     }
@@ -60,13 +60,13 @@ class BurgerSidebar extends React.Component {
         if (!this.props.fetchError)
             try {
                 var weeks = [];
-                //var wMap = new Map();
-                var startDate = moment(new Date(2020, 8, 1)).isoWeekday(8);
-                var endDate = moment(new Date(2021, 2, 1)).isoWeekday(8);
+                var startDate = moment('2020-9-1');
+                var endDate = moment('2021-3-30');
+                //var startDate = moment(new Date(2020, 8, 1)).isoWeekday(8);
+                //var endDate = moment(new Date(2021, 2, 1)).isoWeekday(8);
                 if (startDate.date() == 8) {
                     startDate = startDate.isoWeekday(-6)
                 }
-                //var today = moment().isoWeekday('Sunday');
                 while (startDate.isBefore(endDate)) {
                     let startDateWeek = startDate.isoWeekday('Monday').format('DD-MM-YYYY');
                     let endDateWeek = startDate.isoWeekday('Sunday').format('DD-MM-YYYY');
@@ -76,8 +76,19 @@ class BurgerSidebar extends React.Component {
                 let allweeks = weeks.map((w) => {
                     return { "name": w[0] + " " + w[1] }
                 })
-                //console.log(allweeks)
-                this.setState({ weeks: allweeks })
+                var months = [];
+                startDate = moment('2020-9-1');
+                endDate = moment('2021-3-30');
+                while (startDate.isBefore(endDate) || startDate.format('M') === endDate.format('M')) {
+                    months.push(startDate.format('YYYY-MM'));
+                    startDate.add(1, 'month');
+                }
+                let allmonths = months.map((m) => {
+                    return { "name": m }
+                })
+                this.setState({ weeks: allweeks, months: allmonths })
+
+
 
             } catch (error) {
                 let errormsg = error.source + " : " + error.error;
