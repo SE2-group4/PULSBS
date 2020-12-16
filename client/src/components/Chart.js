@@ -82,8 +82,8 @@ class Chart extends React.Component {
                                 return w.name
                             }),
                             datasets: [{
-                                label: "stats",
-                                data: [4, 3, 2],
+                                label: [],
+                                data: [],
                                 backgroundColor: "red",
                                 borderWidth: 2,
                             }]
@@ -137,7 +137,7 @@ class Chart extends React.Component {
                             }),
                             datasets: [{
                                 label: [],
-                                data: [2, 3, 4],
+                                data: [],
                                 backgroundColor: "green",
                                 borderWidth: 2,
                             }]
