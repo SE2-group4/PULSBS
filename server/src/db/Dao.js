@@ -761,9 +761,9 @@ exports.getLecturesByCoursePlusNumBookings = getLecturesByCoursePlusNumBookings;
  */
 const getNumBookingsOfLecture = function (lecture) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT COUNT(*) as numBookings FROM Booking WHERE lectureId = ?`;
+        const sql = `SELECT COUNT(*) as numBookings FROM Booking WHERE lectureId = ? AND status = ?`;
 
-        db.get(sql, [lecture.lectureId], function (err, res) {
+        db.get(sql, [lecture.lectureId, Booking.BookingType.BOOKED], function (err, res) {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
