@@ -104,7 +104,7 @@ describe('Support Page suite', () => {
     })
 
     test('upload of a file .csv into CSVPanel component (API failure : server error)', async () => {
-        await setupPageWithRouter();
+        await setupPage();
         let input = screen.getByTestId('csv0');
         await act(async () => {
             userEvent.upload(input, csv);
@@ -125,8 +125,8 @@ describe('Support Page suite', () => {
     })
 
     test('upload of a file .csv into CSVPanel component (API failure : connection error)', async () => {
-        await setupPageWithRouter();
-        let input = screen.getByTestId('csv0');
+        await setupPage();
+        let input = screen.getByTestId('csv2');
         await act(async () => {
             userEvent.upload(input, csv);
         });
@@ -134,8 +134,36 @@ describe('Support Page suite', () => {
         await act(async () => {
             userEvent.click(screen.getByTestId('submit-button'));
         });
-        expect(screen.getByText('students: 4')).toBeInTheDocument();
         fetch.mockRejectOnce();
+        await act(async () => {
+            userEvent.click(screen.getByTestId('sum-yes'));
+        });
+        expect(screen.getByText("Upload : Server connection error")).toBeInTheDocument();
+    })
+
+    test('upload of remaining CSVPanels (API success + failure)', async () => {
+        await setupPage();
+        let input = screen.getByTestId('csv3');
+        await act(async () => {
+            userEvent.upload(input, csv);
+        });
+        await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
+        let input1 = screen.getByTestId('csv4');
+        await act(async () => {
+            userEvent.upload(input1, csv);
+        });
+        await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
+        await act(async () => {
+            userEvent.click(screen.getByTestId('submit-button'));
+        });
+        expect(screen.getByText('schedules: 4')).toBeInTheDocument();
+        expect(screen.getByText('enrollments: 4')).toBeInTheDocument();
+        fetch.mockResponses(
+            [JSON.stringify({ body: "ok" }), { status: 200 }],
+        ).mockReject();
+        await act(async () => {
+            userEvent.click(screen.getByTestId('submit-button'));
+        });
         await act(async () => {
             userEvent.click(screen.getByTestId('sum-yes'));
         });

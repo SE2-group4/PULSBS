@@ -1,9 +1,6 @@
 import React from 'react';
 import Container from "react-bootstrap/Container";
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
 import API from "../api/Api";
-import Sidebar from '../components/Sidebar';
 import Calendar from '../components/Calendar';
 import CalendarEvent from "../entities/calendarEvent";
 import ErrorMsg from '../components/ErrorMsg';
@@ -43,7 +40,6 @@ class StudentPage extends React.Component {
             let lectures = []
             for (let c of courses)
                 lectures.push(await API.getLecturesByCourseId(this.state.user.userId, c.courseId))
-            console.log(lectures)
             return lectures;
         } catch (err) {
             throw err;
@@ -131,10 +127,6 @@ class StudentPage extends React.Component {
  * @param {Array of Courses} courses all courses
  */
 function buildEvents(booked, waited, all, courses) {
-    console.log(waited);
-    console.log(booked);
-    console.log(all);
-    console.log(courses);
     const events = []
     for (let array of all)
         for (let lecture of array) {
