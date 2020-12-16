@@ -80,21 +80,66 @@ class SupportPage extends React.Component {
         let promises = [];
         if (this.state.studentsArray)
             promises.push(API.uploadList(this.props.user.userId, "students", this.state.studentsArray));
-        if (this.state.coursesArray)
-            promises.push(API.uploadList(this.props.user.userId, "courses", this.state.coursesArray));
         if (this.state.professorsArray)
             promises.push(API.uploadList(this.props.user.userId, "teachers", this.state.professorsArray));
         if (this.state.schedulesArray)
             promises.push(API.uploadList(this.props.user.userId, "schedules", this.state.schedulesArray));
-        if (this.state.enrollmentsArray)
-            promises.push(API.uploadList(this.props.user.userId, "enrollments", this.state.enrollmentsArray));
-        Promise.all(promises)
-            .then(() => this.setState({ elems: null, success: true, loading: false }))
-            .catch((err) => {
-                let errormsg = err.source + " : " + err.error;
-                this.setState({ elems: null, genError: errormsg, loading: false })
-            })
+
+        if (promises.length === 0) {
+            this.uploadCoursesEnrollments(this.state.coursesArray, this.state.enrollmentsArray)
+                .then(() => this.setState({ elems: null, success: true, loading: false })) //ok
+                .catch((err) => {
+                    let errormsg = err.source + " : " + err.error;
+                    this.setState({ elems: null, genError: errormsg, loading: false });
+                    API.resetDB().catch((error) => console.error(error));
+                });
+        }
+        else
+            Promise.all(promises)
+                .then(() => {
+                    this.uploadCoursesEnrollments(this.state.coursesArray, this.state.enrollmentsArray)
+                        .then(() => this.setState({ elems: null, success: true, loading: false })) //ok
+                        .catch((err) => {
+                            let errormsg = err.source + " : " + err.error;
+                            this.setState({ elems: null, genError: errormsg, loading: false });
+                            API.resetDB().catch((error) => console.error(error));
+                        });
+                })
+                .catch((err) => {
+                    let errormsg = err.source + " : " + err.error;
+                    this.setState({ elems: null, genError: errormsg, loading: false });
+                    API.resetDB().catch((error) => console.error(error));
+                })
+
         this.setState({ show: false, loading: true });
+    }
+
+    uploadCoursesEnrollments = (courses, enrollments) => {
+        return new Promise((resolve, reject) => {
+            if (courses)
+                API.uploadList(this.props.user.userId, "courses", courses)
+                    .then(() => {
+                        if (enrollments)
+                            API.uploadList(this.props.user.userId, "enrollments", enrollments)
+                                .then(() => resolve()) //ok
+                                .catch((err) => {
+                                    reject(err);
+                                });
+                        else
+                            resolve(); //ok
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    });
+            else if (!courses && enrollments)
+                API.uploadList(this.props.user.userId, "enrollments", enrollments)
+                    .then(() => resolve()) //ok
+                    .catch((err) => {
+                        reject(err);
+                    });
+            else
+                resolve(); //ok
+        });
     }
 
     /**
