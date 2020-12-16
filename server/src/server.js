@@ -91,7 +91,7 @@ function autorun() {
             checkForExpiredLectures();
         } catch(err) {
             console.log('Error in server autorun');
-        };
+        }
     }, 0);
 }
 
