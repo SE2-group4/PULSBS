@@ -12,15 +12,15 @@ const defaultTemplates = {
     },
     STUDENT_NEW_BOOKING: {
         subject: "Course {0} - LECTURE BOOKED",
-        message: "Dear student,\n a seat your lecture scheduled for {0} at {1} in class {2} has been correctly booked.\n",
+        message: "Dear student,\na seat your lecture scheduled for {0} at {1} in class {2} has been correctly booked.\n",
     },
     STUDENT_PUSH_QUEUE: {
         subject: "Course {0} - INSERTED INTO WAITING LIST",
-        message: "Dear student,\n as no more seats are available for the lecture of {0} at {1} you have been inserted into a waiting list.\n",
+        message: "Dear student,\nas no more seats are available for the lecture of {0} at {1} you have been inserted into a waiting list.\n",
     },
     STUDENT_POP_QUEUE: {
         subject: "Course {0} - TAKEN FROM THE WAITING LIST",
-        message: "Dear student,\noyu have been picked from the waiting list for the lecture scheduled for {0} at {1} in class {2}. You seat has been properly booked.\n",
+        message: "Dear student,\nyou have been picked from the waiting list for the lecture scheduled for {0} at {1} in class {2}. You seat has been properly booked.\n",
     },
 };
 
@@ -111,6 +111,8 @@ exports.getDefaultEmail = function getDefaultEmail(emailType = "", subjectArgs =
     if (!defaultTemplates.hasOwnProperty(emailType)) {
         return {};
     }
+
+    if(messageArgs.length == 0) messageArgs = subjectArgs;
 
     const subject = getDefaultEmailSubject(emailType, subjectArgs);
     const message = getDefaultEmailMessage(emailType, messageArgs);

@@ -1189,9 +1189,10 @@ const lectureHasFreeSeats = function (lecture) {
             getClassByLecture(lecture)
         ])
             .then((values) => {
-                const currBookings = values[0];
-                const classCapacity = values[1];
-                resolve(classCapacity - currBookings);
+                const currBookings = Number(values[0]);
+                const classCapacity = Number(values[1].capacity);
+                const availableSeats = classCapacity - currBookings;
+                resolve(availableSeats);
             })
             .catch(reject);
     });
