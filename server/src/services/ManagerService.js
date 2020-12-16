@@ -75,7 +75,7 @@ exports.managerGetCourseLectures = async function managerGetCourseLectures({ man
     return lectureWithStats;
 };
 
-exports.managerGetCourses = async function managerGetCourses({ managerId }, query = {}) {
+exports.managerGetCourses = async function managerGetCourses({ managerId }) {
     const { error } = convertToNumbers({
         managerId,
     });
@@ -107,9 +107,9 @@ async function addStatsToLecture(lecture, { bookings, cancellations, attendaces 
     return lectureWithStats;
 }
 
+// TODO add PRESENT
 async function getNumBookingsOfLecture(lecture) {
     const { count } = await db.getNumBookingsOfLectureByStatus(lecture, "BOOKED");
-    console.log("SONO QUI", count);
     return count;
 }
 
@@ -119,7 +119,7 @@ async function getNumCancellationsOfLecture(lecture) {
 }
 
 async function getNumAttendacesOfLecture(lecture) {
-    const { count } = await db.getNumBookingsOfLectureByStatus(lecture, "PRESENT");
+    const { count } = await db.getNumBookingsOfLecture(lecture, "PRESENT");
     return count;
 }
 
@@ -201,7 +201,6 @@ exports.managerGetReport = async function managerGetReport({ managerId, serialNu
     managerId = Number(managerId);
     serialNumber = Number(serialNumber);
     date = date ? new Date(date) : new Date();
-    console.log(date);
     const student = new Student(serialNumber);
     const students = await db.managerGetReport(student, date);
     return students;
