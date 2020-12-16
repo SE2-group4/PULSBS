@@ -2309,13 +2309,13 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/students/1/bookings",
+									"raw": "{{base_url}}/students/2/bookings",
 									"host": [
 										"{{base_url}}"
 									],
 									"path": [
 										"students",
-										"1",
+										"2",
 										"bookings"
 									]
 								}
