@@ -1,12 +1,10 @@
 import React from 'react';
-import moment from 'moment'
 import Container from "react-bootstrap/Container";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import BurgerSidebar from '../components/BurgerSidebar';
 import Chart from '../components/Chart';
 import API from '../api/Api';
-import APIfake from '../api/APIfake';
 
 class ManagerStatsPage extends React.Component {
     constructor(props) {
