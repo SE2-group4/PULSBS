@@ -25,16 +25,16 @@ INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 2, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(5, 3, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(5, 4, 1);
 
-INSERT INTO Enrollment(studentId, courseId) VALUES(1, 1);
-INSERT INTO Enrollment(studentId, courseId) VALUES(1, 2);
-INSERT INTO Enrollment(studentId, courseId) VALUES(1, 3);
-INSERT INTO Enrollment(studentId, courseId) VALUES(2, 2);
-INSERT INTO Enrollment(studentId, courseId) VALUES(3, 3);
-INSERT INTO Enrollment(studentId, courseId) VALUES(3, 4);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(1, 1, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(1, 2, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(1, 3, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(2, 2, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(3, 3, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(3, 4, 2020);
 
-INSERT INTO Class(classId, description) VALUES(1, '1A');
-INSERT INTO Class(classId, description) VALUES(2, '2B');
-INSERT INTO Class(classId, description) VALUES(3, '3C');
+INSERT INTO Class(classId, description, capacity) VALUES(1, '1A', 3);
+INSERT INTO Class(classId, description, capacity) VALUES(2, '2B', 3);
+INSERT INTO Class(classId, description, capacity) VALUES(3, '3C', 3);
 
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(1, 1, 1, DATETIME('now', '-1 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', '-2 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(2, 1, 1, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
@@ -50,4 +50,4 @@ INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(6, '
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(7, 'TEACHER', 'Fake', 'Teacher', 'tjw85.student.fake@inbox.testmail.app', 'teacher');
 
 DROP trigger IF EXISTS delete_bookings_after_delete_lecture;
-CREATE TRIGGER delete_bookings_after_delete_lecture BEFORE DELETE ON Lecture BEGIN INSERT INTO EmailQueue(sender, recipient, emailType, teacherId, studentId, courseId, courseName, lectureId, startingDate) SELECT TempLecture.email, User.email, "LESSON_CANCELLED", TempLecture.teacherId, Booking.studentId, TempLecture.courseId, TempLecture.description, TempLecture.lectureId, TempLecture.startingDate FROM Booking, (SELECT * FROM Lecture, Course, TeacherCourse, User WHERE Lecture.lectureId = OLD.lectureId AND Lecture.courseId = TeacherCourse.courseId AND TeacherCourse.teacherId = User.userId AND Course.courseId = Lecture.courseId) AS TempLecture, User WHERE Booking.lectureId = OLD.lectureId AND Booking.studentId = User.userId AND Booking.lectureId = TempLecture.lectureId; DELETE FROM Booking WHERE Booking.lectureId = OLD.lectureId; END;
+CREATE TRIGGER delete_bookings_after_delete_lecture BEFORE DELETE ON Lecture BEGIN INSERT INTO EmailQueue(sender, recipient, emailType, teacherId, studentId, courseId, courseName, lectureId, startingDate) SELECT TempLecture.email, User.email, "LESSON_CANCELLED", TempLecture.teacherId, Booking.studentId, TempLecture.courseId, TempLecture.description, TempLecture.lectureId, TempLecture.startingDate FROM Booking, (SELECT * FROM Lecture, Course, TeacherCourse, User WHERE Lecture.lectureId = OLD.lectureId AND Lecture.courseId = TeacherCourse.courseId AND TeacherCourse.teacherId = User.userId AND Course.courseId = Lecture.courseId) AS TempLecture, User WHERE Booking.lectureId = OLD.lectureId AND Booking.studentId = User.userId AND Booking.lectureId = TempLecture.lectureId; DELETE FROM Booking WHERE Booking.lectureId = OLD.lectureId; DELETE FROM WaitingList WHERE WaitingList.lectureId = OLD.lectureId; END;
