@@ -99,6 +99,7 @@ async function addStatsToLecture(lecture, { bookings, cancellations, attendaces 
         const cancellations = await getNumCancellationsOfLecture(lecture);
         lectureWithStats.cancellations = cancellations;
     }
+
     if (attendaces) {
         const attendaces = await getNumAttendacesOfLecture(lecture);
         lectureWithStats.attendaces = attendaces;
@@ -119,7 +120,7 @@ async function getNumCancellationsOfLecture(lecture) {
 }
 
 async function getNumAttendacesOfLecture(lecture) {
-    const { count } = await db.getNumBookingsOfLecture(lecture, "PRESENT");
+    const { count } = await db.getNumBookingsOfLectureByStatus(lecture, "PRESENT");
     return count;
 }
 
