@@ -84,7 +84,7 @@ const binarySearch = (array, target, propertyName) => {
 async function manageEntitiesUpload(entities, path) {
     const entityType = getEntityNameFromPath(path);
     if (entityType === undefined) {
-        return genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: entityType });
+        throw genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: path});
     }
 
     const wellFormedEntitiesArray = await mapEntities(entityType, entities);
@@ -97,6 +97,8 @@ async function manageEntitiesUpload(entities, path) {
             })
         );
     }
+
+    return 200;
 }
 
 /**
@@ -223,12 +225,6 @@ function mapGenericEntities(entities, entityType) {
 
     return entities.map((entity) => applyAction(entity, jsonFields, tableFields));
 }
-
-//function mapCourseEntities(entities, entityType) {
-//    const { tableFields, jsonFields } = getTableAndJsonFields(entityType);
-//
-//    return entities.map((entity) => applyAction(entity, jsonFields, tableFields));
-//}
 
 async function mapEnrollmentEntities(entities, entityType) {
     allStudentsWithSN = await db.getAllStudents();
