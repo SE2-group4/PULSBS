@@ -349,6 +349,18 @@ async function uploadChunck(id, type, list) {
     });
 }
 
+async function resetDB() {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/reset`).then((response) => {
+            if (response.ok) {
+                resolve();
+            } else {
+                reject("server error"); //server errors
+            }
+        }).catch((err) => { reject(err) }); // connection errors
+    })
+}
+
 /************************ BOOKING MANAGER ************************************/
 
 async function getStudentBySSN(id, ssn) {
@@ -426,6 +438,6 @@ async function getAllCourses(id) {
 const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
     getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport,
-    getAllCourses
+    getAllCourses, resetDB
 };
 export default API;
