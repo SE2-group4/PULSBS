@@ -61,7 +61,7 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
                 dao.lectureHasFreeSeats(lecture)
                     .then((nSeats) => {
                         if(nSeats <= 0) {
-                            reject(StandardErr.new('studentService', StandardErr.errno.NOT_AVAILABLE, 'No more free seats for this booking', 404));
+                            reject(StandardErr.new('studentService', StandardErr.errno.NOT_AVAILABLE, 'No more free seats for this booking', 409));
                             return;
                         }
 

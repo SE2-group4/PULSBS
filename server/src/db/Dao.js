@@ -51,7 +51,6 @@ const _transformUser = function (row) {
             break;
         default:
             error = StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type");
-            return;
     }
     return { retUser, error };
 }
