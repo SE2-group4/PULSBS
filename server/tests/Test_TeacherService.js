@@ -56,7 +56,7 @@ const testSuiteTeacherService = () => {
             error: tBBBStError,
         };
         const tGGGFilter1Book = {
-            input: [4, 1, { from: "inf", to: moment().startOf("day").toISOString(), numBookings: "true" }],
+            input: [4, 1, { from: "inf", to: moment().startOf("day").toISOString(), bookings: "true" }],
             error: tBBBStError,
         };
         const tGGGLectNotCanc = {
@@ -108,9 +108,9 @@ const testSuiteTeacherService = () => {
                         1,
                         1,
                         1,
-                        moment().subtract(1, "day").startOf("day").hours(8).minutes(30),
+                        moment.utc().subtract(1, "day").startOf("day").hours(7).minutes(30).toISOString(),
                         5400000,
-                        moment().subtract(2, "day").startOf("day").hours(23).minutes(59),
+                        moment().utc().subtract(2, "day").startOf("day").hours(22).minutes(59).toISOString(),
                         "PRESENCE"
                     ),
                 },
@@ -188,10 +188,10 @@ const testSuiteTeacherService = () => {
                 }
             });
 
-            it(errorMsg.Array.length + " 1", async function () {
+            it(errorMsg.Array.length + " 0", async function () {
                 try {
                     const res = await Service.teacherGetCourseLectureStudents(...tGGG1St.input);
-                    assert.deepStrictEqual(res.length, 1);
+                    assert.deepStrictEqual(res.length, 0);
                 } catch (err) {
                     assert.fail();
                 }
@@ -358,4 +358,5 @@ const testSuiteTeacherService = () => {
     });
 };
 
+testSuiteTeacherService();
 module.exports = testSuiteTeacherService;
