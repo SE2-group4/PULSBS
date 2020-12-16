@@ -357,7 +357,7 @@ async function resetDB() {
             } else {
                 reject("server error"); //server errors
             }
-        }).catch((err) => { reject(err) }); // connection errors
+        }).catch((err) => { reject("connection error") }); // connection errors
     })
 }
 

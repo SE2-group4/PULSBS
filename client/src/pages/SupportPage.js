@@ -91,7 +91,7 @@ class SupportPage extends React.Component {
                 .catch((err) => {
                     let errormsg = err.source + " : " + err.error;
                     this.setState({ elems: null, genError: errormsg, loading: false });
-                    API.resetDB().catch((err) => console.error(err));;
+                    API.resetDB().catch((error) => console.error(error));
                 });
         }
         else
@@ -102,13 +102,13 @@ class SupportPage extends React.Component {
                         .catch((err) => {
                             let errormsg = err.source + " : " + err.error;
                             this.setState({ elems: null, genError: errormsg, loading: false });
-                            API.resetDB().catch((err) => console.error(err));
+                            API.resetDB().catch((error) => console.error(error));
                         });
                 })
                 .catch((err) => {
                     let errormsg = err.source + " : " + err.error;
                     this.setState({ elems: null, genError: errormsg, loading: false });
-                    API.resetDB().catch((err) => console.error(err));;
+                    API.resetDB().catch((error) => console.error(error));
                 })
 
         this.setState({ show: false, loading: true });
