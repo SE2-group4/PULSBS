@@ -19,36 +19,36 @@ DELETE FROM Schedule;
 -- << Default values >>
 
 -- Students
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(1, 'STUDENT', 'Aldo', 'Baglio', 'fakeStudent.se2@gmail.com', 'aldo');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(3, 'STUDENT', 'Silvana', 'Fallisi', 'silvana.fallisi@agg.it', 'silvana');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(4, 'STUDENT', 'Gerri', 'Scotti', 'student4@test.it', 'student4');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(5, 'STUDENT', 'Pippo', 'Baudo', 'student5@test.it', 'student5');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(6, 'STUDENT', 'Ezio', 'Greggio', 'student6test.it', 'student6');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(7, 'STUDENT', 'Enzo', 'Iacchetti', 'student7@test.it', 'student7');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(8, 'STUDENT', 'Pippo', 'Franco', 'student8@test.it', 'student8');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(9, 'STUDENT', 'Maurizio', 'Costanzo', 'student9@test.it', 'student9');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(10, 'STUDENT', 'Fabio', 'Fazio', 'student10@test.it', 'student10');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(1, 'STUDENT', 'Aldo', 'Baglio', 'fakeStudent.se2@gmail.com', 'aldo', '1', 'Turin', '1');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'giovanni.storti@agg.it', 'giovanni', '2', 'Turin', '2');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(3, 'STUDENT', 'Silvana', 'Fallisi', 'silvana.fallisi@agg.it', 'silvana', '3', 'Turin', '3');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(4, 'STUDENT', 'Gerri', 'Scotti', 'student4@test.it', 'student4', '4', 'Turin', '4');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(5, 'STUDENT', 'Pippo', 'Baudo', 'student5@test.it', 'student5', '5', 'Turin', '5');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(6, 'STUDENT', 'Ezio', 'Greggio', 'student6test.it', 'student6', '6', 'Turin', '6');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(7, 'STUDENT', 'Enzo', 'Iacchetti', 'student7@test.it', 'student7', '7', 'Turin', '7');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(8, 'STUDENT', 'Pippo', 'Franco', 'student8@test.it', 'student8', '8', 'Turin', '8');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(9, 'STUDENT', 'Maurizio', 'Costanzo', 'student9@test.it', 'student9', '9', 'Turin', '9');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(10, 'STUDENT', 'Fabio', 'Fazio', 'student10@test.it', 'student10', '10', 'Turin', '10');
 
 -- Teachers
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(11, 'TEACHER', 'Giacomo', 'Poretti', 'fakeTeacher.se2@gmail.com', 'giacomo');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(12, 'TEACHER', 'Marina', 'Massironi', 'enis.laron@extraale.com', 'marina');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(13, 'TEACHER', 'Piero', 'Angela', 'teacher13@test.it', 'teacher13');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(14, 'TEACHER', 'Maurizio', 'Crozza', 'teacher14@test.it', 'teacher14');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(15, 'TEACHER', 'Vanessa', 'Incontrada', 'teacher15@test.it', 'teacher15');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(16, 'TEACHER', 'Mara', 'Venier', 'teacher16@test.it', 'teacher16');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(17, 'TEACHER', 'Carlo', 'Conti', 'teacher16@test.it', 'teacher16');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(18, 'TEACHER', 'Rosario', 'Fiorello', 'teacher18@test.it', 'teacher18');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(19, 'TEACHER', 'Amedeo', 'Umberto Rita', 'teacher19@test.it', 'teacher19');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(20, 'TEACHER', 'Michelle', 'Hunziker', 'teacher20@test.it', 'teacher20');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(11, 'TEACHER', 'Giacomo', 'Poretti', 'fakeTeacher.se2@gmail.com', 'giacomo', '11', 'Turin', '11');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(12, 'TEACHER', 'Marina', 'Massironi', 'enis.laron@extraale.com', 'marina', '12', 'Turin', '12');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(13, 'TEACHER', 'Piero', 'Angela', 'teacher13@test.it', 'teacher13', '13', 'Turin', '13');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(14, 'TEACHER', 'Maurizio', 'Crozza', 'teacher14@test.it', 'teacher14', '14', 'Turin', '14');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(15, 'TEACHER', 'Vanessa', 'Incontrada', 'teacher15@test.it', 'teacher15', '15', 'Turin', '15');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(16, 'TEACHER', 'Mara', 'Venier', 'teacher16@test.it', 'teacher16', '16', 'Turin', '16');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(17, 'TEACHER', 'Carlo', 'Conti', 'teacher17@test.it', 'teacher17', '17', 'Turin', '17');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(18, 'TEACHER', 'Rosario', 'Fiorello', 'teacher18@test.it', 'teacher18', '18', 'Turin', '18');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(19, 'TEACHER', 'Amedeo', 'Umberto Rita', 'teacher19@test.it', 'teacher19', '19', 'Turin', '19');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(20, 'TEACHER', 'Michelle', 'Hunziker', 'teacher20@test.it', 'teacher20', '20', 'Turin', '20');
 
 -- Managers
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(21, 'MANAGER', 'Bobo', 'Vieri', 'manager@test.it', 'manager');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(22, 'MANAGER', 'Antonella', 'Clerici', 'manager21@test.it', 'manager21');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(21, 'MANAGER', 'Bobo', 'Vieri', 'manager@test.it', 'manager', '21', 'Turin', '21');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(22, 'MANAGER', 'Antonella', 'Clerici', 'manager21@test.it', 'manager22', '22', 'Turin', '22');
 
 -- Support officers
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(31, 'SUPPORT', 'Pino', 'Insegno', 'officer1@test.it', 'officer1');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(32, 'SUPPORT', 'Alberto', 'Angela', 'officer32@test.it', 'officer32');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(31, 'SUPPORT', 'Pino', 'Insegno', 'officer1@test.it', 'officer1', '31', 'Turin', '31');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber) VALUES(32, 'SUPPORT', 'Alberto', 'Angela', 'officer32@test.it', 'officer32', '32', 'Turin', '32');
 
 -- Courses
 INSERT INTO Course(courseId, description, year) VALUES(1, 'Software enginnering 2', 1);
@@ -250,9 +250,9 @@ INSERT INTO WaitingList(studentId, lectureId, date) VALUES(3, 3, DATETIME('now',
 
 -- Full lecture 4 + waiting list
 INSERT INTO Booking(studentId, lectureId, status) VALUES(2, 4, 'BOOKED');
-INSERT INTO WaitingList(studentId, lectureId, date) VALUES(1, 4, DATETIME('now', '-1 hour'));
 -- picked first
-INSERT INTO WaitingList(studentId, lectureId, date) VALUES(10, 4, DATETIME('now', '-2 hour'));
+INSERT INTO WaitingList(studentId, lectureId, date) VALUES(1, 4, DATETIME('now', '-2 hour'));
+INSERT INTO WaitingList(studentId, lectureId, date) VALUES(10, 4, DATETIME('now', '-1 hour'));
 
 -- More direct contacts for student 1 report
 INSERT INTO Booking(studentId, lectureId, status) VALUES(2, 5, 'PRESENT');
