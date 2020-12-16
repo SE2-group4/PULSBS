@@ -94,6 +94,8 @@ class StudentPage extends React.Component {
             const events = this.state.events;
             for (let i = 0; i < events.length; i++)
                 if (events[i].lectureId === lectureId) {
+                    if (status === "bookable")
+                        events[i].availableSeats++;
                     events[i].color = color;
                     events[i].status = status;
                     this.setState({ events: events })

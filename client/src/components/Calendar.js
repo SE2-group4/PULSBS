@@ -125,7 +125,7 @@ class Calendar extends React.Component {
                     <span>This lecture is full.</span><br></br>
                     <span>Booking deadline : {eventInfo.event.extendedProps.bookingDeadline}</span><br></br>
                     <span>Classroom : {eventInfo.event.extendedProps.class}</span><br />
-                    <small>Click here to put yourself in waiting list</small>
+                    <small>Click here to join waiting list</small>
                 </Container>
 
             )

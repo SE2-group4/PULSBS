@@ -14,6 +14,7 @@ import API from '../api/Api'
 import APIfake from '../api/APIfake'
 import moment from 'moment'
 import { jsPDF } from "jspdf";
+import autoTable from 'jspdf-autotable'
 import { CSVLink, CSVDownload } from "react-csv";
 import 'react-day-picker/lib/style.css';
 
@@ -229,12 +230,6 @@ class TableReport extends React.Component {
             this.setState({ active: number })
 
     }
-    /**
-     * Not supported for now
-     */
-    downloadCSV = () => {
-        this.setState({ downloadCSV: true })
-    }
     render() {
         if (this.props.report.length === 0)
             return (
@@ -265,7 +260,7 @@ class TableReport extends React.Component {
         }
         return (
             <>
-                <Table striped bordered hover>
+                <Table striped bordered hover id="tableReport">
                     <thead>
                         <tr>
                             <th>Serial Number</th>
@@ -273,6 +268,8 @@ class TableReport extends React.Component {
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Email</th>
+                            <th>SSN</th>
+                            <th>City</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -284,7 +281,7 @@ class TableReport extends React.Component {
                     <Col sm="6"><Button variant="warning" onClick={() => this.props.handleGenerateNewReport()}>Generate a new report</Button></Col>
                     <Col sm="6">
                         <Button variant="warning" onClick={() => this.props.handleCreatePDF()} id="buttonPDF">Download PDF</Button><br /><br />
-                        <CSVLink data={this.props.report} filename={"Report.csv"}><Button variant="warning" id="buttonCSV">Download CSV</Button></CSVLink>
+                        <CSVLink data={this.props.report.map((e) => { delete e.password; return e })} filename={"Report.csv"}><Button variant="warning" id="buttonCSV">Download CSV</Button></CSVLink>
                     </Col>
 
                 </Row>
@@ -304,6 +301,8 @@ function TableEntry(props) {
             <td>{props.user.firstName}</td>
             <td>{props.user.lastName}</td>
             <td>{props.user.email}</td>
+            <td>{props.user.ssn}</td>
+            <td>{props.user.city}</td>
         </tr>
     )
 }
@@ -321,10 +320,13 @@ function createPDF(report, student, date) {
     doc.text("Swab day : " + moment(date).format("DD/MM/YYYY"), 10, 30)
     doc.text("List of person who had contacts with the positive student :", 10, 40)
     let d = 50
-    report.forEach(element => {
+    /*report.forEach(element => {
         doc.text(element.userId + " " + element.firstName + " " + element.lastName + " " + element.email, 10, d)
         d += 10
-    });
+    });*/
+
+    doc.setLineWidth(50)
+    autoTable(doc, { html: '#tableReport', startY: d }, 50)
 
     doc.save("Report_" + student.studentId + ".pdf");
 }
