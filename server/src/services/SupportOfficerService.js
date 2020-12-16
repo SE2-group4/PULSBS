@@ -340,8 +340,8 @@ function genInsertSqlQueries(entityType, entities) {
     return queries;
 }
 
-function genResponseError(errno, error) {
-    return new ResponseError(MODULE_NAME, errno, error);
+function genResponseError(nerror, error) {
+    return new ResponseError(MODULE_NAME, nerror, error);
 }
 
 function getEntityNameFromPath(path) {

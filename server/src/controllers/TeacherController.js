@@ -25,7 +25,7 @@ function teacherGetCourseLectureStudents(req, res) {
         .catch(function (response) {
             utils.writeJson(res, response);
         });
-};
+}
 module.exports.teacherGetCourseLectureStudents = teacherGetCourseLectureStudents;
 
 function teacherGetCourseLectures(req, res) {
@@ -40,7 +40,7 @@ function teacherGetCourseLectures(req, res) {
         .catch(function (response) {
             utils.writeJson(res, response);
         });
-};
+}
 module.exports.teacherGetCourseLectures = teacherGetCourseLectures;
 
 function teacherGetCourses(req, res) {
@@ -53,7 +53,7 @@ function teacherGetCourses(req, res) {
         .catch(function (response) {
             utils.writeJson(res, response);
         });
-};
+}
 module.exports.teacherGetCourses = teacherGetCourses;
 
 function teacherGetCourseLecture(req, res) {
@@ -68,7 +68,7 @@ function teacherGetCourseLecture(req, res) {
         .catch(function (response) {
             utils.writeJson(res, response);
         });
-};
+}
 module.exports.teacherGetCourseLecture = teacherGetCourseLecture;
 
 function teacherDeleteCourseLecture(req, res) {
@@ -83,7 +83,7 @@ function teacherDeleteCourseLecture(req, res) {
         .catch(function (response) {
             utils.writeJson(res, response);
         });
-};
+}
 module.exports.teacherDeleteCourseLecture = teacherDeleteCourseLecture;
 
 function teacherPutCourseLecture(req, res) {
@@ -103,15 +103,15 @@ function teacherPutCourseLecture(req, res) {
         .catch(function (response) {
             utils.writeJson(res, response);
         });
-};
+}
 module.exports.teacherPutCourseLecture = teacherPutCourseLecture;
 
 function checkForExpiredLectures() {
     return Teacher.checkForExpiredLectures();
-};
+}
 module.exports.checkForExpiredLectures = checkForExpiredLectures;
 
 function nextCheck() {
     return Teacher.nextCheck();
-};
+}
 module.exports.nextCheck = nextCheck;
