@@ -234,8 +234,8 @@ async function mapEnrollmentEntities(entities, entityType) {
     allStudentsWithSN = await db.getAllStudents();
     allCoursesWithCode = await db.getAllCourses();
 
-    allCoursesWithCode = allCoursesWithCode.filter((course) => course.code !== null);
     allStudentsWithSN = allStudentsWithSN.filter((student) => student.serialNumber !== null);
+    allCoursesWithCode = allCoursesWithCode.filter((course) => course.code !== null);
 
     allStudentsWithSN.sort(userComparator);
     allCoursesWithCode.sort(courseComparator);
