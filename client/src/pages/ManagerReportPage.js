@@ -314,19 +314,17 @@ function TableEntry(props) {
  */
 function createPDF(report, student, date) {
     const doc = new jsPDF();
-
+    /*doc.setFontSize(18);
+    doc.text("TRACING REPORT", 14, 22);
+    doc.setFontSize(14);
+    doc.text("Positive Student to COVID-19 : ", 14, 32)
+    doc.setFontT*/
     doc.text("Report creation date :  " + moment().format("DD/MM/YYYY HH:mm"), 10, 10);
     doc.text("Positive Student to COVID-19 : " + student.studentId + " " + student.firstName + " " + student.lastName + " " + student.email, 10, 20)
     doc.text("Swab day : " + moment(date).format("DD/MM/YYYY"), 10, 30)
     doc.text("List of person who had contacts with the positive student :", 10, 40)
-    let d = 50
-    /*report.forEach(element => {
-        doc.text(element.userId + " " + element.firstName + " " + element.lastName + " " + element.email, 10, d)
-        d += 10
-    });*/
-
     doc.setLineWidth(50)
-    autoTable(doc, { html: '#tableReport', startY: d }, 50)
+    autoTable(doc, { html: '#tableReport', startY: 50 })
 
     doc.save("Report_" + student.studentId + ".pdf");
 }

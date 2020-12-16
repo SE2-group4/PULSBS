@@ -124,9 +124,9 @@ async function cancelLectureReservation(Uid, Cid, Lid) {
             method: 'DELETE'
         }).then((response) => {
             if (response.status === 204) {
+                response.json().then((obj) => console.log(obj))
                 resolve()
             } else {
-
                 response.json()
                     .then((obj) => { console.log(obj); reject(obj.error); }) // error msg in the response body
                     .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
