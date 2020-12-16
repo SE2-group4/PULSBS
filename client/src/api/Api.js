@@ -126,8 +126,9 @@ async function cancelLectureReservation(Uid, Cid, Lid) {
             if (response.status === 204) {
                 resolve()
             } else {
+
                 response.json()
-                    .then((obj) => { reject(obj.error); }) // error msg in the response body
+                    .then((obj) => { console.log(obj); reject(obj.error); }) // error msg in the response body
                     .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
             }
         }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
