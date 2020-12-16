@@ -55,7 +55,7 @@ controller.delete('/:studentId/courses/:courseId/lectures/:lectureId', [
     }
 
     service.studentUnbookLecture(studentId, courseId, lectureId)
-        .then(() => res.status(204).end())
+        .then((retVal) => res.status(204).json({ nBookings: retVal }).end())
         .catch((err) => res.status(err.statusCode).json(err).end());
 });
 
