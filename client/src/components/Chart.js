@@ -77,7 +77,9 @@ class Chart extends React.Component {
                 <Bar
                     data={
                         {
-                            labels: this.props.weeks,
+                            labels: this.props.weeks.map((w) => {
+                                return w.name
+                            }),
                             datasets: [{
                                 label: "stats",
                                 data: [4, 3, 2],
@@ -129,7 +131,9 @@ class Chart extends React.Component {
                 <Bar
                     data={
                         {
-                            labels: this.props.months,
+                            labels: this.props.months.map((m) => {
+                                return m.name
+                            }),
                             datasets: [{
                                 label: [],
                                 data: [2, 3, 4],
