@@ -151,7 +151,7 @@ function FormBox(props) {
 
                 <Form.Label column sm="3"><b>{props.filterType === "SSN" ? "Student SSN :" : "Serial Number :"}</b></Form.Label>
                 <Col>
-                    <Form.Control data-testid="textBox" as="textarea" value={props.text} rows={1} onChange={(ev) => props.changeTextbox(ev.target.value)} />
+                    <Form.Control data-testid="textBox" type="text" value={props.text} onChange={(ev) => props.changeTextbox(ev.target.value)} />
                 </Col>
 
             </Form.Group>
@@ -249,7 +249,7 @@ class TableReport extends React.Component {
                 <CSVDownload data={this.props.report} filename="Report_CSV.csv" />
             )
         }
-        let nPages = Math.floor(this.props.report.length / 10) + 1;
+        let nPages = Math.floor(this.props.report.length / 11) + 1;
         let items = [];
         for (let number = 1; number <= nPages; number++) {
             items.push(
@@ -284,7 +284,7 @@ class TableReport extends React.Component {
                     <Col sm="6"><Button variant="warning" onClick={() => this.props.handleGenerateNewReport()}>Generate a new report</Button></Col>
                     <Col sm="6">
                         <Button variant="warning" onClick={() => this.props.handleCreatePDF()} id="buttonPDF">Download PDF</Button><br /><br />
-                        {/*<Button variant="warning" onClick={() => this.downloadCSV()}>Convert to CSV</Button>*/}
+                        <CSVLink data={this.props.report} filename={"Report.csv"}><Button variant="warning" id="buttonCSV">Download CSV</Button></CSVLink>
                     </Col>
 
                 </Row>

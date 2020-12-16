@@ -82,7 +82,20 @@
   position : absolute;
   right : 0%;
  }
-
+ .page-link{
+   color : black;
+   background-color:  rgb(255, 235, 205);
+ }
+ .page-link:hover{
+  color : black;
+  background-color:  rgb(255, 235, 205);
+}
+ .page-item.active .page-link {
+  z-index: 3;
+  color: black;
+  background-color: orange;
+  border-color : orange;
+}
  /******* BURGER SIDEBAR *******/
  /* Position and sizing of burger button */
 .bm-burger-button {
@@ -169,7 +182,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
   .option { /* To change css for dropdown options*/
     color: rgb(255, 191, 0);
   }
+  /*
   .groupHeading { /* To chanage group heading style*/
     
-  }
-
+  /*}
