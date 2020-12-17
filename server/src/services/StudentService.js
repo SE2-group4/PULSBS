@@ -78,11 +78,17 @@ exports.studentBookLecture = function (studentId, courseId, lectureId) {
                                             actualClass.description
                                         ]);
                                         emailService.sendCustomMail(
-                                            actualStudent.email,
-                                            defaultEmail.subject,
-                                            defaultEmail.message
-                                        );
-                                        resolve(retVal);
+                                                actualStudent.email,
+                                                defaultEmail.subject,
+                                                defaultEmail.message)
+                                            .then(() => {
+                                                resolve(retVal);
+                                                return;
+                                            })
+                                            .catch((err) => {
+                                                reject(new StandardErr('StudentService', StandardErr.errno.FAILURE, 'Email service not working', 500));
+                                                return;
+                                            });
                                     })
                                     .catch(reject)
                             })
