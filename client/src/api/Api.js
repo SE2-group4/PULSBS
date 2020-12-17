@@ -124,7 +124,7 @@ async function cancelLectureReservation(Uid, Cid, Lid) {
             method: 'DELETE'
         }).then((response) => {
             if (response.status === 204) {
-                response.json().then((obj) => console.log(obj))
+                console.log(response.json().catch((err) => console.log(err)))
                 resolve()
             } else {
                 response.json()
