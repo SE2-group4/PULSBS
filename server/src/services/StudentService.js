@@ -129,16 +129,20 @@ exports.studentUnbookLecture = function (studentId, courseId, lectureId) {
                                 emailService.sendCustomMail( // inform the student he/she has been picked from the queue
                                         waitingStudent.email,
                                         defaultEmail.subject,
-                                        defaultEmail.message
-                                ) // do not wait
-                                
-                                this.studentBookLecture(waitingStudent.studentId, courseId, lectureId) // record the new booking
-                                    .then((retVal) => {
-                                        dao.lectureHasFreeSeats(lecture)
-                                            .then(resolve)
-                                            .catch(reject);
+                                        defaultEmail.message)   
+                                    .then(() => {
+                                        this.studentBookLecture(waitingStudent.studentId, courseId, lectureId) // record the new booking
+                                        .then((retVal) => {
+                                            dao.lectureHasFreeSeats(lecture)
+                                                .then(resolve)
+                                                .catch(reject);
+                                        })
+                                        .catch(reject);
                                     })
-                                    .catch(reject);
+                                    .catch((err) => {
+                                        reject(new StandardErr('StudentService', StandardErr.errno.FAILURE, 'Email service not working', 500));
+                                        return;
+                                    });
                             })
                             .catch(reject);
                     })
@@ -286,11 +290,17 @@ exports.studentPushQueue = function (studentId, courseId, lectureId) {
                                             utils.formatDate(actualLecture.date),
                                         ]);
                                         emailService.sendCustomMail(
-                                            currStudent.email,
-                                            defaultEmail.subject,
-                                            defaultEmail.message
-                                        );
-                                        resolve(retVal); // do not wait the email has been sent
+                                                currStudent.email,
+                                                defaultEmail.subject,
+                                                defaultEmail.message)
+                                            .then(() => {
+                                                resolve(retVal);
+                                                return;
+                                            })
+                                            .catch((err) => {
+                                                reject(new StandardErr('StudentService', StandardErr.errno.FAILURE, 'Email service not working', 500));
+                                                return;
+                                            });
                                     })
                                     .catch(reject);
                             })
