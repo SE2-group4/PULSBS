@@ -86,11 +86,11 @@ app.all("/*", (req, res) => res.send("This route is not supported. Check the ope
 
 // description: for demo purposes we are sending the email right now instead of waiting 23:59; alternatively call Teacher.nextCheck() for setting the time correctly)
 function autorun() {
-    setTimeout(() => {
-        try{
-            checkForExpiredLectures();
-        } catch(err) {
-            console.log('Error in server autorun');
+    setTimeout(async () => {
+        try {
+            await checkForExpiredLectures();
+        } catch (err) {
+            console.log("Error in server autorun");
         }
     }, 0);
 }
