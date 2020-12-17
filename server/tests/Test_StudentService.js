@@ -72,6 +72,7 @@ const suite = function() {
     let lecture2;
     let lecture6;
     let course5;
+    let course6;
 
     before(function(done) {
         done();
@@ -89,6 +90,7 @@ const suite = function() {
         lecture2 = new Lecture(2, 2);
         lecture6 = new Lecture(6, 6);
         course5 = new Course(5);
+        course6 = new Course(6, 'Big data');
 
         prepare('testing.db', 'testing.sql', false)
             .then(() => done())
@@ -169,25 +171,31 @@ const suite = function() {
                                 console.log('Checking emails...');
                                 retrieveEmails('student.storti')
                                     .then((response) => {
-                                        console.log('Checking emails... - done');
                                         let emails = response.inbox.emails;
                                         emails = emails.map((currEmail) => {
                                             currEmail.timestamp = moment(currEmail.timestamp);
                                             return currEmail;
                                         });
+                                        emails.sort((email1, email2) => -(email1.timestamp.valueOf() - email2.timestamp.valueOf())); // descending order
+                                        console.log(emails);
 
                                         // range of the accepted receiving
                                         const startDate = moment().subtract('30 seconds');
                                         const endDate = moment().add('30 seconds');
 
-                                        for(let i of [ emails.length-2, emails.length-1 ]) {
+                                        for(let i of [ 0, 1 ]) { // take only the first 2 emails (previously sorted)
                                             const currEmail = emails[i];
-                                            let checks = currEmail.subject.includes('TAKEN FROM THE WAITING LIST') ||
-                                            currEmail.subject.includes('TAKEN FROM THE WAITING LIST');
-                                            checks  = checks && currEmail.timestamp >= startDate && currEmail.timestamp <= endDate;
-                                            assert.ok(checks, 'Wrong email received');
+                                            let checks = true;
+                                            checks = checks && currEmail.subject.includes('TAKEN FROM THE WAITING LIST') ||
+                                                currEmail.subject.includes('LECTURE BOOKED');
+                                            assert.ok(checks, 'Wrong email action: \"' + currEmail.subject + '\"');
+                                            checks = checks && currEmail.subject.includes(course6.description);
+                                            assert.ok(checks, 'Wrong email course: \"' + currEmail.subject + '\"');
+                                            checks = checks && currEmail.timestamp.valueOf() >= startDate.valueOf() && currEmail.timestamp.valueOf() <= endDate.valueOf();
+                                            assert.ok(checks, 'Wrong email timestamp: ' + currEmail.timestamp.toISOString());
                                         }
 
+                                        console.log('Checking emails... - done');
                                         done();
                                     })
                                     .catch((err) => done(err));
