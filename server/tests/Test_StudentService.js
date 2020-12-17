@@ -161,6 +161,8 @@ const suite = function() {
             it('correct params should remove the student and pick a student from the waiting list', function(done) {
                 this.timeout(1000 * 60); // extra timeout for this check
 
+                // range of the accepted receiving
+                const startDate = moment().subtract(1, 'minute');
                 service.studentUnbookLecture(student3.studentId, lecture6.courseId, lecture6.lectureId)
                     .then((availableSeats) => {
                         service.studentGetBookings(student2.studentId)
@@ -169,19 +171,18 @@ const suite = function() {
                                 assert.ok(lectures.booked.find((currLecture) => currLecture.lectureId === lecture6.lectureId) != undefined, 'Student booking not added');
 
                                 console.log('Checking emails...');
+
                                 retrieveEmails('student.storti')
                                     .then((response) => {
+                                        // range of the accepted receiving
+                                        const endDate = moment().add(1, 'minute');
+
                                         let emails = response.inbox.emails;
                                         emails = emails.map((currEmail) => {
                                             currEmail.timestamp = moment(currEmail.timestamp);
                                             return currEmail;
                                         });
                                         emails.sort((email1, email2) => -(email1.timestamp.valueOf() - email2.timestamp.valueOf())); // descending order
-                                        console.log(emails);
-
-                                        // range of the accepted receiving
-                                        const startDate = moment().subtract('30 seconds');
-                                        const endDate = moment().add('30 seconds');
 
                                         for(let i of [ 0, 1 ]) { // take only the first 2 emails (previously sorted)
                                             const currEmail = emails[i];
@@ -191,7 +192,7 @@ const suite = function() {
                                             assert.ok(checks, 'Wrong email action: \"' + currEmail.subject + '\"');
                                             checks = checks && currEmail.subject.includes(course6.description);
                                             assert.ok(checks, 'Wrong email course: \"' + currEmail.subject + '\"');
-                                            checks = checks && currEmail.timestamp.valueOf() >= startDate.valueOf() && currEmail.timestamp.valueOf() <= endDate.valueOf();
+                                            checks = checks && startDate.isBefore(currEmail.timestamp) && endDate.isAfter(currEmail.timestamp);
                                             assert.ok(checks, 'Wrong email timestamp: ' + currEmail.timestamp.toISOString());
                                         }
 
