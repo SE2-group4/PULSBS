@@ -107,7 +107,7 @@ async function bookALecture(Uid, Cid, Lid) {
         }).then((response) => {
             if (response.ok) {
                 resolve()
-            } else reject("Server error")
+            } else { console.log(response.json()); reject("Server error") }
         }).catch((err) => { reject("Server cannot communicate") }); // connection errors
     });
 }
@@ -123,10 +123,13 @@ async function cancelLectureReservation(Uid, Cid, Lid) {
         fetch(baseURL + `/students/${Uid}/courses/${Cid}/lectures/${Lid}`, {
             method: 'DELETE'
         }).then((response) => {
-            if (response.status === 204) {
-                resolve()
-            } else {
+            if (response.status === 200) {
+                response.json().then((obj) => resolve(obj.availableSeats))
+                /*response.json
+                    .then((obj) => { console.log(obj) })
+                    .catch((err) => console.log(err))*/
 
+            } else {
                 response.json()
                     .then((obj) => { console.log(obj); reject(obj.error); }) // error msg in the response body
                     .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else

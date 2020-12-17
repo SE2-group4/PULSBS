@@ -7,7 +7,7 @@
         "test": "tests"
     },
     "scripts": {
-        "start": "node ./src/server.js",
+        "start": "node ./src/server.js --no-autorun",
         "test": "mocha ./tests/Test_suite.js",
         "pretestapi": "forever start ./src/server.js --test --no-autorun --sql-path testApi.sql &",
         "testapi": "newman run ./tests/Test_api -g ./tests/Api_globals",

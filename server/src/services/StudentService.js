@@ -23,7 +23,7 @@ const dao = require("../db/Dao.js");
  * @param {Number} lectureId
  * @returns {Promise} promise
  */
-exports.studentBookLecture = function(studentId, courseId, lectureId) {
+exports.studentBookLecture = function (studentId, courseId, lectureId) {
     const student = new Student(studentId);
     const course = new Course(courseId);
     const lecture = new Lecture(lectureId);
@@ -32,27 +32,27 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
         // logical checks
 
         Promise.all([
-                dao.getLecturesByCourse(course),
-                dao.getCoursesByStudent(student)
-            ])
+            dao.getLecturesByCourse(course),
+            dao.getCoursesByStudent(student)
+        ])
             .then((initValues) => {
                 const currLectures = initValues[0];
                 const currCourses = initValues[1];
 
                 const actualLectures = currLectures.filter(l => l.lectureId === lecture.lectureId);
-                if(actualLectures.length === 0) {
+                if (actualLectures.length === 0) {
                     reject(StandardErr.new('Student service', StandardErr.errno.PARAMS_MISMATCH, 'The lecture is not related to this course', 404));
                     return;
                 }
 
                 const actualLecture = actualLectures[0];
-                if(actualLecture.bookingDeadline.getTime() < (new Date()).getTime()){
+                if (actualLecture.bookingDeadline.getTime() < (new Date()).getTime()) {
                     reject(StandardErr.new('Student service', StandardErr.errno.WRONG_VALUE, 'The booking time is expired', 404));
                     return;
                 }
-                
+
                 const actualCourses = currCourses.filter(c => c.courseId === course.courseId);
-                if(actualCourses.length === 0) {
+                if (actualCourses.length === 0) {
                     reject(StandardErr.new('Student service', StandardErr.errno.PARAMS_MISMATCH, 'The student is not enrolled in this course', 404));
                     return;
                 }
@@ -60,7 +60,7 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
 
                 dao.lectureHasFreeSeats(lecture)
                     .then((nSeats) => {
-                        if(nSeats <= 0) {
+                        if (nSeats <= 0) {
                             reject(StandardErr.new('studentService', StandardErr.errno.NOT_AVAILABLE, 'No more free seats for this booking', 409));
                             return;
                         }
@@ -71,16 +71,16 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
                                     .then((values) => {
                                         const actualClass = values[0];
                                         const actualStudent = values[1];
-        
+
                                         const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_NEW_BOOKING, [
                                             actualCourse.description,
                                             utils.formatDate(actualLecture.date),
                                             actualClass.description
                                         ]);
                                         emailService.sendCustomMail(
-                                                actualStudent.email,
-                                                defaultEmail.subject,
-                                                defaultEmail.message
+                                            actualStudent.email,
+                                            defaultEmail.subject,
+                                            defaultEmail.message
                                         );
                                         resolve(retVal);
                                     })
@@ -91,7 +91,7 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
                     .catch(reject);
             })
             .catch(reject);
-        });
+    });
 };
 
 /**
@@ -101,7 +101,7 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
  * @param {Number} lectureId 
  * @returns {Promise} promise
  */
-exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
+exports.studentUnbookLecture = function (studentId, courseId, lectureId) {
     const student = new Student(studentId);
     // const course = new Course(courseId);
     const lecture = new Lecture(lectureId);
@@ -109,7 +109,7 @@ exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
     return new Promise((resolve, reject) => {
         dao.deleteBooking(student, lecture)
             .then((modifiedBookings) => {
-                if(modifiedBookings != 1) {
+                if (modifiedBookings != 1) {
                     reject(new StandardErr('StudentService', StandardErr.errno.NOT_EXISTS, 'This booking does not exists', 404));
                     return;
                 }
@@ -159,7 +159,7 @@ exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
  * @param {Object} periodOfTime
  * @returns {Promise} promise
  */
-exports.studentGetCourseLectures = function(studentId, courseId, periodOfTime = {}) {
+exports.studentGetCourseLectures = function (studentId, courseId, periodOfTime = {}) {
     const student = new Student(studentId);
     const course = new Course(courseId);
 
@@ -167,16 +167,16 @@ exports.studentGetCourseLectures = function(studentId, courseId, periodOfTime = 
         // logical checks
         dao.getCoursesByStudent(student)
             .then((currCourses) => {
-                if(currCourses.filter(c => c.courseId === course.courseId).length === 0) {
+                if (currCourses.filter(c => c.courseId === course.courseId).length === 0) {
                     reject(StandardErr.new('Student service', StandardErr.errno.PARAMS_MISMATCH, 'The student is not enrolled in this course', 404));
                     return;
                 }
-                
+
                 dao.getLecturesByCourseAndPeriodOfTime(course, periodOfTime)
                     .then((lectures) => {
                         const classPromises = [];
                         const bookingsPromises = [];
-                        for(const currLecture of lectures) {
+                        for (const currLecture of lectures) {
                             classPromises.push(dao.getClassByLecture(currLecture));
                             bookingsPromises.push(dao.getNumBookingsOfLecture(currLecture));
                         }
@@ -184,18 +184,18 @@ exports.studentGetCourseLectures = function(studentId, courseId, periodOfTime = 
                         Promise.all(classPromises)
                             .then((classes) => {
                                 Promise.all(bookingsPromises)
-                                .then((bookings) => {
-                                    const retLectures = [];
-                                    for(let i=0; i<lectures.length; i++) {
-                                        retLectures.push({
-                                            lecture : lectures[i],
-                                            class_ : classes[i],
-                                            nBookings : bookings[i]
-                                        });
-                                    }
-                                    resolve(retLectures);
-                                })
-                                .catch(reject);
+                                    .then((bookings) => {
+                                        const retLectures = [];
+                                        for (let i = 0; i < lectures.length; i++) {
+                                            retLectures.push({
+                                                lecture: lectures[i],
+                                                class_: classes[i],
+                                                nBookings: bookings[i]
+                                            });
+                                        }
+                                        resolve(retLectures);
+                                    })
+                                    .catch(reject);
                             })
                             .catch(reject);
                     })
@@ -209,7 +209,7 @@ exports.studentGetCourseLectures = function(studentId, courseId, periodOfTime = 
  * @param {Number} studentId
  * @returns {Promise} promise
  */
-exports.studentGetCourses = function(studentId) {
+exports.studentGetCourses = function (studentId) {
     const student = new Student(studentId);
 
     return dao.getCoursesByStudent(student);
@@ -221,7 +221,7 @@ exports.studentGetCourses = function(studentId) {
  * @param {Object} periodOfTime
  * @returns {Promise} promise
  */
-exports.studentGetBookings = function(studentId, periodOfTime) {
+exports.studentGetBookings = function (studentId, periodOfTime) {
     const student = new Student(studentId);
 
     return new Promise((resolve, reject) => {
@@ -229,14 +229,14 @@ exports.studentGetBookings = function(studentId, periodOfTime) {
             dao.getBookingsByStudentAndPeriodOfTime(student, periodOfTime),
             dao.getWaitingsByStudentAndPeriodOfTime(student, periodOfTime)
         ])
-        .then((values) => {
-            const lectures = {
-                booked : values[0],
-                waited : values[1]
-            }
-            resolve(lectures);
-        })
-        .catch(reject);
+            .then((values) => {
+                const lectures = {
+                    booked: values[0],
+                    waited: values[1]
+                }
+                resolve(lectures);
+            })
+            .catch(reject);
     });
 
 };
@@ -247,7 +247,7 @@ exports.studentGetBookings = function(studentId, periodOfTime) {
  * @param {Number} courseId
  * @param {Number} lectureId 
  */
-exports.studentPushQueue = function(studentId, courseId, lectureId) {
+exports.studentPushQueue = function (studentId, courseId, lectureId) {
     const student = new Student(studentId);
     const course = new Course(courseId);
     const lecture = new Lecture(lectureId);
@@ -257,13 +257,13 @@ exports.studentPushQueue = function(studentId, courseId, lectureId) {
         dao.getLecturesByCourse(course)
             .then((currLectures) => {
                 const actualLectures = currLectures.filter(l => l.lectureId === lecture.lectureId);
-                if(actualLectures.length === 0) {
+                if (actualLectures.length === 0) {
                     reject(StandardErr.new('Student service', StandardErr.errno.PARAMS_MISMATCH, 'The lecture is not related to this course', 404));
                     return;
                 }
 
                 const actualLecture = actualLectures[0];
-                if(actualLecture.bookingDeadline.getTime() < (new Date()).getTime()){
+                if (actualLecture.bookingDeadline.getTime() < (new Date()).getTime()) {
                     reject(StandardErr.new('Student service', StandardErr.errno.WRONG_VALUE, 'The booking time is expired', 404));
                     return;
                 }
@@ -271,7 +271,7 @@ exports.studentPushQueue = function(studentId, courseId, lectureId) {
                 dao.getCoursesByStudent(student)
                     .then((currCourses) => {
                         const actualCourses = currCourses.filter(c => c.courseId === course.courseId);
-                        if(actualCourses.length === 0) {
+                        if (actualCourses.length === 0) {
                             reject(StandardErr.new('Student service', StandardErr.errno.PARAMS_MISMATCH, 'The student is not enrolled in this course', 404));
                             return;
                         }
@@ -282,13 +282,13 @@ exports.studentPushQueue = function(studentId, courseId, lectureId) {
                                 dao.getUserById(student)
                                     .then((currStudent) => {
                                         const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_PUSH_QUEUE, [
-                                                actualCourse.description,
-                                                utils.formatDate(actualLecture.date),
-                                            ]);
+                                            actualCourse.description,
+                                            utils.formatDate(actualLecture.date),
+                                        ]);
                                         emailService.sendCustomMail(
-                                                currStudent.email,
-                                                defaultEmail.subject,
-                                                defaultEmail.message
+                                            currStudent.email,
+                                            defaultEmail.subject,
+                                            defaultEmail.message
                                         );
                                         resolve(retVal); // do not wait the email has been sent
                                     })

@@ -171,8 +171,10 @@ const addBooking = function (student, lecture) {
                         return;
                     });
                 }
-                reject(StandardErr.fromDao(err));
-                return;
+                else {
+                    reject(StandardErr.fromDao(err));
+                    return;
+                }
             }
 
             resolve(this.lastID);
@@ -1060,7 +1062,7 @@ exports.execBatch = execBatch;
  * get course given its code 
  * @param {Integer} code 
  */
-const getCourseByCode = function(code) {
+const getCourseByCode = function (code) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT Course.* FROM Course WHERE code = ?`;
         db.get(sql, [code], (err, row) => {
@@ -1079,7 +1081,7 @@ exports.getCourseByCode = getCourseByCode;
  * get a student given his serial number 
  * @param {Integer} serialNumber 
  */
-const getStudentBySN = function(serialNumber) {
+const getStudentBySN = function (serialNumber) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User WHERE type = STUDENT AND serialNumber = ?`;
         db.get(sql, [serialNumber], (err, row) => {
@@ -1098,7 +1100,7 @@ exports.getStudentBySN = getStudentBySN;
  * get all students
  * @returns {Array} of Student 
  */
-const getAllStudents = function() {
+const getAllStudents = function () {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User WHERE type = "STUDENT"`;
         db.all(sql, (err, rows) => {
@@ -1119,7 +1121,7 @@ exports.getAllStudents = getAllStudents;
  * get all teachers 
  * @returns {Array} of Teacher 
  */
-const getAllTeachers = function() {
+const getAllTeachers = function () {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User WHERE type = "TEACHER"`;
         db.all(sql, (err, rows) => {

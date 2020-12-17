@@ -57,8 +57,12 @@ class StudentPage extends React.Component {
         return new Promise((resolve, reject) => {
             if (status === "booked") {
                 API.cancelLectureReservation(this.state.user.userId, courseId, lectureId)
-                    .then(async () => {
-                        let changedEvent = await this.changeEvent(lectureId, "green", "bookable")
+                    .then(async (availableSeats) => {
+                        let changedEvent;
+                        console.log(availableSeats)
+                        if (availableSeats <= 0)
+                            changedEvent = await this.changeEvent(lectureId, "orange", "full")
+                        else changedEvent = await this.changeEvent(lectureId, "green", "bookable")
                         resolve(changedEvent)
                     })
                     .catch(() => reject())

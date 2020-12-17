@@ -2033,11 +2033,10 @@
 									"pm.test(\"Response body of GET /teachers/4/courses/1/lectures/1/students\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
 									"\r",
-									"    const keys = [\"userId\", \"firstName\", \"lastName\", \"email\"];\r",
-									"    const values = [1, \"Aldo\", \"Baglio\", \"tjw85.student.baglio@inbox.testmail.app\", \"STUDENT\"];\r",
+									"    const keys = [\"userId\", \"type\"];\r",
+									"    const values = [2, \"STUDENT\"];\r",
 									"\r",
 									"    pm.expect(responseJson).to.be.an(\"array\"); \r",
-									"    console.log(responseJson[0])  \r",
 									"    pm.expect(responseJson[0]).to.have.any.keys(...keys);\r",
 									"\r",
 									"    for(let i = 0; i < keys.length; i++) {\r",
@@ -2053,7 +2052,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/teachers/4/courses/1/lectures/1/students",
+							"raw": "{{base_url}}/teachers/4/courses/2/lectures/4/students",
 							"host": [
 								"{{base_url}}"
 							],
@@ -2061,9 +2060,9 @@
 								"teachers",
 								"4",
 								"courses",
-								"1",
+								"2",
 								"lectures",
-								"1",
+								"4",
 								"students"
 							]
 						}
@@ -2644,13 +2643,13 @@
 										"id": "4a7d3b3f-3483-442d-8ada-83074c4108e1",
 										"exec": [
 											"pm.test(\"Status code of GET /students/1/courses/2/lectures/4\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
+											"    pm.response.to.have.status(409);\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Response body of GET /students/1/courses/2/lectures/4\", function () {\r",
 											"    const responseJson = pm.response.json();\r",
 											"    pm.expect(responseJson.message).to.contain(\"free seats\");\r",
-											"    pm.expect(responseJson.statusCode).to.eql(404);\r",
+											"    pm.expect(responseJson.statusCode).to.eql(409);\r",
 											"});"
 										],
 										"type": "text/javascript"
