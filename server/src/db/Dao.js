@@ -167,14 +167,18 @@ const addBooking = function (student, lecture) {
                             return;
                         }
 
+                        if(this.changes == 0) {
+                            reject(new StandardErr('Dao', StandardErr.errno.ALREADY_PRESENT, 'You have already booked this lecture', 404));
+                            return;
+                        }
+
                         resolve(this.changes);
                         return;
                     });
                 }
-                else {
-                    reject(StandardErr.fromDao(err));
-                    return;
-                }
+
+                reject(StandardErr.fromDao(err));
+                return;
             }
 
             resolve(this.lastID);
