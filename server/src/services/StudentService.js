@@ -35,9 +35,9 @@ exports.studentBookLecture = function(studentId, courseId, lectureId) {
                 dao.getLecturesByCourse(course),
                 dao.getCoursesByStudent(student)
             ])
-            .then((values) => {
-                const currLectures = values[0];
-                const currCourses = values[1];
+            .then((initValues) => {
+                const currLectures = initValues[0];
+                const currCourses = initValues[1];
 
                 const actualLectures = currLectures.filter(l => l.lectureId === lecture.lectureId);
                 if(actualLectures.length === 0) {

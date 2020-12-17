@@ -37,7 +37,7 @@ const testmailClient = new GraphQLClient(
  * @param {String} from_tag 
  * @returns {Object} result
  */
-const retrieveMails = function(from_tag) {
+const retrieveEmails = function(from_tag) {
     return new Promise((resolve, reject) => {
         testmailClient.request(`{
             inbox (
@@ -55,6 +55,7 @@ const retrieveMails = function(from_tag) {
                         name
                     }
                     subject
+                    timestamp
                 }
             }
         }`)
@@ -157,26 +158,42 @@ const suite = function() {
             });
 
             it('correct params should remove the student and pick a student from the waiting list', function(done) {
-                service.studentUnbookLecture(student3.studentId, lecture6.courseId, lecture6.lectureId)
-                    .then((availableSeats) => {
-                        service.studentGetBookings(student2.studentId)
-                            .then((lectures) => {
-                                assert.ok(lectures.waited.find((currLecture) => currLecture.lectureId === lecture6.lectureId) == undefined, 'Student waiting not resolved');
-                                assert.ok(lectures.booked.find((currLecture) => currLecture.lectureId === lecture6.lectureId) != undefined, 'Student booking not added');
+                this.timeout(1000 * 60); // extra timeout for this check
 
-                                this.timeout(1000 * 60); // extra timeout for this check
-                                setTimeout(() => {
-                                    console.log('Checking emails...');
-                                    retrieveMails('student.storti')
-                                        .then((response) => {
-                                            console.log('Checking emails... - done');
-                                            const data = response.inbox;
-                                            console.log(data);
-                                            assert.strictEqual(data.emails.length, 2, 'Wrong number of emails received');
-                                            done();
-                                        })
-                                        .catch((err) => done(err));
-                                }, 15);
+                retrieveEmails('student.storti')
+                    .then((prevResponse) => {
+                        let prevEmails = prevResponse.inbox.emails;
+                        const nPrevEmails = prevEmails.length;
+                        prevEmails = prevEmails.map((currEmail) => {
+                            currEmail.timestamp = new Date(currEmail.timestamp).toISOString();
+                            return currEmail;
+                        });
+                        console.log(prevEmails);
+
+                        service.studentUnbookLecture(student3.studentId, lecture6.courseId, lecture6.lectureId)
+                            .then((availableSeats) => {
+                                service.studentGetBookings(student2.studentId)
+                                    .then((lectures) => {
+                                        assert.ok(lectures.waited.find((currLecture) => currLecture.lectureId === lecture6.lectureId) == undefined, 'Student waiting not resolved');
+                                        assert.ok(lectures.booked.find((currLecture) => currLecture.lectureId === lecture6.lectureId) != undefined, 'Student booking not added');
+        
+                                        console.log('Checking emails...');
+                                        retrieveEmails('student.storti')
+                                            .then((response) => {
+                                                console.log('Checking emails... - done');
+                                                let emails = response.inbox.emails;
+                                                emails = emails.map((currEmail) => {
+                                                    currEmail.timestamp = new Date(currEmail.timestamp).toISOString();
+                                                    return currEmail;
+                                                });
+                                                console.log(emails);
+                                                assert.strictEqual(nPrevEmails - emails.length, 2, 'Wrong number of emails received');
+                                                
+                                                done();
+                                            })
+                                            .catch((err) => done(err));
+                                    })
+                                    .catch((err) => done(err));
                             })
                             .catch((err) => done(err));
                     })
