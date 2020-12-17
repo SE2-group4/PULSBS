@@ -30,8 +30,8 @@ let transporter = nodemailer.createTransport({
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-        user: "se2group4@gmail.com", // user
-        pass: "anvzRPuDd1mvCXJBfn", // password
+        user: "trasporter.se2group4@gmail.com", // user
+        pass: "trasporter46!", // password
     },
     tls: {
         rejectUnauthorized: false, //this is for local hosting
@@ -112,7 +112,7 @@ exports.getDefaultEmail = function getDefaultEmail(emailType = "", subjectArgs =
         return {};
     }
 
-    if(messageArgs.length == 0) messageArgs = subjectArgs;
+    if (messageArgs.length == 0) messageArgs = subjectArgs;
 
     const subject = getDefaultEmailSubject(emailType, subjectArgs);
     const message = getDefaultEmailMessage(emailType, messageArgs);
