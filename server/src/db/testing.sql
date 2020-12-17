@@ -1,17 +1,18 @@
-DELETE FROM User;
-DELETE FROM Course;
-DELETE FROM TeacherCourse;
-DELETE FROM Class;
-DELETE FROM Lecture;
 DELETE FROM Booking;
 DELETE FROM Enrollment;
 DELETE FROM EmailQueue;
+DELETE FROM Email;
 DELETE FROM WaitingList;
+DELETE FROM Lecture;
+DELETE FROM Class;
 DELETE FROM Schedule;
+DELETE FROM TeacherCourse;
+DELETE FROM Course;
+DELETE FROM User;
 
 INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber, birthday) VALUES(1, 'STUDENT', 'Aldo', 'Baglio', 'tjw85.student.baglio@inbox.testmail.app', 'aldo', 'aldo1', 'Turin', '1', DATETIME('now', '-20 year', 'start of day'));
-INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber, birthday) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni', 'giacomo2', 'Turin', '3', DATETIME('now', '-20 year', 'start of day'));
-INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber, birthday) VALUES(3, 'STUDENT', 'Silvana', 'Fallisi', 'tjw85.student.fallisi@inbox.testmail.app', 'silvana', 'silvana3', 'Turin', '4', DATETIME('now', '-20 year', 'start of day'));
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber, birthday) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni', 'giacomo2', 'Turin', '2', DATETIME('now', '-20 year', 'start of day'));
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber, birthday) VALUES(3, 'STUDENT', 'Silvana', 'Fallisi', 'tjw85.student.fallisi@inbox.testmail.app', 'silvana', 'silvana3', 'Turin', '3', DATETIME('now', '-20 year', 'start of day'));
 
 INSERT INTO Course(courseId, description, year) VALUES(1, 'Software enginnering 2', 1);
 INSERT INTO Course(courseId, description, year) VALUES(2, 'Computer system security', 1);
