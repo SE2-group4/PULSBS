@@ -86,7 +86,7 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
     );
     console.info(`Num of bookings: ${bookings === undefined ? false : bookings}`.magenta);
 
-    // check if the teacher is in charge of this course during this academic year
+     check if the teacher is in charge of this course during this academic year
     let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
     if (!isTeachingThisCourse) {
         throw new ResponseError(
