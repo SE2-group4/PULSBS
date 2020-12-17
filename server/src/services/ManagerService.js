@@ -92,16 +92,14 @@ async function addStatsToLecture(lecture, { bookings, cancellations, attendaces 
     const lectureWithStats = Object.assign({}, { lecture });
 
     if (bookings) {
-        const bookings = await getNumBookingsOfLecture(lecture);
-        lectureWithStats.bookings = bookings;
+        lectureWithStats.bookings = await getNumBookingsOfLecture(lecture);
     }
     if (cancellations) {
-        const cancellations = await getNumCancellationsOfLecture(lecture);
-        lectureWithStats.cancellations = cancellations;
+        lectureWithStats.cancellations = await getNumCancellationsOfLecture(lecture);
     }
+
     if (attendaces) {
-        const attendaces = await getNumAttendacesOfLecture(lecture);
-        lectureWithStats.attendaces = attendaces;
+        lectureWithStats.attendaces = await getNumAttendacesOfLecture(lecture);
     }
 
     return lectureWithStats;
@@ -119,7 +117,7 @@ async function getNumCancellationsOfLecture(lecture) {
 }
 
 async function getNumAttendacesOfLecture(lecture) {
-    const { count } = await db.getNumBookingsOfLecture(lecture, "PRESENT");
+    const { count } = await db.getNumBookingsOfLectureByStatus(lecture, "PRESENT");
     return count;
 }
 
@@ -129,8 +127,8 @@ async function isCourseMatchLecture(cId, lId) {
     return true;
 }
 
-function genResponseError(errno, error) {
-    return new ResponseError(MODULE_NAME, errno, error);
+function genResponseError(nerror, error) {
+    return new ResponseError(MODULE_NAME, nerror, error);
 }
 
 /**
@@ -198,7 +196,6 @@ exports.managerGetStudent = async function managerGetStudent({ managerId }, quer
  * @param {Object} query - date (optional)
  */
 exports.managerGetReport = async function managerGetReport({ managerId, serialNumber }, { date }) {
-    managerId = Number(managerId);
     serialNumber = Number(serialNumber);
     date = date ? new Date(date) : new Date();
     const student = new Student(serialNumber);

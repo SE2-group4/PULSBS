@@ -80,21 +80,55 @@ class SupportPage extends React.Component {
         let promises = [];
         if (this.state.studentsArray)
             promises.push(API.uploadList(this.props.user.userId, "students", this.state.studentsArray));
-        if (this.state.coursesArray)
-            promises.push(API.uploadList(this.props.user.userId, "courses", this.state.coursesArray));
         if (this.state.professorsArray)
             promises.push(API.uploadList(this.props.user.userId, "teachers", this.state.professorsArray));
         if (this.state.schedulesArray)
             promises.push(API.uploadList(this.props.user.userId, "schedules", this.state.schedulesArray));
-        if (this.state.enrollmentsArray)
-            promises.push(API.uploadList(this.props.user.userId, "enrollments", this.state.enrollmentsArray));
         Promise.all(promises)
-            .then(() => this.setState({ elems: null, success: true, loading: false }))
+            .then(() => {
+                this.uploadCoursesEnrollments(this.state.coursesArray, this.state.enrollmentsArray)
+                    .then(() => this.setState({ elems: null, success: true, loading: false })) //ok
+                    .catch((err) => {
+                        let errormsg = err.source + " : " + err.error;
+                        this.setState({ elems: null, genError: errormsg, loading: false });
+                        API.resetDB().catch((error) => console.error(error));
+                    });
+            })
             .catch((err) => {
                 let errormsg = err.source + " : " + err.error;
-                this.setState({ elems: null, genError: errormsg, loading: false })
+                this.setState({ elems: null, genError: errormsg, loading: false });
+                API.resetDB().catch((error) => console.error(error));
             })
+
         this.setState({ show: false, loading: true });
+    }
+
+    uploadCoursesEnrollments = (courses, enrollments) => {
+        return new Promise((resolve, reject) => {
+            if (courses)
+                API.uploadList(this.props.user.userId, "courses", courses)
+                    .then(() => {
+                        if (enrollments)
+                            API.uploadList(this.props.user.userId, "enrollments", enrollments)
+                                .then(() => resolve()) //ok
+                                .catch((err) => {
+                                    reject(err);
+                                });
+                        else
+                            resolve(); //ok
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    });
+            else if (!courses && enrollments)
+                API.uploadList(this.props.user.userId, "enrollments", enrollments)
+                    .then(() => resolve()) //ok
+                    .catch((err) => {
+                        reject(err);
+                    });
+            else
+                resolve(); //ok
+        });
     }
 
     /**
@@ -125,7 +159,10 @@ class SupportPage extends React.Component {
                             <Card>
                                 <Card.Body>
                                     <Card.Text>Hi <b>{this.props.user.firstName}</b>, welcome to setup page. If you want to add a certain type of data, click on corresponding <i>header</i>.
-                                Once you have done, click on the <i>button</i> below.</Card.Text>
+                                Once you have done, click on the <i>button</i> below.<br /><br />You should consider the following restrains in case you are not uploading all file together:<br />
+                                        <ul><li>teachers present in the courses file should be already loaded in the system;</li>
+                                            <li>students and courses present in the enrollments file should be already loaded in the system;</li>
+                                            <li>in general, you shouldn't upload the same file more than once.</li></ul></Card.Text>
                                 </Card.Body>
                             </Card>
                             <br />
@@ -256,7 +293,8 @@ function GenericModal(props) {
             <Modal.Title>{props.success ? <>Done</> : <>Error</>}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-            {props.success ? <>Operation successful!</> : <>{props.error}</>}
+            {props.success ? <>Operation successful!</> : <label data-testid="text-error">{props.error}</label>}
+            {props.error === "Upload : Server error" ? <><br />The database will be reset; please try again to load all files.</> : ""}
         </Modal.Body>
         <Modal.Footer>
             <Button name="close" data-testid="success-close" variant="secondary" onClick={props.success ? props.successClose : props.errorClose}>Close</Button>

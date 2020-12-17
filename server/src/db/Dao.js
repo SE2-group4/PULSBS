@@ -51,7 +51,6 @@ const _transformUser = function (row) {
             break;
         default:
             error = StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type");
-            return;
     }
     return { retUser, error };
 }
@@ -162,7 +161,7 @@ const addBooking = function (student, lecture) {
                 if (err.errno == 19) { // already present
                     // err = StandardErr.new("Dao", StandardErr.errno.ALREADY_PRESENT, "The lecture was already booked");
                     const sql = `UPDATE Booking SET status = ? WHERE studentId = ? AND lectureId = ?`;
-                    db.run(sql, [student.studentId, lecture.lectureId, Booking.BookingType.BOOKED], function (err) {
+                    db.run(sql, [Booking.BookingType.BOOKED, student.studentId, lecture.lectureId], function (err) {
                         if (err) {
                             reject(StandardErr.fromDao(err));
                             return;
@@ -172,8 +171,7 @@ const addBooking = function (student, lecture) {
                         return;
                     });
                 }
-                else err = StandardErr.fromDao(err);
-                reject(err);
+                reject(StandardErr.fromDao(err));
                 return;
             }
 
@@ -296,9 +294,9 @@ const getStudentsByLecture = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT User.* FROM User
             JOIN Booking on User.userId = Booking.studentId
-            WHERE Booking.lectureId = ? AND User.type = ?`;
+            WHERE Booking.lectureId = ? AND User.type = ? AND Booking.status = ?`;
 
-        db.all(sql, [lecture.lectureId, "STUDENT"], (err, rows) => {
+        db.all(sql, [lecture.lectureId, "STUDENT", Booking.BookingType.BOOKED], (err, rows) => {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
@@ -735,11 +733,11 @@ const getLecturesByCoursePlusNumBookings = function (course) {
         const sql = `SELECT lect.*, COUNT(book.studentId) as numBookings
             FROM Lecture lect 
             LEFT JOIN Booking book ON lect.lectureId = book.lectureId 
-            WHERE lect.courseId = ? 
+            WHERE lect.courseId = ? AND book.status = ?
             GROUP BY lect.lectureId
             ORDER BY DATETIME(lect.startingDate)`;
 
-        db.all(sql, [course.courseId], function (err, rows) {
+        db.all(sql, [course.courseId, Booking.BookingType.BOOKED], function (err, rows) {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
@@ -822,8 +820,6 @@ const getLecturesByCourseId = function (course) {
 };
 exports.getLecturesByCourseId = getLecturesByCourseId;
 
-// TODO not tested
-// added by Francesco
 /**
  * check is a lecture belongs to a course
  * @param {Course} course - courseId needed
@@ -847,11 +843,9 @@ const checkLectureAndCourse = function (course, lecture) {
 };
 exports.checkLectureAndCourse = checkLectureAndCourse;
 
-// TODO not tested
-// added by Francesco
 /**
  * get all courses
- * @returns {Promise} promise
+ * @returns {Array} of Course 
  */
 const getAllCourses = function () {
     return new Promise((resolve, reject) => {
@@ -1102,6 +1096,7 @@ exports.getStudentBySN = getStudentBySN;
 
 /**
  * get all students
+ * @returns {Array} of Student 
  */
 const getAllStudents = function() {
     return new Promise((resolve, reject) => {
@@ -1122,6 +1117,7 @@ exports.getAllStudents = getAllStudents;
 
 /**
  * get all teachers 
+ * @returns {Array} of Teacher 
  */
 const getAllTeachers = function() {
     return new Promise((resolve, reject) => {

@@ -11,7 +11,6 @@ router.get("/:managerId/students", managerGetStudent);
 router.get("/:managerId/tracingReport/:serialNumber", managerGetReport);
 module.exports.ManagerRouter = router;
 
-
 function managerGetCourseLecture(req, res) {
     Manager.managerGetCourseLecture(req.params, req.query)
         .then(function (response) {
@@ -20,7 +19,7 @@ function managerGetCourseLecture(req, res) {
         .catch(function (response) {
             utils.writeJson(res, response);
         });
-};
+}
 module.exports.managerGetCourseLecture = managerGetCourseLecture;
 
 function managerGetCourseLectures(req, res) {
@@ -31,7 +30,7 @@ function managerGetCourseLectures(req, res) {
         .catch(function (response) {
             utils.writeJson(res, response);
         });
-};
+}
 module.exports.managerGetCourseLectures = managerGetCourseLectures;
 
 function managerGetCourses(req, res) {
@@ -42,7 +41,7 @@ function managerGetCourses(req, res) {
         .catch(function (response) {
             utils.writeJson(res, response);
         });
-};
+}
 module.exports.managerGetCourses = managerGetCourses;
 
 // TODO (implementing service)
@@ -54,7 +53,7 @@ function managerGetStudent(req, res) {
         .catch(function (response) {
             utils.writeJson(res, response, response.statusCode);
         });
-};
+}
 module.exports.managerGetStudent = managerGetStudent;
 
 // TODO (implementing service)
@@ -66,5 +65,5 @@ function managerGetReport(req, res) {
         .catch(function (response) {
             utils.writeJson(res, response);
         });
-};
+}
 module.exports.managerGetReport = managerGetReport;

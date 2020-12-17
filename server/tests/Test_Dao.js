@@ -44,8 +44,8 @@ const suite = function () {
             student1 = new Student(1, 'Aldo', 'Baglio');
             student2 = new Student(2, 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni');
             teacher4 = new Teacher(4);
-            lecture2 = new Lecture(2);
             lecture1 = new Lecture(1, 1, 1);
+            lecture2 = new Lecture(2);
             lecture3 = new Lecture(3);
             course1 = new Course(1);
             course3 = new Course(3);
@@ -534,6 +534,124 @@ const suite = function () {
             });
         })
 
+        describe('checkLectureAndCourse', function () {
+            it('Should have returned count 1', function (done) {
+                dao.checkLectureAndCourse(course1, lecture1)
+                    .then((res) => {
+                        assert.strictEqual(res.count, 1);
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+
+            it('Should have returned count 0', function (done) {
+                dao.checkLectureAndCourse(course3, lecture1)
+                    .then((res) => {
+                        assert.strictEqual(res.count, 0);
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+        })
+
+        describe('getAllCourses', function () {
+            it('Should have returned an Array', function (done) {
+                dao.getAllCourses()
+                    .then((res) => {
+                        assert(res.constructor === Array);
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+
+            it('Should have returned 6 elements', function (done) {
+                dao.getAllCourses()
+                    .then((res) => {
+                        assert.strictEqual(res.length, 6);
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+
+
+            it('Should have returned these elements', function (done) {
+                const expectedCourseId = [1, 2, 3, 4, 5, 6]
+                dao.getAllCourses()
+                    .then((res) => {
+                        for(let i = 0; i < res.length; i++) {
+                            assert.strictEqual(res[i].courseId, expectedCourseId[i]);
+                        }
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+        })
+
+        describe('getAllStudents', function () {
+            it('Should have returned an Array', function (done) {
+                dao.getAllStudents()
+                    .then((res) => {
+                        assert(res.constructor === Array);
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+
+            it('Should have returned 4 elements', function (done) {
+                dao.getAllStudents()
+                    .then((res) => {
+                        assert.strictEqual(res.length, 4);
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+
+
+            it('Should have returned these elements', function (done) {
+                const expectedStudentId = [1, 2, 3, 6];
+                dao.getAllStudents()
+                    .then((res) => {
+                        for(let i = 0; i < res.length; i++) {
+                            assert.strictEqual(res[i].studentId, expectedStudentId[i]);
+                        }
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+        })
+
+        describe('getAllTeachers', function () {
+            it('Should have returned an Array', function (done) {
+                dao.getAllTeachers()
+                    .then((res) => {
+                        assert(res.constructor === Array);
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+
+            it('Should have returned 3 elements', function (done) {
+                dao.getAllTeachers()
+                    .then((res) => {
+                        assert.strictEqual(res.length, 3);
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+
+
+            it('Should have returned these elements', function (done) {
+                const expectedTeacherId = [4, 5, 7]
+                dao.getAllTeachers()
+                    .then((res) => {
+                        for(let i = 0; i < res.length; i++) {
+                            assert.strictEqual(res[i].teacherId, expectedTeacherId[i]);
+                        }
+                        done();
+                    })
+                    .catch((err) => done(err))
+            })
+        })
         describe('getUserBySsn', function () {
             it('correct params should return a student', function (done) {
                 let studentSsn = new Student();
@@ -663,4 +781,5 @@ const suite = function () {
         });
     });
 }
+
 module.exports = suite;

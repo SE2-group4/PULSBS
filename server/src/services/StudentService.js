@@ -35,9 +35,9 @@ exports.studentBookLecture = function (studentId, courseId, lectureId) {
             dao.getLecturesByCourse(course),
             dao.getCoursesByStudent(student)
         ])
-            .then((values) => {
-                const currLectures = values[0];
-                const currCourses = values[1];
+            .then((initValues) => {
+                const currLectures = initValues[0];
+                const currCourses = initValues[1];
 
                 const actualLectures = currLectures.filter(l => l.lectureId === lecture.lectureId);
                 if (actualLectures.length === 0) {
@@ -61,7 +61,7 @@ exports.studentBookLecture = function (studentId, courseId, lectureId) {
                 dao.lectureHasFreeSeats(lecture)
                     .then((nSeats) => {
                         if (nSeats <= 0) {
-                            reject(StandardErr.new('studentService', StandardErr.errno.NOT_AVAILABLE, 'No more free seats for this booking', 404));
+                            reject(StandardErr.new('studentService', StandardErr.errno.NOT_AVAILABLE, 'No more free seats for this booking', 409));
                             return;
                         }
 
@@ -135,7 +135,10 @@ exports.studentUnbookLecture = function (studentId, courseId, lectureId) {
                                         );
 
                                         dao.lectureHasFreeSeats(lecture)
-                                            .then(resolve)
+                                            .then((availableSeats) => {
+                                                console.log('StudentService::availableSeats ' + availableSeats);
+                                                resolve(availableSeats);
+                                            })
                                             .catch(reject);
                                     })
                                     .catch(reject);

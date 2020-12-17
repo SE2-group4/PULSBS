@@ -33,7 +33,7 @@ INSERT INTO Enrollment(studentId, courseId, year) VALUES(3, 3, 2020);
 INSERT INTO Enrollment(studentId, courseId, year) VALUES(3, 4, 2020);
 
 INSERT INTO Class(classId, description, capacity) VALUES(1, '1A', 3);
-INSERT INTO Class(classId, description, capacity) VALUES(2, '2B', 1);
+INSERT INTO Class(classId, description, capacity) VALUES(2, '2B', 3);
 INSERT INTO Class(classId, description, capacity) VALUES(3, '3C', 3);
 
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(1, 1, 1, DATETIME('now', '-1 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', '-2 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
@@ -46,7 +46,7 @@ INSERT INTO Booking(studentId, lectureId, status) VALUES(1, 1, "PRESENT");
 INSERT INTO Booking(studentId, lectureId, status) VALUES(2, 4, "BOOKED");
 INSERT INTO Booking(studentId, lectureId, status) VALUES(3, 5, "BOOKED");
 
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(6, 'SUPPORT', 'support', 'officer', 'a@a.com', 'a');
+INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(6, 'STUDENT', 'Fake', 'Student', 'tjw85.student.fake@inbox.testmail.app', 'student');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(7, 'TEACHER', 'Fake', 'Teacher', 'tjw85.student.fake@inbox.testmail.app', 'teacher');
 
 DROP trigger IF EXISTS delete_bookings_after_delete_lecture;

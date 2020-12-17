@@ -93,7 +93,8 @@ const formatDate = function(date) {
         hour12: false,
         timeZone: 'Europe/Rome'
     }
-    const dateFormatter = new Intl.DateTimeFormat('en-GB', options);
+    const dateFormatter = new Intl.DateTimeFormat("it-IT", options);
+
     return dateFormatter.format(date);
 }
 exports.formatDate = formatDate;
