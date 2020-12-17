@@ -64,7 +64,6 @@ const retrieveEmails = function(from_tag) {
     });
 }
 
-
 const suite = function() {
     let student1;
     let student2;
@@ -160,38 +159,36 @@ const suite = function() {
             it('correct params should remove the student and pick a student from the waiting list', function(done) {
                 this.timeout(1000 * 60); // extra timeout for this check
 
-                retrieveEmails('student.storti')
-                    .then((prevResponse) => {
-                        let prevEmails = prevResponse.inbox.emails;
-                        const nPrevEmails = prevEmails.length;
-                        prevEmails = prevEmails.map((currEmail) => {
-                            currEmail.timestamp = new Date(currEmail.timestamp).toISOString();
-                            return currEmail;
-                        });
-                        console.log(prevEmails);
+                service.studentUnbookLecture(student3.studentId, lecture6.courseId, lecture6.lectureId)
+                    .then((availableSeats) => {
+                        service.studentGetBookings(student2.studentId)
+                            .then((lectures) => {
+                                assert.ok(lectures.waited.find((currLecture) => currLecture.lectureId === lecture6.lectureId) == undefined, 'Student waiting not resolved');
+                                assert.ok(lectures.booked.find((currLecture) => currLecture.lectureId === lecture6.lectureId) != undefined, 'Student booking not added');
 
-                        service.studentUnbookLecture(student3.studentId, lecture6.courseId, lecture6.lectureId)
-                            .then((availableSeats) => {
-                                service.studentGetBookings(student2.studentId)
-                                    .then((lectures) => {
-                                        assert.ok(lectures.waited.find((currLecture) => currLecture.lectureId === lecture6.lectureId) == undefined, 'Student waiting not resolved');
-                                        assert.ok(lectures.booked.find((currLecture) => currLecture.lectureId === lecture6.lectureId) != undefined, 'Student booking not added');
-        
-                                        console.log('Checking emails...');
-                                        retrieveEmails('student.storti')
-                                            .then((response) => {
-                                                console.log('Checking emails... - done');
-                                                let emails = response.inbox.emails;
-                                                emails = emails.map((currEmail) => {
-                                                    currEmail.timestamp = new Date(currEmail.timestamp).toISOString();
-                                                    return currEmail;
-                                                });
-                                                console.log(emails);
-                                                assert.strictEqual(nPrevEmails - emails.length, 2, 'Wrong number of emails received');
-                                                
-                                                done();
-                                            })
-                                            .catch((err) => done(err));
+                                console.log('Checking emails...');
+                                retrieveEmails('student.storti')
+                                    .then((response) => {
+                                        console.log('Checking emails... - done');
+                                        let emails = response.inbox.emails;
+                                        emails = emails.map((currEmail) => {
+                                            currEmail.timestamp = moment(currEmail.timestamp);
+                                            return currEmail;
+                                        });
+
+                                        // range of the accepted receiving
+                                        const startDate = moment().subtract('30 seconds');
+                                        const endDate = moment().add('30 seconds');
+
+                                        for(let i of [ emails.length-2, emails.length-1 ]) {
+                                            const currEmail = emails[i];
+                                            let checks = currEmail.subject.includes('TAKEN FROM THE WAITING LIST') ||
+                                            currEmail.subject.includes('TAKEN FROM THE WAITING LIST');
+                                            checks  = checks && currEmail.timestamp >= startDate && currEmail.timestamp <= endDate;
+                                            assert.ok(checks, 'Wrong email received');
+                                        }
+
+                                        done();
                                     })
                                     .catch((err) => done(err));
                             })

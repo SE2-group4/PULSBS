@@ -121,24 +121,21 @@ exports.studentUnbookLecture = function(studentId, courseId, lectureId) {
                                 const actualLecture = values[1];
                                 const actualClass = values[2];
                                 
+                                const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_POP_QUEUE, [
+                                    actualCourse.description,
+                                    utils.formatDate(actualLecture.date),
+                                    actualClass.description
+                                ]);
+                                emailService.sendCustomMail( // inform the student he/she has been picked from the queue
+                                        waitingStudent.email,
+                                        defaultEmail.subject,
+                                        defaultEmail.message
+                                ) // do not wait
+                                
                                 this.studentBookLecture(waitingStudent.studentId, courseId, lectureId) // record the new booking
                                     .then((retVal) => {
-                                        const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_POP_QUEUE, [
-                                                actualCourse.description,
-                                                utils.formatDate(actualLecture.date),
-                                                actualClass.description
-                                            ]);
-                                        emailService.sendCustomMail( // inform the student he/she has been picked from the queue
-                                                waitingStudent.email,
-                                                defaultEmail.subject,
-                                                defaultEmail.message
-                                        );
-                                        
                                         dao.lectureHasFreeSeats(lecture)
-                                            .then((availableSeats) => {
-                                                console.log('StudentService::availableSeats ' + availableSeats);
-                                                resolve(availableSeats);
-                                            })
+                                            .then(resolve)
                                             .catch(reject);
                                     })
                                     .catch(reject);
