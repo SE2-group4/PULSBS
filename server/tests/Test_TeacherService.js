@@ -358,5 +358,4 @@ const testSuiteTeacherService = () => {
     });
 };
 
-testSuiteTeacherService();
 module.exports = testSuiteTeacherService;
