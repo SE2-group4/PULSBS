@@ -5,7 +5,7 @@ const fs = require("fs");
 
 const errno = ResponseError.errno;
 const MODULE_NAME = "SupportOfficerService";
-const ACCEPTED_ENTITIES = ["STUDENTS", "COURSES", "TEACHERS", "SCHEDULES", "ENROLLMENTS"];
+const ACCEPTED_ENTITIES = ["STUDENTS", "COURSES", "TEACHERS", "SCHEDULES", "ENROLLMENTS", "TEACHERCOURSE"];
 const DB_TABLES = {
     STUDENTS: {
         name: "User",
@@ -107,31 +107,44 @@ const binarySearch = (array, target, propertyName) => {
  * @returns {Integer} 200 in case of success. Otherwise it will throw a ResponseError
  */
 async function manageEntitiesUpload(entities, path) {
-    const entityType = getEntityNameFromPath(path);
+    let entityType = getEntityNameFromPath(path);
     if (entityType === undefined) {
         throw genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: path });
     }
 
-    console.time("mapping");
-    const sanitizedEntities = await sanitizeEntities(entities, entityType);
-    console.timeEnd("mapping");
+    let done = false;
 
-    if (sanitizedEntities.length > 0) {
-        await Promise.all(
-            sanitizedEntities.map(async (wellFormedEntities) => {
-                console.time("query");
-                const sqlQueries = genSqlQueries("INSERT", entityType, wellFormedEntities);
-                console.timeEnd("query");
+    while(!done) {
+        console.log(entityType);
+        console.time("mapping");
+        const sanitizedEntities = await sanitizeEntities(entities, entityType);
+        console.timeEnd("mapping");
 
-                console.time("run");
-                await runBatchQueries(sqlQueries);
-                console.timeEnd("run");
-            })
-        );
-        200;
+        console.time("query");
+        const sqlQueries = genSqlQueries("INSERT", entityType, sanitizedEntities);
+        console.timeEnd("query");
+
+        console.log(sqlQueries);
+        console.time("run");
+        await runBatchQueries(sqlQueries);
+        console.timeEnd("run");
+
+        if(!needAdditionalSteps(entityType)) {
+            done = true;
+        } else {
+            entityType = "TEACHERCOURSE";
+        }
     }
 
     return 200;
+}
+
+function needAdditionalSteps(step) {
+    if(step === "COURSES") {
+        return "TEACHERCOURSE";
+    }
+
+    return false;
 }
 
 /**
@@ -140,27 +153,23 @@ async function manageEntitiesUpload(entities, path) {
 async function sanitizeEntities(entities, entityType) {
     switch (entityType) {
         case "STUDENTS": {
-            return [sanitizeUserEntities(entities, entityType)];
+            return sanitizeUserEntities(entities, entityType);
         }
         case "TEACHERS": {
-            return [sanitizeUserEntities(entities, entityType)];
+            return sanitizeUserEntities(entities, entityType);
         }
         case "COURSES": {
-            const courseEntities = sanitizeGenericEntities(entities, entityType);
-            const sqlQueries = genSqlQueries("INSERT", entityType, courseEntities);
-            await runBatchQueries(sqlQueries);
-            console.log(sqlQueries);
-
-            const teacherCourseEntities = await mapTeacherCourseEntities(entities, "TEACHERCOURSE");
-            const sqlQueries2 = genSqlQueries("INSERT", "TEACHERCOURSE", teacherCourseEntities);
-            await runBatchQueries(sqlQueries2);
-            return [];
+            return sanitizeGenericEntities(entities, entityType);
         }
         case "ENROLLMENTS": {
-            return [await sanitizeEnrollmentsEntities(entities, entityType)];
+            return await sanitizeEnrollmentsEntities(entities, entityType);
         }
         case "SCHEDULES": {
-            return [sanitizeGenericEntities(entities, entityType)];
+            return sanitizeGenericEntities(entities, entityType);
+        }
+        case "TEACHERCOURSE": {
+            console.log("OK");
+            return await sanitizeTeacherCourseEntities(entities, entityType);
         }
     }
 }
@@ -236,6 +245,7 @@ function getStartingTime(orario) {
     const tokens = orario.split("-");
     return tokens[0];
 }
+
 function getEndingTime(orario) {
     const tokens = orario.split("-");
     return tokens[1];
@@ -274,14 +284,14 @@ function sanitizeGenericEntities(entities, entityType) {
 async function updateAndSort(who, comparator) {
     switch(who) {
         case "STUDENT": {
-            allStudentsWithSN = await db.getAllStudents("asdas");
+            allStudentsWithSN = await db.getAllStudents();
             allStudentsWithSN = allStudentsWithSN.filter((student) => student.serialNumber !== null);
             allStudentsWithSN.sort(comparator);
             break;
         };
         case "TEACHER": {
             allTeachersWithSN = await db.getAllTeachers();
-            allTeachersWithSN = allTeachersWithSN.filter((student) => student.serialNumber !== null);
+            allTeachersWithSN = allTeachersWithSN.filter((teacher) => teacher.serialNumber !== null);
             allTeachersWithSN.sort(comparator);
             break;
         };
@@ -324,17 +334,17 @@ function applyAction(entity, mapFrom, mapTo) {
     return ret;
 }
 
-async function mapTeacherCourseEntities(entities, entityType) {
+async function sanitizeTeacherCourseEntities(entities, entityType) {
     await updateAndSort("TEACHER", userComparator);
     await updateAndSort("COURSE", courseComparator);
 
     const { mapFrom, mapTo} = getFieldsMapping(entityType);
 
     return entities.map((entity) => {
-        let a = {};
-        a.Number = entity.Teacher;
-        a.Code = entity.Code;
-        return applyAction(a, mapFrom, mapTo);
+        let tc = {};
+        tc.Number = entity.Teacher;
+        tc.Code = entity.Code;
+        return applyAction(tc, mapFrom, mapTo);
     });
 }
 
@@ -346,7 +356,7 @@ function logToFile(queries) {
         console.log("Now > queries.log");
     });
 
-    fs.appendFile("./queries.log", queries, function (err) {
+    fs.appendFile("./queries.log", queries.join("\n"), function (err) {
         if (err) return console.log(err);
         console.log("Queries log > queries.log");
     });
@@ -382,6 +392,12 @@ function genSqlQueries(queryType, entityType, entities, maxQuery) {
     }
 }
 
+/**
+ * create an array of "insert sql query" given an entityType and a set of entities
+ * @param {String} see ACCEPTED_ENTITIES
+ * @param {Array} of Object
+ * @returns {Array} of string 
+ */
 function genInsertSqlQueries(entityType, entities) {
     const table = DB_TABLES[entityType];
     const queryTemplate = `INSERT INTO ${table.name}(${table.mapTo.join(", ")}) VALUES`;
