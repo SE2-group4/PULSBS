@@ -41,7 +41,7 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 | ~     |        | 141  | 0h 10m   | 0h 5m    | Ceccarelli             | 0,50                 | done   |
 | ~     |        | 142  | 0h 5m    | 0h 20m   | Gastaldi               | 4,00                 | done   |
 QUI
-| 15    |        | 159  | 0h 10m   | 0h 0m    | Gastaldi               | 0,00                 | ?      |
+| 15    |        | 159  | 0h 10m   | 0h 0m    | Gastaldi               | 0,00                 | done   |
 | 16    | 8      |      |          |          |                        |                      | done   |
 | ~     |        | 160  | 2h 0m    | 5h 15m   | Ceccarelli             | 2,63                 | done   |
 | ~     |        | 161  | 0h 20m   | 0h 15m   | Ceccarelli             | 0,75                 | done   |
@@ -49,7 +49,7 @@ QUI
 | ~     |        | 163  | 0h 10m   | 0h 5m    | Ceccarelli             | 0,50                 | done   |
 | ~     |        | 164  | 2h 0m    | 1h 15m   | Ceccarelli + Pisanello | 0,63                 | done   |
 | ~     |        | 165  | 1h 0m    | 1h 0m    | Gastaldi               | 1,00                 | done   |
-| ~     | ??     | 166  | 0h 30m   | 1h 15m   | Gastaldi               | 2,50                 | done   |
+| ~     |        | 166  | 1h 00m   | 1h 15m   | Gastaldi               | 1,25                 | done   |
 | ~     |        | 167  | 0h 30m   | 0h 0m    | Ceccarelli             | 0,00                 | ?      |
 | ~     |        | 168  | 1h 0m    | 1h 20m   | Gastaldi               | 1,33                 | done   |
 | ~     |        | 169  | 1h 0m    | 1h 0m    | Gastaldi               | 1,00                 | done   |
@@ -96,45 +96,16 @@ QUI
 
 ## ASSESSMENT DA FARE
 
+Only for tasks with an est. error greater than 35% 
 - What caused your errors in estimation (if any)?
   - Task xx (task description)
-    - reason  
-  - Task 40 ("Testing gui student webpage)
-    - due to stakeholders' issue we changed the whole page and we did testing again
-  - Task 44 ("Testing: gui teacher web page"):
-    - due to all changes the page received (mostly unexpected ones) during all the sprint the time needed to update tests each time was more than expected
-  - Task 52 ("Frontend API: add delete API")
-    - it required less time because we had already built the skeleton of the APIs
-  - Task 54 ("Backend: add server API"):
-    - the main effort for this story was in other tasks, overestimated
-  - Task 56 ("Frontend API : testing DELETE"):
-    - see task 52
-  - Task 57 ("Backend : testing the new Dao and service function"):
-    - repeatitive operations, overestimated
-  - Task 58 ("Backend: testing delete booking server API"):
-    - there were more use cases to consider to reach the min coverage threshold
-  - Task 60 ("Frontend Student Page : add calendar component")
-    - it required more time for learning FullCalendar library
-  - Task 73 ("Backend: add function that notify the student when a lecture is cancelled"):
-    - the notification system was not straightforward as initially planned
-  - Task 81 ("Backend : add server API GET/PUT lecture"):
-    - the edge cases of a PUT operation required more carefull thinking
-  - Task 83 ("Backend: add DAO put/get method for a lecture"):
-    - see task 81
-  - Task 84 ("Backend: testing DAO function"):
-    - lost a lot of time in setting up the testing environment
-  - Task 86 ( "Setup docker Image")
-    - we had problem with sqlite3 library
-  - Task 90 ("Backend : testing teacher email notifications") [story 2 of SPRINT 2]:
-    - there were more use cases to consider to reach the min coverage threshold
-  - Task 94 ("Frontend Teacher Stats Page: create page component"):
-    - this task was originally estimated for one person, but during the sprint we decided to allocate two people to it so the time logged results much higher than expected
-  - Task 98 ("Backend : add a new functionality to server API (add query string support"):
-    - understimated the amount of work needed 
-  - Task 99 ("Backend : testing the new functionality on the server API"):
-    - there were more use cases to consider to reach the min coverage threshold
-  - Task 100 ("Backend : add function which computes stats"):
-    - task not well defined, too general. These statistics has been computed in other parts of the application
+    - reason
+  - Task 120 ("Backend Booking Manager : add new service and dao functions for cancellations and attendance")
+    - technical difficulties
+  - Task 130 ("Backend Support Officer : create new service and new dao functions")
+    - technical difficulties in mapping the input data with our internal representation
+  - Task 174 ("Refactor Teacher service code")
+    - completed partially due to lack of time
 
 - What lessons did you learn (both positive and negative) in this sprint?
   - POSITIVE
