@@ -1079,9 +1079,10 @@ exports.getClassByLecture = getClassByLecture;
  */
 const execBatch = function (queries) {
     return new Promise((resolve, reject) => {
-        console.log(queries);
         db.run("BEGIN TRANSACTION;");
-        queries.forEach((query) => db.run(query));
+        queries.forEach((query) => db.run(query, function (error) {
+            if(error) reject(error);
+        }));
         db.run("END TRANSACTION;", () => resolve());
     });
 };
