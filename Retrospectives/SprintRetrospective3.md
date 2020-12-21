@@ -3,14 +3,14 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 
 ## PROCESS MEASURES 
 
-### Macro statistics DA FARE
+### Macro statistics DA COMPLETARE
 
-- Number of stories committed vs done : 10 vs 10
-- Total points committed vs done : 64 vs 64
-- Nr of hours planned vs spent (as a team) : 60h vs 65h 45m
+- Number of stories committed vs done : 6 vs 5
+- Total points committed vs done : 45 vs 32
+- Nr of hours planned vs spent (as a team) : 60h vs 65h
 - Unit Tests passing : 164/168
-- Code review completed : 10h / 10h
-- Code present on VCS : 6075 lines
+- Code review completed : 3h / 5h
+- Code present on VCS : 9625 lines
 - End-to-End tests performed : 104/104
 
 ### Detailed statistics DA COMPLETARE
