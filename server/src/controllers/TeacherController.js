@@ -113,5 +113,5 @@ module.exports.checkForExpiredLectures = checkForExpiredLectures;
 
 function nextCheck() {
     return Teacher.nextCheck();
-}
+};
 module.exports.nextCheck = nextCheck;

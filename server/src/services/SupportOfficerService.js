@@ -107,7 +107,6 @@ const binarySearch = (array, target, propertyName) => {
  * @returns {Integer} 200 in case of success. Otherwise it will throw a ResponseError
  */
 async function manageEntitiesUpload(entities, path) {
-    console.log(entities);
     const entityType = getEntityNameFromPath(path);
     if (entityType === undefined) {
         throw genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: path });
@@ -123,9 +122,9 @@ async function manageEntitiesUpload(entities, path) {
                 console.time("query");
                 const sqlQueries = genSqlQueries("INSERT", entityType, wellFormedEntities);
                 console.timeEnd("query");
+
                 console.time("run");
                 await runBatchQueries(sqlQueries);
-                sleep(3);
                 console.timeEnd("run");
             })
         );
@@ -150,6 +149,7 @@ async function sanitizeEntities(entities, entityType) {
             const courseEntities = sanitizeGenericEntities(entities, entityType);
             const sqlQueries = genSqlQueries("INSERT", entityType, courseEntities);
             await runBatchQueries(sqlQueries);
+            console.log(sqlQueries);
 
             const teacherCourseEntities = await mapTeacherCourseEntities(entities, "TEACHERCOURSE");
             const sqlQueries2 = genSqlQueries("INSERT", "TEACHERCOURSE", teacherCourseEntities);
@@ -169,6 +169,7 @@ function userComparator(a, b) {
     if (a.serialNumber < b.serialNumber) {
         return -1;
     }
+
     if (a.serialNumber > b.serialNumber) {
         return 1;
     }
@@ -248,7 +249,7 @@ function sanitizeUserEntities(users, entityType) {
         // we slice to take out the ending s. See ACCEPTED_ENTITIES
         u.type = entityType.slice(0, entityType.length - 1);
 
-        return applyAction(e, mapFrom, mapTo);
+        return applyAction(u, mapFrom, mapTo);
     });
 }
 
@@ -270,25 +271,29 @@ function sanitizeGenericEntities(entities, entityType) {
     return entities.map((entity) => applyAction(entity, mapFrom, mapTo));
 }
 
-function updateAndSort(who, comparator) {
+async function updateAndSort(who, comparator) {
     switch(who) {
         case "STUDENT": {
             allStudentsWithSN = await db.getAllStudents("asdas");
             allStudentsWithSN = allStudentsWithSN.filter((student) => student.serialNumber !== null);
             allStudentsWithSN.sort(comparator);
+            break;
         };
         case "TEACHER": {
             allTeachersWithSN = await db.getAllTeachers();
             allTeachersWithSN = allTeachersWithSN.filter((student) => student.serialNumber !== null);
             allTeachersWithSN.sort(comparator);
+            break;
         };
         case "COURSE": {
             allCoursesWithCode = await db.getAllCourses();
             allCoursesWithCode = allCoursesWithCode.filter((course) => course.code !== null);
             allCoursesWithCode.sort(comparator);
+            break;
         };
     }
 }
+
 async function sanitizeEnrollmentsEntities(enrollments, entityType) {
     await updateAndSort("STUDENT", userComparator);
     await updateAndSort("COURSE", courseComparator);
@@ -297,21 +302,21 @@ async function sanitizeEnrollmentsEntities(enrollments, entityType) {
     return enrollments.map((entity) => applyAction(entity, mapFrom, mapTo));
 }
 
-function applyAction(entity, fromFields, toFields) {
+function applyAction(entity, mapFrom, mapTo) {
     const ret = {};
 
-    for (let i = 0; i < fromFields.length; i++) {
-        if (isValueOfType("string", fromFields[i])) {
-            ret[toFields[i]] = entity[fromFields[i]];
+    for (let i = 0; i < mapFrom.length; i++) {
+        if (isValueOfType("string", mapFrom[i])) {
+            ret[mapTo[i]] = entity[mapFrom[i]];
         } else {
-            const func = fromFields[i].func.name;
-            let args = fromFields[i].func.args;
+            const func = mapFrom[i].func.name;
+            let args = mapFrom[i].func.args;
 
             if (args === undefined) {
-                ret[toFields[i]] = func();
+                ret[mapTo[i]] = func();
             } else {
                 args = args.map((arg) => entity[arg]);
-                ret[toFields[i]] = func(...args);
+                ret[mapTo[i]] = func(...args);
             }
         }
     }
