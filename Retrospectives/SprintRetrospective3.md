@@ -40,7 +40,17 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 | ~     |        | 140  | 0h 10m   | 0h 5m    | Ceccarelli             | 0,50                 | done   |
 | ~     |        | 141  | 0h 10m   | 0h 5m    | Ceccarelli             | 0,50                 | done   |
 | ~     |        | 142  | 0h 5m    | 0h 20m   | Gastaldi               | 4,00                 | done   |
-QUI
+| ~     |        | 143  | 0h 15m   | 0h 10m   | Xia                    | 0,67                 | done   |
+| ~     |        | 144  | 1h 15m   | 0h 30m   | Gastaldi               | 0,40                 | done   |
+| ~     |        | 145  | 0h 50m   | 1h 20m   | Gastaldi               | 1,60                 | done   |
+| ~     |        | 146  | 0h 40m   | 0h 45m   | Gastaldi               | 1,13                 | done   |
+| ~     |        | 147  | 0h 30m   | 0h 45m   | Gastaldi               | 1,50                 | done   |
+| ~     |        | 148  | 0h 10m   | 0h 15m   | Gastaldi               | 1,50                 | done   |
+| ~     |        | 149  | 0h 30m   | 1h 30m   | Gastaldi               | 3,00                 | done   |
+| 14    | 5      |      |          |          |                        |                      |        |
+| ~     |        | 156  | 0h 25m   | 0h 20m   | Gastaldi               | 0,80                 | done   |
+| ~     |        | 157  | 0h 40m   | 0h 0m    | Gastaldi               | 0,00                 | done   |
+| ~     |        | 158  | 0h 10m   | 0h 15m   | Gastaldi               | 1,50                 | done   |
 | 15    |        | 159  | 0h 10m   | 0h 0m    | Gastaldi               | 0,00                 | done   |
 | 16    | 8      |      |          |          |                        |                      | done   |
 | ~     |        | 160  | 2h 0m    | 5h 15m   | Ceccarelli             | 2,63                 | done   |
