@@ -1,4 +1,4 @@
-SPRINT RETROSPECTIVE 2 (TEAM 4)
+SPRINT RETROSPECTIVE 3 (TEAM 4)
 =====================================
 
 ## PROCESS MEASURES 
@@ -107,39 +107,29 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 ## ASSESSMENT DA FARE
 
 Only for tasks with an est. error greater than 35% 
+
 - What caused your errors in estimation (if any)?
   - Task xx (task description)
     - reason
   - Task 120 ("Backend Booking Manager : add new service and dao functions for cancellations and attendance")
-    - technical difficulties
+    - understimated the time needed to complete the job
   - Task 130 ("Backend Support Officer : create new service and new dao functions")
     - technical difficulties in mapping the input data with our internal representation
   - Task 174 ("Refactor Teacher service code")
-    - completed partially due to lack of time
+    - completed only partially due to lack of time
 
 - What lessons did you learn (both positive and negative) in this sprint?
   - POSITIVE
-      - define the system APIs as a group instead of few individuals raised less issues than in the previous iterations 
-      - reviewing code in group allowed us to find some minor flaws 
-      - testing the code allowed us to find other minor bugs
   - NEGATIVE
-      - again the time allocated, during the sprint planning, for testing was not sufficient
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
-  - do more group discussions
-  - code review
-  - augment and define threshold for coverage
-  - define better APIs
-  - better task estimation
-
-- Which ones you were not able to achieve? Why?
-  - we achieved all the improvement goals
-
-- Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
   - augment threshold for coverage (80%)
   - better discuss the design of the pages
   - reduce code duplication
 
+- Which ones you were not able to achieve? Why?
+
+- Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
+
 - One thing you are proud of as a Team!!
-  - as a team and individuals we are improving and growing everyday as developers. Furthermore the workflow is going very smoothly!
 
