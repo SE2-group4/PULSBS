@@ -64,6 +64,9 @@ docker run -p 3000:3000 se2group4/pulsbs:release1
 - Booking Manager : 
   - Email : manager@test.it
   - Password : manager
+- Support Officer : 
+  - Email : officer1@test.it
+  - Password : officer1
 ## Description
 
 ### Client
