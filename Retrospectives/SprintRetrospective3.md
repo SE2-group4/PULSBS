@@ -8,10 +8,10 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
 - Number of stories committed vs done : 6 vs 5
 - Total points committed vs done : 45 vs 32
 - Nr of hours planned vs spent (as a team) : 60h vs 65h
-- Unit Tests passing : 164/168
+- Unit Tests passing : 242/252
 - Code review completed : 3h / 5h
 - Code present on VCS : 9625 lines
-- End-to-End tests performed : 104/104
+- End-to-End tests performed : ?/?
 
 ### Detailed statistics DA COMPLETARE
 
