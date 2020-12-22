@@ -24,8 +24,19 @@ const emailService = require("./../services/EmailService.js");
 const { StandardErr } = require("./../utils/utils.js");
 const User = require("../entities/User.js");
 const { POINT_CONVERSION_COMPRESSED } = require("constants");
+const Calendar = require("../entities/Calendar.js");
 
 let db = null;
+
+/**
+ * list of hints for DB queries
+ */
+const DaoHint = {
+    NO_HINT, // I know nothing about it
+    NEW_VALUE, // insert new value
+    ALREADY_PRESENT, // update an existing value
+    // add more
+};
 
 /**
  * transform a db row into a specific type of user
@@ -61,28 +72,44 @@ let db = new sqlite.Database(dbpath, (err) => {
 */
 
 /**
+ * close the current DB connection
+ * @param {Function} cb - callback
+ */
+const closeConn = function(cb) {
+    if(db){
+        db.close((err) => {
+            db = null;
+            if(cb)
+                cb();
+        });
+    }
+}
+exports.closeConn = closeConn;
+
+/**
  * open a new database connection
  * it closes existing connections before creating the new one
  * @param {String} dbpath
+ * @param {Function} cb - callback
  */
-const openConn = function openConn(dbpath = "./PULSBS.db") {
-    if (db) db.close();
+const openConn = function openConn(dbpath = "./PULSBS.db", cb) {
+    closeConn(() => {
+        const cwd = __dirname;
+        dbpath = path.join(cwd, dbpath);
+        db = new sqlite.Database(dbpath, (err) => {
+            if (err) throw StandardErr.new("Dao", StandardErr.errno.FAILURE, err.message);
+        });
+    
+        db.get("PRAGMA foreign_keys = ON");
+        db.on("profile", (query, time) => {
+            query = query.replace(/ +(?= )/g, "");
+            //console.log("QUERY EXECUTED");
+            //console.log(query);
+            //console.log("TIME: ", time);
+        });
 
-    const cwd = __dirname;
-    dbpath = path.join(cwd, dbpath);
-    db = new sqlite.Database(dbpath, (err) => {
-        if (err) throw StandardErr.new("Dao", StandardErr.errno.FAILURE, err.message);
+        cb();
     });
-
-    db.get("PRAGMA foreign_keys = ON");
-    db.on("profile", (query, time) => {
-        query = query.replace(/ +(?= )/g, "");
-        //console.log("QUERY EXECUTED");
-        //console.log(query);
-        //console.log("TIME: ", time);
-    });
-
-    return;
 };
 exports.openConn = openConn;
 
@@ -865,7 +892,7 @@ exports.checkLectureAndCourse = checkLectureAndCourse;
 
 /**
  * get all courses
- * @returns {Array} of Course
+ * @returns {Promise} promise of array of Course
  */
 const getAllCourses = function () {
     return new Promise((resolve, reject) => {
@@ -1128,7 +1155,7 @@ exports.getStudentBySN = getStudentBySN;
 
 /**
  * get all students
- * @returns {Array} of Student
+ * @returns {Promise} promise of array of Student
  */
 const getAllStudents = function () {
     return new Promise((resolve, reject) => {
@@ -1149,7 +1176,7 @@ exports.getAllStudents = getAllStudents;
 
 /**
  * get all teachers
- * @returns {Array} of Teacher
+ * @returns {Promise} promise of array of Teacher
  */
 const getAllTeachers = function () {
     return new Promise((resolve, reject) => {
@@ -1223,3 +1250,150 @@ const lectureHasFreeSeats = function (lecture) {
     });
 };
 exports.lectureHasFreeSeats = lectureHasFreeSeats;
+
+/**
+ * get a class by its description
+ * @param {Class} class_ 
+ * @return {Promise} promise of class
+ */
+const getClassByDescription = function(class_) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM Class WHERE description = ?`;
+
+        db.get(sql, [class_.description], (err, row) => {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(Lecture.from(row));
+        });
+    });
+}
+exports.getClassByDescription = getClassByDescription;
+
+/**
+ * insert a new lecture into DB
+ * @param {Lecture} lecture 
+ * @returns {Promise} promise of int
+ */
+const addLecture = function(lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `INSERT INTO Lecture(courseId, classId, startingDate, duration, bookingDeadline, delivery
+            VALUES (?, ?, ?, ?, ?, ?)`;
+
+        db.run(sql, [
+                lecture.courseId,
+                lecture.courseId,
+                lecture.startingDate.toISOString(),
+                lecture.duration,
+                lecture.bookingDeadline.toISOString(),
+                lecture.delivery
+            ], function(err) {
+                if(err) {
+                    reject(StandardErr.fromDao(err));
+                    return;
+                }
+
+                resolve(this.changes);
+         });
+    });
+}
+exports.addLecture = addLecture;
+
+/**
+ * get the list of all calendar periods
+ * @returns {Promise} promise of array of Calendar
+ */
+const _getCalendars = function() {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM Calendar`;
+
+        db.all(sql, [], (err, rows) => {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(rows.map(row => Calendar.from(row)));
+        });
+    });
+};
+
+/**
+ * generate a list of valid dates from now to the end of the current period of time
+ * these dates are based on the calendar valid periods
+ * @param {Schedule} schedule 
+ * @returns {Promise} promise of array of Dates
+ */
+const _generateDatesBySchedule = function(schedule) {
+    return new Promise((resolve, reject) => {
+        this._getCalendars()
+            .then((calendars) => {
+                
+            })
+            .catch(reject);
+    });
+}
+exports._generateDatesBySchedule = _generateDatesBySchedule; // export needed for testing
+
+/**
+ * generate a list of lecture given a schedule
+ * @param {Schedule} schedule 
+ * @param {DaoHint} hint
+ * @returns {Promise} promise of bool - true if everything has gone right, false otherwise
+ */
+const _generateLecturesBySchedule = function(schedule, hint = DaoHint.NO_HINT) {
+    return new Promise((resolve, reject) => {
+        // first of all, get data which are in common for all lectures we are going to generate
+        Promise.all([
+                this.getCourseByCode(schedule.code),
+                this.getClassByDescription(schedule.roomId)
+            ])
+            .then((values) => {
+                const actualCourse = values[0];
+                const actualClass = values[1];
+
+                let actualStartingTime;
+                let actualEndingTime;
+                try {
+                    actualStartingTime = moment.duration(schedule.startingTime).format('hh:mm:ss'); // no day, only HH:MM:SS
+                    actualEndingTime = moment.duration(schedule.endingTime).format('hh:mm:ss'); // no day, only HH:MM:SS
+                } catch(err) {
+                    reject(StandardErr.new('Dao', StandardErr.errno.UNEXPECTED_VALUE, 'Wrong date', 404));
+                    return;
+                }
+                const duration = actualEndingTime.subtract(actualStartingTime);
+                const actualDuration = duration.milliseconds(); // in milliseconds
+
+                // generate the list of dates of all lectures
+                const dates = this._generateDatesBySchedule(schedule);
+                const actualStartingDates = dates.map(date => date.add(actualStartingTime));
+                const bookingDeadlineTime = moment.duration("23:00:00").subtract(1, 'day'); // by default, the booking deadline is the day before al 23:00
+                const actualBookingDeadlines = dates.map(date => date.add(bookingDeadlineTime));
+
+                // now, let's go to generate every single and specific lecture
+                const promises = [];
+                for(let i=0; i<dates.length; i++) {
+                    const currLecture = new Lecture();
+                    currLecture.courseId = actualCourse.courseId;
+                    currLecture.classId = actualCourse.courseId;
+                    currLecture.startingDate = actualStartingDates[i];
+                    currLecture.duration = actualDuration;
+                    currLecture.bookingDeadline = actualBookingDeadlines[i];
+                    currLecture.delivery = Lecture.DeliveryType.PRESENCE; // by default, a lecture will be delivered in presence
+
+                    promises.push(this.addLecture(lecture));
+                }
+
+                Promise.all(promises)
+                    .then((values) => {
+                        if(values.some(e => e === 0 )) { // if a lecture has not been inserted
+                            
+                        }
+                    })
+                    .catch(reject);
+            });
+    });
+}
+exports._generateLecturesBySchedule = _generateLecturesBySchedule; // export needed for testing
