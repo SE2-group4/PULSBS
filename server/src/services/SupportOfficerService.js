@@ -1,5 +1,6 @@
 const { ResponseError } = require("../utils/ResponseError");
 const { isValueOfType } = require("../utils/converter");
+const { binarySearch } = require("../utils/searchHelper");
 const db = require("../db/Dao");
 const fs = require("fs");
 
@@ -79,27 +80,6 @@ let allStudentsWithSN = null;
 let allTeachersWithSN = null;
 let allCoursesWithCode = null;
 
-const binarySearch = (array, target, propertyName) => {
-    let startIndex = 0;
-    let endIndex = array.length - 1;
-
-    while (startIndex <= endIndex) {
-        let middleIndex = Math.floor((startIndex + endIndex) / 2);
-
-        if (target === array[middleIndex][propertyName]) {
-            return middleIndex;
-        }
-
-        if (target > array[middleIndex][propertyName]) {
-            startIndex = middleIndex + 1;
-        } else if (target < array[middleIndex][propertyName]) {
-            endIndex = middleIndex - 1;
-        }
-    }
-
-    return -1;
-};
-
 /**
  * save the entities in the db
  * @param {Array} of Objects. See ACCEPTED_ENTITIES for a list of accepted entities.
@@ -168,7 +148,6 @@ async function sanitizeEntities(entities, entityType) {
             return sanitizeGenericEntities(entities, entityType);
         }
         case "TEACHERCOURSE": {
-            console.log("OK");
             return await sanitizeTeacherCourseEntities(entities, entityType);
         }
     }
@@ -196,7 +175,7 @@ function courseComparator(a, b) {
 }
 
 /**
- * Search in the array, an entity that has the target value in the propertyName
+ * Search in the array an entity that has the target value in the propertyName
  */
 function findEntity(array, target, propertyName) {
     const index = binarySearch(array, target, propertyName);
@@ -251,6 +230,11 @@ function getEndingTime(orario) {
     return tokens[1];
 }
 
+/**
+ * get the mapFrom and mapTo properties of DB_TABLES
+ * @param {String} entityType. See ACCEPTED_ENTITIES.
+ * @returns {Object} with 2 properties: mapFrom and mapTo
+ */
 function sanitizeUserEntities(users, entityType) {
     const { mapFrom, mapTo } = getFieldsMapping(entityType);
 
@@ -275,12 +259,22 @@ function getFieldsMapping(entityType) {
     return { mapFrom, mapTo };
 }
 
+/**
+ * Apply the actions defined in the mapFrom to each entity
+ * @param {Array} entities. 
+ * @param {String} entityType. See ACCEPTED_ENTITIES.
+ * @returns {Array} of sanitized entities
+ */
 function sanitizeGenericEntities(entities, entityType) {
     const { mapFrom, mapTo } = getFieldsMapping(entityType);
 
     return entities.map((entity) => applyAction(entity, mapFrom, mapTo));
 }
 
+/**
+ * update a global array using the comparator
+ * @param {String} who
+ */
 async function updateAndSort(who, comparator) {
     switch(who) {
         case "STUDENT": {
@@ -304,6 +298,12 @@ async function updateAndSort(who, comparator) {
     }
 }
 
+/**
+ * Apply the actions defined in the mapFrom to each entity
+ * @param {Array} entities. 
+ * @param {String} entityType. See ACCEPTED_ENTITIES.
+ * @returns {Array} of sanitized entities
+ */
 async function sanitizeEnrollmentsEntities(enrollments, entityType) {
     await updateAndSort("STUDENT", userComparator);
     await updateAndSort("COURSE", courseComparator);
@@ -334,6 +334,11 @@ function applyAction(entity, mapFrom, mapTo) {
     return ret;
 }
 
+/**
+ * get the mapFrom and mapTo properties of DB_TABLES
+ * @param {String} entityType. See ACCEPTED_ENTITIES.
+ * @returns {Object} with 2 properties: mapFrom and mapTo
+ */
 async function sanitizeTeacherCourseEntities(entities, entityType) {
     await updateAndSort("TEACHER", userComparator);
     await updateAndSort("COURSE", courseComparator);
@@ -415,10 +420,6 @@ function genInsertSqlQueries(entityType, entities) {
     return queries;
 }
 
-function genResponseError(nerror, error) {
-    return new ResponseError(MODULE_NAME, nerror, error);
-}
-
 /**
  * find the entity name from the path
  * @param {String} path. Es. /1/uploads/students
@@ -431,6 +432,11 @@ function getEntityNameFromPath(path) {
     const ret = ACCEPTED_ENTITIES.find((entity) => entity === possibleEntity);
 
     return ret;
+}
+
+
+function genResponseError(nerror, error) {
+    return new ResponseError(MODULE_NAME, nerror, error);
 }
 
 const privateFunc = { getEntityNameFromPath, genInsertSqlQueries };
