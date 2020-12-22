@@ -120,6 +120,7 @@ Only for tasks with an est. error greater than 35%
 
 - What lessons did you learn (both positive and negative) in this sprint?
   - POSITIVE
+    - initial discussion about page design improves the quality of the development process
   - NEGATIVE
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
