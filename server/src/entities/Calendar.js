@@ -9,14 +9,14 @@ class Calendar {
     /**
      * class constructor
      * @param {Number} calendarId 
-     * @param {Date|String} from
-     * @param {Date|String} to 
+     * @param {Date|String} startingDate
+     * @param {Date|String} endingDate 
      * @param {CalendaType} type 
      */
-    constructor(calendarId = -1, from = new Date(), to = new Date(), type = CalendarType.UNDEFINED) {
+    constructor(calendarId = -1, startingDate = new Date(), endingDate = new Date(), type = CalendarType.UNDEFINED) {
         this.calendarId = calendarId;
-        this.from = new Date(from);
-        this.to = new Date(to);
+        this.startingDate = new Date(startingDate);
+        this.endingDate = new Date(endingDate);
         this.type = type;
     }
 
@@ -38,14 +38,6 @@ class Calendar {
             text : 'SEMESTER',
             isAValidPeriod : true
         },
-        FIRST_SEMESTER : {
-            text : 'FIRST_SEMESTER',
-            isAValidPeriod : true
-        },
-        SECOND_SEMESTER : {
-            text : 'SECOND_SEMESTER',
-            isAValidPeriod : true
-        },
         HOLIDAYS : {
             text : 'HOLIDAYS',
             isAValidPeriod : false
@@ -64,8 +56,8 @@ class Calendar {
             text : calendar.type,
             isAValidPeriod : calendar.isAValidPeriod
         };
-        calendar.from = new Date(calendar.from);
-        calendar.to = new Date(calendar.to);
+        calendar.startingDate = new Date(calendar.startingDate);
+        calendar.endingDate = new Date(calendar.endingDate);
 
         return calendar;
     }
