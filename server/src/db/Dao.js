@@ -32,9 +32,9 @@ let db = null;
  * list of hints for DB queries
  */
 const DaoHint = {
-    NO_HINT, // I know nothing about it
-    NEW_VALUE, // insert new value
-    ALREADY_PRESENT, // update an existing value
+    NO_HINT : "NO_HINT", // I know nothing about it
+    NEW_VALUE : "NEW_VALUE", // insert new value
+    ALREADY_PRESENT : "ALREADY_PRESENT", // update an existing value
     // add more
 };
 
