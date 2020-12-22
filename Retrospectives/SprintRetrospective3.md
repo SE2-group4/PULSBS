@@ -132,19 +132,19 @@ Only for tasks with an est. error greater than 35%
     - initial discussion about page design improves the quality of the development process
     - sometimes asking colleagues for help can save a lot of time
   - NEGATIVE
-    - don' understimate a task that you are doing alone for first time  
+    - understimate a task that you are doing alone for first time
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
   - augment threshold for coverage (80%)
   - better discuss the design of the pages
-  - reduce code duplication
 
 - Which ones you were not able to achieve? Why?
-  - All improvements goals are achieved
-
+  - reduce code duplication: not done due to lack of time
+  
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
   - complete all committed stories
-  - reduce technical debt
-
+  - reduce technical debt to 10 min
+  - reduce code duplication to 4%
+  
 - One thing you are proud of as a Team!!
-
+  - we are keeping under control the complexity of the project as it is growing in size. Likewise the quality is not decreasing as the project grows.
