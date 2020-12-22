@@ -110,8 +110,8 @@ SPRINT RETROSPECTIVE 2 (TEAM 4)
   - Total hours estimated : 10 hours
   - Total hours spent : 10 hours 5 minutes
 - Technical Debt management:
-  - Total hours estimated : 25 hours
-  - Total hours spent : 10 hours
+  - Total hours estimated : 25 minutes
+  - Total hours spent : 10 minutes
   - Hours estimated for remediation by SonarQube : 1 hour
   - Hours spent on remediation : 10 minutes
   - debt ratio (as reported by SonarQube under "Measures-Maintainability") : 0.0%
