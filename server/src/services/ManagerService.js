@@ -165,6 +165,7 @@ async function getLecturesWithStats(lectures, { bookings, cancellations, attenda
  * get a student by his SSN or serialNumber
  * @param {*} param
  * @param {*} query
+ * @returns {User} user
  */
 exports.managerGetStudent = async function managerGetStudent({ managerId }, query = { ssn, serialNumber }) {
     if (query.serialNumber && query.ssn) {
@@ -194,6 +195,7 @@ exports.managerGetStudent = async function managerGetStudent({ managerId }, quer
  * get the list of students who got a contact with a specific student
  * @param {Object} param - managerId, serialNumber
  * @param {Object} query - date (optional)
+ * @returns {Array} array of Student
  */
 exports.managerGetReport = async function managerGetReport({ managerId, serialNumber }, { date }) {
     serialNumber = Number(serialNumber);
@@ -201,4 +203,28 @@ exports.managerGetReport = async function managerGetReport({ managerId, serialNu
     const student = new Student(serialNumber);
     const students = await db.managerGetReport(student, date);
     return students;
+};
+
+/**
+ * get the list of schedules
+ * @param {Object} param - managerId
+ * @param {Object} query
+ * @returns {Array} array of Schedule
+ */
+exports.managerGetSchedules = async function managerGetSchedules({ managerId }, {}) {
+    const schedules = await db.getSchedules();
+    return schedules;
+};
+
+/**
+ * update an existing schedule
+ * @param {Object} param - managerId, scheduleId, schedule
+ * @param {Object} query
+ * @returns {Array} array of Schedule
+ */
+exports.managerUpdateSchedule = async function managerUpdateSchedule({ managerId, scheduleId, schedule }, {}) {
+    scheduleId = Number(scheduleId);
+    schedule.scheduleId = scheduleId;
+    await db.updateSchedule(schedule);
+    return;
 };
