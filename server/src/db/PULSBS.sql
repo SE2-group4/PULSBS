@@ -269,5 +269,11 @@ INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod)
 
 -- << Triggers >>
 
+-- check overlapping lectures on insert or update of a lecture
+DROP TRIGGER IF EXISTS check_time_overlapping_before_insert_lecture;
+CREATE TRIGGER check_time_overlapping_before_insert_lecture BEFORE INSERT ON Lecture BEGIN SELECT CASE WHEN ( SELECT COUNT(*) <> 0 FROM Lecture WHERE DATETIME(NEW.startingDate) <= DATETIME(startingDate, '+' || duration || ' millisecond') AND DATETIME(NEW.startingDate, '+' || NEW.duration || ' millisecond') >= DATETIME(startingDate) ) THEN RAISE(ABORT, 'New lecture overlapped with an existing one') END IF; END;
+DROP TRIGGER IF EXISTS check_time_overlapping_before_update_lecture;
+CREATE TRIGGER check_time_overlapping_before_update_lecture BEFORE UPDATE ON Lecture BEGIN SELECT CASE WHEN ( SELECT COUNT(*) <> 0 FROM Lecture WHERE DATETIME(NEW.startingDate) <= DATETIME(startingDate, '+' || duration || ' millisecond') AND DATETIME(NEW.startingDate, '+' || NEW.duration || ' millisecond') >= DATETIME(startingDate) ) THEN RAISE(ABORT, 'New lecture overlapped with an existing one') END IF; END;
+
 DROP trigger IF EXISTS delete_bookings_after_delete_lecture;
 CREATE TRIGGER delete_bookings_after_delete_lecture BEFORE DELETE ON Lecture BEGIN INSERT INTO EmailQueue(sender, recipient, emailType, teacherId, studentId, courseId, courseName, lectureId, startingDate) SELECT TempLecture.email, User.email, "LESSON_CANCELLED", TempLecture.teacherId, Booking.studentId, TempLecture.courseId, TempLecture.description, TempLecture.lectureId, TempLecture.startingDate FROM Booking, (SELECT * FROM Lecture, Course, TeacherCourse, User WHERE Lecture.lectureId = OLD.lectureId AND Lecture.courseId = TeacherCourse.courseId AND TeacherCourse.teacherId = User.userId AND Course.courseId = Lecture.courseId) AS TempLecture, User WHERE Booking.lectureId = OLD.lectureId AND Booking.studentId = User.userId AND Booking.lectureId = TempLecture.lectureId; DELETE FROM Booking WHERE Booking.lectureId = OLD.lectureId; DELETE FROM WaitingList WHERE WaitingList.lectureId = OLD.lectureId; END;
