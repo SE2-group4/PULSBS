@@ -17,10 +17,6 @@ describe('System', function () {
         dao.openConn('testing.db', done);
     });
 
-    after(function(done) {
-        dao.close(done);
-    })
-
     describe('Unit tests', function() {
         Test_Dao();
         Test_Utils();
