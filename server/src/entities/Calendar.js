@@ -20,13 +20,36 @@ class Calendar {
         this.type = type;
     }
 
-    static CalendaType = {
-        UNDEFINED : 'UNDEFINED',
-        ACADEMIC_YEAR : 'ACADEMIC_YEAR',
-        SEMESTER : 'SEMESTER',
-        FIRST_SEMESTER : 'FIRST_SEMESTER',
-        SECOND_SEMESTER : 'SECOND_SEMESTER',
-        HOLIDAYS : 'HOLIDAYS'
+    /**
+     * for each type you can use:
+     * - text: a string description of this type
+     * - isAValidPeriod: if true, consider it as a whitelist, else as a blacklist
+     */
+    static CalendarType = {
+        UNDEFINED : {
+            text : 'UNDEFINED',
+            isAValidPeriod : false
+        },
+        ACADEMIC_YEAR : {
+            text : 'ACADEMIC_YEAR',
+            isAValidPeriod : true
+        },
+        SEMESTER : {
+            text : 'SEMESTER',
+            isAValidPeriod : true
+        },
+        FIRST_SEMESTER : {
+            text : 'FIRST_SEMESTER',
+            isAValidPeriod : true
+        },
+        SECOND_SEMESTER : {
+            text : 'SECOND_SEMESTER',
+            isAValidPeriod : true
+        },
+        HOLIDAYS : {
+            text : 'HOLIDAYS',
+            isAValidPeriod : false
+        }
         // add more here
     }
 
@@ -37,6 +60,10 @@ class Calendar {
      */
     static from(obj) {
         const calendar = Object.assign(new Calendar(), obj);
+        calendar.type = {
+            text : calendar.type,
+            isAValidPeriod : calendar.isAValidPeriod
+        };
         return calendar;
     }
 }
