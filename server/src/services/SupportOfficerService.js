@@ -5,27 +5,45 @@ const fs = require("fs");
 
 const errno = ResponseError.errno;
 const MODULE_NAME = "SupportOfficerService";
-const ACCEPTED_ENTITIES = ["STUDENTS", "COURSES", "TEACHERS", "SCHEDULES", "ENROLLMENTS"];
+const ACCEPTED_ENTITIES = ["STUDENTS", "COURSES", "TEACHERS", "SCHEDULES", "ENROLLMENTS", "TEACHERCOURSE"];
 const DB_TABLES = {
     STUDENTS: {
         name: "User",
-        fields: ["type", "firstName", "lastName", "email", "ssn", "birthday", "city", "serialNumber"],
-        jsonFields: ["type", "Name", "Surname", "OfficialEmail", "SSN", "Birthday", "City", "Id"],
+        mapTo: ["type", "firstName", "lastName", "email", "ssn", "birthday", "city", "serialNumber", "password"],
+        mapFrom: [
+            "type",
+            "Name",
+            "Surname",
+            "OfficialEmail",
+            "SSN",
+            "Birthday",
+            "City",
+            "Id",
+            { func: { name: getDefaultPassword, args: undefined } },
+        ],
     },
     TEACHERS: {
         name: "User",
-        fields: ["type", "firstName", "lastName", "email", "ssn", "serialNumber"],
-        jsonFields: ["type", "GivenName", "Surname", "OfficialEmail", "SSN", "Number"],
+        mapTo: ["type", "firstName", "lastName", "email", "ssn", "serialNumber", "password"],
+        mapFrom: [
+            "type",
+            "GivenName",
+            "Surname",
+            "OfficialEmail",
+            "SSN",
+            "Number",
+            { func: { name: getDefaultPassword, args: undefined } },
+        ],
     },
     COURSES: {
         name: "Course",
-        fields: ["description", "year", "code", "semester"],
-        jsonFields: ["Course", "Year", "Code", "Semester"],
+        mapTo: ["description", "year", "code", "semester"],
+        mapFrom: ["Course", "Year", "Code", "Semester"],
     },
     TEACHERCOURSE: {
         name: "TeacherCourse",
-        fields: ["teacherId", "courseId", "isValid"],
-        jsonFields: [
+        mapTo: ["teacherId", "courseId", "isValid"],
+        mapFrom: [
             { func: { name: getTeacherIdFromSerialNumber, args: ["Number"] } },
             { func: { name: getCourseIdFromCode, args: ["Code"] } },
             { func: { name: getIsValid, args: undefined } },
@@ -33,8 +51,8 @@ const DB_TABLES = {
     },
     ENROLLMENTS: {
         name: "Enrollment",
-        fields: ["studentId", "courseId", "year"],
-        jsonFields: [
+        mapTo: ["studentId", "courseId", "year"],
+        mapFrom: [
             { func: { name: getStudentIdFromSerialNumber, args: ["Student"] } },
             { func: { name: getCourseIdFromCode, args: ["Code"] } },
             { func: { name: getAAyear, args: undefined } },
@@ -42,8 +60,8 @@ const DB_TABLES = {
     },
     SCHEDULES: {
         name: "Schedule",
-        fields: ["code", "AAyear", "semester", "roomId", "seats", "dayOfWeek", "startingTime", "endingTime"],
-        jsonFields: [
+        mapTo: ["code", "AAyear", "semester", "roomId", "seats", "dayOfWeek", "startingTime", "endingTime"],
+        mapFrom: [
             "Code",
             { func: { name: getAAyear, args: undefined } },
             { func: { name: getSemester, args: undefined } },
@@ -56,6 +74,7 @@ const DB_TABLES = {
     },
 };
 
+// TODO: fix race conditions
 let allStudentsWithSN = null;
 let allTeachersWithSN = null;
 let allCoursesWithCode = null;
@@ -81,52 +100,76 @@ const binarySearch = (array, target, propertyName) => {
     return -1;
 };
 
+/**
+ * save the entities in the db
+ * @param {Array} of Objects. See ACCEPTED_ENTITIES for a list of accepted entities.
+ * @param {String} relative path. Es. /1/uploads/students
+ * @returns {Integer} 200 in case of success. Otherwise it will throw a ResponseError
+ */
 async function manageEntitiesUpload(entities, path) {
-    const entityType = getEntityNameFromPath(path);
+    let entityType = getEntityNameFromPath(path);
     if (entityType === undefined) {
-        throw genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: path});
+        throw genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: path });
     }
 
-    const wellFormedEntitiesArray = await mapEntities(entityType, entities);
+    let done = false;
 
-    if (wellFormedEntitiesArray.length > 0) {
-        await Promise.all(
-            wellFormedEntitiesArray.map(async (wellFormedEntities) => {
-                const sqlQueries = genSqlQueries("INSERT", entityType, wellFormedEntities);
-                await runBatchQueries(sqlQueries);
-            })
-        );
+    while(!done) {
+        console.log(entityType);
+        console.time("mapping");
+        const sanitizedEntities = await sanitizeEntities(entities, entityType);
+        console.timeEnd("mapping");
+
+        console.time("query");
+        const sqlQueries = genSqlQueries("INSERT", entityType, sanitizedEntities);
+        console.timeEnd("query");
+
+        console.log(sqlQueries);
+        console.time("run");
+        await runBatchQueries(sqlQueries);
+        console.timeEnd("run");
+
+        if(!needAdditionalSteps(entityType)) {
+            done = true;
+        } else {
+            entityType = "TEACHERCOURSE";
+        }
     }
 
     return 200;
 }
 
+function needAdditionalSteps(step) {
+    if(step === "COURSES") {
+        return "TEACHERCOURSE";
+    }
+
+    return false;
+}
+
 /**
  * Transform the input entities in a suitable form
  */
-async function mapEntities(entityType, entities) {
+async function sanitizeEntities(entities, entityType) {
     switch (entityType) {
         case "STUDENTS": {
-            return [mapUserEntities(entities, entityType)];
+            return sanitizeUserEntities(entities, entityType);
         }
         case "TEACHERS": {
-            return [mapUserEntities(entities, entityType)];
+            return sanitizeUserEntities(entities, entityType);
         }
         case "COURSES": {
-            const courseEntities = mapGenericEntities(entities, entityType);
-            const sqlQueries = genSqlQueries("INSERT", entityType, courseEntities);
-            await runBatchQueries(sqlQueries);
-
-            const teacherCourseEntities = await mapTeacherCourseEntities(entities, "TEACHERCOURSE");
-            const sqlQueries2 = genSqlQueries("INSERT", "TEACHERCOURSE", teacherCourseEntities);
-            await runBatchQueries(sqlQueries2);
-            return [];
+            return sanitizeGenericEntities(entities, entityType);
         }
         case "ENROLLMENTS": {
-            return [await mapEnrollmentEntities(entities, entityType)];
+            return await sanitizeEnrollmentsEntities(entities, entityType);
         }
         case "SCHEDULES": {
-            return [mapGenericEntities(entities, entityType)];
+            return sanitizeGenericEntities(entities, entityType);
+        }
+        case "TEACHERCOURSE": {
+            console.log("OK");
+            return await sanitizeTeacherCourseEntities(entities, entityType);
         }
     }
 }
@@ -135,6 +178,7 @@ function userComparator(a, b) {
     if (a.serialNumber < b.serialNumber) {
         return -1;
     }
+
     if (a.serialNumber > b.serialNumber) {
         return 1;
     }
@@ -185,6 +229,10 @@ function getIsValid() {
     return 1;
 }
 
+function getDefaultPassword() {
+    return "foo";
+}
+
 function getAAyear() {
     return 2020;
 }
@@ -203,58 +251,82 @@ function getEndingTime(orario) {
     return tokens[1];
 }
 
-function mapUserEntities(entities, entityType) {
-    const { tableFields, jsonFields } = getTableAndJsonFields(entityType);
+function sanitizeUserEntities(users, entityType) {
+    const { mapFrom, mapTo } = getFieldsMapping(entityType);
 
-    return entities.map((e) => {
-        e.type = entityType.slice(0, entityType.length - 1);
+    return users.map((u) => {
+        // add to a user the field type. In our case it would be either TEACHER or STUDENT
+        // we slice to take out the ending s. See ACCEPTED_ENTITIES
+        u.type = entityType.slice(0, entityType.length - 1);
 
-        return applyAction(e, jsonFields, tableFields);
+        return applyAction(u, mapFrom, mapTo);
     });
 }
 
-function getTableAndJsonFields(entityType) {
-    const tableFields = DB_TABLES[entityType].fields;
-    const jsonFields = DB_TABLES[entityType].jsonFields;
+/**
+ * get the mapFrom and mapTo properties of DB_TABLES
+ * @param {String} entityType. See ACCEPTED_ENTITIES.
+ * @returns {Object} with 2 properties: mapFrom and mapTo
+ */
+function getFieldsMapping(entityType) {
+    const mapFrom = DB_TABLES[entityType].mapFrom;
+    const mapTo = DB_TABLES[entityType].mapTo;
 
-    return { tableFields, jsonFields };
+    return { mapFrom, mapTo };
 }
 
-function mapGenericEntities(entities, entityType) {
-    const { tableFields, jsonFields } = getTableAndJsonFields(entityType);
+function sanitizeGenericEntities(entities, entityType) {
+    const { mapFrom, mapTo } = getFieldsMapping(entityType);
 
-    return entities.map((entity) => applyAction(entity, jsonFields, tableFields));
+    return entities.map((entity) => applyAction(entity, mapFrom, mapTo));
 }
 
-async function mapEnrollmentEntities(entities, entityType) {
-    allStudentsWithSN = await db.getAllStudents();
-    allCoursesWithCode = await db.getAllCourses();
-
-    allStudentsWithSN = allStudentsWithSN.filter((student) => student.serialNumber !== null);
-    allCoursesWithCode = allCoursesWithCode.filter((course) => course.code !== null);
-
-    allStudentsWithSN.sort(userComparator);
-    allCoursesWithCode.sort(courseComparator);
-
-    const { tableFields, jsonFields } = getTableAndJsonFields(entityType);
-    return entities.map((entity) => applyAction(entity, jsonFields, tableFields));
+async function updateAndSort(who, comparator) {
+    switch(who) {
+        case "STUDENT": {
+            allStudentsWithSN = await db.getAllStudents();
+            allStudentsWithSN = allStudentsWithSN.filter((student) => student.serialNumber !== null);
+            allStudentsWithSN.sort(comparator);
+            break;
+        };
+        case "TEACHER": {
+            allTeachersWithSN = await db.getAllTeachers();
+            allTeachersWithSN = allTeachersWithSN.filter((teacher) => teacher.serialNumber !== null);
+            allTeachersWithSN.sort(comparator);
+            break;
+        };
+        case "COURSE": {
+            allCoursesWithCode = await db.getAllCourses();
+            allCoursesWithCode = allCoursesWithCode.filter((course) => course.code !== null);
+            allCoursesWithCode.sort(comparator);
+            break;
+        };
+    }
 }
 
-function applyAction(entity, fromFields, toFields) {
+async function sanitizeEnrollmentsEntities(enrollments, entityType) {
+    await updateAndSort("STUDENT", userComparator);
+    await updateAndSort("COURSE", courseComparator);
+
+    const { mapFrom, mapTo} = getFieldsMapping(entityType);
+    return enrollments.map((entity) => applyAction(entity, mapFrom, mapTo));
+}
+
+function applyAction(entity, mapFrom, mapTo) {
     const ret = {};
 
-    for (let i = 0; i < fromFields.length; i++) {
-        if (isValueOfType("string", fromFields[i])) {
-            ret[toFields[i]] = entity[fromFields[i]];
+    for (let i = 0; i < mapFrom.length; i++) {
+        if (isValueOfType("string", mapFrom[i])) {
+            ret[mapTo[i]] = entity[mapFrom[i]];
         } else {
-            const func = fromFields[i].func.name;
-            let args = fromFields[i].func.args;
+            const func = mapFrom[i].func.name;
+            let args = mapFrom[i].func.args;
 
             if (args === undefined) {
-                ret[toFields[i]] = func();
+                ret[mapTo[i]] = func();
             } else {
                 args = args.map((arg) => entity[arg]);
-                ret[toFields[i]] = func(...args);
+                ret[mapTo[i]] = func(...args);
             }
         }
     }
@@ -262,23 +334,17 @@ function applyAction(entity, fromFields, toFields) {
     return ret;
 }
 
-async function mapTeacherCourseEntities(entities, entityType) {
-    allTeachersWithSN = await db.getAllTeachers();
-    allCoursesWithCode = await db.getAllCourses();
+async function sanitizeTeacherCourseEntities(entities, entityType) {
+    await updateAndSort("TEACHER", userComparator);
+    await updateAndSort("COURSE", courseComparator);
 
-    allTeachersWithSN = allTeachersWithSN.filter((teacher) => teacher.serialNumber !== null);
-    allCoursesWithCode = allCoursesWithCode.filter((course) => course.code !== null);
-
-    allTeachersWithSN.sort(userComparator);
-    allCoursesWithCode.sort(courseComparator);
-
-    const { tableFields, jsonFields } = getTableAndJsonFields(entityType);
+    const { mapFrom, mapTo} = getFieldsMapping(entityType);
 
     return entities.map((entity) => {
-        let a = {};
-        a.Number = entity.Teacher;
-        a.Code = entity.Code;
-        return applyAction(a, jsonFields, tableFields);
+        let tc = {};
+        tc.Number = entity.Teacher;
+        tc.Code = entity.Code;
+        return applyAction(tc, mapFrom, mapTo);
     });
 }
 
@@ -290,7 +356,7 @@ function logToFile(queries) {
         console.log("Now > queries.log");
     });
 
-    fs.appendFile("./queries.log", queries, function (err) {
+    fs.appendFile("./queries.log", queries.join("\n"), function (err) {
         if (err) return console.log(err);
         console.log("Queries log > queries.log");
     });
@@ -306,16 +372,19 @@ async function runBatchQueries(sqlQueries) {
     }
 }
 
+/**
+ * transform a db row into a specific type of user
+ * @param {Object} row
+ * @returns {User|Teacher|Manager|Support} specific user
+ */
 function genSqlQueries(queryType, entityType, entities, maxQuery) {
     switch (queryType) {
         case "INSERT": {
             const queriesArray = genInsertSqlQueries(entityType, entities);
-
-            let queriesString = queriesArray.join(";\n");
-            queriesString = queriesString + ";";
-
-            return queriesString;
+            return queriesArray;
         }
+        case "DELETE":
+        case "UPDATE":
         default: {
             console.log(`${queryType} not implemented in genSqlQueries`);
             break;
@@ -323,9 +392,15 @@ function genSqlQueries(queryType, entityType, entities, maxQuery) {
     }
 }
 
+/**
+ * create an array of "insert sql query" given an entityType and a set of entities
+ * @param {String} see ACCEPTED_ENTITIES
+ * @param {Array} of Object
+ * @returns {Array} of string 
+ */
 function genInsertSqlQueries(entityType, entities) {
     const table = DB_TABLES[entityType];
-    const queryTemplate = `INSERT INTO ${table.name}(${table.fields.join(", ")}) VALUES`;
+    const queryTemplate = `INSERT INTO ${table.name}(${table.mapTo.join(", ")}) VALUES`;
 
     const queries = entities.map(
         (entity) =>
@@ -334,7 +409,7 @@ function genInsertSqlQueries(entityType, entities) {
             Object.values(entity)
                 .map((field) => `"${field}"`)
                 .join(", ") +
-            ")"
+            ");"
     );
 
     return queries;
@@ -344,6 +419,11 @@ function genResponseError(nerror, error) {
     return new ResponseError(MODULE_NAME, nerror, error);
 }
 
+/**
+ * find the entity name from the path
+ * @param {String} path. Es. /1/uploads/students
+ * @returns {String | undefined}. Returns STUDENTS
+ */
 function getEntityNameFromPath(path) {
     const tokens = path.split("/");
     const possibleEntity = tokens[tokens.length - 1].toUpperCase();
@@ -352,6 +432,7 @@ function getEntityNameFromPath(path) {
 
     return ret;
 }
+
 const privateFunc = { getEntityNameFromPath, genInsertSqlQueries };
 
 module.exports = { manageEntitiesUpload };

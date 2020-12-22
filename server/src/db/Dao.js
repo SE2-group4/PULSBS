@@ -5,7 +5,7 @@
  */
 "use strict";
 
-const sqlite = require("sqlite3");
+const sqlite = require("sqlite3").verbose();
 const moment = require("moment");
 const path = require("path");
 
@@ -30,7 +30,7 @@ let db = null;
 /**
  * transform a db row into a specific type of user
  * @param {Object} row
- * @returns {User|Teacher|Manager|Support} specific user 
+ * @returns {User|Teacher|Manager|Support} specific user
  */
 const _transformUser = function (row) {
     let retUser;
@@ -53,7 +53,7 @@ const _transformUser = function (row) {
             error = StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_TYPE, "unexpected user type");
     }
     return { retUser, error };
-}
+};
 /*
 let db = new sqlite.Database(dbpath, (err) => {
     if (err) throw err;
@@ -75,6 +75,12 @@ const openConn = function openConn(dbpath = "./PULSBS.db") {
     });
 
     db.get("PRAGMA foreign_keys = ON");
+    db.on("profile", (query, time) => {
+        query = query.replace(/ +(?= )/g, "");
+        //console.log("QUERY EXECUTED");
+        //console.log(query);
+        //console.log("TIME: ", time);
+    });
 
     return;
 };
@@ -158,7 +164,8 @@ const addBooking = function (student, lecture) {
 
         db.run(sql, [student.studentId, lecture.lectureId, Booking.BookingType.BOOKED], function (err) {
             if (err) {
-                if (err.errno == 19) { // already present
+                if (err.errno == 19) {
+                    // already present
                     // err = StandardErr.new("Dao", StandardErr.errno.ALREADY_PRESENT, "The lecture was already booked");
                     const sql = `UPDATE Booking SET status = ? WHERE studentId = ? AND lectureId = ?`;
                     db.run(sql, [Booking.BookingType.BOOKED, student.studentId, lecture.lectureId], function (err) {
@@ -167,8 +174,15 @@ const addBooking = function (student, lecture) {
                             return;
                         }
 
-                        if(this.changes == 0) {
-                            reject(new StandardErr('Dao', StandardErr.errno.ALREADY_PRESENT, 'You have already booked this lecture', 404));
+                        if (this.changes == 0) {
+                            reject(
+                                new StandardErr(
+                                    "Dao",
+                                    StandardErr.errno.ALREADY_PRESENT,
+                                    "You have already booked this lecture",
+                                    404
+                                )
+                            );
                             return;
                         }
 
@@ -265,7 +279,7 @@ exports.getCoursesByStudent = getCoursesByStudent;
 
 // TODO: confusing function.
 // should consider refactor this function. It should return all lectures by CourseId.
-// pass a date string if you want to apply a filter. Delete getLecturesByCourseId after refactor. 
+// pass a date string if you want to apply a filter. Delete getLecturesByCourseId after refactor.
 /**
  * get a list of lectures related to a specific course
  * only future lectures are considered
@@ -851,7 +865,7 @@ exports.checkLectureAndCourse = checkLectureAndCourse;
 
 /**
  * get all courses
- * @returns {Array} of Course 
+ * @returns {Array} of Course
  */
 const getAllCourses = function () {
     return new Promise((resolve, reject) => {
@@ -861,14 +875,14 @@ const getAllCourses = function () {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
-            };
+            }
 
             const courses = [];
-            rows.forEach(course => courses.push(Course.from(course)));
+            rows.forEach((course) => courses.push(Course.from(course)));
             resolve(courses);
         });
     });
-}
+};
 exports.getAllCourses = getAllCourses;
 
 /**
@@ -881,7 +895,7 @@ const studentPushQueue = function (student, lecture) {
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO WaitingList(studentId, lectureId, date) VALUES (?, ?, ?)`;
 
-        db.run(sql, [student.studentId, lecture.lectureId, (new Date()).toISOString], function (err) {
+        db.run(sql, [student.studentId, lecture.lectureId, new Date().toISOString], function (err) {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
@@ -890,7 +904,7 @@ const studentPushQueue = function (student, lecture) {
             resolve(this.changes);
         });
     });
-}
+};
 exports.studentPushQueue = studentPushQueue;
 
 /**
@@ -911,7 +925,7 @@ const studentPopQueue = function (lecture) {
                 return;
             }
             if (!row) {
-                reject(new StandardErr('Dao', StandardErr.errno.NOT_EXISTS, 'No student found', 404));
+                reject(new StandardErr("Dao", StandardErr.errno.NOT_EXISTS, "No student found", 404));
                 return;
             }
 
@@ -924,7 +938,9 @@ const studentPopQueue = function (lecture) {
                     return;
                 }
                 if (this.changes != 1) {
-                    reject(new StandardErr('Dao', StandardErr.errno.NOT_EXISTS, 'Cannot delete from waiting list', 500));
+                    reject(
+                        new StandardErr("Dao", StandardErr.errno.NOT_EXISTS, "Cannot delete from waiting list", 500)
+                    );
                     return;
                 }
 
@@ -932,14 +948,14 @@ const studentPopQueue = function (lecture) {
             });
         });
     });
-}
+};
 exports.studentPopQueue = studentPopQueue;
 
 /**
  * get a list of students and teachers that a specific student has been in contact to
  * from the specificied date to the previous or in the next 14 days
  * @param {Student} student - studentId
- * @param {Date} date 
+ * @param {Date} date
  * @returns {Promise} promise
  */
 const managerGetReport = function (student, date) {
@@ -968,33 +984,46 @@ const managerGetReport = function (student, date) {
 
         date = date ? new Date(date) : new Date();
 
-        db.all(sqlStudents, [Booking.BookingType.PRESENT, student.studentId, Booking.BookingType.PRESENT, date.toISOString(), date.toISOString()], (err, rows) => {
-            if (err) {
-                reject(StandardErr.fromDao(err));
-                return;
-            }
-            let students = rows.map((row) => User.from(row));
-            students = students.filter((currStudent) => currStudent.userId != student.userId); // not the student passed as parametre
-
-            db.all(sqlTeachers, [student.studentId, Booking.BookingType.PRESENT, date.toISOString(), date.toISOString()], (err, rows) => {
+        db.all(
+            sqlStudents,
+            [
+                Booking.BookingType.PRESENT,
+                student.studentId,
+                Booking.BookingType.PRESENT,
+                date.toISOString(),
+                date.toISOString(),
+            ],
+            (err, rows) => {
                 if (err) {
                     reject(StandardErr.fromDao(err));
                     return;
                 }
-                const teachers = rows.map((row) => User.from(row));
-                const users = students.concat(teachers);
+                let students = rows.map((row) => User.from(row));
+                students = students.filter((currStudent) => currStudent.userId != student.userId); // not the student passed as parametre
 
-                resolve(users);
-            });
+                db.all(
+                    sqlTeachers,
+                    [student.studentId, Booking.BookingType.PRESENT, date.toISOString(), date.toISOString()],
+                    (err, rows) => {
+                        if (err) {
+                            reject(StandardErr.fromDao(err));
+                            return;
+                        }
+                        const teachers = rows.map((row) => User.from(row));
+                        const users = students.concat(teachers);
 
-        });
+                        resolve(users);
+                    }
+                );
+            }
+        );
     });
-}
+};
 exports.managerGetReport = managerGetReport;
 
 /**
  * get a user by its ssn
- * @param {User|Teacher|Student|Manager|Support} user 
+ * @param {User|Teacher|Student|Manager|Support} user
  */
 const getUserBySsn = function (user) {
     let ssn = user.ssn;
@@ -1021,7 +1050,7 @@ exports.getUserBySsn = getUserBySsn;
 
 /**
  * get the class from a lecture
- * @param {Lecture} lecture 
+ * @param {Lecture} lecture
  * @retuns {Promise} promise
  */
 const getClassByLecture = function (lecture) {
@@ -1037,9 +1066,9 @@ const getClassByLecture = function (lecture) {
             }
 
             resolve(Class.from(row));
-        })
+        });
     });
-}
+};
 exports.getClassByLecture = getClassByLecture;
 
 // TODO not tested
@@ -1050,21 +1079,18 @@ exports.getClassByLecture = getClassByLecture;
  */
 const execBatch = function (queries) {
     return new Promise((resolve, reject) => {
-        db.exec(queries, (err) => {
-            if (err) {
-                reject(err);
-                return;
-            };
-
-            resolve();
-        });
+        db.run("BEGIN TRANSACTION;");
+        queries.forEach((query) => db.run(query, function (error) {
+            if(error) reject(error);
+        }));
+        db.run("END TRANSACTION;", () => resolve());
     });
-}
+};
 exports.execBatch = execBatch;
 
 /**
- * get course given its code 
- * @param {Integer} code 
+ * get course given its code
+ * @param {Integer} code
  */
 const getCourseByCode = function (code) {
     return new Promise((resolve, reject) => {
@@ -1082,8 +1108,8 @@ const getCourseByCode = function (code) {
 exports.getCourseByCode = getCourseByCode;
 
 /**
- * get a student given his serial number 
- * @param {Integer} serialNumber 
+ * get a student given his serial number
+ * @param {Integer} serialNumber
  */
 const getStudentBySN = function (serialNumber) {
     return new Promise((resolve, reject) => {
@@ -1102,7 +1128,7 @@ exports.getStudentBySN = getStudentBySN;
 
 /**
  * get all students
- * @returns {Array} of Student 
+ * @returns {Array} of Student
  */
 const getAllStudents = function () {
     return new Promise((resolve, reject) => {
@@ -1113,17 +1139,17 @@ const getAllStudents = function () {
                 return;
             }
 
-            const res = [];
-            rows.forEach(row => res.push(Student.from(row)));
-            resolve(res);
+            const students = [];
+            rows.forEach((row) => students.push(Student.from(row)));
+            resolve(students);
         });
     });
 };
 exports.getAllStudents = getAllStudents;
 
 /**
- * get all teachers 
- * @returns {Array} of Teacher 
+ * get all teachers
+ * @returns {Array} of Teacher
  */
 const getAllTeachers = function () {
     return new Promise((resolve, reject) => {
@@ -1135,14 +1161,14 @@ const getAllTeachers = function () {
             }
 
             const res = [];
-            rows.forEach(row => res.push(Teacher.from(row)));
+            rows.forEach((row) => res.push(Teacher.from(row)));
             resolve(res);
         });
     });
 };
 exports.getAllTeachers = getAllTeachers;
 /**
- * 
+ *
  * @param {Student} student - studentId needed
  * @param {Object} periodOfTime - {Date} from (optional), {Date} to (optional)
  */
@@ -1176,20 +1202,17 @@ const getWaitingsByStudentAndPeriodOfTime = function (student, periodOfTime = {}
             resolve(lectures);
         });
     });
-}
+};
 exports.getWaitingsByStudentAndPeriodOfTime = getWaitingsByStudentAndPeriodOfTime;
 
 /**
  * check how many free seats a lecture has
- * @param {Lecture} lecture 
+ * @param {Lecture} lecture
  * @returns {Number} number of free seats
  */
 const lectureHasFreeSeats = function (lecture) {
     return new Promise((resolve, reject) => {
-        Promise.all([
-            getNumBookingsOfLecture(lecture),
-            getClassByLecture(lecture)
-        ])
+        Promise.all([getNumBookingsOfLecture(lecture), getClassByLecture(lecture)])
             .then((values) => {
                 const currBookings = Number(values[0]);
                 const classCapacity = Number(values[1].capacity);
@@ -1198,5 +1221,5 @@ const lectureHasFreeSeats = function (lecture) {
             })
             .catch(reject);
     });
-}
+};
 exports.lectureHasFreeSeats = lectureHasFreeSeats;
