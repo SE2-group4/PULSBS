@@ -1313,12 +1313,117 @@ const _generateDatesBySchedule = function(schedule) {
     return new Promise((resolve, reject) => {
         this._getCalendars()
             .then((calendars) => {
+                // adapt for moment usage
+                calendars = calendars.map(c => {
+                    c.startingDate = moment(c.startingDate);
+                    c.endingDate = moment(c.endingDate);
+                    return c;
+                });
+
+                // find the actual academic year
+                const currentAcademicYear = this._getCurrentAcademicYear();
+                const actualAcademicYearConstraint = calendars
+                    .filter(c => c.type === Calendar.CalendarType.ACADEMIC_YEAR)
+                    .filter(c => c.from.year() === currentAcademicYear)[0];
+
+                // find the actual semester
+                const actualSemesterConstraint = calendars
+                    .filter(c => c.type === Calendar.CalendarType.SEMESTER)
+                    .filter(c => currentDay.isBetween(c.startingDate, c.endingDate, moment.unitOfTime.StartOf('day'), "[]"))[0]; // include limit dates
+
+                if(!(actualAcademicYearConstraint && actualSemesterConstraint)) {
+                    reject(StandardErr.new('Dao', StandardErr.errno.NOT_EXISTS, 'Academic year or semester not defined, unable to generate dates', 500));
+                    return;
+                }
+
+                // define the list of constraints
+                const constraints = [];
+                constraints.push(actualAcademicYearConstraint);
+                constraints.push(actualSemesterConstraint);
+                constraints.push(calendars.filter(c => c.type !== Calendar.CalendarType.ACADEMIC_YEAR && c.type !== Calendar.CalendarType.SEMESTER));
+
+                const validDates = [];
                 
+                // find the initial date from today
+                let nextDate = moment().day(schedule.dayOfWeek).startOf('day').add(7, 'days'); // not today, but it starts from the next week
+                do {
+                    // check constraints
+                    const results = constraints.map(c => nextDate.isBetween(c.startingDate, c.endingDate, moment.unitOfTime.startOf('day'), '[]') === c.type.isAValidPeriod); // include limit dates
+
+                    if(!(results[0] && results[1])) // academic year or semester have been broken
+                        break;
+
+                    if(results.any(r => r === false)) // if all constraints have been passed
+                        validDates.push(nextDate);
+                    
+                    // generate next date
+                    nextDate = nextDate.add(7, 'days');
+                } while(true);
+
+                resolve(validDates);
             })
             .catch(reject);
     });
 }
 exports._generateDatesBySchedule = _generateDatesBySchedule; // export needed for testing
+
+/**
+ * remove all lectures given a prototype
+ * @param {Lecture} lecturePrototype - courseId, startingDate, duration needed
+ * @returns {Promise} promise of int
+ */
+const _deleteLecturesByPrototype = function(lecturePrototype) {
+    return new Promise((resolve, reject) => {
+        const sql = `DELETE FROM Lecture
+            WHERE courseId = ? AND DATETIME(startingDate) = ? AND duration = ?`;
+        db.run(sql, [lecturePrototype.courseId, lecturePrototype.startingDate.toISOString(), lecturePrototype.duration], function(err) {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+            resolve(this.changes);
+        });
+    });
+}
+exports._deleteLecturesByPrototype = _deleteLecturesByPrototype; // export needed for testing
+
+/**
+ * generate a list of lectures and insert them into the DB
+ * @param {Schedule} schedule 
+ * @param {Lecture} lecturePrototype
+ * @returns {Promise} promise of void
+ */
+const _addLecturesByScheduleAndPrototype = function(schedule, lecturePrototype) {
+    return new Promise((resolve, reject) => {
+        // generate the list of dates of all lectures
+        const dates = this._generateDatesBySchedule(schedule);
+        const actualStartingDates = dates.map(date => date.add(lecturePrototype.startingDate));
+        const actualBookingDeadlines = dates.map(date => date.add(lecturePrototype.bookingDeadline));
+
+        // now, let's go to generate every single and specific lecture
+        const promises = [];
+        for(let i=0; i<dates.length; i++) {
+            const currLecture = Lecture.from(lecturePrototype); // clone
+
+            // set specific values for this lecture
+            currLecture.startingDate = actualStartingDates[i];
+            currLecture.bookingDeadline = actualBookingDeadlines[i];
+
+            promises.push(this.addLecture(lecture));
+        }
+
+        Promise.all(promises)
+            .then((values) => {
+                if(values.some(e => e === 0)) { // if a lecture has not been properly inserted
+                    reject(StardardErr.new('Dao', StardardErr.errno.FAILURE, 'Unable to insert lectures', 500));
+                    return;
+                }
+                resolve();
+            })
+            .catch(reject);
+    });         
+}
+exports._addLecturesByScheduleAndPrototype = _addLecturesByScheduleAndPrototype; // export needed for testing
 
 /**
  * generate a list of lecture given a schedule
@@ -1348,34 +1453,31 @@ const _generateLecturesBySchedule = function(schedule, hint = DaoHint.NO_HINT) {
                 }
                 const duration = actualEndingTime.subtract(actualStartingTime);
                 const actualDuration = duration.milliseconds(); // in milliseconds
-
-                // generate the list of dates of all lectures
-                const dates = this._generateDatesBySchedule(schedule);
-                const actualStartingDates = dates.map(date => date.add(actualStartingTime));
                 const bookingDeadlineTime = moment.duration("23:00:00").subtract(1, 'day'); // by default, the booking deadline is the day before al 23:00
-                const actualBookingDeadlines = dates.map(date => date.add(bookingDeadlineTime));
 
-                // now, let's go to generate every single and specific lecture
-                const promises = [];
-                for(let i=0; i<dates.length; i++) {
-                    const currLecture = new Lecture();
-                    currLecture.courseId = actualCourse.courseId;
-                    currLecture.classId = actualCourse.courseId;
-                    currLecture.startingDate = actualStartingDates[i];
-                    currLecture.duration = actualDuration;
-                    currLecture.bookingDeadline = actualBookingDeadlines[i];
-                    currLecture.delivery = Lecture.DeliveryType.PRESENCE; // by default, a lecture will be delivered in presence
-
-                    promises.push(this.addLecture(lecture));
+                const lecturePrototype = new Lecture();
+                lecturePrototype.courseId = actualCourse.courseId;
+                lecturePrototype.classId = actualClass.classId;
+                lecturePrototype.startingDate = actualStartingTime;
+                lecturePrototype.duration = actualDuration;
+                lecturePrototype.bookingDeadline = bookingDeadlineTime;
+                lecturePrototype.delivery = Lecture.DeliveryType.PRESENCE;
+                try {
+                    if(hint !== DaoHint.NEW_VALUE)
+                        await this._deleteLecturesByPrototype(lecturePrototype);
+                    await this._addLecturesByScheduleAndPrototype(schedule, lecturePrototype);
+                } catch(err) {
+                    // maybe the hint was wrong
+                    // it can retry a maximum of 1 times
+                    try {
+                        await this._deleteLecturesByPrototype(lecturePrototype);
+                        await this._addLecturesByScheduleAndPrototype(schedule, lecturePrototype);
+                    } catch(err) {
+                        reject(err);
+                        return;
+                    }
                 }
-
-                Promise.all(promises)
-                    .then((values) => {
-                        if(values.some(e => e === 0 )) { // if a lecture has not been inserted
-                            
-                        }
-                    })
-                    .catch(reject);
+                resolve();
             });
     });
 }
