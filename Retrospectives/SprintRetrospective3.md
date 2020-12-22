@@ -11,18 +11,22 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 - Unit Tests passing : 242/252
 - Code review completed : 3h / 5h
 - Code present on VCS : 9625 lines
-- End-to-End tests performed : 417/418
+- End-to-End tests performed : 131/132
 
 ### Detailed statistics DA COMPLETARE
 
 | story | points | task | time est | time act | Assignee               | est error > 35%      | status |
 | ----- | ------ | ---- | -------- | -------- | ---------------------- | -------------------- | ------ |
-| 11    | 13     |      |          |          |                        |                      | done   |
+| 11    | 13     |      |          |          |                        |                      | not completed |
 | ~     |        | 119  | 1h 0m    | 1h 5m    | Xia                    | 1,08                 | done   |
 | ~     |        | 120  | 1h 0m    | 1h 35m   | Xia                    | 1,58                 | done   |
 | ~     |        | 121  | 0h 20m   | 1h 15m   | Gastaldi               | 3,75                 | done   |
 | ~     |        | 124  | 0h 45m   | 1h 0m    | Xia                    | 1,33                 | done   |
 | ~     |        | 125  | 0h 45m   | 0h 50m   | Xia                    | 1,11                 | done   |
+| ~     |        | 117  | 2h 30m   | 4h 30m   | Pisanello              | 1,80                 | not completed |
+| ~     |        | 118  | 0h 30m   | 0h 30m   | Pisanello              | 1,00                 | not completed |
+| ~     |        | 122  | 0h 30m   | 0h 0m    | Pisanello + Appendini  | 0,00                 | not started  |
+| ~     |        | 123  | 0h 15m   | 0h 0m    | Pisanello + Appendini  | 0,00                 | not started  |
 | 12    | 8      |      |          |          |                        |                      |        |
 | ~     |        | 126  | 2h 0m    | 3h 20m   | Appendini              | 1,67                 | done   |
 | ~     |        | 127  | 0h 45m   | 1h 40m   | Appendini              | 2,22                 | done   |
@@ -60,7 +64,7 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 | ~     |        | 164  | 2h 0m    | 1h 15m   | Ceccarelli + Pisanello | 0,63                 | done   |
 | ~     |        | 165  | 1h 0m    | 1h 0m    | Gastaldi               | 1,00                 | done   |
 | ~     |        | 166  | 1h 00m   | 1h 15m   | Gastaldi               | 1,25                 | done   |
-| ~     |        | 167  | 0h 30m   | 0h 0m    | Ceccarelli             | 0,00                 | ?      |
+| ~     |        | 167  | 0h 30m   | 0h 0m    | Ceccarelli             | 0,00                 | not started |
 | ~     |        | 168  | 1h 0m    | 1h 20m   | Gastaldi               | 1,33                 | done   |
 | ~     |        | 169  | 1h 0m    | 1h 0m    | Gastaldi               | 1,00                 | done   |
 | 0     |        | 138  | 6h 30m   | 5h 0m    | All (Ceccarelli)       | 0,77                 | done   |
@@ -69,6 +73,7 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 | 0     |        | 153  | 5h 0m    | 3h 0m    | All (Ceccarelli)       | 0,60                 | done   |
 | 0     |        | 170  | 2h 30m   | 1h 40m   | All (Ceccarelli)       | 0,67                 | done   |
 | 0     |        | 171  | 1h 20m   | 2h 30m   | Ceccarelli             | 1,88                 | done   |
+| 0     |        | 172  | 2h 40m   | 3h 00m   | Pisanello + Appendini  | 1,13                 | not completed|
 | 0     |        | 173  | 0h 5m    | 0h 5m    | Appendini              | 1,00                 | done   |
 | 0     |        | 174  | 0h 55m   | 0h 30m   | Xia                    | 0,55                 | done   |
 
@@ -104,7 +109,7 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
   - debt ratio (as reported by SonarQube under "Measures-Maintainability") : 0.0%
   - rating for each quality characteristic reported in SonarQube under "Measures" (namely reliability, security, maintainability ) : A, A, A
 
-## ASSESSMENT DA FARE
+## ASSESSMENT
 
 Only for tasks with an est. error greater than 35% 
 
@@ -140,11 +145,11 @@ Only for tasks with an est. error greater than 35%
 
 - Which ones you were not able to achieve? Why?
   - reduce code duplication: not done due to lack of time
-  
+
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
   - complete all committed stories
   - reduce technical debt to 10 min
   - reduce code duplication to 4%
-  
+
 - One thing you are proud of as a Team!!
-  - we are keeping under control the complexity of the project as it is growing in size. Likewise the quality is not decreasing as the project grows.
+  - we are keeping under control the complexity of the project as it is growing in size. Likewise the quality is not decreasing as the project is growing.
