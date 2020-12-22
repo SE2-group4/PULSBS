@@ -5,16 +5,18 @@
 
 -- << Reset DB >>
 
-DELETE FROM User;
-DELETE FROM Course;
-DELETE FROM TeacherCourse;
-DELETE FROM Class;
-DELETE FROM Lecture;
 DELETE FROM Booking;
 DELETE FROM Enrollment;
 DELETE FROM EmailQueue;
+DELETE FROM Email;
 DELETE FROM WaitingList;
+DELETE FROM Lecture;
+DELETE FROM Class;
 DELETE FROM Schedule;
+DELETE FROM TeacherCourse;
+DELETE FROM Course;
+DELETE FROM User;
+DELETE FROM Calendar;
 
 -- << Default values >>
 
@@ -257,6 +259,13 @@ INSERT INTO WaitingList(studentId, lectureId, date) VALUES(10, 4, DATETIME('now'
 -- More direct contacts for student 1 report
 INSERT INTO Booking(studentId, lectureId, status) VALUES(2, 5, 'PRESENT');
 INSERT INTO Booking(studentId, lectureId, status) VALUES(3, 5, 'PRESENT');
+
+-- Calendar
+INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(1, DATETIME('now', '-1 month', 'start of day'), DATETIME('now', '+8 month', 'start of day'), 'ACADEMIC_YEAR', 1);
+INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(2, DATETIME('now', '-1 month', 'start of day'), DATETIME('now', '+3 month', 'start of day'), 'SEMESTER', 1);
+INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(3, DATETIME('now', '+4 month', 'start of day'), DATETIME('now', '+8 month', 'start of day'), 'SEMESTER', 1);
+INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(4, DATETIME('now', '+7 day', 'start of day'), DATETIME('now', '14 day', 'start of day'), 'HOLIDAYS', 0);
+INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(5, DATETIME('now', '+30 dau', 'start of day'), DATETIME('now', '32 day', 'start of day'), 'HOLIDAYS', 0);
 
 -- << Triggers >>
 
