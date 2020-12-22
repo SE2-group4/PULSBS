@@ -166,10 +166,16 @@ async function generateReport(id, serialNumber, date) {
 async function getAllCourses() {
     return courses
 }
+
+/******************************* SUPPORT OFFICER APIFAKE ***************/
+
+async function getCoursesBySupportId(id) {
+    return courses
+}
 /************************************************************************/
 const APIfake = {
     userLogin, getCoursesByStudentId, putInWaitingList, getLecturesByCourseId, bookALecture, cancelLectureReservation,
     getBookedLectures, getCoursesByTeacherId, getLecturesByCourseIdT, getStudentsByLectureId, getStudentBySerialNumber,
-    getStudentBySSN, generateReport, getAllCourses
+    getStudentBySSN, generateReport, getAllCourses, getCoursesBySupportId
 };
 export default APIfake;

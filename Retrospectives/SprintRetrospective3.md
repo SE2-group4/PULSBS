@@ -3,7 +3,7 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 
 ## PROCESS MEASURES 
 
-### Macro statistics DA COMPLETARE
+### Macro statistics
 
 - Number of stories committed vs done : 6 vs 5
 - Total points committed vs done : 45 vs 32
@@ -11,7 +11,7 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 - Unit Tests passing : 242/252
 - Code review completed : 3h / 5h
 - Code present on VCS : 9625 lines
-- End-to-End tests performed : ?/?
+- End-to-End tests performed : 417/418
 
 ### Detailed statistics DA COMPLETARE
 
@@ -84,15 +84,15 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 ## QUALITY MEASURES DA FARE
 
 - Unit Testing:
-  - Total hours estimated : 34 hours 30 minutes
-  - Total hours spent : 32 hours 30 minutes
+  - Total hours estimated : 9h hours 30 minutes
+  - Total hours spent : 11 hours 30 minutes
   - Nr of automated unit test cases:
-    - Client-side : 65 tests
-    - Server-side : 103 tests
-  - Coverage : 87.50 %
+    - Client-side : 90 tests
+    - Server-side : 176 tests
+  - Coverage : 83.14 %
 - E2E testing:
-  - Total hours estimated : 3 hours 30 minutes
-  - Total hours spent : 3 hours 45 minutes
+  - Total hours estimated : 2 hours 30 minutes
+  - Total hours spent : 2 hours 10 minutes
 - Code review
   - Total hours estimated : 11 hours 30 minutes
   - Total hours spent : 8 hours
@@ -113,6 +113,12 @@ Only for tasks with an est. error greater than 35%
     - reason
   - Task 120 ("Backend Booking Manager : add new service and dao functions for cancellations and attendance")
     - understimated the time needed to complete the job
+  - Task 126 ("Frontend Support Officer : create page")
+    - understimated the management of uploading order of the files in order to follow database's restraints
+  - Task 127 ("Frontend Support Officer : create API")
+    - understimated problems due to json fetch dimensions
+  - Task 128 ("Learning how to handle CSV file (and how to convert to JSON)")
+    - overstimated the time needed, the library found is intuitive and quick to use
   - Task 130 ("Backend Support Officer : create new service and new dao functions")
     - technical difficulties in mapping the input data with our internal representation
   - Task 174 ("Refactor Teacher service code")
@@ -120,7 +126,10 @@ Only for tasks with an est. error greater than 35%
 
 - What lessons did you learn (both positive and negative) in this sprint?
   - POSITIVE
+   - initial discussion about page design improves the quality of the development process
+   - sometimes asking colleagues for help can save a lot of time
   - NEGATIVE
+   - don' understimate a task that you are doing alone for first time  
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
   - augment threshold for coverage (80%)
@@ -128,8 +137,11 @@ Only for tasks with an est. error greater than 35%
   - reduce code duplication
 
 - Which ones you were not able to achieve? Why?
+  - All improvements goals are achieved
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
+  - complete all committed stories
+  - reduce technical debt
 
 - One thing you are proud of as a Team!!
 
