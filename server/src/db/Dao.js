@@ -753,11 +753,11 @@ const getLecturesByCoursePlusNumBookings = function (course) {
         const sql = `SELECT lect.*, COUNT(book.studentId) as numBookings
             FROM Lecture lect 
             LEFT JOIN Booking book ON lect.lectureId = book.lectureId 
-            WHERE lect.courseId = ? AND book.status = ?
+            WHERE lect.courseId = ? AND book.status IN (?, ?)
             GROUP BY lect.lectureId
             ORDER BY DATETIME(lect.startingDate)`;
 
-        db.all(sql, [course.courseId, Booking.BookingType.BOOKED], function (err, rows) {
+        db.all(sql, [course.courseId, Booking.BookingType.BOOKED, Booking.BookingType.PRESENT], function (err, rows) {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
@@ -779,9 +779,9 @@ exports.getLecturesByCoursePlusNumBookings = getLecturesByCoursePlusNumBookings;
  */
 const getNumBookingsOfLecture = function (lecture) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT COUNT(*) as numBookings FROM Booking WHERE lectureId = ? AND status = ?`;
+        const sql = `SELECT COUNT(*) as numBookings FROM Booking WHERE lectureId = ? AND status IN (?, ?)`;
 
-        db.get(sql, [lecture.lectureId, Booking.BookingType.BOOKED], function (err, res) {
+        db.get(sql, [lecture.lectureId, Booking.BookingType.BOOKED, Booking.BookingType.PRESENT], function (err, res) {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
