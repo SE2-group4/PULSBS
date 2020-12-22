@@ -84,15 +84,15 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 ## QUALITY MEASURES DA FARE
 
 - Unit Testing:
-  - Total hours estimated : 34 hours 30 minutes
-  - Total hours spent : 32 hours 30 minutes
+  - Total hours estimated : 9h hours 30 minutes
+  - Total hours spent : 11 hours 30 minutes
   - Nr of automated unit test cases:
-    - Client-side : 65 tests
-    - Server-side : 103 tests
-  - Coverage : 87.50 %
+    - Client-side : 90 tests
+    - Server-side : 176 tests
+  - Coverage : 83.14 %
 - E2E testing:
-  - Total hours estimated : 3 hours 30 minutes
-  - Total hours spent : 3 hours 45 minutes
+  - Total hours estimated : 2 hours 30 minutes
+  - Total hours spent : 2 hours 10 minutes
 - Code review
   - Total hours estimated : 11 hours 30 minutes
   - Total hours spent : 8 hours
