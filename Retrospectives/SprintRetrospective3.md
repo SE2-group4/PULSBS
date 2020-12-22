@@ -113,6 +113,12 @@ Only for tasks with an est. error greater than 35%
     - reason
   - Task 120 ("Backend Booking Manager : add new service and dao functions for cancellations and attendance")
     - understimated the time needed to complete the job
+  - Task 126 ("Frontend Support Officer : create page")
+    - understimated the management of uploading order of the files in order to follow database's restraints
+  - Task 127 ("Frontend Support Officer : create API")
+    - understimated problems due to json fetch dimensions
+  - Task 128 ("Learning how to handle CSV file (and how to convert to JSON)")
+    - overstimated the time needed, the library found is intuitive and quick to use
   - Task 130 ("Backend Support Officer : create new service and new dao functions")
     - technical difficulties in mapping the input data with our internal representation
   - Task 174 ("Refactor Teacher service code")
