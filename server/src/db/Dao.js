@@ -32,9 +32,9 @@ let db = null;
  * list of hints for DB queries
  */
 const DaoHint = {
-    NO_HINT, // I know nothing about it
-    NEW_VALUE, // insert new value
-    ALREADY_PRESENT, // update an existing value
+    NO_HINT : "NO_HINT", // I know nothing about it
+    NEW_VALUE : "NEW_VALUE", // insert new value
+    ALREADY_PRESENT : "ALREADY_PRESENT", // update an existing value
     // add more
 };
 
@@ -72,43 +72,26 @@ let db = new sqlite.Database(dbpath, (err) => {
 */
 
 /**
- * close the current DB connection
- * @param {Function} cb - callback
- */
-const closeConn = function(cb) {
-    if(db){
-        db.close((err) => {
-            db = null;
-            if(cb)
-                cb();
-        });
-    }
-}
-exports.closeConn = closeConn;
-
-/**
  * open a new database connection
  * it closes existing connections before creating the new one
  * @param {String} dbpath
- * @param {Function} cb - callback
  */
-const openConn = function openConn(dbpath = "./PULSBS.db", cb) {
-    closeConn(() => {
-        const cwd = __dirname;
-        dbpath = path.join(cwd, dbpath);
-        db = new sqlite.Database(dbpath, (err) => {
-            if (err) throw StandardErr.new("Dao", StandardErr.errno.FAILURE, err.message);
-        });
-    
-        db.get("PRAGMA foreign_keys = ON");
-        db.on("profile", (query, time) => {
-            query = query.replace(/ +(?= )/g, "");
-            //console.log("QUERY EXECUTED");
-            //console.log(query);
-            //console.log("TIME: ", time);
-        });
+const openConn = function openConn(dbpath = "./PULSBS.db") {
+    if(db)
+        db.close();
 
-        cb();
+    const cwd = __dirname;
+    dbpath = path.join(cwd, dbpath);
+    db = new sqlite.Database(dbpath, (err) => {
+        if (err) throw StandardErr.new("Dao", StandardErr.errno.FAILURE, err.message);
+    });
+
+    db.get("PRAGMA foreign_keys = ON");
+    db.on("profile", (query, time) => {
+        query = query.replace(/ +(?= )/g, "");
+        //console.log("QUERY EXECUTED");
+        //console.log(query);
+        //console.log("TIME: ", time);
     });
 };
 exports.openConn = openConn;
