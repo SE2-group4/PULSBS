@@ -56,7 +56,7 @@ class Calendar {
     /**
      * create a new calendar from a generic object
      * @param {Object} obj
-     * @returns {Calendar} new class
+     * @returns {Calendar} new calendar
      */
     static from(obj) {
         const calendar = Object.assign(new Calendar(), obj);
@@ -64,6 +64,9 @@ class Calendar {
             text : calendar.type,
             isAValidPeriod : calendar.isAValidPeriod
         };
+        calendar.from = new Date(calendar.from);
+        calendar.to = new Date(calendar.to);
+
         return calendar;
     }
 }
