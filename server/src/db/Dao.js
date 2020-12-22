@@ -1482,3 +1482,23 @@ const _generateLecturesBySchedule = function(schedule, hint = DaoHint.NO_HINT) {
     });
 }
 exports._generateLecturesBySchedule = _generateLecturesBySchedule; // export needed for testing
+
+/**
+ * get schedules from the DB
+ * @returns {Promise} promise of array of Schedule
+ */
+const getSchedules = function() {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM Schedule`;
+
+        db.all(sql, [], (err, rows) => {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(rows.map(row => Schedule.from(row)));
+        });
+    });
+}
+exports.getSchedules = getSchedules;
