@@ -113,6 +113,7 @@ Only for tasks with an est. error greater than 35%
     - reason
   - Task 120 ("Backend Booking Manager : add new service and dao functions for cancellations and attendance")
     - understimated the time needed to complete the job
+  - Task 121 ("Backend Booking Manager : update database for supporting cancellations and attendance") `@Paolo`
   - Task 126 ("Frontend Support Officer : create page")
     - understimated the management of uploading order of the files in order to follow database's restraints
   - Task 127 ("Frontend Support Officer : create API")
@@ -121,15 +122,17 @@ Only for tasks with an est. error greater than 35%
     - overstimated the time needed, the library found is intuitive and quick to use
   - Task 130 ("Backend Support Officer : create new service and new dao functions")
     - technical difficulties in mapping the input data with our internal representation
+  - Task 132 ("Backend Booking Manager : update DB entities (for supporting support officer)") `@Paolo`
+  - Task 142 ("Backend Student Page : update API") `@Paolo`
   - Task 174 ("Refactor Teacher service code")
     - completed only partially due to lack of time
 
 - What lessons did you learn (both positive and negative) in this sprint?
   - POSITIVE
-   - initial discussion about page design improves the quality of the development process
-   - sometimes asking colleagues for help can save a lot of time
+    - initial discussion about page design improves the quality of the development process
+    - sometimes asking colleagues for help can save a lot of time
   - NEGATIVE
-   - don' understimate a task that you are doing alone for first time  
+    - don' understimate a task that you are doing alone for first time  
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
   - augment threshold for coverage (80%)
