@@ -1485,7 +1485,7 @@ const _generateLecturesBySchedule = function(schedule, hint = DaoHint.NO_HINT) {
                 lecturePrototype.bookingDeadline = bookingDeadlineTime;
                 lecturePrototype.delivery = Lecture.DeliveryType.PRESENCE;
                 try {
-                    if(hint !== DaoHint.NEW_VALUE)
+                    if(hint != DaoHint.NEW_VALUE)
                         await this._deleteLecturesByPrototype(lecturePrototype);
                     await this._addLecturesByScheduleAndPrototype(schedule, lecturePrototype);
                 } catch(err) {

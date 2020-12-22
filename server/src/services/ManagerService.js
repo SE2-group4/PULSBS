@@ -208,10 +208,9 @@ exports.managerGetReport = async function managerGetReport({ managerId, serialNu
 /**
  * get the list of schedules
  * @param {Object} param - managerId
- * @param {Object} query
  * @returns {Array} array of Schedule
  */
-exports.managerGetSchedules = async function managerGetSchedules({ managerId }, {}) {
+exports.managerGetSchedules = async function managerGetSchedules({ managerId }) {
     const schedules = await db.getSchedules();
     return schedules;
 };
@@ -219,10 +218,9 @@ exports.managerGetSchedules = async function managerGetSchedules({ managerId }, 
 /**
  * update an existing schedule
  * @param {Object} param - managerId, scheduleId, schedule
- * @param {Object} query
  * @returns {Array} array of Schedule
  */
-exports.managerUpdateSchedule = async function managerUpdateSchedule({ managerId, scheduleId, schedule }, {}) {
+exports.managerUpdateSchedule = async function managerUpdateSchedule({ managerId, scheduleId, schedule }) {
     scheduleId = Number(scheduleId);
     schedule.scheduleId = scheduleId;
     await db.updateSchedule(schedule);
