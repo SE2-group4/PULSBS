@@ -30,7 +30,8 @@ function Header(props) {
       }
       {props.user && props.user.type === "SUPPORT" &&
         <Nav className="mr-auto">
-          <Nav.Link><strong>Setup</strong></Nav.Link>
+          <Nav.Link as={Link} to={"/supportPage/setup"} ><strong>Setup</strong></Nav.Link>
+          <Nav.Link as={Link} to={"/supportPage/update"}><strong>Update Bookable Lectures</strong></Nav.Link>
         </Nav>
       }
       {props.isAuth &&
