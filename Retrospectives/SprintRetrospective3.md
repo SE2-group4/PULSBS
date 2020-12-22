@@ -3,7 +3,7 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 
 ## PROCESS MEASURES 
 
-### Macro statistics DA COMPLETARE
+### Macro statistics
 
 - Number of stories committed vs done : 6 vs 5
 - Total points committed vs done : 45 vs 32
@@ -11,7 +11,7 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 - Unit Tests passing : 242/252
 - Code review completed : 3h / 5h
 - Code present on VCS : 9625 lines
-- End-to-End tests performed : ?/?
+- End-to-End tests performed : 417/418
 
 ### Detailed statistics DA COMPLETARE
 
@@ -127,7 +127,9 @@ Only for tasks with an est. error greater than 35%
 - What lessons did you learn (both positive and negative) in this sprint?
   - POSITIVE
    - initial discussion about page design improves the quality of the development process
+   - sometimes asking colleagues for help can save a lot of time
   - NEGATIVE
+   - don' understimate a task that you are doing alone for first time  
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
   - augment threshold for coverage (80%)
@@ -139,6 +141,7 @@ Only for tasks with an est. error greater than 35%
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
   - complete all committed stories
+  - reduce technical debt
 
 - One thing you are proud of as a Team!!
 
