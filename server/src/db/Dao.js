@@ -1426,6 +1426,27 @@ const _addLecturesByScheduleAndPrototype = function(schedule, lecturePrototype) 
 exports._addLecturesByScheduleAndPrototype = _addLecturesByScheduleAndPrototype; // export needed for testing
 
 /**
+ * be sure the class exists
+ * @param {Schedule} schedule - roomId, seats needed
+ * @returns {Promise} promise of int - last ID
+ */
+const _generateClassBySchedule = function(schedule) {
+    return new Promise((resolve, reject) => {
+        const sql = `INSERT INTO Class(description, capacity) VALUES(?, ?)`;
+
+        db.run(sql, [schedule.roomId, schedule.seats], function(err) {
+            if(err && !err.errno == 19) { // the error is not 'already present'
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+            
+            resolve(this.lastID);
+        });
+    });
+}
+exports._generateClassBySchedule = _generateClassBySchedule;
+
+/**
  * generate a list of lecture given a schedule
  * @param {Schedule} schedule 
  * @param {DaoHint} hint
@@ -1436,6 +1457,7 @@ const _generateLecturesBySchedule = function(schedule, hint = DaoHint.NO_HINT) {
         // first of all, get data which are in common for all lectures we are going to generate
         Promise.all([
                 this.getCourseByCode(schedule.code),
+                this._generateClassBySchedule(schedule),
                 this.getClassByDescription(schedule.roomId)
             ])
             .then((values) => {
@@ -1502,3 +1524,58 @@ const getSchedules = function() {
     });
 }
 exports.getSchedules = getSchedules;
+
+/**
+ * update an existing schedule
+ * @param {Schedule} schedule
+ * @returns {Promise} promise
+ */
+const updateSchedule = function(schedule) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM Schedule WHERE scheduleId = ?`;
+
+        db.get(sql, [], (err, row) => {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            const actualSchedule = Schedule.from(row);
+
+            // merge objects
+            for(const prop in schedule) {
+                actualSchedule[prop] = schedule[prop] || actualSchedule[prop]; // assign only not-null properties
+            }
+            actualSchedule.startingTime = moment(actualSchedule.startingTime);
+            actualSchedule.endingDate = moment(actualSchedule.endingDate);
+
+            const updateSql = `UPDATE Schedule(code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime)
+                SET(?, ?, ?, ?, ?, ?, ?, ?)
+                WHERE scheduleId = ?`;
+            db.run(updateSql, [
+                    actualSchedule.code,
+                    actualSchedule.AAyear,
+                    actualSchedule.semester,
+                    actualSchedule.roomId,
+                    actualSchedule.seats,
+                    actualSchedule.dayOfWeek,
+                    actualSchedule.startingTime.toISOString(),
+                    actualSchedule.endingDate.toISOString()
+                ], function(err) {
+                    if(err) {
+                        reject(StandardErr.fromDao(err));
+                        return;
+                    }
+                    if(!this.changes) {
+                        reject(StandardErr.new('Dao', StandardErr.errno.NOT_EXISTS, 'Unable to update the schedule', 500));
+                        return;
+                    }
+
+                    this._generateLecturesBySchedule(actualSchedule, DaoHint.ALREADY_PRESENT)
+                        .then(resolve)
+                        .catch(reject);
+                });
+        });
+    });
+}
+exports.updateSchedule = updateSchedule;
