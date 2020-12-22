@@ -223,6 +223,15 @@ exports.managerGetSchedules = async function managerGetSchedules({ managerId }) 
 exports.managerUpdateSchedule = async function managerUpdateSchedule({ managerId, scheduleId, schedule }) {
     scheduleId = Number(scheduleId);
     schedule.scheduleId = scheduleId;
+
+    // check if it exists
+    const schedules = db.getSchedules();
+    actualSchedules = schedules.filter(s => s.scheduleId === schedule.scheduleId);
+    if(actualSchedules.length === 0) {
+        throw StandardErr.new('ManagerService', StandardErr.errno.NOT_EXISTS, 'This schedule does not exist', 404);
+        return;
+    }
+
     await db.updateSchedule(schedule);
     return;
 };
