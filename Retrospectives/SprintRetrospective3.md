@@ -81,7 +81,7 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 - Total task estimation error ratio: sum of total hours estimation / sum of total hours spent from previous table
   - error ratio: 
 
-## QUALITY MEASURES DA FARE
+## QUALITY MEASURES
 
 - Unit Testing:
   - Total hours estimated : 9h hours 30 minutes
