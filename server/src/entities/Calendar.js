@@ -56,7 +56,7 @@ class Calendar {
     /**
      * create a new calendar from a generic object
      * @param {Object} obj
-     * @returns {Calendar} new calendar
+     * @returns {Calendar} new calendarf
      */
     static from(obj) {
         const calendar = Object.assign(new Calendar(), obj);
