@@ -8,6 +8,7 @@
 class Schedule {
     /**
      * class constructor
+     * @param {Number} scheduleId
      * @param {String} code 
      * @param {Number} AAyear 
      * @param {Number} semester 
@@ -17,7 +18,8 @@ class Schedule {
      * @param {String|Date} startingTime 
      * @param {String|Date} endingTime 
      */
-    constructor(code = '', AAyear = -1, semester = -1, roomId = -1, seats = 0, dayOfWeek = '', startingTime = '', endingTime = '') {
+    constructor(scheduleId = -1, code = '', AAyear = -1, semester = -1, roomId = -1, seats = 0, dayOfWeek = '', startingTime = '', endingTime = '') {
+        this.scheduleId = scheduleId;
         this.code = code;
         this.AAyear = AAyear;
         this.semester = semester;
