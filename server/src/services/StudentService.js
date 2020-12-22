@@ -51,6 +51,11 @@ exports.studentBookLecture = function (studentId, courseId, lectureId) {
                     return;
                 }
 
+                if(actualLecture.delivery != Lecture.DeliveryType.PRESENCE) {
+                    reject(StandardErr.new('Student service', StandardErr.errno.NOT_ALLOWED, 'You do not have to book a lecture delivered in remote', 404));
+                    return;
+                }
+
                 const actualCourses = currCourses.filter(c => c.courseId === course.courseId);
                 if (actualCourses.length === 0) {
                     reject(StandardErr.new('Student service', StandardErr.errno.PARAMS_MISMATCH, 'The student is not enrolled in this course', 404));
