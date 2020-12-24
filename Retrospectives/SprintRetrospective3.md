@@ -13,7 +13,7 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 - Code present on VCS : 9625 lines
 - End-to-End tests performed : 131/132
 
-### Detailed statistics DA COMPLETARE
+### Detailed statistics
 
 | story | points | task | time est | time act | Assignee               | est error > 35%      | status |
 | ----- | ------ | ---- | -------- | -------- | ---------------------- | -------------------- | ------ |
@@ -53,9 +53,10 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 | ~     |        | 149  | 0h 30m   | 1h 30m   | Gastaldi               | 3,00                 | done   |
 | 14    | 5      |      |          |          |                        |                      |        |
 | ~     |        | 156  | 0h 25m   | 0h 20m   | Gastaldi               | 0,80                 | done   |
-| ~     |        | 157  | 0h 40m   | 0h 0m    | Gastaldi               | 0,00                 | done   |
+| ~     |        | 157  | 0h 40m   | 0h 0m    | Gastaldi               | 0,00                 | somewhere else|
+| 15    | 8      |      |          |          |                        |                      |        |
 | ~     |        | 158  | 0h 10m   | 0h 15m   | Gastaldi               | 1,50                 | done   |
-| 15    |        | 159  | 0h 10m   | 0h 0m    | Gastaldi               | 0,00                 | done   |
+| ~     |        | 159  | 0h 10m   | 0h 0m    | Gastaldi               | 0,00                 | somewhere else|
 | 16    | 8      |      |          |          |                        |                      | done   |
 | ~     |        | 160  | 2h 0m    | 5h 15m   | Ceccarelli             | 2,63                 | done   |
 | ~     |        | 161  | 0h 20m   | 0h 15m   | Ceccarelli             | 0,75                 | done   |
@@ -80,11 +81,11 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
 > place technical tasks corresponding to story `#0` and leave out story points (not applicable in this case)
 
 - Hours per task (average, standard deviation)
-  - average: hours
-  - standard deviation: hours
+  - average: 1h 13m
+  - standard deviation: 1h 18m
 
 - Total task estimation error ratio: sum of total hours estimation / sum of total hours spent from previous table
-  - error ratio: 
+  - error ratio: 0,91
 
 ## QUALITY MEASURES
 
