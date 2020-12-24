@@ -172,10 +172,19 @@ async function getAllCourses() {
 async function getCoursesBySupportId(id) {
     return courses
 }
+
+async function getLecturesByCourseId_S(id, courseId) {
+    let lectures_ = []
+    lectures.forEach((lecture) => {
+        if (lecture.courseId === courseId)
+            lectures_.push(lecture)
+    })
+    return lectures_;
+}
 /************************************************************************/
 const APIfake = {
     userLogin, getCoursesByStudentId, putInWaitingList, getLecturesByCourseId, bookALecture, cancelLectureReservation,
     getBookedLectures, getCoursesByTeacherId, getLecturesByCourseIdT, getStudentsByLectureId, getStudentBySerialNumber,
-    getStudentBySSN, generateReport, getAllCourses, getCoursesBySupportId
+    getStudentBySSN, generateReport, getAllCourses, getCoursesBySupportId, getLecturesByCourseId_S
 };
 export default APIfake;

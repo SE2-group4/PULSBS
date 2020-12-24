@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import APIfake from '../api/APIfake';
 import Spinner from 'react-bootstrap/Spinner';
+import Table from 'react-bootstrap/Table';
+import Alert from 'react-bootstrap/Alert';
+import Button from 'react-bootstrap/Button';
+import Pagination from 'react-bootstrap/Pagination';
 import moment from 'moment';
 import Helmet from 'react-helmet';
 import DayPickerInput from 'react-day-picker/DayPickerInput';
@@ -16,14 +20,18 @@ class SupportUpdatePage extends React.Component {
         super(props);
         this.state = { loading: true, chosenCourse: "All", from: undefined, to: undefined }
     }
-    componentDidMount() {
-        this.setState({ loading: true })
-        APIfake.getCoursesBySupportId(this.props.user.userId)
-            .then((courses) => this.setState({ courses: courses, loading: false }))
-            .catch()
+    async componentDidMount() {
+        try {
+            let courses = await APIfake.getCoursesBySupportId(this.props.user.userId)
+            let lectures = []
+            for (let course of courses)
+                lectures.push(...await APIfake.getLecturesByCourseId_S(this.props.userId, course.courseId))
+            this.setState({ courses: courses, loading: false, lectures: lectures })
+        } catch (err) {
+
+        }
     }
     changeCourse = (course) => {
-        console.log(course)
         this.setState({ chosenCourse: course })
     }
     changeFrom = (from) => {
@@ -32,15 +40,20 @@ class SupportUpdatePage extends React.Component {
     changeTo = (to) => {
         this.setState({ to: to })
     }
+    changeDelivery = (beforeChange) => {
+
+    }
     render() {
         if (this.state.loading)
             return (<Spinner animation="border" ></Spinner>)
 
         return (
             <>
-                <Filters courses={this.state.courses} chosenCourse={this.state.chosenCourse} changeCourse={this.changeCourse}
-                    from={this.state.from} to={this.state.to} changeFrom={this.changeFrom} changeTo={this.changeTo} />
-                <Lectures />
+                <Container fluid id="containerFilters">
+                    <Filters courses={this.state.courses} chosenCourse={this.state.chosenCourse} changeCourse={this.changeCourse}
+                        from={this.state.from} to={this.state.to} changeFrom={this.changeFrom} changeTo={this.changeTo} />
+                </Container>
+                <Lectures lectures={this.state.lectures} from={this.state.from} to={this.state.to} chosenCourse={this.state.chosenCourse} courses={this.state.courses} />
             </>
         )
     }
@@ -50,6 +63,14 @@ function Filters(props) {
     return (
         <Container fluid>
             <Form>
+                <Row>
+                    <Col>
+                        <strong>Select a course : </strong>
+                    </Col>
+                    <Col>
+                        <strong>Select temporal interval :</strong>
+                    </Col>
+                </Row>
                 <Row>
                     <Col>
                         <Form.Control as="select" custom onChange={(ev) => { props.changeCourse(ev.target.value) }} defaultValue={props.chosenCourse}>
@@ -167,9 +188,83 @@ class FromToDayPicker extends React.Component {
     }
 }
 function Lectures(props) {
+
+    const [active, setActive] = useState(1);
+    let lectures = filterLectures(props.lectures, props.from, props.to, props.chosenCourse, props.courses)
+    if (lectures.length === 0)
+        return <Alert variant="warning">No lectures</Alert>
+    let nPages = Math.floor(lectures.length / 11) + 1;
+    let items = [];
+    for (let number = 1; number <= nPages; number++) {
+        items.push(
+            <Pagination.Item data-testid={"paginationItem-" + number} className="paginationItemReport" key={number} active={number == active} >
+                {number}
+            </Pagination.Item>,
+        );
+    }
+    let tableEntries = [];
+    for (let entry = (active - 1) * 10; entry <= active * 10 - 1; entry++) {
+        if (lectures[entry])
+            tableEntries.push(lectures[entry])
+    }
     return (
         <>
+            <Table striped bordered hover>
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Class</th>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Booking deadline</th>
+                        <th>Class capacity</th>
+                        <th>#Bookings</th>
+                        <th>Delivery</th>
+                        <th>Change delivery</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {tableEntries}
+                </tbody>
+            </Table>
+            {nPages > 1 && <Pagination onClick={(ev) => setActive(ev.target.text)}>{items}</Pagination>}
         </>
     )
+}
+
+function filterLectures(lectures, from, to, chosenCourse, courses) {
+    let filterLectures = lectures
+    if (chosenCourse !== "All")
+        filterLectures = filterLectures.filter((lecture) => courseName(lecture.courseId, courses) === chosenCourse)
+    if (from)
+        filterLectures = filterLectures.filter((lecture) => moment(lecture.startingDate).isAfter(from))
+    if (to)
+        filterLectures = filterLectures.filter((lecture) => moment(lecture.startingDate).isBefore(to))
+    let entries = []
+    for (let lecture of filterLectures) {
+        entries.push(<TableEntry lecture={lecture} courses={courses} />)
+    }
+    return entries
+}
+function TableEntry(props) {
+    return (
+        <tr>
+            <td>{courseName(props.lecture.courseId, props.courses)}</td>
+            <td>{props.lecture.className}</td>
+            <td>{props.lecture.startingDate}</td>
+            <td>{props.lecture.duration}</td>
+            <td>{props.lecture.bookingDeadline}</td>
+            <td>{props.lecture.classCapacity}</td>
+            <td>{props.lecture.numBookings}</td>
+            <td>{props.lecture.delivery === "REMOTE" ? "REMOTE" : "IN PRESENCE"}</td>
+            <td>{props.lecture.delivery === "REMOTE" ? <Button variant="warning" >Change to "In Presence"</Button> : <Button variant="warning">Change to "Remote"</Button>}</td>
+
+        </tr>
+    )
+}
+function courseName(id, courses) {
+    for (let course of courses)
+        if (course.courseId === id)
+            return course.description
 }
 export default SupportUpdatePage
