@@ -12,6 +12,15 @@ import { GoChevronDown, GoCheck } from 'react-icons/go';
 import Spinner from 'react-bootstrap/Spinner';
 import API from '../api/Api';
 
+const fileProps = new Map([
+    ["studentsArray", ["Id", "Name", "Surname", "City", "OfficialEmail", "Birthday", "SSN"]],
+    ["coursesArray", ["Code", "Year", "Semester", "Course", "Teacher"]],
+    ["professorsArray", ["Number", "GivenName", "Surname", "OfficialEmail", "SSN"]],
+    ["schedulesArray", ["Code", "Room", "Day", "Seats", "Time"]],
+    ["enrollmentsArray", ["Code", "Student"]],
+]);
+
+
 class SupportPage extends React.Component {
     constructor(props) {
         super(props);
@@ -26,7 +35,9 @@ class SupportPage extends React.Component {
     handleOnDrop = (data, name, filename) => {
         let type = filename.type;
         let match = filename.name.match(/.+(\.csv)$/);
-        if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel" || match)
+        if (JSON.stringify(Object.getOwnPropertyNames(data[0].data)) !== JSON.stringify(fileProps.get(name)))
+            this.setState({ genError: filename.name + " is not in an expected format." });
+        else if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel" || match)
             this.setState({ [name]: data });
         else
             this.setState({ genError: filename.name + " is not a valid file (expected type: csv)." });
