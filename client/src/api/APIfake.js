@@ -28,12 +28,12 @@ const courses = [
  * All the lectures
  */
 const lectures = [
-    new LectureWithClassInfo(1, 1, 1, "12-11-2020 12:00", 6000000, "12-11-2020 11:00", "inPresence", 12, 20, "12A",),
+    new LectureWithClassInfo(1, 1, 1, "12-11-2020 12:00", 6000000, "12-11-2020 11:00", "inPresence", 12, 20, "12A"),
     new LectureWithClassInfo(2, 1, 1, "12-08-2020 09:01", 6000000, "12-08-2020 13:01", "inPresence", 19, 20, "12A"),
-    new LectureWithClassInfo(2, 1, 1, "12-21-2020 09:01", 6000000, "11-20-2020 13:01", "inPresence", 19, 20, "12A"),
-    new LectureWithClassInfo(3, 2, 2, "12-12-2020 09:00", 6000000, "12-11-2020 09:01", "REMOTE"),
-    new LectureWithClassInfo(4, 1, 2, "12-12-2020 18:18", 6000000, "12-11-2020 19:19", "inPresence", 2, 20, "A"),
-    new LectureWithClassInfo(5, 2, 2, "12-24-2020 10:00", 6000000, "12-23-2020 23:59", "inPresence", 20, 20, "1")
+    new LectureWithClassInfo(3, 1, 1, "12-21-2020 09:01", 6000000, "11-20-2020 13:01", "inPresence", 19, 20, "12A"),
+    new LectureWithClassInfo(4, 2, 2, "12-12-2020 09:00", 6000000, "12-11-2020 09:01", "REMOTE"),
+    new LectureWithClassInfo(5, 1, 2, "12-12-2020 18:18", 6000000, "12-11-2020 19:19", "inPresence", 2, 20, "A"),
+    new LectureWithClassInfo(6, 2, 2, "12-24-2020 10:00", 6000000, "12-23-2020 23:59", "inPresence", 20, 20, "1")
 ]
 /**
  * All the lessons booked
@@ -181,10 +181,15 @@ async function getLecturesByCourseId_S(id, courseId) {
     })
     return lectures_;
 }
+async function updateDeliveryByLecture_S(id, lectureId, courseId, delivery) {
+    for (let l of lectures)
+        if (l.lectureId === lectureId)
+            l.delivery = delivery === "presence" ? "REMOTE" : "inPresence"
+}
 /************************************************************************/
 const APIfake = {
     userLogin, getCoursesByStudentId, putInWaitingList, getLecturesByCourseId, bookALecture, cancelLectureReservation,
     getBookedLectures, getCoursesByTeacherId, getLecturesByCourseIdT, getStudentsByLectureId, getStudentBySerialNumber,
-    getStudentBySSN, generateReport, getAllCourses, getCoursesBySupportId, getLecturesByCourseId_S
+    getStudentBySSN, generateReport, getAllCourses, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S
 };
 export default APIfake;
