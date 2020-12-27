@@ -8,17 +8,17 @@ DELETE FROM Enrollment;
 DELETE FROM EmailQueue;
 DELETE FROM Schedule;
 
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(1, 'STUDENT', 'Aldo', 'Baglio', 'tjw85.student.baglio@inbox.testmail.app', 'aldo');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(3, 'STUDENT', 'Silvana', 'Fallisi', 'tjw85.student.fallisi@inbox.testmail.app', 'silvana');
+INSERT INTO User(userId, type, firstName, lastName, email, password, serialNumber) VALUES(1, 'STUDENT', 'Aldo', 'Baglio', 'tjw85.student.baglio@inbox.testmail.app', 'aldo', 'SN2');
+INSERT INTO User(userId, type, firstName, lastName, email, password, serialNumber) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni', 'SN1');
+INSERT INTO User(userId, type, firstName, lastName, email, password, serialNumber) VALUES(3, 'STUDENT', 'Silvana', 'Fallisi', 'tjw85.student.fallisi@inbox.testmail.app', 'silvana', 'SN3');
 
-INSERT INTO Course(courseId, description, year) VALUES(1, 'Software enginnering 2', 2020);
-INSERT INTO Course(courseId, description, year) VALUES(2, 'Computer system security', 2020);
-INSERT INTO Course(courseId, description, year) VALUES(3, 'Machine learning and artificial intelligence', 2020);
-INSERT INTO Course(courseId, description, year) VALUES(4, 'Web application', 2020);
+INSERT INTO Course(courseId, description, year, semester, code) VALUES(1, 'Software enginnering 2', 2020, 1, "PERS1");
+INSERT INTO Course(courseId, description, year, semester, code) VALUES(2, 'Computer system security', 2020, 1, "PERS2");
+INSERT INTO Course(courseId, description, year, semester, code) VALUES(3, 'Machine learning and artificial intelligence', 2020, 1, "PERS3");
+INSERT INTO Course(courseId, description, year, semester, code) VALUES(4, 'Web application', 2020, 1, "PERS4");
 
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'tjw85.teacher.poretti@inbox.testmail.app', 'giacomo');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'tjw85.teacher.massironi@inbox.testmail.app', 'marina');
+INSERT INTO User(userId, type, firstName, lastName, email, password, serialNumber) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'tjw85.teacher.poretti@inbox.testmail.app', 'giacomo', 'SN5');
+INSERT INTO User(userId, type, firstName, lastName, email, password, serialNumber) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'tjw85.teacher.massironi@inbox.testmail.app', 'marina', 'SN4');
 
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 1, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 2, 1);
