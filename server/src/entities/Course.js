@@ -3,13 +3,13 @@
  * @author Gastaldi Paolo
  * @version 1.0.0
  */
-'use strict';
+"use strict";
 
 class Course {
     /**
      * class constructor
-     * @param {Number} courseId 
-     * @param {String} description 
+     * @param {Number} courseId
+     * @param {String} description
      * @param {Number} year - relative year (eg. 1 = first year of the master degree)
      */
     constructor(courseId = -1, description = null, year = -1) {
@@ -23,10 +23,25 @@ class Course {
      * @param {Object} obj
      * @returns {Course} new course
      */
-    static from(obj){
+    static from(obj) {
         const course = Object.assign(new Course(), obj);
         return course;
     }
+
+    static getComparator(field) {
+        if (field === "code") return courseComparatorByCode;
+        return null;
+    }
+}
+
+function courseComparatorByCode(a, b) {
+    if (a.code < b.code) {
+        return -1;
+    }
+    if (a.code > b.code) {
+        return 1;
+    }
+    return 0;
 }
 
 module.exports = Course;

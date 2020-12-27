@@ -33,6 +33,22 @@ class Teacher extends User {
         teacher.password = null; // default security option
         return teacher;
     }
+
+    static getComparator(field) {
+        if (field === "serialNumber") return userComparatorBySerialNumber;
+        return null;
+    }
+}
+
+function userComparatorBySerialNumber(a, b) {
+    if (a.serialNumber < b.serialNumber) {
+        return -1;
+    }
+
+    if (a.serialNumber > b.serialNumber) {
+        return 1;
+    }
+    return 0;
 }
 
 module.exports = Teacher;
