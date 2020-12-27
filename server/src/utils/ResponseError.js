@@ -138,7 +138,7 @@ class ResponseError {
                 return `lecture with lectureId = ${args.lectureId} not found`;
 
             case ResponseError.errno.LECTURE_INVALID_DELIVERY_MODE:
-                return `Delivery mode ${args.delivery} is not a valid input`;
+                return `Delivery mode '${args.delivery}' is not a valid input`;
 
             case ResponseError.errno.PARAM_NOT_DATE: {
                 const keyName = Object.keys(args)[0];
