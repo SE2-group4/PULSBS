@@ -55,8 +55,8 @@ const DB_TABLES = {
         name: "TeacherCourse",
         mapTo: ["teacherId", "courseId", "isValid"],
         mapFrom: [
-            { func: { name: getTeacherIdFromSerialNumber, args: ["Number"] } },
-            { func: { name: getCourseIdFromCode, args: ["Code"] } },
+            { func: { name: getTeacherIdFromSerialNumber, args: ["teacherSSN"] } },
+            { func: { name: getCourseIdFromCode, args: ["courseCode"] } },
             { func: { name: getIsValid, args: undefined } },
         ],
     },
@@ -133,7 +133,7 @@ async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
     // TODO: check course lecture correlation
 
     const lecture = await db.getLectureById(new Lecture(lId));
-    if(lecture.delivery === switchTo.toUpperCase()) return 204;
+    if (lecture.delivery === switchTo.toUpperCase()) return 204;
     lecture.delivery = switchTo;
 
     //if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
@@ -189,25 +189,21 @@ async function manageEntitiesUpload(entities, path) {
         throw genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: path });
     }
 
-    //console.log(entities);
-    //console.log("FINITO");
-    //console.log("ENTITY TYPE: ", entityType);
-    //return 200;
-
-    console.time("mapping");
+    console.time("phase: mapping");
     const sanitizedEntities = await sanitizeEntities(entities, entityType);
-    console.timeEnd("mapping");
+    console.timeEnd("phase: mapping");
 
-    console.time("query");
+    console.time("phase: query gen");
     const sqlQueries = genSqlQueries("INSERT", entityType, sanitizedEntities);
-    console.timeEnd("query");
+    console.timeEnd("phase: query gen");
 
-    console.time("run");
+    console.time("phase: query run");
     await runBatchQueries(sqlQueries);
-    console.timeEnd("run");
+    console.timeEnd("phase: query run");
 
-    if (!needAdditionalSteps(entityType));
-    await callNextStep(entityType, sanitizedEntities);
+    if (needAdditionalSteps(entityType)) {
+        return await callNextStep(entityType, entities, sanitizedEntities);
+    }
 
     return 200;
 }
@@ -215,7 +211,7 @@ async function manageEntitiesUpload(entities, path) {
 async function callNextStep(currStep, ...args) {
     switch (currStep) {
         case "COURSES": {
-            return await manageEntitiesUpload(args[0], "/teachercourse");
+            return await manageEntitiesUpload(args[0], "/teachercourse", true);
         }
         case "SCHEDULES": {
             //const s = args[0].filter((sc) => sc.code === "XY8221");
@@ -453,8 +449,8 @@ async function sanitizeTeacherCourseEntities(entities, entityType) {
 
     return entities.map((entity) => {
         let tc = {};
-        tc.Number = entity.Teacher;
-        tc.Code = entity.Code;
+        tc.teacherSSN = entity.Teacher;
+        tc.courseCode = entity.Code;
         return applyAction(tc, mapFrom, mapTo);
     });
 }
@@ -464,12 +460,12 @@ function logToFile(queries) {
 
     fs.appendFile("./queries.log", `\n${date.toISOString()}\n`, function (err) {
         if (err) return console.log(err);
-        console.log("Now > queries.log");
+        console.log("LOG: date > queries.log");
     });
 
     fs.appendFile("./queries.log", queries.join("\n"), function (err) {
         if (err) return console.log(err);
-        console.log("Queries log > queries.log");
+        console.log("LOG: queries > queries.log");
     });
 }
 
@@ -478,8 +474,14 @@ async function runBatchQueries(sqlQueries) {
         await db.execBatch(sqlQueries);
         logToFile(sqlQueries);
     } catch (err) {
-        console.log(err);
-        throw genResponseError(errno.DB_GENERIC_ERROR);
+        //for(const field of err) {
+        //    console.log(field);
+        //}
+        //for(const field in err) {
+        //    console.log(field);
+        //}
+        //console.log("SONO runBatchQueries");
+        throw genResponseError(errno.DB_GENERIC_ERROR, err);
     }
 }
 

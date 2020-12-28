@@ -16,7 +16,7 @@ INSERT INTO Course(courseId, description, year, semester, code) VALUES(1, 'Softw
 INSERT INTO Course(courseId, description, year, semester, code) VALUES(2, 'Computer system security', 2020, 1, "PERS2");
 INSERT INTO Course(courseId, description, year, semester, code) VALUES(3, 'Machine learning and artificial intelligence', 2020, 1, "PERS3");
 INSERT INTO Course(courseId, description, year, semester, code) VALUES(4, 'Web application', 2020, 1, "PERS4");
-INSERT INTO Course(courseId, description, year, semester, code) VALUES(5, 'ANONYMOUS', 2020, 1, "XY8221");
+-- INSERT INTO Course(courseId, description, year, semester, code) VALUES(5, 'ANONYMOUS', 2020, 1, "XY8221");
 
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'tjw85.teacher.poretti@inbox.testmail.app', 'giacomo');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'tjw85.teacher.massironi@inbox.testmail.app', 'marina');
