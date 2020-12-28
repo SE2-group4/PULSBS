@@ -205,13 +205,13 @@ async function manageEntitiesUpload(entities, path) {
         return await callNextStep(entityType, entities, sanitizedEntities);
     }
 
-    return 200;
+    return 204;
 }
 
 async function callNextStep(currStep, ...args) {
     switch (currStep) {
         case "COURSES": {
-            return await manageEntitiesUpload(args[0], "/teachercourse", true);
+            return await manageEntitiesUpload(args[0], "/teachercourse");
         }
         case "SCHEDULES": {
             //const s = args[0].filter((sc) => sc.code === "XY8221");
@@ -474,14 +474,8 @@ async function runBatchQueries(sqlQueries) {
         await db.execBatch(sqlQueries);
         logToFile(sqlQueries);
     } catch (err) {
-        //for(const field of err) {
-        //    console.log(field);
-        //}
-        //for(const field in err) {
-        //    console.log(field);
-        //}
-        //console.log("SONO runBatchQueries");
-        throw genResponseError(errno.DB_GENERIC_ERROR, err);
+        console.log(err);
+        throw genResponseError(errno.DB_GENERIC_ERROR, { msg: err.toString() });
     }
 }
 

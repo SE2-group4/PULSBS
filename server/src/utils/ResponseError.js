@@ -123,7 +123,7 @@ class ResponseError {
                 return `lecture (lectureId = ${args.lectureId}) does not belong to this course (courseId = ${args.courseId}) or lecture has already been taught`;
 
             case ResponseError.errno.DB_GENERIC_ERROR:
-                return `DB failure`;
+                return `DB failure: ${args.msg}`;
 
             case ResponseError.errno.LECTURE_GIVEN:
                 return "message not implemented";
