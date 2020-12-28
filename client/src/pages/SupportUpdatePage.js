@@ -3,7 +3,7 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import APIfake from '../api/APIfake';
+import ErroMsg from '../components/ErrorMsg';
 import API from '../api/Api';
 import Spinner from 'react-bootstrap/Spinner';
 import Table from 'react-bootstrap/Table';
@@ -15,6 +15,7 @@ import Helmet from 'react-helmet';
 import DayPickerInput from 'react-day-picker/DayPickerInput';
 import 'react-day-picker/lib/style.css';
 import { formatDate, parseDate } from 'react-day-picker/moment';
+import ErrorMsg from '../components/ErrorMsg';
 
 class SupportUpdatePage extends React.Component {
     constructor(props) {
@@ -30,7 +31,7 @@ class SupportUpdatePage extends React.Component {
                 lectures.push(...await API.getLecturesByCourseId_S(this.props.user.userId, course.courseId))
             this.setState({ courses: courses, loading: false, lectures: lectures })
         } catch (err) {
-
+            this.setState({ communicationError: true })
         }
     }
     /**
@@ -72,10 +73,15 @@ class SupportUpdatePage extends React.Component {
                 this.setState({ loading: false, lectures: lectures })
 
             })
-            .catch()
+            .catch(() => {
+                this.setState({ communicationError: true })
+            })
     }
 
     render() {
+        if (this.state.communicationError)
+            return <ErrorMsg msg="Ops, an error occured during server communication" />
+
         if (this.state.loading)
             return (<Spinner animation="border" ></Spinner>)
 
