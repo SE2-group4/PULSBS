@@ -1,8 +1,18 @@
 const { ResponseError } = require("../utils/ResponseError");
 const { isValueOfType } = require("../utils/converter");
 const { binarySearch } = require("../utils/searchHelper");
+const { convertToNumbers } = require("../utils/converter");
+const Course = require("../entities/Course");
+const Student = require("../entities/Student");
+const Teacher = require("../entities/Teacher");
+const Lecture = require("../entities/Lecture");
+const Email = require("../entities/Email");
+const EmailService = require("../services/EmailService");
+const Schedule = require("../entities/Schedule");
 const db = require("../db/Dao");
+const utils = require("../utils/utils");
 const fs = require("fs");
+const check = require("../utils/typeChecker");
 
 const errno = ResponseError.errno;
 const MODULE_NAME = "SupportOfficerService";
@@ -45,8 +55,8 @@ const DB_TABLES = {
         name: "TeacherCourse",
         mapTo: ["teacherId", "courseId", "isValid"],
         mapFrom: [
-            { func: { name: getTeacherIdFromSerialNumber, args: ["Number"] } },
-            { func: { name: getCourseIdFromCode, args: ["Code"] } },
+            { func: { name: getTeacherIdFromSerialNumber, args: ["teacherSSN"] } },
+            { func: { name: getCourseIdFromCode, args: ["courseCode"] } },
             { func: { name: getIsValid, args: undefined } },
         ],
     },
@@ -80,48 +90,149 @@ let allStudentsWithSN = null;
 let allTeachersWithSN = null;
 let allCoursesWithCode = null;
 
+async function getCourses(supportId) {
+    const { error } = convertToNumbers({ supportId });
+    if (error) {
+        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+    }
+
+    return await db.getAllCourses();
+}
+
+async function getCourseLectures(supportId, courseId) {
+    const { error, courseId: cId } = convertToNumbers({ supportId, courseId });
+    if (error) {
+        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+    }
+
+    const lectures = await db.getLecturesByCourse(new Course(courseId));
+
+    return lectures;
+}
+
+/**
+ * Update a lecture delivery mode given a lectureId, courseId, teacherId and a switchTo mode
+ * TODO: not done this part The switch is valid only if the request is sent 30m before the scheduled starting time.
+ *
+ * supportId {Integer}
+ * courseId {Integer}
+ * lectureId {Integer}
+ * switchTo {String}. "remote" or "presence"
+ * returns {Integer} 204. In case of error an ResponseError
+ **/
+async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
+    const { error, courseId: cId, lectureId: lId } = convertToNumbers({ supportId, courseId, lectureId });
+    if (error) {
+        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+    }
+
+    if (!check.isValidDeliveryMode(switchTo)) {
+        throw genResponseError(ResponseError.LECTURE_INVALID_DELIVERY_MODE, { delivery: switchTo });
+    }
+
+    // TODO: check course lecture correlation
+
+    const lecture = await db.getLectureById(new Lecture(lId));
+    if (lecture.delivery === switchTo.toUpperCase()) return 204;
+    lecture.delivery = switchTo;
+
+    //if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
+    //    throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_SWITCHABLE, { lectureId }, 404);
+    //}
+
+    await db.updateLectureDeliveryMode(lecture);
+
+    const studentsToBeNotified = await db.getStudentsByLecture(lecture);
+    if (studentsToBeNotified.length > 0) {
+        const course = await db.getCourseByLecture(lecture);
+        const subjectArgs = [course.description];
+        const messageArgs = [utils.formatDate(lecture.startingDate), lecture.delivery];
+
+        const { subject, message } = EmailService.getDefaultEmail(
+            Email.EmailType.LESSON_UPDATE_DELIVERY,
+            subjectArgs,
+            messageArgs
+        );
+
+        sendEmailsTo(studentsToBeNotified, subject, message);
+    }
+
+    return 204;
+}
+
+function sendEmailsTo(recepients = [], subject, message) {
+    for (const recepient of recepients) {
+        EmailService.sendCustomMail(recepient.email, subject, message)
+            .then(() => {
+                console.email(`recepient: ${recepient.email}; subject: ${subject}`);
+            })
+            .catch((err) => console.error(err));
+    }
+}
+
 /**
  * save the entities in the db
  * @param {Array} of Objects. See ACCEPTED_ENTITIES for a list of accepted entities.
  * @param {String} relative path. Es. /1/uploads/students
  * @returns {Integer} 200 in case of success. Otherwise it will throw a ResponseError
  */
+
+function writeToFile(path = "./input/schedules.json", array) {
+    fs.writeFile(path, JSON.stringify(array), (err) => {
+        if (err) console.log("an error occured");
+    });
+}
+
 async function manageEntitiesUpload(entities, path) {
     let entityType = getEntityNameFromPath(path);
     if (entityType === undefined) {
         throw genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: path });
     }
 
-    let done = false;
+    console.time("phase: mapping");
+    const sanitizedEntities = await sanitizeEntities(entities, entityType);
+    console.timeEnd("phase: mapping");
 
-    while(!done) {
-        console.log(entityType);
-        console.time("mapping");
-        const sanitizedEntities = await sanitizeEntities(entities, entityType);
-        console.timeEnd("mapping");
+    console.time("phase: query gen");
+    const sqlQueries = genSqlQueries("INSERT", entityType, sanitizedEntities);
+    console.timeEnd("phase: query gen");
 
-        console.time("query");
-        const sqlQueries = genSqlQueries("INSERT", entityType, sanitizedEntities);
-        console.timeEnd("query");
+    console.time("phase: query run");
+    await runBatchQueries(sqlQueries);
+    console.timeEnd("phase: query run");
 
-        console.log(sqlQueries);
-        console.time("run");
-        await runBatchQueries(sqlQueries);
-        console.timeEnd("run");
-
-        if(!needAdditionalSteps(entityType)) {
-            done = true;
-        } else {
-            entityType = "TEACHERCOURSE";
-        }
+    if (needAdditionalSteps(entityType)) {
+        return await callNextStep(entityType, entities, sanitizedEntities);
     }
 
-    return 200;
+    return 204;
 }
 
-function needAdditionalSteps(step) {
-    if(step === "COURSES") {
-        return "TEACHERCOURSE";
+async function callNextStep(currStep, ...args) {
+    switch (currStep) {
+        case "COURSES": {
+            return await manageEntitiesUpload(args[0], "/teachercourse");
+        }
+        case "SCHEDULES": {
+            //const s = args[0].filter((sc) => sc.code === "XY8221");
+            //console.log("sono schedules", s);
+            //try {
+            //    await db._generateLecturesBySchedule(s[0]);
+            //} catch (err) {
+            //    console.log("SOMETHING WENT WRONG");
+            //    console.log(err);
+            //}
+            break;
+        }
+        default: {
+            console.log("callNextStep", currStep, "not implemented");
+        }
+    }
+}
+
+function needAdditionalSteps(currStep) {
+    if (currStep === "COURSES" || currStep === "SCHEDULES") {
+        return true;
     }
 
     return false;
@@ -151,27 +262,6 @@ async function sanitizeEntities(entities, entityType) {
             return await sanitizeTeacherCourseEntities(entities, entityType);
         }
     }
-}
-
-function userComparator(a, b) {
-    if (a.serialNumber < b.serialNumber) {
-        return -1;
-    }
-
-    if (a.serialNumber > b.serialNumber) {
-        return 1;
-    }
-    return 0;
-}
-
-function courseComparator(a, b) {
-    if (a.code < b.code) {
-        return -1;
-    }
-    if (a.code > b.code) {
-        return 1;
-    }
-    return 0;
 }
 
 /**
@@ -220,14 +310,26 @@ function getSemester() {
     return 1;
 }
 
+/**
+ * extract the starting time. Es. from 14:30-16:00 it will return 14:30
+ * @param {String} orario. Es. 14:30-16:00
+ * @returns {String} es. 14:00
+ */
 function getStartingTime(orario) {
-    const tokens = orario.split("-");
-    return tokens[0];
+    const regex = /[0-9]+/g;
+    const match = orario.match(regex);
+    return `${match[0]}:${match[1]}:00`;
 }
 
+/**
+ * extract the ending time. Es. from 14:30-16:00 it will return 16:00
+ * @param {String} orario. Es. 14:30-16:00
+ * @returns {String} es. 16:00
+ */
 function getEndingTime(orario) {
-    const tokens = orario.split("-");
-    return tokens[1];
+    const regex = /[0-9]+/g;
+    const match = orario.match(regex);
+    return `${match[2]}:${match[3]}:00`;
 }
 
 /**
@@ -261,7 +363,7 @@ function getFieldsMapping(entityType) {
 
 /**
  * Apply the actions defined in the mapFrom to each entity
- * @param {Array} entities. 
+ * @param {Array} entities.
  * @param {String} entityType. See ACCEPTED_ENTITIES.
  * @returns {Array} of sanitized entities
  */
@@ -276,39 +378,39 @@ function sanitizeGenericEntities(entities, entityType) {
  * @param {String} who
  */
 async function updateAndSort(who, comparator) {
-    switch(who) {
+    switch (who) {
         case "STUDENT": {
             allStudentsWithSN = await db.getAllStudents();
             allStudentsWithSN = allStudentsWithSN.filter((student) => student.serialNumber !== null);
             allStudentsWithSN.sort(comparator);
             break;
-        };
+        }
         case "TEACHER": {
             allTeachersWithSN = await db.getAllTeachers();
             allTeachersWithSN = allTeachersWithSN.filter((teacher) => teacher.serialNumber !== null);
             allTeachersWithSN.sort(comparator);
             break;
-        };
+        }
         case "COURSE": {
             allCoursesWithCode = await db.getAllCourses();
             allCoursesWithCode = allCoursesWithCode.filter((course) => course.code !== null);
             allCoursesWithCode.sort(comparator);
             break;
-        };
+        }
     }
 }
 
 /**
  * Apply the actions defined in the mapFrom to each entity
- * @param {Array} entities. 
+ * @param {Array} entities.
  * @param {String} entityType. See ACCEPTED_ENTITIES.
- * @returns {Array} of sanitized entities
+ * @returns {Promise} array of sanitized entities
  */
 async function sanitizeEnrollmentsEntities(enrollments, entityType) {
-    await updateAndSort("STUDENT", userComparator);
-    await updateAndSort("COURSE", courseComparator);
+    await updateAndSort("STUDENT", Student.getComparator("serialNumber"));
+    await updateAndSort("COURSE", Course.getComparator("code"));
 
-    const { mapFrom, mapTo} = getFieldsMapping(entityType);
+    const { mapFrom, mapTo } = getFieldsMapping(entityType);
     return enrollments.map((entity) => applyAction(entity, mapFrom, mapTo));
 }
 
@@ -340,15 +442,15 @@ function applyAction(entity, mapFrom, mapTo) {
  * @returns {Object} with 2 properties: mapFrom and mapTo
  */
 async function sanitizeTeacherCourseEntities(entities, entityType) {
-    await updateAndSort("TEACHER", userComparator);
-    await updateAndSort("COURSE", courseComparator);
+    await updateAndSort("TEACHER", Teacher.getComparator("serialNumber"));
+    await updateAndSort("COURSE", Course.getComparator("code"));
 
-    const { mapFrom, mapTo} = getFieldsMapping(entityType);
+    const { mapFrom, mapTo } = getFieldsMapping(entityType);
 
     return entities.map((entity) => {
         let tc = {};
-        tc.Number = entity.Teacher;
-        tc.Code = entity.Code;
+        tc.teacherSSN = entity.Teacher;
+        tc.courseCode = entity.Code;
         return applyAction(tc, mapFrom, mapTo);
     });
 }
@@ -358,12 +460,12 @@ function logToFile(queries) {
 
     fs.appendFile("./queries.log", `\n${date.toISOString()}\n`, function (err) {
         if (err) return console.log(err);
-        console.log("Now > queries.log");
+        console.log("LOG: date > queries.log");
     });
 
     fs.appendFile("./queries.log", queries.join("\n"), function (err) {
         if (err) return console.log(err);
-        console.log("Queries log > queries.log");
+        console.log("LOG: queries > queries.log");
     });
 }
 
@@ -373,7 +475,7 @@ async function runBatchQueries(sqlQueries) {
         logToFile(sqlQueries);
     } catch (err) {
         console.log(err);
-        throw genResponseError(errno.DB_GENERIC_ERROR);
+        throw genResponseError(errno.DB_GENERIC_ERROR, { msg: err.toString() });
     }
 }
 
@@ -401,7 +503,7 @@ function genSqlQueries(queryType, entityType, entities, maxQuery) {
  * create an array of "insert sql query" given an entityType and a set of entities
  * @param {String} see ACCEPTED_ENTITIES
  * @param {Array} of Object
- * @returns {Array} of string 
+ * @returns {Array} of string
  */
 function genInsertSqlQueries(entityType, entities) {
     const table = DB_TABLES[entityType];
@@ -434,11 +536,10 @@ function getEntityNameFromPath(path) {
     return ret;
 }
 
-
 function genResponseError(nerror, error) {
     return new ResponseError(MODULE_NAME, nerror, error);
 }
 
-const privateFunc = { getEntityNameFromPath, genInsertSqlQueries };
+const privateFunc = { getEntityNameFromPath, genInsertSqlQueries, updateAndSort };
 
-module.exports = { manageEntitiesUpload };
+module.exports = { manageEntitiesUpload, privateFunc, getCourses, getCourseLectures, updateCourseLecture };

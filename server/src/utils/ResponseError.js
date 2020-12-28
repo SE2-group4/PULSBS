@@ -114,7 +114,7 @@ class ResponseError {
         ROUTE_FORBIDDEN: 0,
     };
 
-    static getErrorMessage(errno, args) {
+    static getErrorMessage(errno, args = {}) {
         switch (errno) {
             case ResponseError.errno.COURSE_NOT_ENROLLED_AA:
                 return `student (student = ${args.studentId}) is not enrolled in this course (courseId = ${args.courseId}) during this AA`;
@@ -123,7 +123,7 @@ class ResponseError {
                 return `lecture (lectureId = ${args.lectureId}) does not belong to this course (courseId = ${args.courseId}) or lecture has already been taught`;
 
             case ResponseError.errno.DB_GENERIC_ERROR:
-                return `DB failure`;
+                return `DB failure: ${args.msg}`;
 
             case ResponseError.errno.LECTURE_GIVEN:
                 return "message not implemented";
@@ -138,7 +138,7 @@ class ResponseError {
                 return `lecture with lectureId = ${args.lectureId} not found`;
 
             case ResponseError.errno.LECTURE_INVALID_DELIVERY_MODE:
-                return `Delivery mode ${args.delivery} is not a valid input`;
+                return `Delivery mode '${args.delivery}' is not a valid input`;
 
             case ResponseError.errno.PARAM_NOT_DATE: {
                 const keyName = Object.keys(args)[0];

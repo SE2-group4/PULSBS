@@ -57,8 +57,8 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
                     db.run(query, (err) => {
                         if (err && flag) {
                             console.error(`> Error in line ${count}`);
+                        console.log(query);
                             console.log(err);
-                            console.log(query);
                             if (require.main === module) reject(err);
                             else reject(StandardErr.fromDao(err));
                         }

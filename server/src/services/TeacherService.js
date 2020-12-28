@@ -7,6 +7,7 @@ const Email = require("../entities/Email");
 const EmailService = require("../services/EmailService");
 const utils = require("../utils/utils");
 const { ResponseError } = require("../utils/ResponseError");
+const check = require("../utils/typeChecker");
 
 const db = require("../db/Dao");
 const colors = require("colors");
@@ -328,7 +329,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    if (!isValidDeliveryMode(switchTo)) {
+    if (!check.isValidDeliveryMode(switchTo)) {
         throw new ResponseError(
             "TeacherService",
             ResponseError.LECTURE_INVALID_DELIVERY_MODE,
@@ -533,24 +534,6 @@ function isLectureSwitchable(lecture, requestDateTime, newMode) {
     const minDiffAllowed = 30 * 60 * 1000;
 
     if (lectTime - switchTime > minDiffAllowed) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * Check if the switchTo is a valid delivery mode
- * @param {String} switchTo
- * @returns {Boolean}
- */
-function isValidDeliveryMode(switchTo) {
-    if (!switchTo) return false;
-
-    if (
-        switchTo.toUpperCase() === Lecture.DeliveryType.PRESENCE ||
-        switchTo.toUpperCase() === Lecture.DeliveryType.REMOTE
-    ) {
         return true;
     }
 
