@@ -9,6 +9,8 @@
  */
 
 const defaultStatusCode = {
+    BOOKING_INVALID_STATUS: 400,
+    BOOKING_NOT_PRESENT: 404,
     COURSE_NOT_ENROLLED_AA: 400,
     COURSE_LECTURE_MISMATCH_AA: 404,
     DB_GENERIC_ERROR: 500,
@@ -16,7 +18,7 @@ const defaultStatusCode = {
     LECTURE_NOT_FOUND: 400,
     LECTURE_INVALID_DELIVERY_MODE: 400,
     LECTURE_NOT_CANCELLABLE: 400,
-    LECTURE_NOT_SWITCHABLE: 400,
+    LECTURE_NOT_SWITCHABLE: 406,
     PARAM_NOT_BOOLEAN: 400,
     PARAM_NOT_DATE: 400,
     PARAM_NOT_INT: 400,
@@ -95,6 +97,8 @@ class ResponseError {
     }
 
     static errno = {
+        BOOKING_INVALID_STATUS: 50,
+        BOOKING_NOT_PRESENT: 51,
         COURSE_NOT_ENROLLED_AA: 10,
         COURSE_LECTURE_MISMATCH_AA: 11,
         DB_GENERIC_ERROR: 40,
@@ -114,16 +118,22 @@ class ResponseError {
         ROUTE_FORBIDDEN: 0,
     };
 
-    static getErrorMessage(errno, args) {
+    static getErrorMessage(errno, args = {}) {
         switch (errno) {
+            case ResponseError.errno.BOOKING_INVALID_STATUS:
+                return `Query parameter status = ${args.status} is not accepted`;
+
+            case ResponseError.errno.BOOKING_NOT_PRESENT:
+                return `Booking with studentId = ${args.studentId} and lectureId = ${args.lectureId} does not exist`;
+
             case ResponseError.errno.COURSE_NOT_ENROLLED_AA:
                 return `student (student = ${args.studentId}) is not enrolled in this course (courseId = ${args.courseId}) during this AA`;
 
             case ResponseError.errno.COURSE_LECTURE_MISMATCH_AA:
-                return `lecture (lectureId = ${args.lectureId}) does not belong to this course (courseId = ${args.courseId}) or lecture has already been taught`;
+                return `lecture (lectureId = ${args.lectureId}) does not belong to this course (courseId = ${args.courseId}) or lecture has already been delivered`;
 
             case ResponseError.errno.DB_GENERIC_ERROR:
-                return `DB failure`;
+                return `DB failure: ${args.msg}`;
 
             case ResponseError.errno.LECTURE_GIVEN:
                 return "message not implemented";
@@ -138,7 +148,7 @@ class ResponseError {
                 return `lecture with lectureId = ${args.lectureId} not found`;
 
             case ResponseError.errno.LECTURE_INVALID_DELIVERY_MODE:
-                return `Delivery mode ${args.delivery} is not a valid input`;
+                return `Query parameter switchTo = '${args.delivery}' is not valid`;
 
             case ResponseError.errno.PARAM_NOT_DATE: {
                 const keyName = Object.keys(args)[0];

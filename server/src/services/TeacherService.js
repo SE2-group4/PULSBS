@@ -3,13 +3,18 @@
 const Lecture = require("../entities/Lecture");
 const Course = require("../entities/Course");
 const Teacher = require("../entities/Teacher");
+const Student = require("../entities/Student");
 const Email = require("../entities/Email");
 const EmailService = require("../services/EmailService");
 const utils = require("../utils/utils");
 const { ResponseError } = require("../utils/ResponseError");
+const check = require("../utils/typeChecker");
 
 const db = require("../db/Dao");
 const colors = require("colors");
+
+const MODULE_NAME = "TeacherService";
+const errno = ResponseError.errno;
 
 /**
  * Get all the students that have an active booking for a given lecture
@@ -17,7 +22,7 @@ const colors = require("colors");
  * teacherId {Integer}
  * courseId {Integer}
  * lectureId {Integer}
- * returns an array of Students. In case of error a ResponseError message
+ * returns {Promise} array of Student's instances. A ResponseError on error 
  **/
 exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, lectureId) {
     const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
@@ -26,35 +31,22 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
         lectureId,
     });
     if (error) {
-        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     // checking if the teacher is in charge of this course during this academic year
     const isTaughtBy = await isCourseTaughtBy(tId, cId);
     if (!isTaughtBy) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
+        throw genResponseError(errno.TEACHER_COURSE_MISMATCH_AA, { courseId, teacherId });
     }
 
     // checking if the lecture is associated to this course
     const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
     if (!doesLectureBelong) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.COURSE_LECTURE_MISMATCH_AA,
-            { lectureId, courseId },
-            404
-        );
+        throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { lectureId, courseId });
     }
 
-    const lecture = new Lecture(lId);
-    const lectureStudents = await db.getStudentsByLecture(lecture);
-
-    return lectureStudents;
+    return await db.getStudentsByLecture(new Lecture(lectureId));
 };
 
 /**
@@ -328,7 +320,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    if (!isValidDeliveryMode(switchTo)) {
+    if (!check.isValidDeliveryMode(switchTo)) {
         throw new ResponseError(
             "TeacherService",
             ResponseError.LECTURE_INVALID_DELIVERY_MODE,
@@ -361,7 +353,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 
     const lecture = await db.getLectureById(new Lecture(lId));
     if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
-        throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_SWITCHABLE, { lectureId }, 404);
+        throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_SWITCHABLE, { lectureId }, 406);
     }
 
     lecture.delivery = switchTo;
@@ -392,6 +384,56 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 
     return 204;
 };
+
+/**
+ * Update a booking status
+ * Accepted statuses: PRESENT, ABSENT
+ *
+ * teacherId {Integer}
+ * courseId {Integer}
+ * lectureId {Integer}
+ * studentId {Integer}
+ * status {String}
+ * returns {Integer} 204. A ResponseError on error.
+ **/
+
+exports.teacherUpdateCourseLectureStudentStatus = async function (teacherId, courseId, lectureId, studentId, status) {
+    const { error, teacherId: tId, courseId: cId, lectureId: lId, studentId: sId } = convertToNumbers({
+        teacherId,
+        courseId,
+        lectureId,
+        studentId,
+    });
+    if (error) {
+        throw genResponseError(errno.PARAM_NOT_INT, error);
+    }
+
+    if (!check.isValidBookingStatus(status)) {
+        throw genResponseError(errno.BOOKING_INVALID_STATUS, { status });
+    }
+
+    // checking if the teacher is in charge of this course during this academic year
+    const isTaughtBy = await isCourseTaughtBy(tId, cId);
+    if (!isTaughtBy) {
+        throw genResponseError(errno.TEACHER_COURSE_MISMATCH_AA, { courseId, teacherId });
+    }
+
+    // checking if the lecture belongs to this course
+    const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+    if (!doesLectureBelong) {
+        throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { lectureId, courseId });
+    }
+
+    const hasBooked = await hasStudentBookedLecture(sId, lId);
+    if (!hasBooked) {
+        throw genResponseError(errno.BOOKING_NOT_PRESENT, { studentId, lectureId });
+    }
+
+    await db.updateBookingStatus(new Lecture(lId), new Student(sId), status.toUpperCase());
+
+    return 204;
+};
+exports.teacherUpdateCourseLectureStudentStatus = this.teacherUpdateCourseLectureStudentStatus;
 
 /**
  * Extract the options from a query string
@@ -540,24 +582,6 @@ function isLectureSwitchable(lecture, requestDateTime, newMode) {
 }
 
 /**
- * Check if the switchTo is a valid delivery mode
- * @param {String} switchTo
- * @returns {Boolean}
- */
-function isValidDeliveryMode(switchTo) {
-    if (!switchTo) return false;
-
-    if (
-        switchTo.toUpperCase() === Lecture.DeliveryType.PRESENCE ||
-        switchTo.toUpperCase() === Lecture.DeliveryType.REMOTE
-    ) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
  * Send daily summaries about the lectures to the teacher in charge of the respective course
  * @param {Object} summaries. E.g. summaries = { 1: {teacher: <Teacher>, course: <Course>, lecture: <Lecture>, studentsBooked: 1}, 2: {...} }
  * @param {Date} requestDateTime
@@ -619,6 +643,24 @@ async function doesLectureBelongToCourse(courseId, lectureId) {
     }
 
     return doesBelong;
+}
+
+/**
+ * Check if a student has booked a lecture
+ *
+ * studentId {Integer}
+ * lectureId {Integer}
+ * returns {Boolean}
+ **/
+async function hasStudentBookedLecture(studentId, lectureId) {
+    let has = false;
+
+    const bookings = await db.getBookingsByStudent(new Student(studentId));
+    if (bookings.length > 0) {
+        has = bookings.some((booking) => booking.lectureId === lectureId);
+    }
+
+    return has;
 }
 
 /**
@@ -686,4 +728,8 @@ exports._findSummaryExpiredLectures = findSummaryExpiredLectures;
 function isObjEmpty(obj) {
     if (!obj) return true;
     return Object.keys(obj).length === 0;
+}
+
+function genResponseError(nerror, error) {
+    return new ResponseError(MODULE_NAME, nerror, error);
 }

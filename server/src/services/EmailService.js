@@ -126,6 +126,7 @@ function formatString(str, args) {
     }
     return a;
 }
+module.exports.formatString = formatString;
 
 function getDefaultEmailSubject(emailType, args) {
     return formatString(defaultTemplates[emailType].subject, args);
@@ -134,3 +135,4 @@ function getDefaultEmailSubject(emailType, args) {
 function getDefaultEmailMessage(emailType, args) {
     return formatString(defaultTemplates[emailType].message, args);
 }
+

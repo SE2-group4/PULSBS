@@ -12,10 +12,11 @@ INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(1, '
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(3, 'STUDENT', 'Silvana', 'Fallisi', 'tjw85.student.fallisi@inbox.testmail.app', 'silvana');
 
-INSERT INTO Course(courseId, description, year) VALUES(1, 'Software enginnering 2', 2020);
-INSERT INTO Course(courseId, description, year) VALUES(2, 'Computer system security', 2020);
-INSERT INTO Course(courseId, description, year) VALUES(3, 'Machine learning and artificial intelligence', 2020);
-INSERT INTO Course(courseId, description, year) VALUES(4, 'Web application', 2020);
+INSERT INTO Course(courseId, description, year, semester, code) VALUES(1, 'Software enginnering 2', 2020, 1, "PERS1");
+INSERT INTO Course(courseId, description, year, semester, code) VALUES(2, 'Computer system security', 2020, 1, "PERS2");
+INSERT INTO Course(courseId, description, year, semester, code) VALUES(3, 'Machine learning and artificial intelligence', 2020, 1, "PERS3");
+INSERT INTO Course(courseId, description, year, semester, code) VALUES(4, 'Web application', 2020, 1, "PERS4");
+-- INSERT INTO Course(courseId, description, year, semester, code) VALUES(5, 'ANONYMOUS', 2020, 1, "XY8221");
 
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'tjw85.teacher.poretti@inbox.testmail.app', 'giacomo');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'tjw85.teacher.massironi@inbox.testmail.app', 'marina');
