@@ -114,7 +114,7 @@ class ResponseError {
         ROUTE_FORBIDDEN: 0,
     };
 
-    static getErrorMessage(errno, args) {
+    static getErrorMessage(errno, args = {}) {
         switch (errno) {
             case ResponseError.errno.COURSE_NOT_ENROLLED_AA:
                 return `student (student = ${args.studentId}) is not enrolled in this course (courseId = ${args.courseId}) during this AA`;
