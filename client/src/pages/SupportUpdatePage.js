@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import APIfake from '../api/APIfake';
+import API from '../api/Api';
 import Spinner from 'react-bootstrap/Spinner';
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
@@ -23,10 +24,10 @@ class SupportUpdatePage extends React.Component {
 
     async componentDidMount() {
         try {
-            let courses = await APIfake.getCoursesBySupportId(this.props.user.userId)
+            let courses = await API.getCoursesBySupportId(this.props.user.userId)
             let lectures = []
             for (let course of courses)
-                lectures.push(...await APIfake.getLecturesByCourseId_S(this.props.userId, course.courseId))
+                lectures.push(...await API.getLecturesByCourseId_S(this.props.user.userId, course.courseId))
             this.setState({ courses: courses, loading: false, lectures: lectures })
         } catch (err) {
 
@@ -62,12 +63,12 @@ class SupportUpdatePage extends React.Component {
      */
     changeDelivery = (lecture) => {
         this.setState({ loading: true })
-        APIfake.updateDeliveryByLecture_S(this.props.user.userId, lecture.courseId, lecture.lectureId, lecture.delivery)
+        API.updateDeliveryByLecture_S(this.props.user.userId, lecture.courseId, lecture.lectureId, lecture.delivery === "REMOTE" ? "PRESENCE" : "REMOTE")
             .then(() => {
                 let lectures = this.state.lectures;
                 for (let l of lectures)
                     if (l.lectureId === lecture.lectureId)
-                        l.delivery = lecture.delivery === "REMOTE" ? "inPresence" : "REMOTE"
+                        l.delivery = lecture.delivery === "REMOTE" ? "PRESENCE" : "REMOTE"
                 this.setState({ loading: false, lectures: lectures })
 
             })
@@ -240,10 +241,9 @@ function Lectures(props) {
                         <th>Course</th>
                         <th>Class</th>
                         <th>Date</th>
-                        <th>Duration</th>
+                        <th>Start Hour</th>
+                        <th>End Hour</th>
                         <th>Booking deadline</th>
-                        <th>Class capacity</th>
-                        <th>#Bookings</th>
                         <th>Delivery</th>
                         <th>Change delivery</th>
                     </tr>
@@ -275,12 +275,11 @@ function TableEntry(props) {
     return (
         <tr>
             <td>{courseName(props.lecture.courseId, props.courses)}</td>
-            <td>{props.lecture.className}</td>
-            <td>{props.lecture.startingDate}</td>
-            <td>{props.lecture.duration}</td>
-            <td>{props.lecture.bookingDeadline}</td>
-            <td>{props.lecture.classCapacity}</td>
-            <td>{props.lecture.numBookings}</td>
+            <td>{props.lecture.classId}</td>
+            <td>{moment(props.lecture.startingDate).format("DD-MM-YYYY")}</td>
+            <td>{moment(props.lecture.startingDate).format("HH:mm")}</td>
+            <td>{moment(props.lecture.startingDate).add("milliseconds", props.lecture.duration).format("HH:mm")}</td>
+            <td>{moment(props.lecture.bookingDeadline).format("DD-MM-YYYY HH:mm")}</td>
             <td>{props.lecture.delivery === "REMOTE" ? "REMOTE" : "IN PRESENCE"}</td>
             <td>{props.lecture.delivery === "REMOTE" ? <Button variant="warning" onClick={() => props.changeDelivery(props.lecture)} >Change to "In Presence"</Button> : <Button variant="warning" onClick={() => props.changeDelivery(props.lecture)}> Change to "Remote"</Button>}</td>
 

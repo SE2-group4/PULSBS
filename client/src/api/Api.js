@@ -364,6 +364,60 @@ async function resetDB() {
     })
 }
 
+
+async function getCoursesBySupportId(id) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/supportOfficers/${id}/courses`).then((response) => {
+            if (response.ok) {
+                response.json()
+                    .then((obj) => { resolve(obj) })
+                    .catch((err) => { reject({ source: "SupportOfficer", error: "application parse error" }) }); // something else
+            } else {
+                // analyze the cause of error
+                if (response.status === 404)
+                    reject()
+                else reject("err")
+
+            }
+        }).catch((err) => { reject("err") }); // connection errors
+    });
+}
+
+async function getLecturesByCourseId_S(id, courseId) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/supportOfficers/${id}/courses/${courseId}/lectures`).then((response) => {
+            if (response.ok) {
+                response.json()
+                    .then((obj) => { console.log(obj); resolve(obj) })
+                    .catch((err) => { reject({ source: "SupportOfficer", error: "application parse error" }) }); // something else
+            } else {
+                // analyze the cause of error
+                if (response.status === 404)
+                    reject()
+                else reject("err")
+
+            }
+        }).catch((err) => { reject("err") }); // connection errors
+    });
+}
+
+
+async function updateDeliveryByLecture_S(id, courseId, lectureId, delivery) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/supportOfficers/${id}/courses/${courseId}/lectures/${lectureId}?switchTo=${delivery}`, {
+            method: 'PUT',
+        }).then((response) => {
+            if (response.ok) {
+                resolve(); //delivery correctly updated
+            } else {
+                response.json()
+                    .then((obj) => { console.log(obj); reject({ source: "SupportOfficer", error: "can't update delivery" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "supportOfficer", error: "server error" }) }); // something else
+            }
+        }).catch((err) => { reject({ source: "SupportOfficer", error: "server error" }) }); // connection errors
+    });
+}
+
 /************************ BOOKING MANAGER ************************************/
 
 async function getStudentBySSN(id, ssn) {
@@ -441,6 +495,6 @@ async function getAllCourses(id) {
 const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
     getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport,
-    getAllCourses, resetDB
+    getAllCourses, resetDB, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S
 };
 export default API;
