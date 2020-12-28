@@ -753,6 +753,29 @@ const updateLectureDeliveryMode = function (lecture) {
 exports.updateLectureDeliveryMode = updateLectureDeliveryMode;
 
 /**
+ * Update a booking status
+ * @param {Lecture} lecture - lectureId
+ * @param {Student} student - studentId
+ * @param {String} status
+ * @returns {Promise} num of rows affected
+ */
+const updateBookingStatus = function (lecture, student, status) {
+    return new Promise((resolve, reject) => {
+        const sql = `UPDATE Booking SET status = ? WHERE lectureId = ? AND studentId = ?`;
+
+        db.run(sql, [status, lecture.lectureId, student.studentId], function (err) {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(this.changes);
+        });
+    });
+};
+exports.updateBookingStatus = updateBookingStatus;
+
+/**
  * Return all lectures + num of booked students per lecture given a course
  * @param {Course} course - courseId needed
  * @returns {Promise} promise
@@ -1089,11 +1112,13 @@ exports.getClassByLecture = getClassByLecture;
 const execBatch = function (queries) {
     return new Promise((resolve, reject) => {
         db.run("BEGIN TRANSACTION;");
+
         queries.forEach((query) =>
             db.run(query, function (error) {
                 if (error) reject(error);
             })
         );
+
         db.run("END TRANSACTION;", () => resolve());
     });
 };

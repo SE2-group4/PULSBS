@@ -5,10 +5,11 @@ const utils = require("../utils/writer");
 const express = require("express");
 const router = express.Router();
 
+router.put("/:teacherId/courses/:courseId/lectures/:lectureId/students/:studentId", teacherUpdateCourseLectureStudentStatus);
 router.get("/:teacherId/courses/:courseId/lectures/:lectureId/students", teacherGetCourseLectureStudents);
 router.get("/:teacherId/courses/:courseId/lectures/:lectureId", teacherGetCourseLecture);
 router.delete("/:teacherId/courses/:courseId/lectures/:lectureId", teacherDeleteCourseLecture);
-router.put("/:teacherId/courses/:courseId/lectures/:lectureId", teacherPutCourseLecture);
+router.put("/:teacherId/courses/:courseId/lectures/:lectureId", teacherUpdateCourseLecture);
 router.get("/:teacherId/courses/:courseId/lectures", teacherGetCourseLectures);
 router.get("/:teacherId/courses", teacherGetCourses);
 module.exports.TeacherRouter = router;
@@ -86,17 +87,13 @@ function teacherDeleteCourseLecture(req, res) {
 }
 module.exports.teacherDeleteCourseLecture = teacherDeleteCourseLecture;
 
-function teacherPutCourseLecture(req, res) {
+function teacherUpdateCourseLecture(req, res) {
     const teacherId = req.params.teacherId;
     const courseId = req.params.courseId;
     const lectureId = req.params.lectureId;
-    let switchTo = undefined;
+    const studentId = req.params.studentId;
 
-    if (req.query.switchTo) {
-        switchTo = req.query.switchTo;
-    }
-
-    Teacher.teacherUpdateCourseLectureDeliveryMode(teacherId, courseId, lectureId, switchTo)
+    Teacher.teacherUpdateCourseLectureDeliveryMode(teacherId, courseId, lectureId, req.query.switchTo)
         .then(function (response) {
             utils.writeJson(res, response);
         })
@@ -104,7 +101,23 @@ function teacherPutCourseLecture(req, res) {
             utils.writeJson(res, response);
         });
 }
-module.exports.teacherPutCourseLecture = teacherPutCourseLecture;
+module.exports.teacherUpdateCourseLecture = teacherUpdateCourseLecture;
+
+function teacherUpdateCourseLectureStudentStatus(req, res) {
+    const teacherId = req.params.teacherId;
+    const courseId = req.params.courseId;
+    const lectureId = req.params.lectureId;
+    const studentId = req.params.studentId;
+
+    Teacher.teacherUpdateCourseLectureStudentStatus(teacherId, courseId, lectureId, studentId, req.query.status)
+        .then(function (response) {
+            utils.writeJson(res, response);
+        })
+        .catch(function (response) {
+            utils.writeJson(res, response);
+        });
+}
+module.exports.teacherUpdateCourseLecture = teacherUpdateCourseLecture;
 
 function checkForExpiredLectures() {
     return Teacher.checkForExpiredLectures();

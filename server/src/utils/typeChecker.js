@@ -1,4 +1,5 @@
 const Lecture = require("../entities/Lecture");
+const Booking = require("../entities/Booking");
 
 /**
  * Check if the switchTo is a valid delivery mode
@@ -18,4 +19,22 @@ function isValidDeliveryMode(switchTo) {
     return false;
 }
 
-module.exports = { isValidDeliveryMode };
+/**
+ * Check if the status is a valid value for Bookings.status
+ * @param {String} status 
+ * @returns {Boolean}
+ */
+function isValidBookingStatus(status) {
+    if (!status) return false;
+
+    if (
+        status.toUpperCase() === Booking.BookingType.PRESENT ||
+        status.toUpperCase() === Booking.BookingType.ABSENT
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+module.exports = { isValidDeliveryMode, isValidBookingStatus };
