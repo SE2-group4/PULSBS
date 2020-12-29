@@ -286,7 +286,7 @@ function TableEntry(props) {
             <td>{moment(props.lecture.startingDate).add(props.lecture.duration, "milliseconds").format("HH:mm")}</td>
             <td>{moment(props.lecture.bookingDeadline).format("DD-MM-YYYY HH:mm")}</td>
             <td>{props.lecture.delivery === "REMOTE" ? "REMOTE" : "IN PRESENCE"}</td>
-            <td>{props.lecture.delivery === "REMOTE" ? <Button data-testid={props.lecture.lectureId + "-button"} variant="warning" onClick={() => props.changeDelivery(props.lecture)} >Change to "In Presence"</Button> : <Button data-testid={props.lecture.lectureId + "-button"} variant="warning" onClick={() => props.changeDelivery(props.lecture)}> Change to "Remote"</Button>}</td>
+            <td>{props.lecture.delivery === "REMOTE" ? <Button data-testid={props.lecture.lectureId + "-button"} variant="warning" onClick={() => props.changeDelivery(props.lecture)} >Change to "In Presence"</Button> : <Button data-testid={props.lecture.lectureId + "-button"} variant="warning" onClick={() => props.changeDelivery(props.lecture)}>Change to "Remote"</Button>}</td>
 
         </tr >
     )

@@ -22,11 +22,10 @@ const courses = [
     new Course(2, "Data Science", "2020"),
 ]
 const lecturesCourse1 = [
-    new Lecture(1, 1, 1, moment().add("1", "hours").toISOString(), 600000, moment().subtract("1", "days").toISOString(), "inPresence"),
-    new Lecture(4, 1, 2, moment().add("1", "months").toISOString(), 600000, "11-23-2020 19:19", "remote", 10, 25, "12A")
+    new Lecture(1, 1, 1, moment().add("1", "hours").toISOString(), 600000, moment().subtract("1", "days").toISOString(), "PRESENCE"),
 ]
 const lecturesCourse2 = [
-    new Lecture(2, 2, 1, moment().add("3", "hours").toISOString(), 600000, moment().add("5", "minutes").toISOString(), "inPresence"),
+    new Lecture(2, 2, 1, moment().add("3", "hours").toISOString(), 600000, moment().add("5", "minutes").toISOString(), "REMOTE"),
 ]
 
 async function setupSupportUpdatePage() {
@@ -120,12 +119,19 @@ describe("SupportUpdatePage suite", () => {
         await act(async () => {
             userEvent.click(screen.getByTestId("1-button"))
         });
-        screen.debug()
-        expect(screen.getByTestId("1-button")).toHaveValue('Change to "In Presence"')
+
+        expect(screen.getByTestId("1-button").innerHTML).toBe('Change to "In Presence"')
     })
 
     test("Change delivery from remote to presence", async () => {
+        await setupSupportUpdatePage();
+        screen.debug()
+        fetch.mockResponseOnce([{}, { status: 200 }])
+        await act(async () => {
+            userEvent.click(screen.getByTestId("2-button"))
+        });
 
+        expect(screen.getByTestId("2-button").innerHTML).toBe('Change to "Remote"')
     })
 
     test("Change page", async () => {
