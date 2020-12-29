@@ -388,7 +388,7 @@ async function getLecturesByCourseId_S(id, courseId) {
         fetch(baseURL + `/supportOfficers/${id}/courses/${courseId}/lectures`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { console.log(obj); resolve(obj) })
+                    .then((obj) => { resolve(obj) })
                     .catch((err) => { reject({ source: "SupportOfficer", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
@@ -411,7 +411,7 @@ async function updateDeliveryByLecture_S(id, courseId, lectureId, delivery) {
                 resolve(); //delivery correctly updated
             } else {
                 response.json()
-                    .then((obj) => { console.log(obj); reject({ source: "SupportOfficer", error: "can't update delivery" }); }) // error msg in the response body
+                    .then((obj) => { reject({ source: "SupportOfficer", error: "can't update delivery" }); }) // error msg in the response body
                     .catch((err) => { reject({ source: "supportOfficer", error: "server error" }) }); // something else
             }
         }).catch((err) => { reject({ source: "SupportOfficer", error: "server error" }) }); // connection errors

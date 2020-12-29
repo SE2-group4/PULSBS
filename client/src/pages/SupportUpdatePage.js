@@ -3,7 +3,6 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import ErroMsg from '../components/ErrorMsg';
 import API from '../api/Api';
 import Spinner from 'react-bootstrap/Spinner';
 import Table from 'react-bootstrap/Table';
@@ -112,9 +111,9 @@ function Filters(props) {
                 </Row>
                 <Row>
                     <Col>
-                        <Form.Control as="select" custom onChange={(ev) => { props.changeCourse(ev.target.value) }} defaultValue={props.chosenCourse}>
-                            <option key="All">All</option>
-                            {props.courses.map((course) => { return (<option key={course.courseId}>{course.description}</option>) })}
+                        <Form.Control as="select" custom onChange={(ev) => { props.changeCourse(ev.target.value) }} /*defaultValue={props.chosenCourse}*/>
+                            <option key="All" data-testid="All" >All</option>
+                            {props.courses.map((course) => { return (<option key={course.courseId} data-testid={course.description} >{course.description}</option>) })}
                         </Form.Control>
                     </Col>
                     <Col>
@@ -258,7 +257,7 @@ function Lectures(props) {
                     {tableEntries}
                 </tbody>
             </Table>
-            {nPages > 1 && <Pagination onClick={(ev) => setActive(ev.target.text)}>{items}</Pagination>}
+            {nPages > 1 && <Pagination onClick={(ev) => { if (ev.target.text) setActive(ev.target.text) }}>{items}</Pagination>}
         </>
     )
 }
@@ -284,10 +283,10 @@ function TableEntry(props) {
             <td>{props.lecture.classId}</td>
             <td>{moment(props.lecture.startingDate).format("DD-MM-YYYY")}</td>
             <td>{moment(props.lecture.startingDate).format("HH:mm")}</td>
-            <td>{moment(props.lecture.startingDate).add("milliseconds", props.lecture.duration).format("HH:mm")}</td>
+            <td>{moment(props.lecture.startingDate).add(props.lecture.duration, "milliseconds").format("HH:mm")}</td>
             <td>{moment(props.lecture.bookingDeadline).format("DD-MM-YYYY HH:mm")}</td>
             <td>{props.lecture.delivery === "REMOTE" ? "REMOTE" : "IN PRESENCE"}</td>
-            <td>{props.lecture.delivery === "REMOTE" ? <Button variant="warning" onClick={() => props.changeDelivery(props.lecture)} >Change to "In Presence"</Button> : <Button variant="warning" onClick={() => props.changeDelivery(props.lecture)}> Change to "Remote"</Button>}</td>
+            <td>{props.lecture.delivery === "REMOTE" ? <Button data-testid={props.lecture.lectureId + "-button"} variant="warning" onClick={() => props.changeDelivery(props.lecture)} >Change to "In Presence"</Button> : <Button data-testid={props.lecture.lectureId + "-button"} variant="warning" onClick={() => props.changeDelivery(props.lecture)}> Change to "Remote"</Button>}</td>
 
         </tr >
     )
