@@ -42,7 +42,6 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
 
         let dataSql = fs.readFileSync(dbscript).toString();
 
-        let triggerData = dataSql;
         dataSql = dataSql.replace(/--(.*?)\r?\n|\r/g, ' '); // remove comments
         dataSql = dataSql.replace(/\r?\n|\r/g, ' '); // remove newline
         dataSql = dataSql.replace('\t', ' '); // remove tabs
