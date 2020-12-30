@@ -308,6 +308,31 @@ async function deleteLecture(Tid, Cid, Lid) {
     });
 }
 
+/**
+ * Update student status {PRESENT,ABSENT}
+ * @param {*} Uid teacherId
+ * @param {*} Cid courseId
+ * @param {*} Lid lectureId
+ * @param {*} Sid studentId
+ * @param {*} status {PRESENT,ABSENT}
+ */
+async function updateStudentStatus(Uid, Cid, Lid, Sid, status) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures/${Lid}/students/${Sid}?status=${status}`, {
+            method: 'PUT',
+        }).then((response) => {
+            if (response.ok) {
+                resolve(); //student status correctly updated
+            } else {
+                // analyze the cause of error
+                response.json()
+                    .then((obj) => { reject({ source: "Student", error: "invalid parameter error" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Student", error: "server error" }) }); // something else
+            }
+        }).catch((err) => { reject({ source: "Student", error: "server error" }) }); // connection errors
+    });
+}
+
 /************************* SUPPORT OFFICER API *************************************/
 
 /**
@@ -441,6 +466,6 @@ async function getAllCourses(id) {
 const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
     getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport,
-    getAllCourses, resetDB
+    getAllCourses, resetDB, updateStudentStatus
 };
 export default API;
