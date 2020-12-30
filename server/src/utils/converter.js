@@ -122,4 +122,4 @@ function isValueOfType(acceptedType, value) {
         }
     }
 }
-module.exports = { convertToNumbers, convertToBooleans, isObjectEmpty, isValueOfType };
+module.exports = { convertToNumbers, convertToBooleans, isObjectEmpty, isValueOfType, toBoolean };

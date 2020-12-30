@@ -16,7 +16,7 @@ class Booking {
         UNBOOKED: "UNBOOKED",
         PRESENT: "PRESENT",
         NOT_PRESENT: "NOT_PRESENT",
-        ABSENT: "ABSENT",
+        ABSENT: "NOT_PRESENT",
         // add more here
     };
 }

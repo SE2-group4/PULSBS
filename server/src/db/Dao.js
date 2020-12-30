@@ -603,7 +603,7 @@ const getBookingsByStudentAndPeriodOfTime = function (student, periodOfTime = {}
 exports.getBookingsByStudentAndPeriodOfTime = getBookingsByStudentAndPeriodOfTime;
 
 /**
- * get lectures in a specific period of time
+ * get lectures of a course in a specific period of time
  * @param {Course} course - courseId needed
  * @param {Object} periodOfTime - {Date} from (optional), {Date} to (optional)
  * @returns {Promise} promise

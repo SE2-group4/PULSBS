@@ -15,7 +15,7 @@ const defaultStatusCode = {
     COURSE_LECTURE_MISMATCH_AA: 404,
     DB_GENERIC_ERROR: 500,
     LECTURE_GIVEN: 400,
-    LECTURE_NOT_FOUND: 400,
+    LECTURE_NOT_FOUND: 404,
     LECTURE_INVALID_DELIVERY_MODE: 400,
     LECTURE_NOT_CANCELLABLE: 400,
     LECTURE_NOT_SWITCHABLE: 406,
@@ -110,6 +110,7 @@ class ResponseError {
         PARAM_NOT_BOOLEAN: 1,
         PARAM_NOT_DATE: 2,
         PARAM_NOT_INT: 3,
+        QUERY_NOT_OBJ: 8,
         QUERY_PARAM_NOT_ACCEPTED: 4,
         QUERY_PARAM_VALUE_NOT_ACCEPTED: 5,
         ENTITY_TYPE_NOT_VALID: 6,
@@ -165,13 +166,14 @@ class ResponseError {
                 return `'${keyName}' parameter is not a boolean: ${args[keyName]}`;
             }
 
-            case ResponseError.errno.QUERY_PARAM_NOT_ACCEPTED: {
-                let str = [];
-                for (const [key, value] of Object.entries(args.query)) {
-                    str.push(`(${key}, ${value})`);
-                }
+            case ResponseError.errno.QUERY_NOT_OBJ: {
+                const keyName = Object.keys(args)[0];
+                return `'${keyName}' parameter is not an object: ${args[keyName]}`;
+            }
 
-                return `Query '${str.join(", ")}' not accepted`;
+
+            case ResponseError.errno.QUERY_PARAM_NOT_ACCEPTED: {
+                return `Query '${args.params.join(", ")}' not accepted`;
             }
 
             case ResponseError.errno.QUERY_PARAM_VALUE_NOT_ACCEPTED:
