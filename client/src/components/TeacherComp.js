@@ -6,10 +6,14 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import Pagination from 'react-bootstrap/Pagination';
 
 const Checkbox = ({ name, checked = false, onChange, type }) => (
     <Form.Check name={name} checked={checked} onChange={onChange} data-testid={type + "-" + name} />
 );
+
+const elementForPage = 4;
+const studentForPage = 10;
 
 class CoursePanel extends React.Component {
 
@@ -27,11 +31,27 @@ class CoursePanel extends React.Component {
     }
 
     //NavButtons handler
-    onClick = (e) => {
-        this.props.change("currCPage", e.target.name);
+    onClick = (number) => {
+        this.props.change("currCPage", number);
     }
 
     render() {
+        let nPages = Math.ceil(this.props.courses.length / elementForPage);
+        let items = [];
+        for (let number = 1; number <= nPages; number++) {
+            items.push(
+                <Pagination.Item data-testid={"paginationItemCourse-" + number} key={number} active={number == this.props.currentPage} >
+                    {number}
+                </Pagination.Item>,
+            );
+        }
+        let tableEntries = [];
+        for (let entry = (this.props.currentPage - 1) * elementForPage; entry <= this.props.currentPage * elementForPage - 1; entry++) {
+            let course = this.props.courses[entry];
+            if (course)
+                tableEntries.push(<CoursePanelRow key={course.courseId} checkedOne={this.props.sCourse} course={course} handler={this.handler} />);
+        }
+
         return <>
             <Container fluid>
                 <strong>Course list:</strong><br />
@@ -44,31 +64,24 @@ class CoursePanel extends React.Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {
-                            this.props.courses.map((course) => (
-                                <CoursePanelRow key={course.courseId} checkedOne={this.props.sCourse} course={course} handler={this.handler} pMap={this.props.pageMap}
-                                    nPages={this.props.nPages} current={this.props.currentPage} />
-                            ))
-                        }
+                        {tableEntries}
                     </tbody>
                 </Table>
+                {nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
+                {this.props.courses.length === 0 && <label>no courses available.</label>}
+                <span className="selectedText">{this.props.sCourse && <label data-testid="selected-course">Selected course: <b>{this.props.sCourse}</b></label>}</span>
             </Container>
-            {this.props.nPages > 1 && <NavButtons currentPage={this.props.currentPage} nPages={this.props.nPages} onClick={this.onClick} />}
-            {this.props.courses.length === 0 && <label>no courses available.</label>}
-            <span className="selectedText">{this.props.sCourse && <label data-testid="selected-course">Selected course: <b>{this.props.sCourse}</b></label>}</span>
             <br />
         </>;
     }
 }
 
 function CoursePanelRow(props) {
-    if (props.nPages === 1 || (props.nPages > 1 && props.pMap.get(props.course.courseId) === props.current))
-        return <tr data-testid="course-row">
-            <td>{props.course.courseId}</td>
-            <td>{props.course.description}</td>
-            <td><Checkbox name={props.course.courseId} checked={props.checkedOne == props.course.courseId ? true : false} onChange={props.handler} type={"c"} /></td>
-        </tr>
-    return <></>;
+    return <tr data-testid="course-row">
+        <td>{props.course.courseId}</td>
+        <td>{props.course.description}</td>
+        <td><Checkbox name={props.course.courseId} checked={props.checkedOne == props.course.courseId ? true : false} onChange={props.handler} type={"c"} /></td>
+    </tr>;
 }
 
 class LecturePanel extends React.Component {
@@ -97,11 +110,27 @@ class LecturePanel extends React.Component {
     }
 
     //NavButtons handler
-    onClick = (e) => {
-        this.props.change("currLPage", e.target.name);
+    onClick = (number) => {
+        this.props.change("currLPage", number);
     }
 
     render() {
+        let nPages = Math.ceil(this.props.lectures.length / elementForPage);
+        let items = [];
+        for (let number = 1; number <= nPages; number++) {
+            items.push(
+                <Pagination.Item data-testid={"paginationItemLecture-" + number} key={number} active={number == this.props.currentPage} >
+                    {number}
+                </Pagination.Item>,
+            );
+        }
+        let tableEntries = [];
+        for (let entry = (this.props.currentPage - 1) * elementForPage; entry <= this.props.currentPage * elementForPage - 1; entry++) {
+            let lecture = this.props.lectures[entry];
+            if (lecture)
+                tableEntries.push(<LecturePanelRow key={lecture.lectureId} checkedOne={this.props.sLecture} lecture={lecture} handler={this.handler} editOpen={this.editOpen} deleteOpen={this.deleteOpen} />);
+        }
+
         return <>
             <Container fluid>
                 <strong>Lecture list:</strong><br />
@@ -117,16 +146,13 @@ class LecturePanel extends React.Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {
-                            this.props.lectures.map((lecture) => (<LecturePanelRow key={lecture.lectureId} checkedOne={this.props.sLecture} lecture={lecture} handler={this.handler}
-                                pMap={this.props.pageMap} nPages={this.props.nPages} current={this.props.currentPage} editOpen={this.editOpen} deleteOpen={this.deleteOpen} />))
-                        }
+                        {tableEntries}
                     </tbody>
                 </Table>
+                {nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
+                {this.props.lectures.length === 0 && <label>no lectures available.</label>}
+                <span className="selectedText" >{this.props.sLecture && <label data-testid="selected-lecture">Selected lecture: <b>{this.props.sLecture}</b></label>}</span>
             </Container>
-            {this.props.nPages > 1 && <NavButtons currentPage={this.props.currentPage} nPages={this.props.nPages} onClick={this.onClick} />}
-            {this.props.lectures.length === 0 && <label>no lectures available.</label>}
-            <span className="selectedText" >{this.props.sLecture && <label data-testid="selected-lecture">Selected lecture: <b>{this.props.sLecture}</b></label>}</span>
             <br />
         </>;
     }
@@ -138,37 +164,35 @@ function LecturePanelRow(props) {
     let canEdit = ((date.getTime() - now.getTime()) / (1000 * 60)) > 30 ? true : false; //check to time distance (more than 30 minutes)
     let canDelete = ((date.getTime() - now.getTime()) / (1000 * 60)) > 60 ? true : false; //check to time distance (more than 60 minutes)
     let deliveryText = props.lecture.delivery.charAt(0) + props.lecture.delivery.substring(1).toLowerCase();
-    if (props.nPages === 1 || (props.nPages > 1 && props.pMap.get(props.lecture.lectureId) === props.current))
-        return <tr data-testid="lecture-row">
-            <td>{props.lecture.lectureId}</td>
-            <td>{date.toLocaleDateString()}{" " + (date.toLocaleTimeString()).slice(0, 5)}</td>
-            <td>{deliveryText}</td>
-            <td>{props.lecture.delivery === 'REMOTE' &&
-                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't switch delivery to Presence.</Tooltip>}>
+    return <tr data-testid="lecture-row">
+        <td>{props.lecture.lectureId}</td>
+        <td>{date.toLocaleDateString()}{" " + (date.toLocaleTimeString()).slice(0, 5)}</td>
+        <td>{deliveryText}</td>
+        <td>{props.lecture.delivery === 'REMOTE' &&
+            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't switch delivery to Presence.</Tooltip>}>
+                <span className="d-inline-block">
+                    <Button disabled style={{ pointerEvents: 'none' }} variant="warning">toPresence</Button>
+                </span></OverlayTrigger>}
+            {!canEdit && props.lecture.delivery === 'PRESENCE' &&
+                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't switch delivery if the lecture is closer than 30 mins.</Tooltip>}>
                     <span className="d-inline-block">
-                        <Button disabled style={{ pointerEvents: 'none' }} variant="warning">toPresence</Button>
+                        <Button disabled style={{ pointerEvents: 'none' }} variant="warning">toRemote&nbsp;&nbsp;</Button>
                     </span></OverlayTrigger>}
-                {!canEdit && props.lecture.delivery === 'PRESENCE' &&
-                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't switch delivery if the lecture is closer than 30 mins.</Tooltip>}>
-                        <span className="d-inline-block">
-                            <Button disabled style={{ pointerEvents: 'none' }} variant="warning">toRemote&nbsp;&nbsp;</Button>
-                        </span></OverlayTrigger>}
-                {canEdit && props.lecture.delivery !== 'REMOTE' &&
-                    <Button name={props.lecture.lectureId} value={props.lecture.delivery} onClick={props.editOpen}
-                        variant="warning" data-testid={"m-" + props.lecture.lectureId} disabled={props.lecture.delivery === 'ERROR' ? true : false}>
-                        {props.lecture.delivery !== 'PRESENCE' ? "-" : <>toRemote&nbsp;&nbsp;</>}
-                    </Button>}
-            </td>
-            <td>{!canDelete &&
-                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't delete lecture if the lecture is closer than 60 mins.</Tooltip>}>
-                    <span className="d-inline-block">
-                        <Button disabled style={{ pointerEvents: 'none' }} variant="warning">delete</Button>
-                    </span></OverlayTrigger>}
-                {canDelete && <Button name={props.lecture.lectureId} onClick={props.deleteOpen} data-testid={"d-" + props.lecture.lectureId} variant="warning">delete</Button>}
-            </td>
-            <td><Checkbox name={props.lecture.lectureId} checked={props.checkedOne == props.lecture.lectureId ? true : false} onChange={props.handler} type={"l"} /></td>
-        </tr>
-    return <></>;
+            {canEdit && props.lecture.delivery !== 'REMOTE' &&
+                <Button name={props.lecture.lectureId} value={props.lecture.delivery} onClick={props.editOpen}
+                    variant="warning" data-testid={"m-" + props.lecture.lectureId} disabled={props.lecture.delivery === 'ERROR' ? true : false}>
+                    {props.lecture.delivery !== 'PRESENCE' ? "-" : <>toRemote&nbsp;&nbsp;</>}
+                </Button>}
+        </td>
+        <td>{!canDelete &&
+            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't delete lecture if the lecture is closer than 60 mins.</Tooltip>}>
+                <span className="d-inline-block">
+                    <Button disabled style={{ pointerEvents: 'none' }} variant="warning">delete</Button>
+                </span></OverlayTrigger>}
+            {canDelete && <Button name={props.lecture.lectureId} onClick={props.deleteOpen} data-testid={"d-" + props.lecture.lectureId} variant="warning">delete</Button>}
+        </td>
+        <td><Checkbox name={props.lecture.lectureId} checked={props.checkedOne == props.lecture.lectureId ? true : false} onChange={props.handler} type={"l"} /></td>
+    </tr>;
 }
 
 class StudentPanel extends React.Component {
@@ -179,11 +203,27 @@ class StudentPanel extends React.Component {
     }
 
     //NavButtons handler
-    onClick = (e) => {
-        this.props.change("currSPage", e.target.name);
+    onClick = (number) => {
+        this.props.change("currSPage", number);
     }
 
     render() {
+        let nPages = Math.ceil(this.props.students.length / studentForPage);
+        let items = [];
+        for (let number = 1; number <= nPages; number++) {
+            items.push(
+                <Pagination.Item data-testid={"paginationItemStudent-" + number} key={number} active={number == this.props.currentPage} >
+                    {number}
+                </Pagination.Item>,
+            );
+        }
+        let tableEntries = [];
+        for (let entry = (this.props.currentPage - 1) * elementForPage; entry <= this.props.currentPage * elementForPage - 1; entry++) {
+            let student = this.props.students[entry];
+            if (student)
+                tableEntries.push(<StudentPanelRow key={student.studentId} student={student} />);
+        }
+
         return <>
             <Container fluid>
                 <strong>Student list:</strong><br />
@@ -196,37 +236,24 @@ class StudentPanel extends React.Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {
-                            this.props.students.map((student) => (<StudentPanelRow key={student.studentId} student={student} pMap={this.props.pageMap}
-                                nPages={this.props.nPages} current={this.props.currentPage} />))
-                        }
+                        {tableEntries}
                     </tbody>
                 </Table>
+                {this.props.nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
+                {this.props.students.length === 0 && <label>no students listed.</label>}
+                <span className="selectedText">{this.props.students.length !== 0 && <label data-testid="number-students">Number of students: <b>{this.props.students.length}</b></label>}</span>
             </Container>
-            {this.props.nPages > 1 && <NavButtons currentPage={this.props.currentPage} nPages={this.props.nPages} onClick={this.onClick} />}
-            {this.props.students.length === 0 && <label>no students listed.</label>}
-            <span className="selectedText">{this.props.students.length !== 0 && <label data-testid="number-students">Number of students: <b>{this.props.students.length}</b></label>}</span>
             <br />
         </>;
     }
 }
 
 function StudentPanelRow(props) {
-    if (props.nPages === 1 || (props.nPages > 1 && props.pMap.get(props.student.studentId) === props.current))
-        return <tr data-testid="student-row">
-            <td>{props.student.lastName}</td>
-            <td>{props.student.firstName}</td>
-            <td>{props.student.studentId}</td>
-        </tr>
-    return <></>;
-}
-
-function NavButtons(props) {
-    return <>
-        <Button name="prev" size="sm" disabled={props.currentPage === 0 ? true : false} onClick={props.onClick} variant="warning">{"<"}</Button>
-        &nbsp;<label>{props.currentPage + 1} / {props.nPages}</label>&nbsp;
-        <Button name="next" size="sm" disabled={props.currentPage === props.nPages - 1 ? true : false} onClick={props.onClick} variant="warning">{">"}</Button>
-    </>;
+    return <tr data-testid="student-row">
+        <td>{props.student.lastName}</td>
+        <td>{props.student.firstName}</td>
+        <td>{props.student.studentId}</td>
+    </tr>;
 }
 
 function EditModal(props) {
