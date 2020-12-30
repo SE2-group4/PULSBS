@@ -805,25 +805,57 @@ const getLecturesByCoursePlusNumBookings = function (course) {
 exports.getLecturesByCoursePlusNumBookings = getLecturesByCoursePlusNumBookings;
 
 /**
- * Return the number of booked students given a lecture
+ * Return the number of bookings given a lecture
+ * The bookings selected are one of those status: BOOKED, PRESENT, or NOT_PRESENT
  * @param {Lecture} lecture - lectureId needed
- * @returns {Promise} promise
+ * @returns {Promise} Number
  */
 const getNumBookingsOfLecture = function (lecture) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT COUNT(*) as numBookings FROM Booking WHERE lectureId = ? AND status IN (?, ?)`;
+        const sql = `SELECT COUNT(*) as numBookings FROM Booking WHERE lectureId = ? AND status IN (?, ?, ?)`;
 
-        db.get(sql, [lecture.lectureId, Booking.BookingType.BOOKED, Booking.BookingType.PRESENT], function (err, res) {
+        db.get(
+            sql,
+            [
+                lecture.lectureId,
+                Booking.BookingType.BOOKED,
+                Booking.BookingType.PRESENT,
+                Booking.BookingType.NOT_PRESENT,
+            ],
+            function (err, res) {
+                if (err) {
+                    reject(StandardErr.fromDao(err));
+                    return;
+                }
+
+                resolve(res.numBookings);
+            }
+        );
+    });
+};
+exports.getNumBookingsOfLecture = getNumBookingsOfLecture;
+
+/**
+ * Return the number of attendances given a lecture
+ * The bookings selected are those with status PRESENT
+ * @param {Lecture} lecture - lectureId needed
+ * @returns {Promise} Number
+ */
+const getNumAttendancesOfLecture = function (lecture) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT COUNT(*) as numAttendances FROM Booking WHERE lectureId = ? AND status = ?`;
+
+        db.get(sql, [lecture.lectureId, Booking.BookingType.PRESENT], function (err, res) {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
 
-            resolve(res.numBookings);
+            resolve(res.numAttendances);
         });
     });
 };
-exports.getNumBookingsOfLecture = getNumBookingsOfLecture;
+exports.getNumAttendancesOfLecture = getNumAttendancesOfLecture;
 
 /**
  * Return the number of bookings given a lecture and a status

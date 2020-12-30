@@ -22,7 +22,7 @@ const errno = ResponseError.errno;
  * teacherId {Integer}
  * courseId {Integer}
  * lectureId {Integer}
- * returns {Promise} array of Student's instances. A ResponseError on error 
+ * returns {Promise} array of Student's instances. A ResponseError on error
  **/
 exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, lectureId) {
     const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
@@ -50,7 +50,7 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
 };
 
 /**
- * Retrieve all the lectures related to a course.
+ * Retrieve all the lectures associated to a course.
  * You can filter the lecture by passing a query string.
  * If the query string is missing, the function will return all lectures of the course.
  * Otherwise if a 'from' property is passed, it will return all lectures with startingDate >= from.fromDate
@@ -65,10 +65,10 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
 exports.teacherGetCourseLectures = async function (teacherId, courseId, queryString) {
     const { error, teacherId: tId, courseId: cId } = convertToNumbers({ teacherId, courseId });
     if (error) {
-        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
     }
 
-    let { err, dateFilter, bookings } = extractOptions(queryString);
+    let { err, dateFilter, bookings, attendances } = extractOptions(queryString);
     if (err instanceof ResponseError) throw err;
 
     if (!dateFilter) dateFilter = {};
@@ -77,20 +77,15 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
         `Date filter:     ${Object.keys(dateFilter).length === 0 ? "no filter" : JSON.stringify(dateFilter)}`.magenta
     );
     console.info(`Num of bookings: ${bookings === undefined ? false : bookings}`.magenta);
+    console.info(`Num of attendances: ${attendances === undefined ? false : attendances}`.magenta);
 
     // check if the teacher is in charge of this course during this academic year
     let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
     if (!isTeachingThisCourse) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
+        throw genResponseError(ResponseError.TEACHER_COURSE_MISMATCH_AA, { courseId, teacherId });
     }
 
-    const course = new Course(cId);
-    const courseLectures = await db.getLecturesByCourseAndPeriodOfTime(course, dateFilter);
+    const courseLectures = await db.getLecturesByCourseAndPeriodOfTime(new Course(cId), dateFilter);
     if (!bookings) return courseLectures;
 
     let lecturesPlusNumBookings = await Promise.all(
@@ -99,6 +94,15 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
             return { lecture, bookings: totBookings };
         })
     );
+
+    if (attendances) {
+        lecturesPlusNumBookings = await Promise.all(
+            lecturesPlusNumBookings.map(async (lecture) => {
+                const attendances = await db.getNumAttendancesOfLecture(lecture.lecture);
+                return { ...lecture, attendances };
+            })
+        );
+    }
 
     return lecturesPlusNumBookings;
 };
@@ -500,6 +504,21 @@ function extractOptions(queryString) {
                 }
 
                 options.bookings = value === "false" ? false : true;
+                break;
+            }
+            case "attendances": {
+                if (value !== "false" && value !== "true") {
+                    return {
+                        err: new ResponseError(
+                            "TeacherService",
+                            ResponseError.PARAM_NOT_BOOLEAN,
+                            { bookings: queryString[key] },
+                            400
+                        ),
+                    };
+                }
+
+                options.attendances = value === "false" ? false : true;
                 break;
             }
             default:

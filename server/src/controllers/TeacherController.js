@@ -91,7 +91,6 @@ function teacherUpdateCourseLecture(req, res) {
     const teacherId = req.params.teacherId;
     const courseId = req.params.courseId;
     const lectureId = req.params.lectureId;
-    const studentId = req.params.studentId;
 
     Teacher.teacherUpdateCourseLectureDeliveryMode(teacherId, courseId, lectureId, req.query.switchTo)
         .then(function (response) {
