@@ -1365,6 +1365,7 @@ const _getCalendars = function () {
         });
     });
 };
+exports._getCalendars = _getCalendars;
 
 /**
  * generate a list of valid dates from now to the end of the current period of time
@@ -1453,7 +1454,7 @@ exports._generateDatesBySchedule = _generateDatesBySchedule; // export needed fo
 /**
  * remove all lectures given a prototype
  * @param {Lecture} lecturePrototype - courseId, startingDate, duration needed
- * @returns {Promise} promise of int
+ * @returns {Promise} promise of int - number of row changed
  */
 const _deleteLecturesByPrototype = function (lecturePrototype) {
     return new Promise((resolve, reject) => {
@@ -1478,7 +1479,7 @@ exports._deleteLecturesByPrototype = _deleteLecturesByPrototype; // export neede
  * generate a list of lectures and insert them into the DB
  * @param {Schedule} schedule
  * @param {Lecture} lecturePrototype
- * @returns {Promise} promise of void
+ * @returns {Promise} promise of int - number of inserted lectures
  */
 const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype) {
     return new Promise((resolve, reject) => {
@@ -1506,7 +1507,7 @@ const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype)
                     reject(StardardErr.new("Dao", StardardErr.errno.FAILURE, "Unable to insert lectures", 500));
                     return;
                 }
-                resolve();
+                resolve(dates.length); // returns the number of inserted lectures
             })
             .catch(reject);
     });
@@ -1516,7 +1517,7 @@ exports._addLecturesByScheduleAndPrototype = _addLecturesByScheduleAndPrototype;
 /**
  * be sure the class exists
  * @param {Schedule} schedule - roomId, seats needed
- * @returns {Promise} promise of int - last ID
+ * @returns {Promise} promise of int - changed rows
  */
 const _generateClassBySchedule = function (schedule) {
     return new Promise((resolve, reject) => {
@@ -1529,46 +1530,42 @@ const _generateClassBySchedule = function (schedule) {
                 return;
             }
 
-            resolve(this.lastID);
+            resolve(this.changes);
         });
     });
 };
 exports._generateClassBySchedule = _generateClassBySchedule;
 
 /**
- * generate a list of lecture given a schedule
- * @param {Schedule} schedule
- * @param {DaoHint} hint
- * @returns {Promise} promise of bool - true if everything has gone right, false otherwise
+ * generate a lecture prototype given a schedule
+ * @param {Schedule} schedule 
+ * @returns {Promise} promise of Lecture - lecture prototype
  */
-const _generateLecturesBySchedule = async function (schedule, hint = DaoHint.NO_HINT) {
+const _generateLecturePrototypeBySchedule = function(schedule) {
     return new Promise((resolve, reject) => {
         // first of all, get data which are in common for all lectures we are going to generate
         Promise.all([
             this.getCourseByCode(schedule.code),
             this._generateClassBySchedule(schedule),
             this.getClassByDescription(schedule.roomId),
-        ]).then(async (values) => {
+        ]).then((values) => {
             const actualCourse = values[0];
-            const actualClass = values[1];
+            const actualClass = values[2];
 
             let actualStartingTime;
             let actualEndingTime;
             try {
-                // TODO: fix moment.duration(...).format is not a function
-                actualStartingTime = moment.duration(schedule.startingTime).format("hh:mm:ss"); // no day, only HH:MM:SS
-                actualEndingTime = moment.duration(schedule.endingTime).format("hh:mm:ss"); // no day, only HH:MM:SS
-                //actualStartingTime = moment.duration(schedule.startingTime);
-                //actualEndingTime = moment.duration(schedule.endingTime);
+                actualStartingTime = moment(schedule.startingTime, "hh:ss").format("hh:mm:ss"); // no day, only HH:MM:SS
+                actualEndingTime = moment(schedule.endingTime, "hh:ss").format("hh:mm:ss"); // no day, only HH:MM:SS
             } catch (err) {
                 console.log(err);
-                reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_VALUE, "Wrong date", 404));
+                reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_VALUE, "Wrong start or end time", 404));
                 return;
             }
-            const duration = actualEndingTime.subtract(actualStartingTime);
-            const actualDuration = duration.milliseconds(); // in milliseconds
-            const bookingDeadlineTime = moment.duration("23:00:00").subtract(1, "day"); // by default, the booking deadline is the day before at 23:00
+            const actualDuration = actualEndingTime.diff(actualStartingTime, 'milliseconds'); // in milliseconds
+            const bookingDeadlineTime = moment('23:00', 'hh:mm').subtract(1, "day"); // by default, the booking deadline is the day before at 23:00
 
+            // build the prototype
             const lecturePrototype = new Lecture();
             lecturePrototype.courseId = actualCourse.courseId;
             lecturePrototype.classId = actualClass.classId;
@@ -1577,22 +1574,46 @@ const _generateLecturesBySchedule = async function (schedule, hint = DaoHint.NO_
             lecturePrototype.bookingDeadline = bookingDeadlineTime;
             lecturePrototype.delivery = Lecture.DeliveryType.PRESENCE;
 
-            try {
-                if (hint != DaoHint.NEW_VALUE) await this._deleteLecturesByPrototype(lecturePrototype);
-                await this._addLecturesByScheduleAndPrototype(schedule, lecturePrototype);
-            } catch (err) {
-                // maybe the hint was wrong
-                // it can retry a maximum of 1 times
-                try {
-                    await this._deleteLecturesByPrototype(lecturePrototype);
-                    await this._addLecturesByScheduleAndPrototype(schedule, lecturePrototype);
-                } catch (err) {
-                    reject(err);
-                    return;
-                }
-            }
-            resolve();
+            // TODO: remove these lines
+            console.log('lecturePrototype:');
+            console.log(lecturePrototype);
+
+            resolve(lecturePrototype);
         });
+    });
+}
+exports._generateLecturePrototypeBySchedule = _generateLecturePrototypeBySchedule;
+
+/**
+ * generate a list of lecture given a schedule
+ * @param {Schedule} schedule
+ * @param {DaoHint} hint
+ * @returns {Promise} promise of bool - true if everything has gone right, false otherwise
+ */
+const _generateLecturesBySchedule = function (schedule, hint = DaoHint.NO_HINT) {
+    return new Promise((resolve, reject) => {
+        this._generateLecturePrototypeBySchedule(schedule)
+            .then(async (lecturePrototype) => {
+                let nLectures = 0;
+                try {
+                    if (hint === DaoHint.NEW_VALUE)
+                        await this._deleteLecturesByPrototype(lecturePrototype);
+                    nLectures = await this._addLecturesByScheduleAndPrototype(schedule, lecturePrototype);
+                } catch (err) {
+                    // maybe the hint was wrong
+                    // it can retry a maximum of 1 times
+                    try {
+                        await this._deleteLecturesByPrototype(lecturePrototype);
+                        nLectures = await this._addLecturesByScheduleAndPrototype(schedule, lecturePrototype);
+                    } catch (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve(nLectures);
+                }
+                resolve(nLectures);
+            })
+            .catch(reject);
     });
 };
 exports._generateLecturesBySchedule = _generateLecturesBySchedule; // export needed for testing
