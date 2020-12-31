@@ -1591,7 +1591,7 @@ const _generateLecturesBySchedule = function (schedule, hint = DaoHint.NO_HINT) 
             .then((lecturePrototype) => {
                 let nLectures = 0;
                 
-                const promises = [];
+                let promises = [];
                 if (hint == DaoHint.NEW_VALUE)
                     promises.push(this._deleteLecturesByPrototype(lecturePrototype));
                 promises.push(this._addLecturesByScheduleAndPrototype(schedule, lecturePrototype));
