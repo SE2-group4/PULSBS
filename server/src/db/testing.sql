@@ -83,7 +83,7 @@ CREATE TRIGGER check_time_overlapping_before_insert_schedule
 	BEFORE INSERT ON Schedule
 	BEGIN
 		SELECT CASE WHEN ( SELECT COUNT(*) <> 0
-			FROM Shedule
+			FROM Schedule
 			WHERE
 				NEW.code = code
 				AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
@@ -106,7 +106,7 @@ CREATE TRIGGER check_time_overlapping_before_update_schedule
 	BEFORE UPDATE ON Schedule
 	BEGIN
 		SELECT CASE WHEN (
-            SELECT COUNT(*) <> 0 FROM Shedule
+            SELECT COUNT(*) <> 0 FROM Schedule
                 WHERE NEW.code = code
                     AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
                     AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )

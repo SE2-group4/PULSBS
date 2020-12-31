@@ -13,7 +13,7 @@ class Calendar {
      * @param {Date|String} endingDate 
      * @param {CalendaType} type 
      */
-    constructor(calendarId = -1, startingDate = new Date(), endingDate = new Date(), type = CalendarType.UNDEFINED) {
+    constructor(calendarId = -1, startingDate = new Date(), endingDate = new Date(), type = Calendar.CalendarType.UNDEFINED) {
         this.calendarId = calendarId;
         this.startingDate = new Date(startingDate);
         this.endingDate = new Date(endingDate);

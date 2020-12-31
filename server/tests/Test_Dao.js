@@ -21,6 +21,7 @@ const Schedule = require('../src/entities/Schedule.js');
 const Calendar = require('../src/entities/Calendar.js');
 const prepare = require('../src/db/preparedb.js');
 const { fail } = require('assert');
+const Class = require('../src/entities/Class.js');
 
 const suite = function () {
     describe('Dao', function () {
@@ -30,12 +31,17 @@ const suite = function () {
         let course1, course3;
         let emailQueue1;
 
+        let wrongStudent;
         let wrongLecture;
         let wrongCourse;
-        let wrongStudent;
+        let wrongClass;
+
+        let class1;
+        let class2;
 
         let schedule1, schedule2;
         let newSchedule;
+        let newLecture;
         let wrongSchedule;
         let wrongLecturePrototype;
 
@@ -64,17 +70,22 @@ const suite = function () {
             wrongStudent = new Student(-1);
             wrongLecture = new Lecture(-1, -1);
             wrongCourse = new Course(-1);
+            wrongClass = new Class(-1, 'Wrong description', -1);
 
-            schedule1 = new Schedule(1);
-            schedule2 = new Schedule(1);
+            class1 = new Class(1, '1A', 10);
+            class2 = new Class(2, '2B', 10);
+
+            schedule1 = new Schedule(1, '1', 2020, 1, '1A', 10, 'Mon', '8:30', '10:00');
+            schedule2 = new Schedule(2, '2', 2020, 1, '2B', 10, 'Tue', '8:30', '10:00');
             newSchedule = new Schedule(1);
+            newLecture = new Lecture(999, 1, 1, moment().toDate(), 90*60*1000, moment().startOf('day').subtract(1, 'day'), Lecture.DeliveryType.PRESENCE);
             wrongSchedule = new Schedule(-1, -1, 1970, -1, 'Wrong roomId', -1, 'Wrong day', '-1:00', '-1:00');
             wrongLecturePrototype = new Lecture(-1, -1, -1, '-1:00', -1, '-1:00', 'Wrong delivery');
 
             overlappedScheduleSameCourse = Schedule.from(schedule1);
-            overlappedScheduleSameCourse.roomId = shedule2.roomId;
+            overlappedScheduleSameCourse.roomId = schedule2.roomId;
             overlappedScheduleDifferentCourse = Schedule.from(schedule1);
-            overlappedScheduleDifferentCourse.roomId = shedule2.roomId;
+            overlappedScheduleDifferentCourse.roomId = schedule2.roomId;
             overlappedScheduleDifferentCourse.startingTime = schedule2.startingTime;
             overlappedScheduleDifferentCourse.endingTime = schedule2.endingTime;
 
@@ -367,10 +378,8 @@ const suite = function () {
             });
 
             it('wrong params should return an error', function (done) {
-                dao.getLectureById({ lectureId: -1 })
-                    .then((lecture) => {
-                        done('This must fail');
-                    })
+                dao.getLectureById(wrongLecture)
+                    .then((lecture) => done('This must fail'))
                     .catch((err) => done()); // correct case
             });
         });
@@ -640,8 +649,8 @@ const suite = function () {
                         done();
                     })
                     .catch((err) => done(err))
-            })
-        })
+            });
+        });
 
         describe('getAllTeachers', function () {
             it('Should have returned an Array', function (done) {
@@ -651,7 +660,7 @@ const suite = function () {
                         done();
                     })
                     .catch((err) => done(err))
-            })
+            });
 
             it('Should have returned 3 elements', function (done) {
                 dao.getAllTeachers()
@@ -660,8 +669,7 @@ const suite = function () {
                         done();
                     })
                     .catch((err) => done(err))
-            })
-
+            });
 
             it('Should have returned these elements', function (done) {
                 const expectedTeacherId = [4, 5, 7]
@@ -805,17 +813,16 @@ const suite = function () {
             it('correct params should return the number of seats', function(done) {
                 dao.lectureHasFreeSeats(lecture1)
                     .then((nSeats) => {
-                        assert.strictEqual(nSeats, 1, 'Wrong number of free seats');
+                        assert.strictEqual(nSeats, 9, 'Wrong number of free seats');
+                        done();
                     })
                     .catch((err) => done(err));
             });
 
-            it('wrong params should return the number of seats', function(done) {
+            it('wrong params should fail', function(done) {
                 dao.lectureHasFreeSeats(wrongLecture)
-                    .then((nSeats) => {
-                        assert.strictEqual(nSeats, 0, 'Wrong number of free seats');
-                    })
-                    .catch((err) => done(err));
+                    .then((nSeats) => done('This must fail!'))
+                    .catch((err) => done()); // correct case
             });
         });
 
@@ -851,6 +858,7 @@ const suite = function () {
             it('correct params should return the list of calendars', function(done) {
                 dao._getCalendars()
                     .then((calendars) => {
+                        console.log(calendars);
                         assert.strictEqual(calendars.length, 5, 'Wrong number of calendars');
                         done();
                     })
@@ -892,13 +900,13 @@ const suite = function () {
                     .catch((err) => done(err));
             });
 
-            it('wrong params should return the number of removed lectures', function(done) {
+            it('wrong params should return the number of removed lectures or fail', function(done) {
                 dao._deleteLecturesByPrototype(wrongSchedule, wrongLecturePrototype)
                     .then((nLectures) => {
                         assert.strictEqual(nLectures, 0, 'No lecture should be removed');
                         done();
                     })
-                    .catch((err) => done(err));
+                    .catch((err) => done()); // correct case
             });
         });
 
@@ -907,11 +915,11 @@ const suite = function () {
                 dao._generateLecturePrototypeBySchedule(newSchedule)
                     .then((lecturePrototype) => {
                         dao._addLecturesByScheduleAndPrototype(newSchedule, lecturePrototype)
-                        .then((nLectures) => {
-                            assert.ok(nLectures > 0, 'No lecture has been inserted');
-                            done();
-                        })
-                        .catch((err) => done(err));
+                            .then((nLectures) => {
+                                assert.ok(nLectures > 0, 'No lecture has been inserted');
+                                done();
+                            })
+                            .catch((err) => done(err));
                     })
                     .catch((err) => done(err));
             });
@@ -939,6 +947,7 @@ const suite = function () {
             it('existing class should no modify the DB', function(done) {
                 dao._generateClassBySchedule(schedule1) // this schedule already exists in the DB
                     .then((retVal) => {
+                        console.log(retVal);
                         assert.strictEqual(retVal, 0, 'The class should not be inserted');
                         done();
                     })
