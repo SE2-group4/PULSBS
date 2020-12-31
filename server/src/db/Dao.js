@@ -78,7 +78,7 @@ let db = new sqlite.Database(dbpath, (err) => {
  * @param {String} dbpath
  * @param {Function} cb - callback
  */
-const openConn = function openConn(dbpath = "./PULSBS.db", cb) {
+const openConn = function openConn(dbpath = "./PULSBS.db", cb = () => {}) {
     if (db) db.close();
 
     const cwd = __dirname;
