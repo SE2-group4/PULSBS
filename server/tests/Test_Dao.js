@@ -17,6 +17,8 @@ const Course = require('../src/entities/Course.js');
 const EmailType = require('../src/entities/EmailType.js');
 const Email = require('../src/entities/Email.js');
 const EmailQueue = require('../src/entities/EmailQueue.js');
+const Schedule = require('../src/entities/Schedule.js');
+const Calendar = require('../src/entities/Calendar.js');
 const prepare = require('../src/db/preparedb.js');
 const { fail } = require('assert');
 
@@ -31,6 +33,14 @@ const suite = function () {
         let wrongLecture;
         let wrongCourse;
         let wrongStudent;
+
+        let schedule1, schedule2;
+        let newSchedule;
+        let wrongSchedule;
+        let wrongLecturePrototype;
+
+        let overlappedScheduleSameCourse;
+        let overlappedScheduleDifferentCourse;
 
         before(function (done) {
             done();
@@ -54,6 +64,19 @@ const suite = function () {
             wrongStudent = new Student(-1);
             wrongLecture = new Lecture(-1, -1);
             wrongCourse = new Course(-1);
+
+            schedule1 = new Schedule(1);
+            schedule2 = new Schedule(1);
+            newSchedule = new Schedule(1);
+            wrongSchedule = new Schedule(-1, -1, 1970, -1, 'Wrong roomId', -1, 'Wrong day', '-1:00', '-1:00');
+            wrongLecturePrototype = new Lecture(-1, -1, -1, '-1:00', -1, '-1:00', 'Wrong delivery');
+
+            overlappedScheduleSameCourse = Schedule.from(schedule1);
+            overlappedScheduleSameCourse.roomId = shedule2.roomId;
+            overlappedScheduleDifferentCourse = Schedule.from(schedule1);
+            overlappedScheduleDifferentCourse.roomId = shedule2.roomId;
+            overlappedScheduleDifferentCourse.startingTime = schedule2.startingTime;
+            overlappedScheduleDifferentCourse.endingTime = schedule2.endingTime;
 
             prepare('testing.db', 'testing.sql', false)
                 .then(() => done())
@@ -721,9 +744,7 @@ const suite = function () {
             });
         });
 
-        describe('getWaitingsByStudentAndPeriodOfTime', function(
-
-        ) {
+        describe('getWaitingsByStudentAndPeriodOfTime', function() {
             it('not specified periodOfTime return the list of students', function(done) {
                 dao.getWaitingsByStudentAndPeriodOfTime(student1)
                     .then((lectures) => {
@@ -777,6 +798,235 @@ const suite = function () {
                         done();
                     })
                     .catch((err) => done(err));
+            });
+        });
+
+        describe('lectureHasFreeSeats', function() {
+            it('correct params should return the number of seats', function(done) {
+                dao.lectureHasFreeSeats(lecture1)
+                    .then((nSeats) => {
+                        assert.strictEqual(nSeats, 1, 'Wrong number of free seats');
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('wrong params should return the number of seats', function(done) {
+                dao.lectureHasFreeSeats(wrongLecture)
+                    .then((nSeats) => {
+                        assert.strictEqual(nSeats, 0, 'Wrong number of free seats');
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('getClassByDescription', function() {
+            it('correct params should return the class', function(done) {
+                dao.getClassByDescription(class1)
+                    .then((class_) => {
+                        assert.strictEqual(class_.classId, class1.classId, 'Wrong class returned');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('wrong params should reject the request', function(done) {
+                dao.getClassByDescription(wrongClass)
+                    .then((class_) => done('This must fail'))
+                    .catch((err) => done()); // correct case
+            });
+        });
+
+        describe('addLecture', function() {
+            it('correct params should accept the request', function(done) {
+                dao.addLecture(newLecture)
+                    .then((retVal) => {
+                        assert.ok(retVal > 0, 'The lecture has not been inserted');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('_getCalendars', function() {
+            it('correct params should return the list of calendars', function(done) {
+                dao._getCalendars()
+                    .then((calendars) => {
+                        assert.strictEqual(calendars.length, 5, 'Wrong number of calendars');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('_generateDatesBySchedule', function() {
+            it('correct params should return a list of dates', function(done) {
+                dao._generateDatesBySchedule(newSchedule)
+                    .then((dates) => {
+                        assert.ok(dates.length > 0, 'No date has been generated');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('wrong params should return an empty list', function(done) {
+                dao._generateDatesBySchedule(wrongSchedule)
+                    .then((dates) => {
+                        assert.strictEqual(dates.length, 0, 'No date should be generated');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('_deleteLecturesByPrototype', function() {
+            it('correct params should return the number of removed lectures', function(done) {
+                dao._generateLecturePrototypeBySchedule(schedule1)
+                    .then((lecturePrototype) => {
+                        dao._deleteLecturesByPrototype(schedule1, lecturePrototype)
+                        .then((nLectures) => {
+                            assert.ok(nLectures > 0, 'No lecture has been removed');
+                            done();
+                        })
+                        .catch((err) => done(err));
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('wrong params should return the number of removed lectures', function(done) {
+                dao._deleteLecturesByPrototype(wrongSchedule, wrongLecturePrototype)
+                    .then((nLectures) => {
+                        assert.strictEqual(nLectures, 0, 'No lecture should be removed');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('_addLecturesByScheduleAndPrototype', function() {
+            it('correct params should return the number of inserted lectures', function(done) {
+                dao._generateLecturePrototypeBySchedule(newSchedule)
+                    .then((lecturePrototype) => {
+                        dao._addLecturesByScheduleAndPrototype(newSchedule, lecturePrototype)
+                        .then((nLectures) => {
+                            assert.ok(nLectures > 0, 'No lecture has been inserted');
+                            done();
+                        })
+                        .catch((err) => done(err));
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('wrong params should return the number of inserted lectures', function(done) {
+                dao._addLecturesByScheduleAndPrototype(wrongSchedule, wrongLecturePrototype)
+                    .then((nLectures) => {
+                        assert.strictEqual(nLectures, 0, 'No lecture should be inserted');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('_generateClassBySchedule', function() {
+            it('non existing class should accept the request', function(done) {
+                dao._generateClassBySchedule(newSchedule) // this schedule does not exists in the DB
+                    .then((retVal) => {
+                        assert.ok(retVal, 1, 'The class has not been inserted');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('existing class should no modify the DB', function(done) {
+                dao._generateClassBySchedule(schedule1) // this schedule already exists in the DB
+                    .then((retVal) => {
+                        assert.strictEqual(retVal, 0, 'The class should not be inserted');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('_generateLecturePrototypeBySchedule', function() {
+            it('correct schedule should return a lecture prototype', function(done) {
+                dao._generateLecturePrototypeBySchedule(wrongSchedule)
+                    .then((lecturePrototype) => {
+                        assert.strictEqual(lecturePrototype.courseId, course1.courseId, 'The generate lecture prototype is wrong');
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('wrong schedule should reject the request', function(done) {
+                dao._generateLecturePrototypeBySchedule(wrongSchedule)
+                    .then((lecturePrototype) => done('This must fail!'))
+                    .catch((err) => done()); // correct case
+            });
+        });
+
+        describe('_generateLecturesBySchedule', function() {
+            it('correct params should return the number of generated lectures', function(done) {
+                dao._generateLecturesBySchedule(newSchedule)
+                    .then((nLectures) => {
+                        assert.ok(nLectures > 0, 'No lectures has been generated');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('overlapping schedule of the same course should return the number of generated lectures', function(done) {
+                dao._generateLecturesBySchedule(overlappedScheduleSameCourse)
+                    .then((nLectures) => {
+                        assert.strictEqual(nLectures, 0, 'No lectures should be generated');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+            it('overlapping schedule of a different course should return the number of generated lectures', function(done) {
+                dao._generateLecturesBySchedule(overlappedScheduleDifferentCourse)
+                    .then((nLectures) => {
+                        assert.strictEqual(nLectures, 0, 'No lectures should be generated');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('getSchedules', function() {
+            it('correct params should return the list of schedules', function(done) {
+                dao.getSchedules()
+                    .then((schedules) => {
+                        assert.strictEqual(schedules.length, 5, 'Wrong number of schedules');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('updateSchedule', function() {
+            it('existing schedule with correct new params should update the schedule', function(done) {
+                dao.updateSchedule(schedule1)
+                    .then((nLectures) => {
+                        assert.ok(nLectures > 0, 'No lecture updated'); // the exact number of lectures depends on the date you run tests
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+
+            it('wrong schedule should reject the request', function(done) {
+                dao.updateSchedule(wrongSchedule)
+                    .then((nLectures) => done('This must fail!'))
+                    .catch((err) => done()); // correct case
+            });
+
+            it('correct schedule but overlapped with another one of the same course should reject the request', function(done) {
+                dao.updateSchedule(overlappedScheduleSameCourse)
+                    .then((nLectures) => done('This must fail!'))
+                    .catch((err) => done()); // correct case
+            });
+
+            it('correct schedule but overlapped with another one of a different course in the same class should reject the request', function(done) {
+                dao.updateSchedule(overlappedScheduleDifferentCourse)
+                    .then((nLectures) => done('This must fail!'))
+                    .catch((err) => done()); // correct case
             });
         });
     });
