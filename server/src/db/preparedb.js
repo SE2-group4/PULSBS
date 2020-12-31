@@ -40,10 +40,35 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
 
         let count = 0; // line counter
 
-        const dataSql = fs.readFileSync(dbscript).toString();
-        let dataArr = dataSql.toString().split(/\r?\n/);
+        let dataSql = fs.readFileSync(dbscript).toString();
+
+        dataSql = dataSql.replace(/--(.*?)\r?\n|\r/g, ' '); // remove comments
+        dataSql = dataSql.replace(/\r?\n|\r/g, ' '); // remove newline
+        dataSql = dataSql.replace('\t', ' '); // remove tabs
+        dataSql = dataSql.replace(/\s\s+/g, ' '); // remove multiple spaces
+
+        // extract triggers
+        const regex = /(?:CREATE TRIGGER(.*?)END;)/ig; // 'i' flag: ignore upper/lower-case, 'g' flag: use groups
+        const it = dataSql.toUpperCase().matchAll(regex);
+        const results = Array.from(it);
+        const triggers = [];
+        for(let i = results.length-1; i >= 0; i--) { // delete in reverse order
+            const res = results[i]; // for each matched group
+            if(flag) {
+                console.log(res[0].cyan);
+                console.log(res.index);
+            }
+            const t = res[0]; // get the matched string
+            triggers[results.length-i] = t; // insert in the correct order
+            dataSql = dataSql.substr(0, res.index) + dataSql.substr(res.index + res[0].length); // remove the trigger from normal queries
+        }
+
+        // extract normal queries
+        let dataArr = dataSql.split(";");
         dataArr.forEach((query, index, array) => (array[index] = query.trim()));
-        dataArr = dataArr.filter((item) => !item.startsWith('--'));
+        // dataArr = dataArr.filter((item) => !(item.startsWith('--') || item.trim() === ''));
+        if(flag)
+            console.log(dataArr.slice(150));
 
         db.serialize(() => {
             // db.run runs your SQL query against the DB
@@ -53,17 +78,43 @@ function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
             // Loop through the `dataArr` and db.run each query
             dataArr.forEach((query) => {
                 count++;
-                if (query) {
-                    db.run(query, (err) => {
-                        if (err && flag) {
-                            console.error(`> Error in line ${count}`);
+                if(!query || query.startsWith('--') || query.trim() === '') // remove comments and empty queries
+                    return;
+                    
+                query += ";";
+                db.run(query, (err) => {
+                    if(flag) {
+                        console.log('\nRunning normal query:'.magenta);
                         console.log(query);
-                            console.log(err);
-                            if (require.main === module) reject(err);
-                            else reject(StandardErr.fromDao(err));
-                        }
-                    });
-                }
+                    }
+
+                    if (err && flag) {
+                        console.error(`> Error in line ${count}`);
+                        console.log(query);
+                        console.log(err);
+                        if (require.main === module) reject(err);
+                        else reject(StandardErr.fromDao(err));
+                    }
+                });
+            });
+
+            triggers.forEach((query) => {
+                count++;
+
+                db.run(query, (err) => {
+                    if(flag) {
+                        console.log('\nRunning trigger:'.magenta);
+                        console.log(query);
+                    }
+
+                    if (err && flag) {
+                        console.error(`> Error in line ${count}`);
+                        console.log(query);
+                        console.log(err);
+                        if (require.main === module) reject(err);
+                        else reject(StandardErr.fromDao(err));
+                    }
+                });
             });
 
             db.run("COMMIT;");

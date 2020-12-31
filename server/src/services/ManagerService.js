@@ -14,7 +14,7 @@ const errno = ResponseError.errno;
 const PARAMS = {
     BOOKINGS: "boolean",
     CANCELLATIONS: "boolean",
-    ATTENDACES: "boolean",
+    ATTENDANCES: "boolean",
 };
 
 exports.managerGetCourseLecture = async function managerGetCourseLecture(
@@ -41,10 +41,10 @@ exports.managerGetCourseLecture = async function managerGetCourseLecture(
         if (!areValid) throw genResponseError(errno.QUERY_PARAM_NOT_ACCEPTED, { query });
     }
 
-    const { bookings, cancellations, attendaces } = convertToBooleans(query);
+    const { bookings, cancellations, attendances } = convertToBooleans(query);
 
     const lecture = await db.getLectureById(new Lecture(lId));
-    const [lectureWithStats] = await getLecturesWithStats([lecture], { bookings, cancellations, attendaces });
+    const [lectureWithStats] = await addStatsToLectures([lecture], { bookings, cancellations, attendances });
 
     return lectureWithStats;
 };
@@ -67,10 +67,10 @@ exports.managerGetCourseLectures = async function managerGetCourseLectures({ man
         if (!areValid) throw genResponseError(errno.QUERY_PARAM_NOT_ACCEPTED, { query });
     }
 
-    const { bookings, cancellations, attendaces } = convertToBooleans(query);
+    const { bookings, cancellations, attendances } = convertToBooleans(query);
 
     const lectures = await db.getLecturesByCourse(new Course(cId));
-    const lectureWithStats = getLecturesWithStats(lectures, { bookings, cancellations, attendaces });
+    const lectureWithStats = addStatsToLectures(lectures, { bookings, cancellations, attendances });
 
     return lectureWithStats;
 };
@@ -88,7 +88,7 @@ exports.managerGetCourses = async function managerGetCourses({ managerId }) {
     return courses;
 };
 
-async function addStatsToLecture(lecture, { bookings, cancellations, attendaces }) {
+async function addStatsToLecture(lecture, { bookings, cancellations, attendances }) {
     const lectureWithStats = Object.assign({}, { lecture });
 
     if (bookings) {
@@ -98,8 +98,8 @@ async function addStatsToLecture(lecture, { bookings, cancellations, attendaces 
         lectureWithStats.cancellations = await getNumCancellationsOfLecture(lecture);
     }
 
-    if (attendaces) {
-        lectureWithStats.attendaces = await getNumAttendacesOfLecture(lecture);
+    if (attendances) {
+        lectureWithStats.attendances = await getNumAttendacesOfLecture(lecture);
     }
 
     return lectureWithStats;
@@ -107,8 +107,7 @@ async function addStatsToLecture(lecture, { bookings, cancellations, attendaces 
 
 // TODO add PRESENT
 async function getNumBookingsOfLecture(lecture) {
-    const { count } = await db.getNumBookingsOfLectureByStatus(lecture, "BOOKED");
-    return count;
+    return await db.getNumBookingsOfLecture(lecture);
 }
 
 async function getNumCancellationsOfLecture(lecture) {
@@ -117,8 +116,7 @@ async function getNumCancellationsOfLecture(lecture) {
 }
 
 async function getNumAttendacesOfLecture(lecture) {
-    const { count } = await db.getNumBookingsOfLectureByStatus(lecture, "PRESENT");
-    return count;
+    return await db.getNumAttendancesOfLecture(lecture);
 }
 
 async function isCourseMatchLecture(cId, lId) {
@@ -150,16 +148,17 @@ function areValidParams(params) {
     return true;
 }
 
-async function getLecturesWithStats(lectures, { bookings, cancellations, attendaces }) {
+async function addStatsToLectures(lectures, { bookings, cancellations, attendances }) {
     const lecturesWithStats = await Promise.all(
         lectures.map(async (lecture) => {
-            const lectPlusStats = await addStatsToLecture(lecture, { bookings, cancellations, attendaces });
+            const lectPlusStats = await addStatsToLecture(lecture, { bookings, cancellations, attendances });
             return lectPlusStats;
         })
     );
 
     return lecturesWithStats;
 }
+exports.addStatsToLectures = addStatsToLectures;
 
 /**
  * get a student by his SSN or serialNumber
@@ -226,7 +225,7 @@ exports.managerUpdateSchedule = async function managerUpdateSchedule({ managerId
 
     // check if it exists
     const schedules = db.getSchedules();
-    actualSchedules = schedules.filter(s => s.scheduleId === schedule.scheduleId);
+    const actualSchedules = schedules.filter(s => s.scheduleId === schedule.scheduleId);
     if(actualSchedules.length === 0) {
         throw StandardErr.new('ManagerService', StandardErr.errno.NOT_EXISTS, 'This schedule does not exist', 404);
     }

@@ -3,14 +3,22 @@
 const Lecture = require("../entities/Lecture");
 const Course = require("../entities/Course");
 const Teacher = require("../entities/Teacher");
+const Student = require("../entities/Student");
 const Email = require("../entities/Email");
 const EmailService = require("../services/EmailService");
 const utils = require("../utils/utils");
 const { ResponseError } = require("../utils/ResponseError");
 const check = require("../utils/typeChecker");
+const converter = require("../utils/converter");
+const ManagerService = require("./ManagerService");
 
 const db = require("../db/Dao");
 const colors = require("colors");
+
+const MODULE_NAME = "TeacherService";
+const errno = ResponseError.errno;
+const ACCEPTED_QUERY_PARAM = ["from", "to", "bookings", "attendances"];
+Object.freeze(ACCEPTED_QUERY_PARAM);
 
 /**
  * Get all the students that have an active booking for a given lecture
@@ -18,7 +26,7 @@ const colors = require("colors");
  * teacherId {Integer}
  * courseId {Integer}
  * lectureId {Integer}
- * returns an array of Students. In case of error a ResponseError message
+ * returns {Promise} array of Student's instances. A ResponseError on error
  **/
 exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, lectureId) {
     const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
@@ -27,89 +35,52 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
         lectureId,
     });
     if (error) {
-        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
-    // checking if the teacher is in charge of this course during this academic year
-    const isTaughtBy = await isCourseTaughtBy(tId, cId);
-    if (!isTaughtBy) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
-    }
+    await checkTeacherCorrelations(tId, cId, lId);
 
-    // checking if the lecture is associated to this course
-    const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
-    if (!doesLectureBelong) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.COURSE_LECTURE_MISMATCH_AA,
-            { lectureId, courseId },
-            404
-        );
-    }
-
-    const lecture = new Lecture(lId);
-    const lectureStudents = await db.getStudentsByLecture(lecture);
-
-    return lectureStudents;
+    return await db.getStudentsByLecture(new Lecture(lectureId));
 };
 
+function printQueryParams(bookings, attendances, dateFilter) {
+    console.info(`Date filter:       ${JSON.stringify(dateFilter)}`.magenta);
+    console.info(`also bookings?:    ${bookings}`.magenta);
+    console.info(`also attendances?: ${attendances}`.magenta);
+}
 /**
- * Retrieve all the lectures related to a course.
- * You can filter the lecture by passing a query string.
- * If the query string is missing, the function will return all lectures of the course.
- * Otherwise if a 'from' property is passed, it will return all lectures with startingDate >= from.fromDate
- * Similarly, 'to' will return all lectures with startingDate <= to.fromDate
- * The cancelled lectures are not returned.
+ * Retrieve all lectures associated to a course.
+ * You can apply a time filter.
+ * Date filter:
+ * setting a 'from' property will retrieve all lectures with startingDate >= from.<Date>
+ * setting a 'to' property will retrieve all lectures with startingDate <= to.<Date>
+ *
+ * Additional query params:
+ * - "bookings": for each lecture it will retrieve the num of bookings (i.e. Bookings.status = { PRESENT, NOT_PRESENT, BOOKED}
+ * - "attendances": for each lecture it will retrieve the num of attendances. (i.e. Bookings.status = { PRESENT }
+ * Note: the cancelled lectures are not returned.
  *
  * teacherId {Integer}
  * courseId {Integer}
- * queryString {Object} {from: <date>, to: <date>, bookings = true}
- * returns {Array} array of lectures. In case of error an ResponseError
+ * queryObj {Object} {from: <date>, to: <date>, bookings = true, attendances = true}
+ * returns {Promise} Array of Object's instances. A ResponseError on error.
  **/
-exports.teacherGetCourseLectures = async function (teacherId, courseId, queryString) {
+exports.teacherGetCourseLectures = async function (teacherId, courseId, queryObj = {}) {
     const { error, teacherId: tId, courseId: cId } = convertToNumbers({ teacherId, courseId });
     if (error) {
-        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
     }
 
-    let { err, dateFilter, bookings } = extractOptions(queryString);
+    let { err, dateFilter = {}, bookings = false, attendances = false } = extractOptions(queryObj);
     if (err instanceof ResponseError) throw err;
 
-    if (!dateFilter) dateFilter = {};
+    printQueryParams(bookings, attendances, dateFilter);
+    await checkTeacherCorrelations(tId, cId);
 
-    console.info(
-        `Date filter:     ${Object.keys(dateFilter).length === 0 ? "no filter" : JSON.stringify(dateFilter)}`.magenta
-    );
-    console.info(`Num of bookings: ${bookings === undefined ? false : bookings}`.magenta);
+    let lectures = await db.getLecturesByCourseAndPeriodOfTime(new Course(cId), dateFilter);
+    lectures = ManagerService.addStatsToLectures(lectures, { bookings, attendances });
 
-    // check if the teacher is in charge of this course during this academic year
-    let isTeachingThisCourse = await isCourseTaughtBy(tId, cId);
-    if (!isTeachingThisCourse) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
-    }
-
-    const course = new Course(cId);
-    const courseLectures = await db.getLecturesByCourseAndPeriodOfTime(course, dateFilter);
-    if (!bookings) return courseLectures;
-
-    let lecturesPlusNumBookings = await Promise.all(
-        courseLectures.map(async (lecture) => {
-            const totBookings = await db.getNumBookingsOfLecture(lecture);
-            return { lecture, bookings: totBookings };
-        })
-    );
-
-    return lecturesPlusNumBookings;
+    return lectures;
 };
 
 /**
@@ -121,7 +92,7 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryStr
 exports.teacherGetCourses = async function (teacherId) {
     const { error, teacherId: tId } = convertToNumbers({ teacherId });
     if (error) {
-        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
     }
 
     const teacher = new Teacher(tId);
@@ -185,7 +156,7 @@ exports.checkForExpiredLectures = async () => {
  * teacherId {Integer}
  * courseId {Integer}
  * lectureId {Integer}
- * returns {Lecture} a lecture. In case of error an ResponseError
+ * returns {Lecture}. A ResponseError on error.
  **/
 exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId) {
     const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
@@ -194,35 +165,14 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
         lectureId,
     });
     if (error) {
-        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
-    // checking if the teacher is in charge of this course during this academic year
-    const isTaughtBy = await isCourseTaughtBy(tId, cId);
-    if (!isTaughtBy) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
-    }
+    await checkTeacherCorrelations(tId, cId, lId);
 
-    // checking if the lecture belongs to this course
-    const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
-    if (!doesLectureBelong) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.COURSE_LECTURE_MISMATCH_AA,
-            { lectureId, courseId },
-            404
-        );
-    }
-
-    const lecture = new Lecture(lId);
-    const retLecture = await db.getLectureById(lecture);
+    const retLecture = await db.getLectureById(new Lecture(lId));
     if (!retLecture) {
-        throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_FOUND, { lectureId }, 404);
+        throw genResponseError(errno.LECTURE_NOT_FOUND, { lectureId });
     }
 
     return retLecture;
@@ -247,7 +197,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
     }
 
     // checking if the teacher is in charge of this course during this academic year
-    const isTaughtBy = await isCourseTaughtBy(tId, cId);
+    const isTaughtBy = await teacherCourseCorrelation(tId, cId);
     if (!isTaughtBy) {
         throw new ResponseError(
             "TeacherService",
@@ -258,7 +208,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
     }
 
     // checking if the lecture belongs to this course
-    const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+    const doesLectureBelong = await courseLectureCorrelation(cId, lId);
 
     if (!doesLectureBelong) {
         throw new ResponseError(
@@ -339,7 +289,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
     }
 
     // checking if the teacher is in charge of this course during this academic year
-    const isTaughtBy = await isCourseTaughtBy(tId, cId);
+    const isTaughtBy = await teacherCourseCorrelation(tId, cId);
     if (!isTaughtBy) {
         throw new ResponseError(
             "TeacherService",
@@ -350,7 +300,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
     }
 
     // checking if the lecture belongs to this course
-    const doesLectureBelong = await doesLectureBelongToCourse(cId, lId);
+    const doesLectureBelong = await courseLectureCorrelation(cId, lId);
     if (!doesLectureBelong) {
         throw new ResponseError(
             "TeacherService",
@@ -362,7 +312,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 
     const lecture = await db.getLectureById(new Lecture(lId));
     if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
-        throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_SWITCHABLE, { lectureId }, 404);
+        throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_SWITCHABLE, { lectureId }, 406);
     }
 
     lecture.delivery = switchTo;
@@ -395,18 +345,90 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 };
 
 /**
+ * Update a booking status
+ * Accepted statuses: PRESENT, ABSENT
+ *
+ * teacherId {Integer}
+ * courseId {Integer}
+ * lectureId {Integer}
+ * studentId {Integer}
+ * status {String}
+ * returns {Integer} 204. A ResponseError on error.
+ **/
+
+exports.teacherUpdateCourseLectureStudentStatus = async function (teacherId, courseId, lectureId, studentId, status) {
+    const { error, teacherId: tId, courseId: cId, lectureId: lId, studentId: sId } = convertToNumbers({
+        teacherId,
+        courseId,
+        lectureId,
+        studentId,
+    });
+    if (error) {
+        throw genResponseError(errno.PARAM_NOT_INT, error);
+    }
+
+    if (!check.isValidBookingStatus(status)) {
+        throw genResponseError(errno.BOOKING_INVALID_STATUS, { status });
+    }
+
+    // checking if the teacher is in charge of this course during this academic year
+    const isTaughtBy = await teacherCourseCorrelation(tId, cId);
+    if (!isTaughtBy) {
+        throw genResponseError(errno.TEACHER_COURSE_MISMATCH_AA, { courseId, teacherId });
+    }
+
+    // checking if the lecture belongs to this course
+    const doesLectureBelong = await courseLectureCorrelation(cId, lId);
+    if (!doesLectureBelong) {
+        throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { lectureId, courseId });
+    }
+
+    const hasBooked = await hasStudentBookedLecture(sId, lId);
+    if (!hasBooked) {
+        throw genResponseError(errno.BOOKING_NOT_PRESENT, { studentId, lectureId });
+    }
+
+    await db.updateBookingStatus(new Lecture(lId), new Student(sId), status.toUpperCase());
+
+    return 204;
+};
+exports.teacherUpdateCourseLectureStudentStatus = this.teacherUpdateCourseLectureStudentStatus;
+
+/**
+ * control if params are those in ACCEPTED_QUERY_PARAM
+ * @param {Array} of String
+ * @returns {Boolean}
+ */
+function areAcceptableQueryParams(params) {
+    for (const param of params) {
+        const found = ACCEPTED_QUERY_PARAM.some((elem) => elem === param);
+        if (!found) return false;
+    }
+
+    return true;
+}
+
+/**
  * Extract the options from a query string
- * @param {Object} queryString. E.g. queryString = {from: <dateString>, to: <dateString>, bookings: "false"}
+ * @param {Object} queryObj. E.g. queryObj = {from: <dateString>, to: <dateString>, bookings: "false", attendances: "true"}
  * @returns {Object} e.g. options = {dateFilter: { from: <new Date()>, to: <new Date()> }, bookings: false }. In case of error returns a ResponseError
  */
-function extractOptions(queryString) {
-    if (!(queryString instanceof Object) || Object.keys(queryString).length === 0) {
-        return {};
+function extractOptions(queryObj = {}) {
+    if (!(queryObj instanceof Object)) {
+        return { err: genResponseError(errno.QUERY_NOT_OBJ, { query: queryObj }) };
+    }
+
+    if (Object.keys(queryObj).length === 0) return queryObj;
+
+    if (!areAcceptableQueryParams(Object.keys(queryObj))) {
+        return {
+            err: genResponseError(errno.QUERY_PARAM_NOT_ACCEPTED, { params: Object.keys(queryObj) }),
+        };
     }
 
     const options = {};
-    for (const key of Object.keys(queryString)) {
-        const value = queryString[key];
+    for (const key of Object.keys(queryObj)) {
+        const value = queryObj[key];
         switch (key) {
             case "from": {
                 if (value.toLowerCase() === "inf") break;
@@ -414,16 +436,11 @@ function extractOptions(queryString) {
                 const fromDate = new Date(value);
                 if (isNaN(fromDate.getTime())) {
                     return {
-                        err: new ResponseError(
-                            "TeacherService",
-                            ResponseError.PARAM_NOT_DATE,
-                            { date: queryString[key] },
-                            400
-                        ),
+                        err: genResponseError(errno.PARAM_NOT_DATE, { date: queryObj[key] }),
                     };
                 }
 
-                if (isObjEmpty(options.dateFilter)) options.dateFilter = {};
+                if (!options.dateFilter) options.dateFilter = {};
                 options.dateFilter.from = fromDate;
                 break;
             }
@@ -433,43 +450,34 @@ function extractOptions(queryString) {
                 const toDate = new Date(value);
                 if (isNaN(toDate.getTime())) {
                     return {
-                        err: new ResponseError(
-                            "TeacherService",
-                            ResponseError.PARAM_NOT_DATE,
-                            { date: queryString[key] },
-                            400
-                        ),
+                        err: genResponseError(errno.PARAM_NOT_DATE, { date: queryObj[key] }),
                     };
                 }
 
-                if (isObjEmpty(options.dateFilter)) options.dateFilter = {};
+                if (!options.dateFilter) options.dateFilter = {};
                 options.dateFilter.to = toDate;
                 break;
             }
             case "bookings": {
-                if (value !== "false" && value !== "true") {
+                if (!converter.isValueOfType("boolean", value))
                     return {
-                        err: new ResponseError(
-                            "TeacherService",
-                            ResponseError.PARAM_NOT_BOOLEAN,
-                            { bookings: queryString[key] },
-                            400
-                        ),
+                        err: genResponseError(errno.PARAM_NOT_BOOLEAN, { bookings: queryObj[key] }),
                     };
-                }
 
-                options.bookings = value === "false" ? false : true;
+                options.bookings = converter.toBoolean(value);
+                break;
+            }
+            case "attendances": {
+                if (!converter.isValueOfType("boolean", value))
+                    return {
+                        err: genResponseError(errno.PARAM_NOT_BOOLEAN, { bookings: queryObj[key] }),
+                    };
+
+                options.attendances = converter.toBoolean(value);
                 break;
             }
             default:
-                return {
-                    err: new ResponseError(
-                        "TeacherService",
-                        ResponseError.errno.QUERY_PARAM_NOT_ACCEPTED,
-                        { query: { [key]: value } },
-                        400
-                    ),
-                };
+                console.log("should not be here");
         }
     }
 
@@ -575,7 +583,7 @@ function sendSummaryToTeachers(summaries) {
  * courseId {Integer}
  * returns {Boolean}
  **/
-async function isCourseTaughtBy(teacherId, courseId) {
+async function teacherCourseCorrelation(teacherId, courseId) {
     let isTeachingThisCourse = false;
 
     const teacherCourses = await db.getCoursesByTeacher(new Teacher(teacherId));
@@ -593,7 +601,7 @@ async function isCourseTaughtBy(teacherId, courseId) {
  * lectureId {Integer}
  * returns {Boolean}
  **/
-async function doesLectureBelongToCourse(courseId, lectureId) {
+async function courseLectureCorrelation(courseId, lectureId) {
     let doesBelong = false;
 
     const courseLectures = await db.getLecturesByCourseId(new Course(courseId));
@@ -602,6 +610,24 @@ async function doesLectureBelongToCourse(courseId, lectureId) {
     }
 
     return doesBelong;
+}
+
+/**
+ * Check if a student has booked a lecture
+ *
+ * studentId {Integer}
+ * lectureId {Integer}
+ * returns {Boolean}
+ **/
+async function hasStudentBookedLecture(studentId, lectureId) {
+    let has = false;
+
+    const bookings = await db.getBookingsByStudent(new Student(studentId));
+    if (bookings.length > 0) {
+        has = bookings.some((booking) => booking.lectureId === lectureId);
+    }
+
+    return has;
 }
 
 /**
@@ -666,7 +692,20 @@ async function findSummaryExpiredLectures(date) {
 }
 exports._findSummaryExpiredLectures = findSummaryExpiredLectures;
 
-function isObjEmpty(obj) {
-    if (!obj) return true;
-    return Object.keys(obj).length === 0;
+function genResponseError(nerror, error) {
+    return new ResponseError(MODULE_NAME, nerror, error);
+}
+
+async function checkTeacherCorrelations(teacherId, courseId, lectureId) {
+    let areCorrelated = await teacherCourseCorrelation(teacherId, courseId);
+    if (!areCorrelated) {
+        throw genResponseError(errno.TEACHER_COURSE_MISMATCH_AA, { teacherId, courseId });
+    }
+
+    if (lectureId) {
+        areCorrelated = await courseLectureCorrelation(courseId, lectureId);
+        if (!areCorrelated) {
+            throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
+        }
+    }
 }

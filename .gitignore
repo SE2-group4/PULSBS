@@ -5,3 +5,5 @@
 /server/coverage/
 client/debug.log
 .DS_Store
+server/src/db/preparedb.js
+server/tests/code_tests.js

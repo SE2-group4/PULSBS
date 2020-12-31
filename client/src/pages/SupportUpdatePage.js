@@ -3,7 +3,7 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import APIfake from '../api/APIfake';
+import API from '../api/Api';
 import Spinner from 'react-bootstrap/Spinner';
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
@@ -14,36 +14,73 @@ import Helmet from 'react-helmet';
 import DayPickerInput from 'react-day-picker/DayPickerInput';
 import 'react-day-picker/lib/style.css';
 import { formatDate, parseDate } from 'react-day-picker/moment';
+import ErrorMsg from '../components/ErrorMsg';
 
 class SupportUpdatePage extends React.Component {
     constructor(props) {
         super(props);
         this.state = { loading: true, chosenCourse: "All", from: undefined, to: undefined }
     }
+
     async componentDidMount() {
         try {
-            let courses = await APIfake.getCoursesBySupportId(this.props.user.userId)
+            let courses = await API.getCoursesBySupportId(this.props.user.userId)
             let lectures = []
             for (let course of courses)
-                lectures.push(...await APIfake.getLecturesByCourseId_S(this.props.userId, course.courseId))
+                lectures.push(...await API.getLecturesByCourseId_S(this.props.user.userId, course.courseId))
             this.setState({ courses: courses, loading: false, lectures: lectures })
         } catch (err) {
-
+            this.setState({ communicationError: true })
         }
     }
+    /**
+     * Change chosen course in the page state
+     * @param {Course} course 
+     */
     changeCourse = (course) => {
         this.setState({ chosenCourse: course })
     }
+
+    /**
+     * Change from in the page state
+     * @param {Date} from 
+     */
     changeFrom = (from) => {
         this.setState({ from: from })
     }
+
+    /**
+     * Change to in the page state
+     * @param {Date} to 
+     */
     changeTo = (to) => {
         this.setState({ to: to })
     }
-    changeDelivery = (beforeChange) => {
 
+    /**
+     * Change delivery of selected course
+     * @param {Lecture} lecture 
+     */
+    changeDelivery = (lecture) => {
+        this.setState({ loading: true })
+        API.updateDeliveryByLecture_S(this.props.user.userId, lecture.courseId, lecture.lectureId, lecture.delivery === "REMOTE" ? "PRESENCE" : "REMOTE")
+            .then(() => {
+                let lectures = this.state.lectures;
+                for (let l of lectures)
+                    if (l.lectureId === lecture.lectureId)
+                        l.delivery = lecture.delivery === "REMOTE" ? "PRESENCE" : "REMOTE"
+                this.setState({ loading: false, lectures: lectures })
+
+            })
+            .catch(() => {
+                this.setState({ communicationError: true })
+            })
     }
+
     render() {
+        if (this.state.communicationError)
+            return <ErrorMsg msg="Ops, an error occured during server communication" />
+
         if (this.state.loading)
             return (<Spinner animation="border" ></Spinner>)
 
@@ -53,7 +90,8 @@ class SupportUpdatePage extends React.Component {
                     <Filters courses={this.state.courses} chosenCourse={this.state.chosenCourse} changeCourse={this.changeCourse}
                         from={this.state.from} to={this.state.to} changeFrom={this.changeFrom} changeTo={this.changeTo} />
                 </Container>
-                <Lectures lectures={this.state.lectures} from={this.state.from} to={this.state.to} chosenCourse={this.state.chosenCourse} courses={this.state.courses} />
+                <Lectures lectures={this.state.lectures} from={this.state.from} to={this.state.to} chosenCourse={this.state.chosenCourse} courses={this.state.courses}
+                    changeDelivery={this.changeDelivery} />
             </>
         )
     }
@@ -73,9 +111,9 @@ function Filters(props) {
                 </Row>
                 <Row>
                     <Col>
-                        <Form.Control as="select" custom onChange={(ev) => { props.changeCourse(ev.target.value) }} defaultValue={props.chosenCourse}>
-                            <option key="All">All</option>
-                            {props.courses.map((course) => { return (<option key={course.courseId}>{course.description}</option>) })}
+                        <Form.Control as="select" custom onChange={(ev) => { props.changeCourse(ev.target.value) }} /*defaultValue={props.chosenCourse}*/>
+                            <option key="All" data-testid="All" >All</option>
+                            {props.courses.map((course) => { return (<option key={course.courseId} data-testid={course.description} >{course.description}</option>) })}
                         </Form.Control>
                     </Col>
                     <Col>
@@ -91,14 +129,10 @@ class FromToDayPicker extends React.Component {
         super(props);
         this.handleFromChange = this.handleFromChange.bind(this);
         this.handleToChange = this.handleToChange.bind(this);
-        /*this.state = {
-            from: undefined,
-            to: undefined,
-        };*/
     }
 
     showFromMonth() {
-        const { from, to } = this./*state*/props;
+        const { from, to } = this.props;
         if (!from) {
             return;
         }
@@ -108,13 +142,10 @@ class FromToDayPicker extends React.Component {
     }
 
     handleFromChange(from) {
-        // Change the from date and focus the "to" input field
-        //this.setState({ from });
         this.props.changeFrom(from)
     }
 
     handleToChange(to) {
-        //this.setState({ to }, this.showFromMonth);
         this.props.changeTo(to)
     }
 
@@ -190,7 +221,7 @@ class FromToDayPicker extends React.Component {
 function Lectures(props) {
 
     const [active, setActive] = useState(1);
-    let lectures = filterLectures(props.lectures, props.from, props.to, props.chosenCourse, props.courses)
+    let lectures = filterLectures(props.lectures, props.from, props.to, props.chosenCourse, props.courses, props.changeDelivery)
     if (lectures.length === 0)
         return <Alert variant="warning">No lectures</Alert>
     let nPages = Math.floor(lectures.length / 11) + 1;
@@ -215,10 +246,9 @@ function Lectures(props) {
                         <th>Course</th>
                         <th>Class</th>
                         <th>Date</th>
-                        <th>Duration</th>
+                        <th>Start Hour</th>
+                        <th>End Hour</th>
                         <th>Booking deadline</th>
-                        <th>Class capacity</th>
-                        <th>#Bookings</th>
                         <th>Delivery</th>
                         <th>Change delivery</th>
                     </tr>
@@ -227,12 +257,12 @@ function Lectures(props) {
                     {tableEntries}
                 </tbody>
             </Table>
-            {nPages > 1 && <Pagination onClick={(ev) => setActive(ev.target.text)}>{items}</Pagination>}
+            {nPages > 1 && <Pagination onClick={(ev) => { if (ev.target.text) setActive(ev.target.text) }}>{items}</Pagination>}
         </>
     )
 }
 
-function filterLectures(lectures, from, to, chosenCourse, courses) {
+function filterLectures(lectures, from, to, chosenCourse, courses, changeDelivery) {
     let filterLectures = lectures
     if (chosenCourse !== "All")
         filterLectures = filterLectures.filter((lecture) => courseName(lecture.courseId, courses) === chosenCourse)
@@ -242,7 +272,7 @@ function filterLectures(lectures, from, to, chosenCourse, courses) {
         filterLectures = filterLectures.filter((lecture) => moment(lecture.startingDate).isBefore(to))
     let entries = []
     for (let lecture of filterLectures) {
-        entries.push(<TableEntry lecture={lecture} courses={courses} />)
+        entries.push(<TableEntry lecture={lecture} courses={courses} changeDelivery={changeDelivery} />)
     }
     return entries
 }
@@ -250,16 +280,15 @@ function TableEntry(props) {
     return (
         <tr>
             <td>{courseName(props.lecture.courseId, props.courses)}</td>
-            <td>{props.lecture.className}</td>
-            <td>{props.lecture.startingDate}</td>
-            <td>{props.lecture.duration}</td>
-            <td>{props.lecture.bookingDeadline}</td>
-            <td>{props.lecture.classCapacity}</td>
-            <td>{props.lecture.numBookings}</td>
+            <td>{props.lecture.classId}</td>
+            <td>{moment(props.lecture.startingDate).format("DD-MM-YYYY")}</td>
+            <td>{moment(props.lecture.startingDate).format("HH:mm")}</td>
+            <td>{moment(props.lecture.startingDate).add(props.lecture.duration, "milliseconds").format("HH:mm")}</td>
+            <td>{moment(props.lecture.bookingDeadline).format("DD-MM-YYYY HH:mm")}</td>
             <td>{props.lecture.delivery === "REMOTE" ? "REMOTE" : "IN PRESENCE"}</td>
-            <td>{props.lecture.delivery === "REMOTE" ? <Button variant="warning" >Change to "In Presence"</Button> : <Button variant="warning">Change to "Remote"</Button>}</td>
+            <td>{props.lecture.delivery === "REMOTE" ? <Button data-testid={props.lecture.lectureId + "-button"} variant="warning" onClick={() => props.changeDelivery(props.lecture)} >Change to "In Presence"</Button> : <Button data-testid={props.lecture.lectureId + "-button"} variant="warning" onClick={() => props.changeDelivery(props.lecture)}>Change to "Remote"</Button>}</td>
 
-        </tr>
+        </tr >
     )
 }
 function courseName(id, courses) {
