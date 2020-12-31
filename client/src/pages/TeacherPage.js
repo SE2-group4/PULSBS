@@ -4,16 +4,13 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
 import API from "../api/Api";
-import ErrorMsg from '../components/ErrorMsg';
-import { CoursePanel, LecturePanel, StudentPanel, EditModal, DeleteModal } from '../components/TeacherComp';
+import { CoursePanel, LecturePanel, StudentPanel, EditModal, DeleteModal, ErrorModal } from '../components/TeacherComp';
 import Lecture from '../entities/lecture';
 
 /**
  *  elementForPage is a configuration parameter to limit the number of entries of the tables showing courses/lectures/students
  *  in the same instance (min value: 2)
  */
-const elementForPage = 4;
-const studentForPage = 10;
 
 class TeacherPage extends React.Component {
 
@@ -25,9 +22,9 @@ class TeacherPage extends React.Component {
         super(props);
         this.state = {
             user: props.user,
-            courses: [], lectures: [], students: [],                         //elements
+            courses: [], lectures: [], students: [], presentStudents: [],    //elements
             selectedCourse: null, selectedLecture: null,                     //selected elements
-            lectureIdToUpdate: null, deliveryToUpdate: null,                 //change delivery management
+            lectureIdToUpdate: null, deliveryToUpdate: null,                 //change lecture delivery 
             lectureIdToDelete: null,                                         //delete lecture
             currCPage: 1,                                                    //course pagination
             currLPage: 1,                                                    //lecture pagination
@@ -58,11 +55,12 @@ class TeacherPage extends React.Component {
         let now = new Date().toISOString();
         API.getLecturesByCourseIdByTeacherId(this.state.user.userId, courseId, now)
             .then((lectures) => {
-                this.setState({ lectures: lectures, selectedCourse: courseId, selectedLecture: null, fetchErrorL: false, students: [], fetchErrorS: false, lectureLoading: false, currLPage: 1 });
+                console.log(lectures);
+                this.setState({ lectures: lectures, selectedCourse: courseId, selectedLecture: null, fetchErrorL: false, students: [], presentStudents: [], fetchErrorS: false, lectureLoading: false, currLPage: 1 });
             })
             .catch((error) => {
                 let errormsg = error.source + " : " + error.error;
-                this.setState({ selectedCourse: courseId, lectures: [], selectedLecture: null, fetchErrorL: errormsg, students: [], fetchErrorS: false, lectureLoading: false, currLPage: 1 });
+                this.setState({ selectedCourse: courseId, lectures: [], selectedLecture: null, fetchErrorL: errormsg, students: [], presentStudents: [], fetchErrorS: false, lectureLoading: false, currLPage: 1 });
             });
     }
 
@@ -73,11 +71,11 @@ class TeacherPage extends React.Component {
         this.setState({ studentLoading: true });
         API.getStudentsByLecture(this.state.user.userId, this.state.selectedCourse, lectureId)
             .then((students) => {
-                this.setState({ students: students, selectedLecture: lectureId, fetchErrorS: false, studentLoading: false, currSPage: 1 })
+                this.setState({ students: students, presentStudents: [], selectedLecture: lectureId, fetchErrorS: false, studentLoading: false, currSPage: 1 })
             })
             .catch((error) => {
                 let errormsg = error.source + " : " + error.error;
-                this.setState({ selectedLecture: lectureId, students: [], fetchErrorS: errormsg, studentLoading: false, currSPage: 1 });
+                this.setState({ selectedLecture: lectureId, students: [], presentStudents: [], fetchErrorS: errormsg, studentLoading: false, currSPage: 1 });
             });
     }
 
@@ -87,10 +85,10 @@ class TeacherPage extends React.Component {
     resetSelected = (type) => {
         switch (type) {
             case "course":
-                this.setState({ selectedCourse: null, lectures: [], selectedLecture: null, lPages: 1, fetchErrorL: false, students: [], sPages: 1, fetchErrorS: false })
+                this.setState({ selectedCourse: null, lectures: [], selectedLecture: null, lPages: 1, fetchErrorL: false, students: [], presentStudents: [], fetchErrorS: false })
                 break;
             case "lecture":
-                this.setState({ selectedLecture: null, students: [], sPages: 1, fetchErrorS: false });
+                this.setState({ selectedLecture: null, students: [], presentStudents: [], fetchErrorS: false });
                 break;
         }
     }
@@ -165,7 +163,7 @@ class TeacherPage extends React.Component {
                 });
                 newLectures.splice(i, 1);
                 if (lectureIdToDelete === this.state.selectedLecture) {
-                    this.setState({ lectures: newLectures, lectureIdToDelete: null, selectedLecture: null, students: [], sPages: 1 });
+                    this.setState({ lectures: newLectures, lectureIdToDelete: null, selectedLecture: null, students: [], presentStudents: [] });
                 }
                 else {
                     this.setState({ lectures: newLectures, lectureIdToDelete: null });
@@ -178,14 +176,54 @@ class TeacherPage extends React.Component {
 
     }
 
+    //status = {PRESENT, ABSENT}
+    updateStudent = (student) => {
+        //check: is student already signed present?
+        let presentStudents = this.state.presentStudents.slice();
+        let i;
+        let newStatus = presentStudents.indexOf(student) === -1 ? "PRESENT" : "ABSENT";
+        API.updateStudentStatus(this.state.user.userId, this.state.selectedCourse, this.state.selectedLecture, student.studentId, newStatus)
+            .then(() => {
+                //ok from server
+                if (newStatus === "PRESENT")
+                    presentStudents.push(student);
+                else {
+                    i = presentStudents.indexOf(student);
+                    presentStudents.splice(i, 1);
+                }
+                this.setState({ presentStudents: presentStudents });
+            })
+            .catch((error) => {
+                //!ok from server
+                let errormsg = error.source + " : " + error.error;
+                this.setState({ fetchErrorS: errormsg });
+            });
+    }
+
     render() {
+        let takeAttendances = false;
+        if (!this.state.lectureLoading) {
+            let selectedLecture = this.state.selectedLecture;
+            if (selectedLecture) {
+                let lecture = null;
+                this.state.lectures.forEach(function (item) {
+                    if (item.lectureId === parseInt(selectedLecture))
+                        lecture = item;
+                });
+                let date = new Date(lecture.startingDate);
+                let now = new Date();
+                takeAttendances = now.getTime() >= date.getTime() && (date.getTime() + lecture.duration) >= now.getTime ? true : false;
+            }
+        }
         return (
             <>
                 { this.state.lectureIdToUpdate &&
                     <EditModal editClose={this.closeEditModal} lectureId={this.state.lectureIdToUpdate} delivery={this.state.deliveryToUpdate} updateDelivery={this.updateDelivery} />}
                 { this.state.lectureIdToDelete &&
                     <DeleteModal deleteClose={this.closeDeleteModal} lectureId={this.state.lectureIdToDelete} deleteLecture={this.deleteLecture} />}
-
+                {this.state.fetchErrorC && <ErrorModal name="fetchErrorC" error={this.state.fetchErrorC} close={this.closeError} />}
+                {this.state.fetchErrorS && <ErrorModal name="fetchErrorS" error={this.state.fetchErrorS} close={this.closeError} />}
+                {this.state.fetchErrorL && <ErrorModal name="fetchErrorL" error={this.state.fetchErrorL} close={this.closeError} />}
                 <Container fluid>
                     <Row>
                         <Col sm={6}>
@@ -196,23 +234,33 @@ class TeacherPage extends React.Component {
                             />
                             <br />
                             <br />
-                            <LecturePanel
+                            {this.state.selectedCourse && <LecturePanel
                                 lectures={this.state.lectures} sLecture={this.state.selectedLecture}                                //lectures
                                 currentPage={this.state.currLPage} change={this.changePage}                                         //pagination
                                 update={this.updateStudents} reset={this.resetSelected}                                             //interaction with StudentPanel                                                 
                                 showEditModal={this.showEditModal}                                                                  //EditDelivery management                                                                     
                                 showDeleteModal={this.showDeleteModal}                                                              //Delete
-                            />
+                            />}
                         </Col>
                         <Col sm={6}>
-                            <StudentPanel
-                                students={this.state.students}                                                      //students
-                                currentPage={this.state.currSPage} change={this.changePage}                         //pagination
-                            />
+                            {this.state.selectedLecture && <>
+                                <StudentPanel
+                                    students={this.state.students}                                                      //students
+                                    currentPage={this.state.currSPage} change={this.changePage}                         //pagination
+                                    updateStudent={this.updateStudent} enable={takeAttendances}                         //student presence manag
+                                    present={false}
+                                />
+                                <br />
+                                {takeAttendances &&
+                                    <StudentPanel
+                                        students={this.state.presentStudents.sort((a, b) => a.studentId - b.studentId)}     //students
+                                        currentPage={this.state.currSPage} change={this.changePage}                         //pagination
+                                        updateStudent={this.updateStudent} enable={false}                                   //student presence manag
+                                        present={true} numStudents={this.state.students.length}
+                                    />
+                                }
+                            </>}
                             <Col sm={4}>
-                                {this.state.fetchErrorC && <ErrorMsg name="fetchErrorC" msg={this.state.fetchErrorC} onClose={this.closeError} />}
-                                {this.state.fetchErrorS && <ErrorMsg name="fetchErrorS" msg={this.state.fetchErrorS} onClose={this.closeError} />}
-                                {this.state.fetchErrorL && <ErrorMsg name="fetchErrorL" msg={this.state.fetchErrorL} onClose={this.closeError} />}
                                 {(this.state.studentLoading || this.state.lectureLoading) && <label>Loading...&emsp;&emsp;<Spinner animation="border" /></label>}
                             </Col>
                         </Col>

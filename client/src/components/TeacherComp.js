@@ -12,8 +12,8 @@ const Checkbox = ({ name, checked = false, onChange, type }) => (
     <Form.Check name={name} checked={checked} onChange={onChange} data-testid={type + "-" + name} />
 );
 
-const elementForPage = 4;
-const studentForPage = 10;
+const elementForPage = 4; //both courses and lectures
+const studentForPage = 4;
 
 class CoursePanel extends React.Component {
 
@@ -30,7 +30,7 @@ class CoursePanel extends React.Component {
             this.props.update(e.target.name);
     }
 
-    //NavButtons handler
+    //pagination handler
     onClick = (number) => {
         this.props.change("currCPage", number);
     }
@@ -109,7 +109,7 @@ class LecturePanel extends React.Component {
         this.props.showDeleteModal(e.target.name);
     }
 
-    //NavButtons handler
+    //pagination handler
     onClick = (number) => {
         this.props.change("currLPage", number);
     }
@@ -163,7 +163,7 @@ function LecturePanelRow(props) {
     let now = new Date();
     let canEdit = ((date.getTime() - now.getTime()) / (1000 * 60)) > 30 ? true : false; //check to time distance (more than 30 minutes)
     let canDelete = ((date.getTime() - now.getTime()) / (1000 * 60)) > 60 ? true : false; //check to time distance (more than 60 minutes)
-    let deliveryText = props.lecture.delivery.charAt(0) + props.lecture.delivery.substring(1).toLowerCase();
+    let deliveryText = props.lecture.delivery ? props.lecture.delivery.charAt(0) + props.lecture.delivery.substring(1).toLowerCase() : "";
     return <tr data-testid="lecture-row">
         <td>{props.lecture.lectureId}</td>
         <td>{date.toLocaleDateString()}{" " + (date.toLocaleTimeString()).slice(0, 5)}</td>
@@ -202,9 +202,15 @@ class StudentPanel extends React.Component {
         this.state = {};
     }
 
-    //NavButtons handler
+    //pagination handler
     onClick = (number) => {
         this.props.change("currSPage", number);
+    }
+
+    //switch student status (present/absent)
+    updateStudent = (student) => {
+        if (this.props.enable)
+            this.props.updateStudent(student);
     }
 
     render() {
@@ -221,12 +227,13 @@ class StudentPanel extends React.Component {
         for (let entry = (this.props.currentPage - 1) * elementForPage; entry <= this.props.currentPage * elementForPage - 1; entry++) {
             let student = this.props.students[entry];
             if (student)
-                tableEntries.push(<StudentPanelRow key={student.studentId} student={student} />);
+                tableEntries.push(<StudentPanelRow key={student.studentId} student={student} updateStudent={this.updateStudent} />);
         }
-
+        let numText = this.props.present ? <>Number of present students: <b>{this.props.students.length} / {this.props.numStudents}</b></> : <>Number of students: <b>{this.props.students.length}</b></>;
+        let noStudentText = this.props.present ? "no present students." : "no students listed.";
         return <>
             <Container fluid>
-                <strong>Student list:</strong><br />
+                {this.props.present ? <strong>Presence list:</strong> : <strong>Student list:</strong>}<br />
                 <Table striped hover>
                     <thead style={{ whiteSpace: "nowrap" }}>
                         <tr>
@@ -240,8 +247,8 @@ class StudentPanel extends React.Component {
                     </tbody>
                 </Table>
                 {this.props.nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
-                {this.props.students.length === 0 && <label>no students listed.</label>}
-                <span className="selectedText">{this.props.students.length !== 0 && <label data-testid="number-students">Number of students: <b>{this.props.students.length}</b></label>}</span>
+                {this.props.students.length === 0 && <label>{noStudentText}</label>}
+                <span className="selectedText">{this.props.students.length !== 0 && <label data-testid="number-students">{numText}</label>}</span>
             </Container>
             <br />
         </>;
@@ -249,7 +256,7 @@ class StudentPanel extends React.Component {
 }
 
 function StudentPanelRow(props) {
-    return <tr data-testid="student-row">
+    return <tr data-testid="student-row" as={Button} onClick={() => props.updateStudent(props.student)}>
         <td>{props.student.lastName}</td>
         <td>{props.student.firstName}</td>
         <td>{props.student.studentId}</td>
@@ -284,7 +291,21 @@ function DeleteModal(props) {
     </>;
 }
 
-export { CoursePanel, LecturePanel, StudentPanel, EditModal, DeleteModal };
+function ErrorModal(props) {
+    return <>
+        <Modal show={true} onHide={() => props.close(props.name)}>
+            <Modal.Header closeButton>
+                <Modal.Title>Something went wrong!</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>{props.error}</Modal.Body>
+            <Modal.Footer>
+                <Button name="close" data-testid="errorClose" variant="secondary" onClick={() => props.close(props.name)}>Close</Button>
+            </Modal.Footer>
+        </Modal>
+    </>;
+}
+
+export { CoursePanel, LecturePanel, StudentPanel, EditModal, DeleteModal, ErrorModal };
 
 
 
