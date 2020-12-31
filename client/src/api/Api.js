@@ -205,27 +205,27 @@ async function getCoursesByTeacherId(id) {
  *  @param {*} dateFrom date
  *  @param {*} dateTo date
  */
-async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, bookings) {
+async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, bookings, attendances) {
     let qfrom = dateFrom ? "from=" + dateFrom : "";
     let qto = dateTo ? "to=" + dateTo : "";
     qto = qfrom && qto ? "&" + qto : qto;
     let qbook = bookings ? "bookings=true" : "";
     qbook = qbook && (qfrom || qto) ? "&" + qbook : qbook;
-    let query = qfrom || qto || qbook ? "?" + qfrom + qto + qbook : "";
+    let qatt = attendances ? "attendances=true" : "";
+    qatt = qatt && (qfrom || qto || qbook) ? "&" + qatt : qatt;
+    let query = qfrom || qto || qbook || qatt ? "?" + qfrom + qto + qbook + qatt : "";
 
     return new Promise((resolve, reject) => {
         fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures${query}`).then((response) => {
             if (response.ok) {
                 response.json()
                     .then((obj) => {
-                        if (!bookings)
-                            resolve(obj.map((l) => Lecture.from(l)));
-                        else {
-                            resolve(obj.map((l) => {
-                                l.lecture["numBookings"] = l.bookings;
-                                return Lecture.from(l.lecture);
-                            }));
+                        resolve(obj.map((l) => {
+                            l.lecture["numBookings"] = l.bookings;
+                            l.lecture["attendances"] = l.attendances;
+                            return Lecture.from(l.lecture);
                         }
+                        ));
                     })
                     .catch((err) => { reject({ source: "Lecture", error: "application parse error" }) }); // something else
             } else {
