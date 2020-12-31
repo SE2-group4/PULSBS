@@ -88,12 +88,12 @@ const openConn = function openConn(dbpath = "./PULSBS.db", cb = () => {}) {
     });
 
     db.get("PRAGMA foreign_keys = ON");
-    db.on("profile", (query, time) => {
-        query = query.replace(/ +(?= )/g, "");
-        //console.log("QUERY EXECUTED");
-        //console.log(query);
-        //console.log("TIME: ", time);
-    });
+    // db.on("profile", (query, time) => {
+    //     // query = query.replace(/ +(?= )/g, "");
+    //     //console.log("QUERY EXECUTED");
+    //     //console.log(query);
+    //     //console.log("TIME: ", time);
+    // });
 
     if(cb)
         cb();
