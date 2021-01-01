@@ -373,9 +373,9 @@ exports.teacherUpdateCourseLectureStudentStatus = async function (teacherId, cou
 
     await checkTeacherCorrelations(tId, cId, lId);
 
-    const hasBooked = await hasStudentBookedLecture(sId, lId);
-    if (!hasBooked) {
-        throw genResponseError(errno.BOOKING_NOT_PRESENT, { studentId, lectureId });
+    const isUpdatable = await isBookingStatusUpdatable(sId, lId);
+    if (!isUpdatable) {
+        throw genResponseError(errno.BOOKING_NOT_UPDATABLE, { studentId, lectureId });
     }
 
     await db.updateBookingStatus(new Lecture(lId), new Student(sId), status.toUpperCase());
@@ -603,21 +603,27 @@ async function courseLectureCorrelation(courseId, lectureId) {
 }
 
 /**
- * Check if a student has booked a lecture
+ * Check if a booking.status is updatable
  *
  * studentId {Integer}
  * lectureId {Integer}
  * returns {Boolean}
  **/
-async function hasStudentBookedLecture(studentId, lectureId) {
-    let has = false;
+async function isBookingStatusUpdatable(studentId, lectureId) {
+    let is = false;
 
     const lectures = await db.getBookedLecturesByStudent(new Student(studentId));
+
     if (lectures.length > 0) {
-        has = lectures.some((lecture) => lecture.lectureId === lectureId);
+        const lecture = lectures.find((lecture) => lecture.lectureId === lectureId);
+
+        if (lecture) {
+            const now = new Date();
+            if (lecture.startingDate.getTime() < now.getTime()) is = true;
+        }
     }
 
-    return has;
+    return is;
 }
 
 /**
