@@ -35,11 +35,12 @@ class SupportPage extends React.Component {
     handleOnDrop = (data, name, filename) => {
         let type = filename.type;
         let match = filename.name.match(/.+(\.csv)$/);
-        if (JSON.stringify(Object.getOwnPropertyNames(data[0].data)) !== JSON.stringify(fileProps.get(name)))
-            this.setState({ genError: filename.name + " is not in an expected format." });
-        else if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel" || match)
-            this.setState({ [name]: data });
-        else
+        if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel" || match) {
+            if (JSON.stringify(Object.getOwnPropertyNames(data[0].data)) !== JSON.stringify(fileProps.get(name)))
+                this.setState({ genError: filename.name + " is not in an expected format." });
+            else
+                this.setState({ [name]: data });
+        } else
             this.setState({ genError: filename.name + " is not a valid file (expected type: csv)." });
     }
 
