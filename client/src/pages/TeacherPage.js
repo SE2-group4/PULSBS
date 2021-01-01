@@ -3,6 +3,7 @@ import Container from "react-bootstrap/Container"
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
+import moment from 'moment';
 import API from "../api/Api";
 import { CoursePanel, LecturePanel, StudentPanel, EditModal, DeleteModal, ErrorModal } from '../components/TeacherComp';
 import Lecture from '../entities/lecture';
@@ -52,10 +53,9 @@ class TeacherPage extends React.Component {
      */
     updateLectures = (courseId) => {
         this.setState({ lectureLoading: true });
-        let now = new Date().toISOString();
+        let now = moment().subtract(1, 'hour').subtract(30, 'minutes').toISOString();
         API.getLecturesByCourseIdByTeacherId(this.state.user.userId, courseId, now)
             .then((lectures) => {
-                console.log(lectures);
                 this.setState({ lectures: lectures, selectedCourse: courseId, selectedLecture: null, fetchErrorL: false, students: [], presentStudents: [], fetchErrorS: false, lectureLoading: false, currLPage: 1 });
             })
             .catch((error) => {
@@ -69,9 +69,10 @@ class TeacherPage extends React.Component {
      */
     updateStudents = (lectureId) => {
         this.setState({ studentLoading: true });
-        API.getStudentsByLecture(this.state.user.userId, this.state.selectedCourse, lectureId)
+        API.getStudentsByLecture(this.state.user.userId, this.state.selectedCourse, lectureId, true)
             .then((students) => {
-                this.setState({ students: students, presentStudents: [], selectedLecture: lectureId, fetchErrorS: false, studentLoading: false, currSPage: 1 })
+                let presents = students.slice().filter(a => a.bookingStatus === 'PRESENT');
+                this.setState({ students: students, presentStudents: presents, selectedLecture: lectureId, fetchErrorS: false, studentLoading: false, currSPage: 1 })
             })
             .catch((error) => {
                 let errormsg = error.source + " : " + error.error;
@@ -176,22 +177,20 @@ class TeacherPage extends React.Component {
 
     }
 
-    //status = {PRESENT, ABSENT}
     updateStudent = (student) => {
         //check: is student already signed present?
-        let presentStudents = this.state.presentStudents.slice();
-        let i;
-        let newStatus = presentStudents.indexOf(student) === -1 ? "PRESENT" : "ABSENT";
+        let presents = this.state.presentStudents.slice();
+        let newStatus = presents.indexOf(student) === -1 ? "present" : "not_present";
         API.updateStudentStatus(this.state.user.userId, this.state.selectedCourse, this.state.selectedLecture, student.studentId, newStatus)
             .then(() => {
                 //ok from server
-                if (newStatus === "PRESENT")
-                    presentStudents.push(student);
+                if (newStatus === "present")
+                    presents.push(student);
                 else {
-                    i = presentStudents.indexOf(student);
-                    presentStudents.splice(i, 1);
+                    let i = presents.indexOf(student);
+                    presents.splice(i, 1);
                 }
-                this.setState({ presentStudents: presentStudents });
+                this.setState({ presentStudents: presents });
             })
             .catch((error) => {
                 //!ok from server
@@ -210,9 +209,7 @@ class TeacherPage extends React.Component {
                     if (item.lectureId === parseInt(selectedLecture))
                         lecture = item;
                 });
-                let date = new Date(lecture.startingDate);
-                let now = new Date();
-                takeAttendances = now.getTime() >= date.getTime() && (date.getTime() + lecture.duration) >= now.getTime ? true : false;
+                takeAttendances = moment().isBetween(moment(lecture.startingDate), moment(lecture.startingDate).add(lecture.duration, "milliseconds")) ? true : false;
             }
         }
         return (
@@ -244,6 +241,7 @@ class TeacherPage extends React.Component {
                         </Col>
                         <Col sm={6}>
                             {this.state.selectedLecture && <>
+                                {takeAttendances ? <>Lecture <b>in progress</b>, click on a student to sign his presence/absence to the lecture.</> : " "}<br /><br />
                                 <StudentPanel
                                     students={this.state.students}                                                      //students
                                     currentPage={this.state.currSPage} change={this.changePage}                         //pagination
