@@ -21,25 +21,25 @@ const courses = [
   new Course(5, "Programmare in React", 2020)
 ];
 const lectures = [
-  new Lecture(1, 1, 1, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE"),
-  new Lecture(2, 1, 1, moment().add("2", "day").toISOString(), "1000000", moment().add("1", "day").toISOString(), "REMOTE"),
-  new Lecture(3, 2, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE"),
-  new Lecture(4, 1, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE"),
-  new Lecture(5, 1, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE")
+  { lecture: new Lecture(1, 1, 1, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE") },
+  { lecture: new Lecture(2, 1, 1, moment().add("2", "day").toISOString(), "1000000", moment().add("1", "day").toISOString(), "REMOTE") },
+  { lecture: new Lecture(3, 2, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE") },
+  { lecture: new Lecture(4, 1, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE") },
+  { lecture: new Lecture(5, 1, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE") }
 ];
 const students = [
-  new Student(1, "Francesco", "Rossi", "fr@email.com", "ciao1"),
-  new Student(2, "Monica", "Gialli", "mg@email.com", "ciao2"),
-  new Student(3, "Giovanni", "Verdi", "fr@email.com", "ciao1"),
-  new Student(4, "Carla", "Blu", "mg@email.com", "ciao2"),
-  new Student(5, "Francesco", "Rossi", "fr@email.com", "ciao1"),
-  new Student(6, "Monica", "Gialli", "mg@email.com", "ciao2"),
-  new Student(7, "Giovanni", "Verdi", "fr@email.com", "ciao1"),
-  new Student(8, "Carla", "Blu", "mg@email.com", "ciao2"),
-  new Student(9, "Francesco", "Rossi", "fr@email.com", "ciao1"),
-  new Student(10, "Monica", "Gialli", "mg@email.com", "ciao2"),
-  new Student(11, "Giovanni", "Verdi", "fr@email.com", "ciao1"),
-  new Student(12, "Carla", "Blu", "mg@email.com", "ciao2")
+  { student: new Student(1, "Francesco", "Rossi", "fr@email.com", "ciao1") },
+  { student: new Student(2, "Monica", "Gialli", "mg@email.com", "ciao2") },
+  { student: new Student(3, "Giovanni", "Verdi", "fr@email.com", "ciao1") },
+  { student: new Student(4, "Carla", "Blu", "mg@email.com", "ciao2") },
+  { student: new Student(5, "Francesco", "Rossi", "fr@email.com", "ciao1") },
+  { student: new Student(6, "Monica", "Gialli", "mg@email.com", "ciao2") },
+  { student: new Student(7, "Giovanni", "Verdi", "fr@email.com", "ciao1") },
+  { student: new Student(8, "Carla", "Blu", "mg@email.com", "ciao2") },
+  { student: new Student(9, "Francesco", "Rossi", "fr@email.com", "ciao1") },
+  { student: new Student(10, "Monica", "Gialli", "mg@email.com", "ciao2") },
+  { student: new Student(11, "Giovanni", "Verdi", "fr@email.com", "ciao1") },
+  { student: new Student(12, "Carla", "Blu", "mg@email.com", "ciao2") }
 ];
 
 beforeEach(() => {
@@ -91,17 +91,17 @@ async function setupDeleteModal() {
 }
 
 describe('Teacher Page suite', () => {
-  test('render TeacherPage component (courses API : success), testing next/previous', async () => {
+  test('render TeacherPage component (courses API : success), testing pagination', async () => {
     await fetchCourses();
     let items = screen.getAllByTestId('course-row');
     expect(items).toHaveLength(4);
     expect(screen.getByText("Software Engineering 2")).toBeInTheDocument(); //should be in page 0
     await act(async () => {
-      userEvent.click(screen.getByText('>')); //page 0 -> 1
+      userEvent.click(screen.getByTestId('paginationItemCourse-2')); //page 1 -> 2
     });
     expect(screen.getByText("Programmare in React")).toBeInTheDocument(); //should be in page 1
     await act(async () => {
-      userEvent.click(screen.getByText('<')); //page 1 -> 0
+      userEvent.click(screen.getByTestId('paginationItemCourse-1')); //page 2 -> 1
     });
     expect(screen.getByText("Information Systems Security")).toBeInTheDocument(); //should be in page 0
   });
@@ -110,7 +110,7 @@ describe('Teacher Page suite', () => {
     await fetchCourses('Course : application parse error');
     expect(screen.getByText('Course : application parse error')).toBeInTheDocument();
     await act(async () => {
-      userEvent.click(screen.getByRole('button'));
+      userEvent.click(screen.getByTestId('errorClose'));
     });
   });
 
@@ -129,21 +129,17 @@ describe('Teacher Page suite', () => {
     expect(screen.getByText('Course : server error')).toBeInTheDocument();
   });
 
-  test('testing interaction CoursePanel-LecturePanel (lectures API : success), testing next/previous', async () => {
+  test('testing interaction CoursePanel-LecturePanel (lectures API : success), testing pagination', async () => {
     await fetchLectureSuccess();
     expect(screen.getByTestId("selected-course")).toBeInTheDocument();
     const items = screen.getAllByTestId('lecture-row');
     expect(items).toHaveLength(4);
     await act(async () => {
-      userEvent.click(screen.getAllByText('>')[1]); //page 0 -> 1
+      userEvent.click(screen.getByTestId('paginationItemLecture-2')); //page 1 -> 2
     });
     await act(async () => {
-      userEvent.click(screen.getAllByText('<')[1]); //page 1 -> 0
+      userEvent.click(screen.getByTestId('paginationItemLecture-1')); //page 2 -> 1
     });
-    await act(async () => {
-      userEvent.click(screen.getByTestId('c-1'))
-    });
-    expect(screen.getByText('no lectures available.')).toBeInTheDocument();
   });
 
   test('testing interaction CoursePanel-LecturePanel (lectures API : json parsing error)', async () => {
@@ -192,24 +188,20 @@ describe('Teacher Page suite', () => {
     expect(screen.getByText('Lecture : server error')).toBeInTheDocument();
   });
 
-  test('testing interaction between LecturePanel-StudentPanel (students API : success), testing next/previous', async () => {
+  test('testing interaction between LecturePanel-StudentPanel (students API : success), testing pagination', async () => {
     await fetchStudentSuccess();
     expect(screen.getByTestId("selected-course")).toBeInTheDocument();
     expect(screen.getByTestId("number-students")).toBeInTheDocument();
     let items = screen.getAllByTestId('student-row');
-    expect(items).toHaveLength(10);
+    expect(items).toHaveLength(4);
     await act(async () => {
-      userEvent.click(screen.getAllByText('>')[2]); //page 0 -> 1
+      userEvent.click(screen.getByTestId('paginationItemStudent-2')); //page 0 -> 1
     });
     items = screen.getAllByTestId('student-row');
-    expect(items).toHaveLength(2);
+    expect(items).toHaveLength(4);
     await act(async () => {
-      userEvent.click(screen.getAllByText('<')[2]); //page 1 -> 0
+      userEvent.click(screen.getByTestId('paginationItemStudent-1')); //page 1 -> 0
     });
-    await act(async () => {
-      userEvent.click(screen.getByTestId('l-1'))
-    });
-    expect(screen.getByText('no students listed.')).toBeInTheDocument();
   });
 
   test('testing interaction between LecturePanel-StudentPanel (students API : json parsing error)', async () => {
