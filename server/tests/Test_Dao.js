@@ -160,9 +160,9 @@ const suite = function () {
             });
         });
 
-        describe('getStudentsByLecture', function () {
+        describe('getBookedStudentsByLecture', function () {
             it('non empty lecture should get the list of students', function (done) {
-                dao.getStudentsByLecture(lecture3)
+                dao.getBookedStudentsByLecture(lecture3)
                     .then((students) => {
                         assert.ok(students, 'No returned valued received');
                         assert.ok(students.length === 1, 'Wrong number of students');
@@ -249,9 +249,9 @@ const suite = function () {
             });
         });
 
-        describe('getBookingsByStudent', function () {
+        describe('getBookedLecturesByStudent', function () {
             it('correct params should return the list of lectures', function (done) {
-                dao.getBookingsByStudent(student2)
+                dao.getBookedLecturesByStudent(student2)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 1, 'Wrong number of bookings');
                         done();
@@ -260,7 +260,7 @@ const suite = function () {
             });
 
             it('non existing student should return an empty list', function (done) {
-                dao.getBookingsByStudent(-1)
+                dao.getBookedLecturesByStudent(-1)
                     .then((lectures) => {
                         assert.strictEqual(lectures.length, 0, 'Wrong number of bookings');
                         done();
