@@ -21,14 +21,15 @@ const ACCEPTED_QUERY_PARAM = ["from", "to", "bookings", "attendances"];
 Object.freeze(ACCEPTED_QUERY_PARAM);
 
 /**
- * Get all the students that have an active booking for a given lecture
+ * Get all the students that have a booking for a given lecture
+ * Only booking with status {BOOKED, PRESENT, NOT_PRESENT} will be considered
  *
  * teacherId {Integer}
  * courseId {Integer}
  * lectureId {Integer}
  * returns {Promise} array of Student's instances. A ResponseError on error
  **/
-exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, lectureId) {
+exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, lectureId, withStatus = false) {
     const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
         teacherId,
         courseId,
@@ -38,9 +39,14 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
         throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
+    if (!converter.isValueOfType("boolean", withStatus))
+        throw genResponseError(errno.PARAM_NOT_BOOLEAN, { status: withStatus });
+
+    withStatus = converter.toBoolean(withStatus);
+
     await checkTeacherCorrelations(tId, cId, lId);
 
-    return await db.getBookedStudentsByLecture(new Lecture(lectureId));
+    return await db.getBookedStudentsByLecture(new Lecture(lectureId), withStatus);
 };
 
 function printQueryParams(bookings, attendances, dateFilter) {
