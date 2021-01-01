@@ -40,7 +40,7 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
 
     await checkTeacherCorrelations(tId, cId, lId);
 
-    return await db.getStudentsByLecture(new Lecture(lectureId));
+    return await db.getBookedStudentsByLecture(new Lecture(lectureId));
 };
 
 function printQueryParams(bookings, attendances, dateFilter) {
@@ -317,7 +317,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 
     lecture.delivery = switchTo;
     await db.updateLectureDeliveryMode(lecture);
-    const studentsToBeNotified = await db.getStudentsByLecture(lecture);
+    const studentsToBeNotified = await db.getBookedStudentsByLecture(lecture);
     if (studentsToBeNotified.length > 0) {
         const course = await db.getCourseByLecture(lecture);
         const subjectArgs = [course.description];
@@ -346,7 +346,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 
 /**
  * Update a booking status
- * Accepted statuses: PRESENT, ABSENT
+ * Accepted statuses: PRESENT, NOT_PRESENT
  *
  * teacherId {Integer}
  * courseId {Integer}
@@ -371,17 +371,7 @@ exports.teacherUpdateCourseLectureStudentStatus = async function (teacherId, cou
         throw genResponseError(errno.BOOKING_INVALID_STATUS, { status });
     }
 
-    // checking if the teacher is in charge of this course during this academic year
-    const isTaughtBy = await teacherCourseCorrelation(tId, cId);
-    if (!isTaughtBy) {
-        throw genResponseError(errno.TEACHER_COURSE_MISMATCH_AA, { courseId, teacherId });
-    }
-
-    // checking if the lecture belongs to this course
-    const doesLectureBelong = await courseLectureCorrelation(cId, lId);
-    if (!doesLectureBelong) {
-        throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { lectureId, courseId });
-    }
+    await checkTeacherCorrelations(tId, cId, lId);
 
     const hasBooked = await hasStudentBookedLecture(sId, lId);
     if (!hasBooked) {
@@ -622,9 +612,9 @@ async function courseLectureCorrelation(courseId, lectureId) {
 async function hasStudentBookedLecture(studentId, lectureId) {
     let has = false;
 
-    const bookings = await db.getBookingsByStudent(new Student(studentId));
-    if (bookings.length > 0) {
-        has = bookings.some((booking) => booking.lectureId === lectureId);
+    const lectures = await db.getBookedLecturesByStudent(new Student(studentId));
+    if (lectures.length > 0) {
+        has = lectures.some((lecture) => lecture.lectureId === lectureId);
     }
 
     return has;
@@ -646,7 +636,7 @@ async function findSummaryExpiredLectures(date) {
 
     // Get number of stundents for each expiredLectures
     expiredLectures.forEach((lecture) => {
-        const promise = db.getStudentsByLecture(lecture);
+        const promise = db.getBookedStudentsByLecture(lecture);
         promises.set(lecture.lectureId, promise);
         mapResponse.set(lecture.lectureId, { lecture });
     });
