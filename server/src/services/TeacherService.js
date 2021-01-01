@@ -196,28 +196,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
         throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    // checking if the teacher is in charge of this course during this academic year
-    const isTaughtBy = await teacherCourseCorrelation(tId, cId);
-    if (!isTaughtBy) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
-    }
-
-    // checking if the lecture belongs to this course
-    const doesLectureBelong = await courseLectureCorrelation(cId, lId);
-
-    if (!doesLectureBelong) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.COURSE_LECTURE_MISMATCH_AA,
-            { lectureId, courseId },
-            404
-        );
-    }
+    await checkTeacherCorrelations(tId, cId, lId);
 
     let lecture = new Lecture(lId);
     lecture = await db.getLectureById(lecture);
@@ -248,12 +227,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
             }
         }
     } else {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.LECTURE_NOT_CANCELLABLE,
-            { lectureId: lecture.lectureId },
-            409
-        );
+        throw genResponseError(errno.LECTURE_NOT_CANCELLABLE, { lectureId: lecture.lectureId });
     }
 
     return 204;
@@ -276,43 +250,18 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         lectureId,
     });
     if (error) {
-        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     if (!check.isValidDeliveryMode(switchTo)) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.LECTURE_INVALID_DELIVERY_MODE,
-            { delivery: switchTo },
-            400
-        );
+        throw genResponseError(errno.LECTURE_INVALID_DELIVERY_MODE, { delivery: switchTo });
     }
 
-    // checking if the teacher is in charge of this course during this academic year
-    const isTaughtBy = await teacherCourseCorrelation(tId, cId);
-    if (!isTaughtBy) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
-    }
-
-    // checking if the lecture belongs to this course
-    const doesLectureBelong = await courseLectureCorrelation(cId, lId);
-    if (!doesLectureBelong) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.COURSE_LECTURE_MISMATCH_AA,
-            { lectureId, courseId },
-            404
-        );
-    }
+    await checkTeacherCorrelations(tId, cId, lId);
 
     const lecture = await db.getLectureById(new Lecture(lId));
     if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
-        throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_SWITCHABLE, { lectureId }, 406);
+        throw genResponseError(errno.LECTURE_NOT_SWITCHABLE, { lectureId });
     }
 
     lecture.delivery = switchTo;
