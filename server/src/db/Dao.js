@@ -324,11 +324,13 @@ exports.getLecturesByCourse = getLecturesByCourse;
  * @param {Lecture} lecture - lectureId needed
  * @returns {Promise} array of Student's instances
  */
-const getBookedStudentsByLecture = function (lecture) {
+const getBookedStudentsByLecture = function (lecture, withStatus = true) {
     return new Promise((resolve, reject) => {
-        const sql = `SELECT User.* FROM User
+        const sql = `SELECT User.* ${withStatus ? ", Booking.status as bookingStatus" : ""}
+            FROM User
             JOIN Booking on User.userId = Booking.studentId
             WHERE Booking.lectureId = ? AND User.type = ? AND Booking.status IN (?, ?, ?)`;
+        console.log(sql);
 
         db.all(
             sql,
@@ -345,8 +347,15 @@ const getBookedStudentsByLecture = function (lecture) {
                     return;
                 }
 
-                const students = [];
-                rows.forEach((row) => students.push(Student.from(row)));
+                const students = rows.map((row) => {
+                    if (withStatus) {
+                        const bookingStatus = row.bookingStatus;
+                        delete row.bookingStatus;
+                        return { student: Student.from(row), bookingStatus };
+                    }
+                    return Student.from(row);
+                });
+
                 resolve(students);
             }
         );
