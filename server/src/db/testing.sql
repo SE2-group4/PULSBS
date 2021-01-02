@@ -72,6 +72,12 @@ INSERT INTO EmailQueue(queueId, sender, recipient, emailType, teacherId, student
 INSERT INTO WaitingList(studentId, lectureId, date) VALUES(1, 6, DATETIME('now'));
 INSERT INTO WaitingList(studentId, lectureId, date) VALUES(2, 6, DATETIME('now', '-1 hour'));
 
+INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(1, '1', '2020', '1', '1A', '10', 'Mon', '8:30', '10:00');
+INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(2, '2', '2020', '2', '2B', '10', 'Mon', '8:30', '10:00');
+INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(3, '3', '2020', '1', '3C', '10', 'Mon', '8:30', '10:00');
+INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(4, '4', '2020', '2', '1A', '10', 'Tue', '8:30', '10:00');
+INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(5, '5', '2020', '1', '2B', '10', 'Tue', '8:30', '10:00');
+
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(1, DATETIME('now', '-1 month', 'start of day'), DATETIME('now', '+8 month', 'start of day'), 'ACADEMIC_YEAR', 1);
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(2, DATETIME('now', '-1 month', 'start of day'), DATETIME('now', '+3 month', 'start of day'), 'SEMESTER', 1);
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(3, DATETIME('now', '+4 month', 'start of day'), DATETIME('now', '+8 month', 'start of day'), 'SEMESTER', 1);
@@ -98,6 +104,8 @@ CREATE TRIGGER check_time_overlapping_before_insert_schedule
                 WHERE
                     code <> NEW.code
                     AND roomId = NEW.roomId
+                    AND AAyear = NEW.AAyear
+                    AND semester = NEW.semester
                     AND dayOfWeek = NEW.dayOfWeek
                     AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
                     AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
@@ -121,8 +129,10 @@ CREATE TRIGGER check_time_overlapping_before_update_schedule
 		SELECT CASE WHEN (
             SELECT COUNT(*) <> 0 FROM Schedule
                 WHERE
-                    code = NEW.code
+                    code <> NEW.code
                     AND roomId = NEW.roomId
+                    AND AAyear = NEW.AAyear
+                    AND semester = NEW.semester
                     AND dayOfWeek = NEW.dayOfWeek
                     AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
                     AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
