@@ -82,21 +82,25 @@ DROP TRIGGER IF EXISTS check_time_overlapping_before_insert_schedule;
 CREATE TRIGGER check_time_overlapping_before_insert_schedule
 	BEFORE INSERT ON Schedule
 	BEGIN
-		SELECT CASE WHEN ( SELECT COUNT(*) <> 0
-			FROM Schedule
-			WHERE
-				NEW.code = code
-				AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
-				AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
+		SELECT CASE WHEN (
+            SELECT COUNT(*) <> 0
+                FROM Schedule
+                WHERE
+                    code = NEW.code
+                    AND dayOfWeek = NEW.dayOfWeek
+                    AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
 			THEN RAISE(ABORT, 'New schedule overlapped with an existing one with the same code')
 		END IF;
-		SELECT CASE WHEN ( SELECT COUNT(*) <> 0
-			FROM Schedule
-			WHERE
-				NEW.code <> code
-				AND NEW.roomId = roomId
-				AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
-				AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
+		SELECT CASE WHEN (
+            SELECT COUNT(*) <> 0
+                FROM Schedule
+                WHERE
+                    code <> NEW.code
+                    AND roomId = NEW.roomId
+                    AND dayOfWeek = NEW.dayOfWeek
+                    AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
 			THEN RAISE(ABORT, 'New schedule overlapped with an existing one in the same class')
 		END IF;
 	END;
@@ -107,15 +111,19 @@ CREATE TRIGGER check_time_overlapping_before_update_schedule
 	BEGIN
 		SELECT CASE WHEN (
             SELECT COUNT(*) <> 0 FROM Schedule
-                WHERE NEW.code = code
+                WHERE
+                    code = NEW.code
+                    AND dayOfWeek = NEW.dayOfWeek
                     AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
                     AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
 			THEN RAISE(ABORT, 'New schedule overlapped with an existing one with the same code')
 		END IF;
 		SELECT CASE WHEN (
             SELECT COUNT(*) <> 0 FROM Schedule
-                WHERE NEW.code <> code
-                    AND NEW.roomId = roomId
+                WHERE
+                    code = NEW.code
+                    AND roomId = NEW.roomId
+                    AND dayOfWeek = NEW.dayOfWeek
                     AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
                     AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
 			THEN RAISE(ABORT, 'New schedule overlapped with an existing one in the same class')
