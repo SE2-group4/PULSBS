@@ -28,6 +28,7 @@ module.exports.managerGetCourseLecture = managerGetCourseLecture;
 function managerGetCourseLectures(req, res) {
     Manager.managerGetCourseLectures(req.params, req.query)
         .then(function (response) {
+            console.log(response)
             utils.writeJson(res, response);
         })
         .catch(function (response) {

@@ -9,19 +9,29 @@ import API from '../api/Api';
 class ManagerStatsPage extends React.Component {
     constructor(props) {
         super(props);
-        this.generateGraph = this.generateGraph.bind(this);
         this.state = {
             courses: null, fetchError: false,
             typeOptions: [{ name: 'bookings', id: 1 }, { name: 'cancellations', id: 2 }, { name: 'attendance', id: 3 }],
-            selectedCourses: [], selectedTypes: [], selectedMonths: [], selectedWeeks: [], from: undefined, to: undefined, granularity: "daily"
+            selectedCourses: [], selectedTypes: [], selectedMonths: [], selectedWeeks: [], from: undefined, to: undefined, granularity: "daily",
         }
     }
-
-    generateGraph = (selectedCourses, selectedTypes, selectedWeeks, selectedMonths, from, to, granularity) => {
+    fetchCourseLectures = () => {
+        let items = []
+        if (this.state.selectedCourses.length != 0)
+            for (let course of this.state.selectedCourses)
+                API.getAllCourseLectures(this.props.user.userId, course.courseId)
+                    .then((lectures) => {
+                        for (let lecture of lectures)
+                            items.push(lecture)
+                    })
+                    .catch()
+        this.setState({ lectures: items })
+    }
+    generateGraph = async (selectedCourses, selectedTypes, selectedWeeks, selectedMonths, from, to, granularity) => {
         this.setState({
             selectedCourses: selectedCourses, selectedTypes: selectedTypes, selectedWeeks: selectedWeeks,
             selectedMonths: selectedMonths, from: from, to: to, granularity: granularity
-        })
+        }, this.fetchCourseLectures)
     }
 
     async componentDidMount() {
@@ -43,7 +53,7 @@ class ManagerStatsPage extends React.Component {
                     <Col sm="4"><></></Col>
                     <Col sm="8">
                         <Chart courses={this.state.selectedCourses} types={this.state.selectedTypes} weeks={this.state.selectedWeeks}
-                            months={this.state.selectedMonths} granularity={this.state.granularity} />
+                            months={this.state.selectedMonths} granularity={this.state.granularity} managerId={this.props.user.userId} lectures={this.state.lectures} />
                     </Col>
                 </Row>
             </Container>

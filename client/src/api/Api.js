@@ -528,11 +528,29 @@ async function getAllCourses(id) {
 }
 
 
+async function getAllCourseLectures(id, courseId) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/managers/${id}/courses/${courseId}/lectures?bookings=true&cancellations=true&attendances=true`).then((response) => {
+            if (response.ok) {
+                response.json()
+                    .then((obj) => { console.log(obj); resolve(obj) })
+                    .catch((err) => { reject({ source: "Course", error: "application parse error" }) }); // something else*/
+                console.log(response)
+            } else {
+                // analyze the cause of error
+                response.json()
+                    .then((obj) => { console.log(obj); reject({ source: "Course", error: "invalid parameter error" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Course", error: "server error" }) }); // something else
+            }
+        }).catch((err) => { reject({ source: "Course", error: "server error" }) }); // connection errors
+    });
+}
+
 /******************************************************************************/
 
 const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
     getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport,
-    getAllCourses, resetDB, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S, updateStudentStatus
+    getAllCourses, resetDB, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S, updateStudentStatus, getAllCourseLectures
 };
 export default API;

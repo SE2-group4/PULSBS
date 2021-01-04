@@ -1,14 +1,25 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import moment from "moment";
-
+import API from '../api/Api';
 
 class Chart extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = { lectures: [] };
     }
+    /*componentDidUpdate(prevProps, prevState) {
+        if (this.props.courses.length != 0)
+            for (let course of this.props.courses)
+                API.getAllCourseLectures(this.props.managerId, course.courseId)
+                    .then((lecture) => {
+                        let lectures = this.state.lectures
+                        lectures.push(lecture)
+                        this.setState({ lectures: lectures})
+                    })
+                    .catch()
+    }*/
 
     render() {
         /*
@@ -22,17 +33,21 @@ class Chart extends React.Component {
         //var description = courseName(this.props.courses, this.props.lecture.courseId);
         //var week = avgWeek(this.props.lectures, this.props.lecture);
         //var month = avgMonth(this.props.lectures, this.props.lecture);
+
+
         if (this.props.granularity == "daily")
             return (<div>
                 <Bar
                     data={
                         {
-                            labels: [],
-                            datasets: [{
-                                label: [],
-                                data: [],
-                                borderWidth: 2,
-                            }]
+                            labels: ["ciao"],
+                            datasets: this.props.courses.map((course) => {
+                                return {
+                                    label: course.description,
+                                    data: [2, 3, 5],
+                                    borderWidth: 2
+                                }
+                            })
                         }
                     }
                     height={600}
