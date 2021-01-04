@@ -107,7 +107,7 @@ async function bookALecture(Uid, Cid, Lid) {
         }).then((response) => {
             if (response.ok) {
                 resolve()
-            } else { console.log(response.json()); reject("Server error") }
+            } else { reject("Server error") }
         }).catch((err) => { reject("Server cannot communicate") }); // connection errors
     });
 }
@@ -124,7 +124,7 @@ async function cancelLectureReservation(Uid, Cid, Lid) {
             method: 'DELETE'
         }).then((response) => {
             if (response.status === 200) {
-                response.json().then((obj) => resolve(obj.availableSeats))
+                response.json().then((obj) => { console.log(obj); resolve(obj.availableSeats) })
                 /*response.json
                     .then((obj) => { console.log(obj) })
                     .catch((err) => console.log(err))*/

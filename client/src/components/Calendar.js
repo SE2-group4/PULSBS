@@ -41,7 +41,6 @@ class Calendar extends React.Component {
                     slotMaxTime="19:00:00"
                     allDaySlot={false}
                     editable={false}
-                    html={true}
                     eventDurationEditable={false}
                     eventStartEditable={false}
                     selectable={false}
