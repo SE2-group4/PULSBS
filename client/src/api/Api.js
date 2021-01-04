@@ -204,6 +204,8 @@ async function getCoursesByTeacherId(id) {
  *  @param {*} Cid courseId
  *  @param {*} dateFrom date
  *  @param {*} dateTo date
+ *  @param {*} bookings bookings
+ *  @param {*} attendances attendances
  */
 async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, bookings, attendances) {
     let qfrom = dateFrom ? "from=" + dateFrom : "";
@@ -244,13 +246,20 @@ async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, book
  *  @param {*} Uid teacherId
  *  @param {*} Cid courseId
  *  @param {*} Lid lectureId
+ *  @param {*} status status
  */
-async function getStudentsByLecture(Uid, Cid, Lid) {
+async function getStudentsByLecture(Uid, Cid, Lid, status) {
+    let query = status ? "?status=true" : "";
     return new Promise((resolve, reject) => {
-        fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures/${Lid}/students`).then((response) => {
+        fetch(baseURL + `/teachers/${Uid}/courses/${Cid}/lectures/${Lid}/students${query}`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { resolve(obj.map((s) => Student.from(s))); })
+                    .then((obj) => {
+                        resolve(obj.map((s) => {
+                            s.student["bookingStatus"] = s.bookingStatus;
+                            return Student.from(s.student);
+                        }));
+                    })
                     .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
@@ -268,7 +277,7 @@ async function getStudentsByLecture(Uid, Cid, Lid) {
  *  @param {*} Uid teacherId
  *  @param {*} Cid courseId
  *  @param {*} Lid lectureId
- *  @param {*} Delivery delivery{presence,remote}
+ *  @param {*} Delivery delivery {presence,remote}
  */
 async function updateDeliveryByLecture(Uid, Cid, Lid, Delivery) {
     return new Promise((resolve, reject) => {
@@ -309,7 +318,7 @@ async function deleteLecture(Tid, Cid, Lid) {
 }
 
 /**
- * Update student status {PRESENT,ABSENT}
+ * Update student status 
  * @param {*} Uid teacherId
  * @param {*} Cid courseId
  * @param {*} Lid lectureId
@@ -326,7 +335,7 @@ async function updateStudentStatus(Uid, Cid, Lid, Sid, status) {
             } else {
                 // analyze the cause of error
                 response.json()
-                    .then((obj) => { reject({ source: "Student", error: "invalid parameter error" }); }) // error msg in the response body
+                    .then((obj) => { reject({ source: obj.statusCode, error: obj.message }); }) // error msg in the response body
                     .catch((err) => { reject({ source: "Student", error: "server error" }) }); // something else
             }
         }).catch((err) => { reject({ source: "Student", error: "server error" }) }); // connection errors
@@ -376,6 +385,10 @@ async function uploadChunck(id, type, list) {
         }).catch((err) => { reject({ source: "Upload", error: "Server connection error" }) }); // connection errors
     });
 }
+
+/**
+* request a db reset to server
+*/
 
 async function resetDB() {
     return new Promise((resolve, reject) => {

@@ -17,14 +17,37 @@ beforeEach(() => {
 
 const officer = new User(1, "SUPPORT", "Lollo", "Appendini", "officer1@agg.it", "officer1");
 
-const csvcontent = [`Code,Year,Semester,Course,Teacher
-XY1211,1,1,Metodi di finanziamento delle imprese,d9000
-XY4911,1,1,Chimica,d9001
-XY8612,1,2,Informatica,d9002
-XY2312,1,2,Fisica I,d9003`];
-const csv = new File(csvcontent, "file.csv", { type: "text/csv" });
-
-const badTypeFile = new File(["ciao"], "file1.html", { type: "text/plain" });
+const csvcourse = [`Code,Year,Semester,Course,Teacher
+1,1,1,1,1
+2,2,2,2,2
+3,3,3,3,3
+4,4,4,4,4`];
+const csvstudent = [`Id,Name,Surname,City,OfficialEmail,Birthday,SSN
+1,1,1,1,1,1,1
+2,2,2,2,2,2,2
+3,3,3,3,3,3,3
+4,4,4,4,4,4,4`];
+const csvprofessor = [`Number,GivenName,Surname,OfficialEmail,SSN
+1,1,1,1,1
+2,2,2,2,2
+3,3,3,3,3
+4,4,4,4,4`];
+const csvschedule = [`Code,Room,Day,Seats,Time
+1,1,1,1,1
+2,2,2,2,2
+3,3,3,3,3
+4,4,4,4,4`];
+const csvenrollment = [`Code,Student
+1,1
+2,2
+3,3
+4,4`]
+const csv0 = new File(csvstudent, "file0.csv", { type: "text/csv" });
+const csv1 = new File(csvcourse, "file1.csv", { type: "text/csv" });
+const csv2 = new File(csvprofessor, "file2.csv", { type: "text/csv" });
+const csv3 = new File(csvschedule, "file3.csv", { type: "text/csv" });
+const csv4 = new File(csvenrollment, "file4.csv", { type: "text/csv" });
+const badTypeFile = new File([""], "file5.html", { type: "text/plain" });
 
 async function setupPage() {
     render(<SupportPage user={officer} />);
@@ -74,19 +97,29 @@ describe('Support Page suite', () => {
 
     test('upload of a file with invalid type into CSVPanel component', async () => {
         await setupPage();
-        let input = screen.getByTestId('csv1');
+        let input = screen.getByTestId('csv1'); //courses
         await act(async () => {
             userEvent.upload(input, badTypeFile);
         });
-        await new Promise((r) => setTimeout(r, 3000)); //waiting for file loading
-        expect(screen.getByText("file1.html is not a valid file (expected type: csv).")).toBeInTheDocument();
+        await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
+        expect(screen.getByText("file5.html is not a valid file (expected type: csv).")).toBeInTheDocument();
+    })
+
+    test('upload of a file with invalid format', async () => {
+        await setupPage();
+        let input = screen.getByTestId('csv1'); //courses
+        await act(async () => {
+            userEvent.upload(input, csv0);  //students
+        });
+        await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
+        expect(screen.getByText("file0.csv is not in an expected format.")).toBeInTheDocument();
     })
 
     test('upload of a file .csv into CSVPanel component (API success)', async () => {
         await setupPageWithRouter();
         let input = screen.getByTestId('csv1'); //courses
         await act(async () => {
-            userEvent.upload(input, csv);
+            userEvent.upload(input, csv1);  //courses
         });
         await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
         await act(async () => {
@@ -107,13 +140,12 @@ describe('Support Page suite', () => {
         await setupPage();
         let input = screen.getByTestId('csv0'); //students
         await act(async () => {
-            userEvent.upload(input, csv);
+            userEvent.upload(input, csv0);  //students
         });
         await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
         await act(async () => {
             userEvent.click(screen.getByTestId('submit-button'));
         });
-        expect(screen.getByText('students: 4')).toBeInTheDocument();
         fetch.mockResponseOnce(JSON.stringify({ body: "not ok" }), { status: 400 });
         await act(async () => {
             userEvent.click(screen.getByTestId('sum-yes'));
@@ -128,7 +160,7 @@ describe('Support Page suite', () => {
         await setupPage();
         let input = screen.getByTestId('csv2'); //teachers 
         await act(async () => {
-            userEvent.upload(input, csv);
+            userEvent.upload(input, csv2);  //teachers
         });
         await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
         await act(async () => {
@@ -145,12 +177,12 @@ describe('Support Page suite', () => {
         await setupPage();
         let input = screen.getByTestId('csv3'); //schedules
         await act(async () => {
-            userEvent.upload(input, csv);
+            userEvent.upload(input, csv3);  //schedules
         });
         await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
         let input1 = screen.getByTestId('csv4'); //enrollments
         await act(async () => {
-            userEvent.upload(input1, csv);
+            userEvent.upload(input1, csv4); //enrollments
         });
         await new Promise((r) => setTimeout(r, 1000)); //waiting for file loading
         await act(async () => {

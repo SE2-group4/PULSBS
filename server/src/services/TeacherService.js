@@ -21,14 +21,15 @@ const ACCEPTED_QUERY_PARAM = ["from", "to", "bookings", "attendances"];
 Object.freeze(ACCEPTED_QUERY_PARAM);
 
 /**
- * Get all the students that have an active booking for a given lecture
+ * Get all the students that have a booking for a given lecture
+ * Only booking with status {BOOKED, PRESENT, NOT_PRESENT} will be considered
  *
  * teacherId {Integer}
  * courseId {Integer}
  * lectureId {Integer}
  * returns {Promise} array of Student's instances. A ResponseError on error
  **/
-exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, lectureId) {
+exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, lectureId, withStatus = false) {
     const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
         teacherId,
         courseId,
@@ -38,9 +39,14 @@ exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, l
         throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
+    if (!converter.isValueOfType("boolean", withStatus))
+        throw genResponseError(errno.PARAM_NOT_BOOLEAN, { status: withStatus });
+
+    withStatus = converter.toBoolean(withStatus);
+
     await checkTeacherCorrelations(tId, cId, lId);
 
-    return await db.getStudentsByLecture(new Lecture(lectureId));
+    return await db.getBookedStudentsByLecture(new Lecture(lectureId), withStatus);
 };
 
 function printQueryParams(bookings, attendances, dateFilter) {
@@ -196,28 +202,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
         throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
     }
 
-    // checking if the teacher is in charge of this course during this academic year
-    const isTaughtBy = await teacherCourseCorrelation(tId, cId);
-    if (!isTaughtBy) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
-    }
-
-    // checking if the lecture belongs to this course
-    const doesLectureBelong = await courseLectureCorrelation(cId, lId);
-
-    if (!doesLectureBelong) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.COURSE_LECTURE_MISMATCH_AA,
-            { lectureId, courseId },
-            404
-        );
-    }
+    await checkTeacherCorrelations(tId, cId, lId);
 
     let lecture = new Lecture(lId);
     lecture = await db.getLectureById(lecture);
@@ -248,12 +233,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
             }
         }
     } else {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.LECTURE_NOT_CANCELLABLE,
-            { lectureId: lecture.lectureId },
-            409
-        );
+        throw genResponseError(errno.LECTURE_NOT_CANCELLABLE, { lectureId: lecture.lectureId });
     }
 
     return 204;
@@ -276,48 +256,23 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
         lectureId,
     });
     if (error) {
-        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     if (!check.isValidDeliveryMode(switchTo)) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.LECTURE_INVALID_DELIVERY_MODE,
-            { delivery: switchTo },
-            400
-        );
+        throw genResponseError(errno.LECTURE_INVALID_DELIVERY_MODE, { delivery: switchTo });
     }
 
-    // checking if the teacher is in charge of this course during this academic year
-    const isTaughtBy = await teacherCourseCorrelation(tId, cId);
-    if (!isTaughtBy) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.TEACHER_COURSE_MISMATCH_AA,
-            { courseId, teacherId },
-            404
-        );
-    }
-
-    // checking if the lecture belongs to this course
-    const doesLectureBelong = await courseLectureCorrelation(cId, lId);
-    if (!doesLectureBelong) {
-        throw new ResponseError(
-            "TeacherService",
-            ResponseError.COURSE_LECTURE_MISMATCH_AA,
-            { lectureId, courseId },
-            404
-        );
-    }
+    await checkTeacherCorrelations(tId, cId, lId);
 
     const lecture = await db.getLectureById(new Lecture(lId));
     if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
-        throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_SWITCHABLE, { lectureId }, 406);
+        throw genResponseError(errno.LECTURE_NOT_SWITCHABLE, { lectureId });
     }
 
     lecture.delivery = switchTo;
     await db.updateLectureDeliveryMode(lecture);
-    const studentsToBeNotified = await db.getStudentsByLecture(lecture);
+    const studentsToBeNotified = await db.getBookedStudentsByLecture(lecture);
     if (studentsToBeNotified.length > 0) {
         const course = await db.getCourseByLecture(lecture);
         const subjectArgs = [course.description];
@@ -346,7 +301,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
 
 /**
  * Update a booking status
- * Accepted statuses: PRESENT, ABSENT
+ * Accepted statuses: PRESENT, NOT_PRESENT
  *
  * teacherId {Integer}
  * courseId {Integer}
@@ -371,21 +326,11 @@ exports.teacherUpdateCourseLectureStudentStatus = async function (teacherId, cou
         throw genResponseError(errno.BOOKING_INVALID_STATUS, { status });
     }
 
-    // checking if the teacher is in charge of this course during this academic year
-    const isTaughtBy = await teacherCourseCorrelation(tId, cId);
-    if (!isTaughtBy) {
-        throw genResponseError(errno.TEACHER_COURSE_MISMATCH_AA, { courseId, teacherId });
-    }
+    await checkTeacherCorrelations(tId, cId, lId);
 
-    // checking if the lecture belongs to this course
-    const doesLectureBelong = await courseLectureCorrelation(cId, lId);
-    if (!doesLectureBelong) {
-        throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { lectureId, courseId });
-    }
-
-    const hasBooked = await hasStudentBookedLecture(sId, lId);
-    if (!hasBooked) {
-        throw genResponseError(errno.BOOKING_NOT_PRESENT, { studentId, lectureId });
+    const isUpdatable = await isBookingStatusUpdatable(sId, lId);
+    if (!isUpdatable) {
+        throw genResponseError(errno.BOOKING_NOT_UPDATABLE, { studentId, lectureId });
     }
 
     await db.updateBookingStatus(new Lecture(lId), new Student(sId), status.toUpperCase());
@@ -613,21 +558,27 @@ async function courseLectureCorrelation(courseId, lectureId) {
 }
 
 /**
- * Check if a student has booked a lecture
+ * Check if a booking.status is updatable
  *
  * studentId {Integer}
  * lectureId {Integer}
  * returns {Boolean}
  **/
-async function hasStudentBookedLecture(studentId, lectureId) {
-    let has = false;
+async function isBookingStatusUpdatable(studentId, lectureId) {
+    let is = false;
 
-    const bookings = await db.getBookingsByStudent(new Student(studentId));
-    if (bookings.length > 0) {
-        has = bookings.some((booking) => booking.lectureId === lectureId);
+    const lectures = await db.getBookedLecturesByStudent(new Student(studentId));
+
+    if (lectures.length > 0) {
+        const lecture = lectures.find((lecture) => lecture.lectureId === lectureId);
+
+        if (lecture) {
+            const now = new Date();
+            if (lecture.startingDate.getTime() < now.getTime()) is = true;
+        }
     }
 
-    return has;
+    return is;
 }
 
 /**
@@ -646,7 +597,7 @@ async function findSummaryExpiredLectures(date) {
 
     // Get number of stundents for each expiredLectures
     expiredLectures.forEach((lecture) => {
-        const promise = db.getStudentsByLecture(lecture);
+        const promise = db.getBookedStudentsByLecture(lecture);
         promises.set(lecture.lectureId, promise);
         mapResponse.set(lecture.lectureId, { lecture });
     });

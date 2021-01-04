@@ -29,7 +29,7 @@ function isValidBookingStatus(status) {
 
     if (
         status.toUpperCase() === Booking.BookingType.PRESENT ||
-        status.toUpperCase() === Booking.BookingType.ABSENT
+        status.toUpperCase() === Booking.BookingType.NOT_PRESENT
     ) {
         return true;
     }

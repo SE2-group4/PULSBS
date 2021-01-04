@@ -142,7 +142,7 @@ async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
 
     await db.updateLectureDeliveryMode(lecture);
 
-    const studentsToBeNotified = await db.getStudentsByLecture(lecture);
+    const studentsToBeNotified = await db.getBookedStudentsByLecture(lecture);
     if (studentsToBeNotified.length > 0) {
         const course = await db.getCourseByLecture(lecture);
         const subjectArgs = [course.description];

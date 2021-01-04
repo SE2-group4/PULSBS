@@ -11,13 +11,14 @@
 const defaultStatusCode = {
     BOOKING_INVALID_STATUS: 400,
     BOOKING_NOT_PRESENT: 404,
+    BOOKING_NOT_UPDATABLE: 400,
     COURSE_NOT_ENROLLED_AA: 400,
     COURSE_LECTURE_MISMATCH_AA: 404,
     DB_GENERIC_ERROR: 500,
     LECTURE_GIVEN: 400,
     LECTURE_NOT_FOUND: 404,
     LECTURE_INVALID_DELIVERY_MODE: 400,
-    LECTURE_NOT_CANCELLABLE: 400,
+    LECTURE_NOT_CANCELLABLE: 409,
     LECTURE_NOT_SWITCHABLE: 406,
     PARAM_NOT_BOOLEAN: 400,
     PARAM_NOT_DATE: 400,
@@ -99,6 +100,7 @@ class ResponseError {
     static errno = {
         BOOKING_INVALID_STATUS: 50,
         BOOKING_NOT_PRESENT: 51,
+        BOOKING_NOT_UPDATABLE: 52,
         COURSE_NOT_ENROLLED_AA: 10,
         COURSE_LECTURE_MISMATCH_AA: 11,
         DB_GENERIC_ERROR: 40,
@@ -126,6 +128,9 @@ class ResponseError {
 
             case ResponseError.errno.BOOKING_NOT_PRESENT:
                 return `Booking with studentId = ${args.studentId} and lectureId = ${args.lectureId} does not exist`;
+
+            case ResponseError.errno.BOOKING_NOT_UPDATABLE:
+                return `The booking (lecture = ${args.lectureId} and student = ${args.studentId}) is not updatable`;
 
             case ResponseError.errno.COURSE_NOT_ENROLLED_AA:
                 return `student (student = ${args.studentId}) is not enrolled in this course (courseId = ${args.courseId}) during this AA`;

@@ -19,7 +19,7 @@ function teacherGetCourseLectureStudents(req, res) {
     const courseId = req.params.courseId;
     const lectureId = req.params.lectureId;
 
-    Teacher.teacherGetCourseLectureStudents(teacherId, courseId, lectureId)
+    Teacher.teacherGetCourseLectureStudents(teacherId, courseId, lectureId, req.query.status)
         .then(function (response) {
             utils.writeJson(res, response);
         })

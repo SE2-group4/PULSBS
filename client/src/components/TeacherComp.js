@@ -246,7 +246,7 @@ class StudentPanel extends React.Component {
                         {tableEntries}
                     </tbody>
                 </Table>
-                {this.props.nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
+                {nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
                 {this.props.students.length === 0 && <label>{noStudentText}</label>}
                 <span className="selectedText">{this.props.students.length !== 0 && <label data-testid="number-students">{numText}</label>}</span>
             </Container>
