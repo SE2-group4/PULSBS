@@ -7,19 +7,9 @@ class Chart extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { lectures: [] };
+        this.state = {};
     }
-    /*componentDidUpdate(prevProps, prevState) {
-        if (this.props.courses.length != 0)
-            for (let course of this.props.courses)
-                API.getAllCourseLectures(this.props.managerId, course.courseId)
-                    .then((lecture) => {
-                        let lectures = this.state.lectures
-                        lectures.push(lecture)
-                        this.setState({ lectures: lectures})
-                    })
-                    .catch()
-    }*/
+
 
     render() {
         /*
@@ -34,13 +24,17 @@ class Chart extends React.Component {
         //var week = avgWeek(this.props.lectures, this.props.lecture);
         //var month = avgMonth(this.props.lectures, this.props.lecture);
 
-
-        if (this.props.granularity == "daily")
+        if (this.props.loading)
+            return (<></>)
+        if (this.props.granularity == "daily") {
+            const days = prepareDates(this.props.lectures, this.props.from, this.props.to)
+            console.log(days)
+            const lectures = prepareLectures(this.props.lectures, this.props.from, this.props.to)
             return (<div>
                 <Bar
                     data={
                         {
-                            labels: ["ciao"],
+                            labels: days,
                             datasets: this.props.courses.map((course) => {
                                 return {
                                     label: course.description,
@@ -88,6 +82,7 @@ class Chart extends React.Component {
                     }}
                 />
             </div>)
+        }
         else if (this.props.granularity == "weekly")
             return (<div>
                 <Bar
@@ -201,7 +196,24 @@ class Chart extends React.Component {
         }
     }
 }
+function prepareDates(lectures, from, to) {
+    if (lectures.length === 0)
+        return []
+    let filteredLectures = []
+    if (from && to)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.lecture.startingDate).isBefore(moment(to)) && moment(lecture.lecture.startingDate).isAfter(moment(from)) })
+    else if (from)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.lecture.startingDate).isAfter(moment(from)) })
+    else if (to)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.lecture.startingDate).isBefore(moment(to)) })
+    else filteredLectures = lectures
+    const dates = filteredLectures.map((lecture) => moment(lecture.lecture.startingDate).format("DD MMM YYYY")).sort((a, b) => moment(a).isBefore(b))
+    console.log(dates)
+    return dates
+}
+function prepareLectures(lectures, from, to) {
 
+}
 function courseName(courses, courseId) {
     for (let c of courses)
         if (c.courseId === courseId)

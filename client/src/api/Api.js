@@ -533,9 +533,8 @@ async function getAllCourseLectures(id, courseId) {
         fetch(baseURL + `/managers/${id}/courses/${courseId}/lectures?bookings=true&cancellations=true&attendances=true`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { console.log(obj); resolve(obj) })
+                    .then((obj) => { /*console.log(obj)*/; resolve(obj) })
                     .catch((err) => { reject({ source: "Course", error: "application parse error" }) }); // something else*/
-                console.log(response)
             } else {
                 // analyze the cause of error
                 response.json()
