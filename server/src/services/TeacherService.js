@@ -565,13 +565,13 @@ function genResponseError(nerror, error) {
 }
 
 async function checkTeacherCorrelations(teacherId, courseId, lectureId) {
-    let areCorrelated = await teacherCourseCorrelation(teacherId, courseId);
+    let areCorrelated = await check.teacherCourseCorrelation(teacherId, courseId);
     if (!areCorrelated) {
         throw genResponseError(errno.TEACHER_COURSE_MISMATCH_AA, { teacherId, courseId });
     }
 
     if (lectureId) {
-        areCorrelated = await courseLectureCorrelation(courseId, lectureId);
+        areCorrelated = await check.courseLectureCorrelation(courseId, lectureId);
         if (!areCorrelated) {
             throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
         }

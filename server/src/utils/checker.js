@@ -1,5 +1,7 @@
-const Lecture = require("../entities/Lecture");
 const Booking = require("../entities/Booking");
+const Course = require("../entities/Course");
+const Lecture = require("../entities/Lecture");
+const Teacher = require("../entities/Teacher");
 const db = require("../db/Dao");
 
 /**
