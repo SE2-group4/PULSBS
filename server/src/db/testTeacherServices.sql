@@ -1,12 +1,15 @@
-DELETE FROM User;
-DELETE FROM Course;
-DELETE FROM TeacherCourse;
-DELETE FROM Class;
-DELETE FROM Lecture;
 DELETE FROM Booking;
 DELETE FROM Enrollment;
 DELETE FROM EmailQueue;
+DELETE FROM Email;
+DELETE FROM WaitingList;
+DELETE FROM Lecture;
+DELETE FROM Class;
 DELETE FROM Schedule;
+DELETE FROM TeacherCourse;
+DELETE FROM Course;
+DELETE FROM User;
+DELETE FROM Calendar;
 
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(1, 'STUDENT', 'Aldo', 'Baglio', 'tjw85.student.baglio@inbox.testmail.app', 'aldo');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni');
@@ -46,8 +49,79 @@ INSERT INTO Booking(studentId, lectureId, status) VALUES(1, 1, "PRESENT");
 INSERT INTO Booking(studentId, lectureId, status) VALUES(2, 4, "BOOKED");
 INSERT INTO Booking(studentId, lectureId, status) VALUES(3, 5, "BOOKED");
 
+-- Calendar
+INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(1, DATETIME('now', '-1 month', 'start of day'), DATETIME('now', '+8 month', 'start of day'), 'ACADEMIC_YEAR', 1);
+INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(2, DATETIME('now', '-1 month', 'start of day'), DATETIME('now', '+3 month', 'start of day'), 'SEMESTER', 1);
+INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(3, DATETIME('now', '+4 month', 'start of day'), DATETIME('now', '+8 month', 'start of day'), 'SEMESTER', 1);
+INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(4, DATETIME('now', '+7 day', 'start of day'), DATETIME('now', '14 day', 'start of day'), 'HOLIDAYS', 0);
+INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(5, DATETIME('now', '+30 day', 'start of day'), DATETIME('now', '32 day', 'start of day'), 'HOLIDAYS', 0);
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(6, 'STUDENT', 'Fake', 'Student', 'tjw85.student.fake@inbox.testmail.app', 'student');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(7, 'TEACHER', 'Fake', 'Teacher', 'tjw85.student.fake@inbox.testmail.app', 'teacher');
 
+DROP TRIGGER IF EXISTS check_time_overlapping_before_insert_schedule;
+CREATE TRIGGER check_time_overlapping_before_insert_schedule
+	BEFORE INSERT ON Schedule
+	BEGIN
+		SELECT CASE WHEN (
+            SELECT COUNT(*) <> 0
+                FROM Schedule
+                WHERE
+                    code = NEW.code
+                    AND dayOfWeek = NEW.dayOfWeek
+                    AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
+			THEN RAISE(ABORT, 'aaa New schedule overlapped with an existing one with the same code')
+		END IF;
+		SELECT CASE 
+            WHEN (
+                SELECT COUNT(*)
+                    FROM Schedule
+                    WHERE
+                        code <> NEW.code
+                        AND roomId = NEW.roomId
+                        AND AAyear = NEW.AAyear
+                        AND semester = NEW.semester
+                        AND dayOfWeek = NEW.dayOfWeek
+                        AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
+                        AND DATETIME(NEW.endingTime) > DATETIME(startingTime)
+                ) <> 0
+			THEN RAISE(ABORT, 'New schedule overlapped with an existing one in the same class')
+		END IF;
+	END;
+
+DROP TRIGGER IF EXISTS check_time_overlapping_before_update_schedule;
+CREATE TRIGGER check_time_overlapping_before_update_schedule
+	BEFORE UPDATE ON Schedule
+	BEGIN
+		SELECT CASE WHEN (
+            SELECT COUNT(*) <> 0 FROM Schedule
+                WHERE
+                    code = NEW.code
+                    AND dayOfWeek = NEW.dayOfWeek
+                    AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
+			THEN RAISE(ABORT, 'aaa New schedule overlapped with an existing one with the same code')
+		END IF;
+	END;
+
 DROP trigger IF EXISTS delete_bookings_after_delete_lecture;
-CREATE TRIGGER delete_bookings_after_delete_lecture BEFORE DELETE ON Lecture BEGIN INSERT INTO EmailQueue(sender, recipient, emailType, teacherId, studentId, courseId, courseName, lectureId, startingDate) SELECT TempLecture.email, User.email, "LESSON_CANCELLED", TempLecture.teacherId, Booking.studentId, TempLecture.courseId, TempLecture.description, TempLecture.lectureId, TempLecture.startingDate FROM Booking, (SELECT * FROM Lecture, Course, TeacherCourse, User WHERE Lecture.lectureId = OLD.lectureId AND Lecture.courseId = TeacherCourse.courseId AND TeacherCourse.teacherId = User.userId AND Course.courseId = Lecture.courseId) AS TempLecture, User WHERE Booking.lectureId = OLD.lectureId AND Booking.studentId = User.userId AND Booking.lectureId = TempLecture.lectureId; DELETE FROM Booking WHERE Booking.lectureId = OLD.lectureId; DELETE FROM WaitingList WHERE WaitingList.lectureId = OLD.lectureId; END;
+CREATE TRIGGER delete_bookings_after_delete_lecture
+    BEFORE DELETE ON Lecture
+    BEGIN
+        INSERT INTO EmailQueue(sender, recipient, emailType, teacherId, studentId, courseId, courseName, lectureId, startingDate)
+            SELECT TempLecture.email, User.email, "LESSON_CANCELLED", TempLecture.teacherId, Booking.studentId, TempLecture.courseId, TempLecture.description, TempLecture.lectureId, TempLecture.startingDate
+                FROM Booking, (
+                    SELECT * FROM Lecture, Course, TeacherCourse, User
+                        WHERE Lecture.lectureId = OLD.lectureId
+                            AND Lecture.courseId = TeacherCourse.courseId
+                            AND TeacherCourse.teacherId = User.userId
+                            AND Course.courseId = Lecture.courseId
+                    ) AS TempLecture, User
+                WHERE Booking.lectureId = OLD.lectureId
+                    AND Booking.studentId = User.userId
+                    AND Booking.lectureId = TempLecture.lectureId;
+        DELETE FROM Booking
+            WHERE Booking.lectureId = OLD.lectureId;
+        DELETE FROM WaitingList
+            WHERE WaitingList.lectureId = OLD.lectureId;
+    END;
