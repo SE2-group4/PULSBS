@@ -34,7 +34,7 @@ const testSuiteSupportOfficer = () => {
         });
 
         after(async function clean() {
-            await prepare("testing.db", "testSupportOfficerService.sql", false);
+            await prepare("testing.db", "testing.sql", false);
             Dao.closeConn();
         });
 
