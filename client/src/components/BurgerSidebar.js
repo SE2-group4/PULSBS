@@ -11,15 +11,6 @@ import { formatDate, parseDate } from 'react-day-picker/moment';
 class BurgerSidebar extends React.Component {
     constructor(props) {
         super(props);
-        this.handleFromChange = this.handleFromChange.bind(this);
-        this.handleToChange = this.handleToChange.bind(this);
-        this.multiselectCoursesHandle = this.multiselectCoursesHandle.bind(this);
-        this.multiselectTypesHandle = this.multiselectTypesHandle.bind(this);
-        this.multiselectWeeksHandle = this.multiselectWeeksHandle.bind(this);
-        this.multiselectMonthsHandle = this.multiselectMonthsHandle.bind(this);
-        this.handleGranChange1 = this.handleGranChange1.bind(this);
-        this.handleGranChange2 = this.handleGranChange2.bind(this);
-        this.handleGranChange3 = this.handleGranChange3.bind(this);
         this.state = {
             user: this.props.user,
             from: undefined, to: undefined, selectedCourses: [], selectedTypes: [], selectedWeeks: [], selectedMonths: [],
@@ -46,12 +37,12 @@ class BurgerSidebar extends React.Component {
         this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, selectedMonths, this.state.from, this.state.to, this.state.granularity)
     }
 
-    handleFromChange(from) {
+    handleFromChange = (from) => {
         this.setState({ from: from });
         this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, this.state.selectedMonths, from, this.state.to, this.state.granularity)
     }
 
-    handleToChange(to) {
+    handleToChange = (to) => {
         this.setState({ to: to }, this.showFromMonth);
         this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, to, this.state.granularity)
     }
@@ -98,15 +89,15 @@ class BurgerSidebar extends React.Component {
             this.setState({ fetchError: this.props.fetchError, loading: false });
     }
 
-    handleGranChange1() {
+    handleGranChange1 = () => {
         this.setState({ granularity: "daily" })
         this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, "daily")
     }
-    handleGranChange2() {
+    handleGranChange2 = () => {
         this.setState({ granularity: "weekly" })
         this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, "weekly")
     }
-    handleGranChange3() {
+    handleGranChange3 = () => {
         this.setState({ granularity: "monthly" })
         this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, "monthly")
     }

@@ -28,6 +28,7 @@ class SupportUpdatePage extends React.Component {
             let lectures = []
             for (let course of courses)
                 lectures.push(...await API.getLecturesByCourseId_S(this.props.user.userId, course.courseId))
+            lectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isAfter(moment()) })
             this.setState({ courses: courses, loading: false, lectures: lectures })
         } catch (err) {
             this.setState({ communicationError: true })
