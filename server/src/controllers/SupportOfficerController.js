@@ -16,10 +16,10 @@ module.exports.SupportOfficerRouter = router;
 
 function manageEntitiesUpload(req, res) {
 
-    //const schedules = fs.readFileSync("./input/schedules.json", "utf-8");
+    const schedules = fs.readFileSync("./input/schedules.json", "utf-8");
 
-    Officer.manageEntitiesUpload(req.body, req.path)
-    //Officer.manageEntitiesUpload(JSON.parse(schedules), "./schedules")
+    //Officer.manageEntitiesUpload(req.body, req.path)
+    Officer.manageEntitiesUpload(JSON.parse(schedules), "./schedules")
         .then(function (response) {
             utils.writeJson(res, response);
         })
