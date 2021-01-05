@@ -8,18 +8,17 @@ const Email = require("../entities/Email");
 const EmailService = require("../services/EmailService");
 const utils = require("../utils/utils");
 const { ResponseError } = require("../utils/ResponseError");
-const check = require("../utils/typeChecker");
+const check = require("../utils/checker");
 const converter = require("../utils/converter");
 const ManagerService = require("./ManagerService");
-
 const db = require("../db/Dao");
-const colors = require("colors");
 
+// constants 
 const MODULE_NAME = "TeacherService";
-const errno = ResponseError.errno;
 const ACCEPTED_QUERY_PARAM = ["from", "to", "bookings", "attendances"];
 Object.freeze(ACCEPTED_QUERY_PARAM);
 
+const errno = ResponseError.errno;
 /**
  * Get all the students that have a booking for a given lecture
  * Only booking with status {BOOKED, PRESENT, NOT_PRESENT} will be considered
@@ -207,7 +206,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
     let lecture = new Lecture(lId);
     lecture = await db.getLectureById(lecture);
 
-    if (isLectureCancellable(lecture)) {
+    if (check.isLectureCancellable(lecture)) {
         const isSuccess = await db.deleteLectureById(lecture);
         if (isSuccess > 0) {
             const emailsToBeSent = await db.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED);
@@ -266,7 +265,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
     await checkTeacherCorrelations(tId, cId, lId);
 
     const lecture = await db.getLectureById(new Lecture(lId));
-    if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
+    if (!check.isLectureSwitchable(lecture, switchTo, new Date(), true)) {
         throw genResponseError(errno.LECTURE_NOT_SWITCHABLE, { lectureId });
     }
 
@@ -448,52 +447,6 @@ function convertToNumbers(custNumbers) {
 }
 
 /**
- * Check if a lecture is cancellable.
- * A lecture is cancellable if the request is sent 1h before the scheduled starting time of a lecture
- * @param {Lecture} lecture
- * @param {Date} requestDateTime
- * @returns {Boolean}
- */
-function isLectureCancellable(lecture, requestDateTime) {
-    if (!requestDateTime) requestDateTime = new Date();
-
-    const lectTime = lecture.startingDate.getTime();
-    const cancelTime = requestDateTime.getTime();
-    const minDiffAllowed = 60 * 60 * 1000;
-
-    if (lectTime - cancelTime > minDiffAllowed) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * Check if a lecture is switchable.
- * A lecture is switchable if the request is sent 30m before the scheduled starting time of a lecture and only from PRESENCE to REMOTE
- * @param {Lecture} lecture
- * @param {Date} requestDateTime
- * @returns {Boolean}
- */
-function isLectureSwitchable(lecture, requestDateTime, newMode) {
-    if (newMode.toUpperCase() === Lecture.DeliveryType.PRESENCE || lecture.delivery === Lecture.DeliveryType.REMOTE) {
-        return false;
-    }
-
-    if (!requestDateTime) requestDateTime = new Date();
-
-    const lectTime = lecture.startingDate.getTime();
-    const switchTime = requestDateTime.getTime();
-    const minDiffAllowed = 30 * 60 * 1000;
-
-    if (lectTime - switchTime > minDiffAllowed) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
  * Send daily summaries about the lectures to the teacher in charge of the respective course
  * @param {Object} summaries. E.g. summaries = { 1: {teacher: <Teacher>, course: <Course>, lecture: <Lecture>, studentsBooked: 1}, 2: {...} }
  * @param {Date} requestDateTime
@@ -519,42 +472,6 @@ function sendSummaryToTeachers(summaries) {
         // TODO: add to the db the email sent
     }
     return;
-}
-
-/**
- * Check if teacherId is in charge of courseId during this academic year
- *
- * teacherId {Integer}
- * courseId {Integer}
- * returns {Boolean}
- **/
-async function teacherCourseCorrelation(teacherId, courseId) {
-    let isTeachingThisCourse = false;
-
-    const teacherCourses = await db.getCoursesByTeacher(new Teacher(teacherId));
-    if (teacherCourses.length > 0) {
-        isTeachingThisCourse = teacherCourses.some((course) => course.courseId === courseId);
-    }
-
-    return isTeachingThisCourse;
-}
-
-/**
- * Check if lectureId belongs to courseId
- *
- * courseId {Integer}
- * lectureId {Integer}
- * returns {Boolean}
- **/
-async function courseLectureCorrelation(courseId, lectureId) {
-    let doesBelong = false;
-
-    const courseLectures = await db.getLecturesByCourseId(new Course(courseId));
-    if (courseLectures.length > 0) {
-        doesBelong = courseLectures.some((lecture) => lecture.lectureId === lectureId);
-    }
-
-    return doesBelong;
 }
 
 /**
