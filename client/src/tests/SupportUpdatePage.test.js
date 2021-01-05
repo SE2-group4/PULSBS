@@ -7,8 +7,6 @@ import userEvent from '@testing-library/user-event';
 import Course from '../entities/course';
 import Lecture from '../entities/lecture';
 import moment from 'moment';
-import { formatDate, parseDate } from 'react-day-picker/moment';
-import { scryRenderedComponentsWithType } from 'react-dom/test-utils';
 
 fetchMock.enableMocks();
 
@@ -83,36 +81,36 @@ describe("SupportUpdatePage suite", () => {
     test("Click on courses filter", async () => {
         await setupSupportUpdatePage();
         await act(async () => {
-            userEvent.click(screen.getByText("All"))
+            userEvent.type(screen.getByText("All"), "All")
         });
         expect(screen.getByTestId("Data Science")).toBeInTheDocument()
         expect(screen.getByTestId("Web Application 1")).toBeInTheDocument()
     })
-    /*
-        test("Select a course filter", async () => {
-            await setupSupportUpdatePage();
-            await act(async () => {
-                userEvent.click(screen.getByTestId("All"))
-            });
-            await act(async () => {
-                userEvent.click(screen.getByTestId("Data Science"))
-            });
-            expect(screen.queryByText("Web Application 1")).not.toBeInTheDocument()
-            screen.debug()
-        })
-        
-        test("Change from filter", async () => {
-            await setupSupportUpdatePage();
-            await act(async () => {
-                userEvent.click(screen.getByPlaceholderText("From"))
-            });
-            screen.debug()
-        })
-    
-        test("Change to filter", async () => {
-    
-        })
-    */
+    test("Select a course filter", async () => {
+        await setupSupportUpdatePage();
+        /*await act(async () => {
+            userEvent.type(screen.getByTestId("All"))
+        });*/
+        console.log(screen.getByTestId("courseSelect"))
+        await act(async () => {
+            userEvent.type(screen.getByTestId("courseSelect"), "Data Science")
+        });
+
+        expect(screen.queryByText("Web Application 1")).not.toBeInTheDocument()
+        //screen.debug()
+    })
+
+    test("Change from filter", async () => {
+        await setupSupportUpdatePage();
+        await act(async () => {
+            userEvent.click(screen.getByPlaceholderText("From"))
+        });
+        //screen.debug()
+    })
+
+    test("Change to filter", async () => {
+
+    })
     test("Change delivery from presence to remote", async () => {
         await setupSupportUpdatePage();
         fetch.mockResponseOnce([{}, { status: 200 }])

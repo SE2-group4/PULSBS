@@ -1,7 +1,7 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import moment from "moment";
-
+import API from '../api/Api';
 
 class Chart extends React.Component {
 
@@ -9,6 +9,7 @@ class Chart extends React.Component {
         super(props);
         this.state = {};
     }
+
 
     render() {
         /*
@@ -22,17 +23,25 @@ class Chart extends React.Component {
         //var description = courseName(this.props.courses, this.props.lecture.courseId);
         //var week = avgWeek(this.props.lectures, this.props.lecture);
         //var month = avgMonth(this.props.lectures, this.props.lecture);
-        if (this.props.granularity == "daily")
+
+        if (this.props.loading)
+            return (<></>)
+        if (this.props.granularity == "daily") {
+            const days = prepareDates(this.props.lectures, this.props.from, this.props.to)
+            console.log(days)
+            const lectures = prepareLectures(this.props.lectures, this.props.from, this.props.to)
             return (<div>
                 <Bar
                     data={
                         {
-                            labels: [],
-                            datasets: [{
-                                label: [],
-                                data: [],
-                                borderWidth: 2,
-                            }]
+                            labels: days,
+                            datasets: this.props.courses.map((course) => {
+                                return {
+                                    label: course.description,
+                                    data: [2, 3, 5],
+                                    borderWidth: 2
+                                }
+                            })
                         }
                     }
                     height={600}
@@ -73,6 +82,7 @@ class Chart extends React.Component {
                     }}
                 />
             </div>)
+        }
         else if (this.props.granularity == "weekly")
             return (<div>
                 <Bar
@@ -186,7 +196,24 @@ class Chart extends React.Component {
         }
     }
 }
+function prepareDates(lectures, from, to) {
+    if (lectures.length === 0)
+        return []
+    let filteredLectures = []
+    if (from && to)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.lecture.startingDate).isBefore(moment(to)) && moment(lecture.lecture.startingDate).isAfter(moment(from)) })
+    else if (from)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.lecture.startingDate).isAfter(moment(from)) })
+    else if (to)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.lecture.startingDate).isBefore(moment(to)) })
+    else filteredLectures = lectures
+    const dates = filteredLectures.map((lecture) => moment(lecture.lecture.startingDate).format("DD MMM YYYY")).sort((a, b) => moment(a).isBefore(b))
+    console.log(dates)
+    return dates
+}
+function prepareLectures(lectures, from, to) {
 
+}
 function courseName(courses, courseId) {
     for (let c of courses)
         if (c.courseId === courseId)
