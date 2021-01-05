@@ -246,15 +246,23 @@ async function callNextStep(currStep, ...args) {
             return await manageEntitiesUpload(args[0], "/teachercourse");
         }
         case "SCHEDULES": {
-            let schedules = args[1].map((arg) => new Schedule(undefined, ...Object.values(arg)));
-            schedules.map((sch) => (sch.seats = Number(sch.seats)));
+            // create each sanitized entity to a Schedule
+            const schedules = args[1].map((arg) => {
+                const schedule = new Schedule(undefined, ...Object.values(arg));
+                schedule.seats = Number(schedule.seats);
+                return schedule;
+            });
+
             try {
-                //console.log("calling _generateLecturesBySchedule");
-                //console.log(schedules[0]);
+                console.log("calling _generateLecturesBySchedule");
+                console.log(schedules[0]);
                 await db._generateLecturesBySchedule(schedules[0], db.DaoHint.NEW_VALUE);
             } catch (err) {
+                console.log("sono catch di callNextStep");
                 console.log(err);
+                throw err;
             }
+
             break;
         }
         default: {
