@@ -32,6 +32,7 @@ INSERT INTO Enrollment(studentId, courseId, year) VALUES(1, 1, 2020);
 INSERT INTO Enrollment(studentId, courseId, year) VALUES(1, 2, 2020);
 INSERT INTO Enrollment(studentId, courseId, year) VALUES(1, 3, 2020);
 INSERT INTO Enrollment(studentId, courseId, year) VALUES(2, 2, 2020);
+INSERT INTO Enrollment(studentId, courseId, year) VALUES(3, 2, 2020);
 INSERT INTO Enrollment(studentId, courseId, year) VALUES(3, 3, 2020);
 INSERT INTO Enrollment(studentId, courseId, year) VALUES(3, 4, 2020);
 
@@ -46,7 +47,9 @@ INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookin
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(5, 3, 3, DATETIME('now', '+4 day', 'start of day', '11 hours', '30 minutes'), 1000*60*90, DATETIME('now', '3 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 
 INSERT INTO Booking(studentId, lectureId, status) VALUES(1, 1, "PRESENT");
+INSERT INTO Booking(studentId, lectureId, status) VALUES(1, 4, "PRESENT");
 INSERT INTO Booking(studentId, lectureId, status) VALUES(2, 4, "BOOKED");
+INSERT INTO Booking(studentId, lectureId, status) VALUES(3, 4, "NOT_PRESENT");
 INSERT INTO Booking(studentId, lectureId, status) VALUES(3, 5, "BOOKED");
 
 -- Calendar
