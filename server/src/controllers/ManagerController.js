@@ -10,8 +10,8 @@ router.get("/:managerId/courses", managerGetCourses);
 router.get("/:managerId/students", managerGetStudent);
 router.get("/:managerId/tracingReport/:serialNumber", managerGetReport);
 
-router.get("/:managerId/schedules", managerGetSchedules);
 router.put("/:managerId/schedules/:scheduleId", managerUpdateSchedule);
+router.get("/:managerId/schedules", managerGetSchedules);
 module.exports.ManagerRouter = router;
 
 function managerGetCourseLecture(req, res) {
@@ -28,7 +28,6 @@ module.exports.managerGetCourseLecture = managerGetCourseLecture;
 function managerGetCourseLectures(req, res) {
     Manager.managerGetCourseLectures(req.params, req.query)
         .then(function (response) {
-            console.log(response)
             utils.writeJson(res, response);
         })
         .catch(function (response) {

@@ -111,7 +111,8 @@ async function getCourses(supportId) {
 }
 
 /**
- * get all lectures of a given course
+ * TODO: should return all lectures or just the future ones
+ * get all lecture of a given course
  *
  * supportId {supportId}
  * courseId {courseId}
@@ -123,7 +124,7 @@ async function getCourseLectures(supportId, courseId) {
         throw genResponseError(ResponseError.PARAM_NOT_INT, error);
     }
 
-    const lectures = await db.getLecturesByCourse(new Course(cId));
+    const lectures = await db.getLecturesByCourseAndPeriodOfTime(new Course(cId));
 
     return lectures;
 }
