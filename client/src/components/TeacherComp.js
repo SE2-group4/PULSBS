@@ -40,7 +40,7 @@ class CoursePanel extends React.Component {
         let items = [];
         for (let number = 1; number <= nPages; number++) {
             items.push(
-                <Pagination.Item data-testid={"paginationItemCourse-" + number} key={number} active={number == this.props.currentPage} >
+                <Pagination.Item data-testid={"paginationItemCourse-" + number} key={number} active={number === parseInt(this.props.currentPage)} >
                     {number}
                 </Pagination.Item>,
             );
@@ -80,7 +80,7 @@ function CoursePanelRow(props) {
     return <tr data-testid="course-row">
         <td>{props.course.courseId}</td>
         <td>{props.course.description}</td>
-        <td><Checkbox name={props.course.courseId} checked={props.checkedOne == props.course.courseId ? true : false} onChange={props.handler} type={"c"} /></td>
+        <td><Checkbox name={props.course.courseId} checked={parseInt(props.checkedOne) === parseInt(props.course.courseId) ? true : false} onChange={props.handler} type={"c"} /></td>
     </tr>;
 }
 
@@ -119,7 +119,7 @@ class LecturePanel extends React.Component {
         let items = [];
         for (let number = 1; number <= nPages; number++) {
             items.push(
-                <Pagination.Item data-testid={"paginationItemLecture-" + number} key={number} active={number == this.props.currentPage} >
+                <Pagination.Item data-testid={"paginationItemLecture-" + number} key={number} active={number === parseInt(this.props.currentPage)} >
                     {number}
                 </Pagination.Item>,
             );
@@ -191,7 +191,7 @@ function LecturePanelRow(props) {
                 </span></OverlayTrigger>}
             {canDelete && <Button name={props.lecture.lectureId} onClick={props.deleteOpen} data-testid={"d-" + props.lecture.lectureId} variant="warning">delete</Button>}
         </td>
-        <td><Checkbox name={props.lecture.lectureId} checked={props.checkedOne == props.lecture.lectureId ? true : false} onChange={props.handler} type={"l"} /></td>
+        <td><Checkbox name={props.lecture.lectureId} checked={parseInt(props.checkedOne) === parseInt(props.lecture.lectureId) ? true : false} onChange={props.handler} type={"l"} /></td>
     </tr>;
 }
 
@@ -218,7 +218,7 @@ class StudentPanel extends React.Component {
         let items = [];
         for (let number = 1; number <= nPages; number++) {
             items.push(
-                <Pagination.Item data-testid={"paginationItemStudent-" + number} key={number} active={number == this.props.currentPage} >
+                <Pagination.Item data-testid={"paginationItemStudent-" + number} key={number} active={number === parseInt(this.props.currentPage)} >
                     {number}
                 </Pagination.Item>,
             );
@@ -248,7 +248,7 @@ class StudentPanel extends React.Component {
                 </Table>
                 {nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
                 {this.props.students.length === 0 && <label>{noStudentText}</label>}
-                <span className="selectedText">{this.props.students.length !== 0 && <label data-testid="number-students">{numText}</label>}</span>
+                <span className="selectedText">{this.props.students.length !== 0 && <label data-testid={"number-students-" + this.props.students.length}>{numText}</label>}</span>
             </Container>
             <br />
         </>;
@@ -269,7 +269,7 @@ function EditModal(props) {
             <Modal.Header closeButton>
                 <Modal.Title>Edit Delivery</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Do you want to turn lecture <b>{props.lectureId}</b> from <b>{props.delivery}</b> to <b>{props.delivery == 'PRESENCE' ? 'REMOTE' : 'PRESENCE'}</b>?</Modal.Body>
+            <Modal.Body>Do you want to turn lecture <b>{props.lectureId}</b> from <b>{props.delivery === 'PRESENCE' ? 'Presence' : 'Remote'}</b> to <b>{props.delivery === 'PRESENCE' ? 'Remote' : 'Presence'}</b>?</Modal.Body>
             <Modal.Footer>
                 <Button name="yes" data-testid={"yes-m-" + props.lectureId} variant="secondary" onClick={props.updateDelivery}>Yes</Button><Button name="no" data-testid={"no-m-" + props.lectureId} variant="secondary" onClick={props.editClose}>No</Button>
             </Modal.Footer>
