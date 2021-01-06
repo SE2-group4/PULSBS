@@ -4,8 +4,6 @@ import { Multiselect } from 'multiselect-react-dropdown';
 class MultiselectComp extends React.Component {
     constructor(props) {
         super(props);
-        this.onSelect = this.onSelect.bind(this);
-        this.onRemove = this.onRemove.bind(this);
         this.state = {
             //selectedValues: []
         };
@@ -19,15 +17,17 @@ class MultiselectComp extends React.Component {
                 onSelect={this.onSelect} // Function will trigger on select event
                 onRemove={this.onRemove} // Function will trigger on remove event
                 displayValue={this.props.display} // Property name to display in the dropdown options
+                placeholder=""
+                style={{ chips: { background: "grey" } }}
             />
         )
     }
 
-    onSelect(selectedList, selectedItem) {
+    onSelect = (selectedList, selectedItem) => {
         this.props.handle(selectedList)
     }
 
-    onRemove(selectedList, removedItem) {
+    onRemove = (selectedList, removedItem) => {
         this.props.handle(selectedList)
     }
 }

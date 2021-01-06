@@ -15,8 +15,8 @@ class Schedule {
      * @param {Number} roomId
      * @param {Number} seats
      * @param {String} dayOfWeek
-     * @param {String|Date} startingTime
-     * @param {String|Date} endingTime
+     * @param {String} startingTime
+     * @param {String} endingTime
      */
     constructor(
         scheduleId = -1,

@@ -179,19 +179,24 @@ Note: Beware of modifying this element as it can break the animations - you shou
   .searchBox { /* To change search box element look*/
     border: none;
     font-size: 10px;
-    min-height: 50px;
   }
   .inputField { /* To change input field position or margin*/
       margin: 5px;
   }
-  .chips { /* To change css chips(Selected options)*/
-    background: red;
+  .chip { /* To change css chips(Selected options)*/
+    background-color: red;
+  }
+  ._7ahQImyV4dj0EpcNOjnwA {
+    background : red;
   }
   .optionContainer { /* To change css for option container */
     border: 2px solid;
   }
   .option { /* To change css for dropdown options*/
-    color: rgb(255, 191, 0);
+    font-size: 15px;
+  }
+  #multiselectContainerReact{
+    background-color:white;
   }
   /*
   .groupHeading { /* To chanage group heading style*/

@@ -36,10 +36,9 @@ const suite = function () {
         let wrongCourse;
         let wrongClass;
 
-        let class1;
-        let class2;
+        let class1, class2;
 
-        let schedule1, schedule2;
+        let schedule1, schedule2, schedule5, schedule8;
         let newSchedule;
         let newLecture;
         let wrongSchedule;
@@ -76,11 +75,14 @@ const suite = function () {
             class2 = new Class(2, '2B', 10);
 
             schedule1 = new Schedule(1, '1', 2020, 1, '1A', 10, 'Mon', '8:30', '10:00');
-            schedule2 = new Schedule(2, '2', 2020, 1, '2B', 10, 'Tue', '8:30', '10:00');
-            newSchedule = new Schedule(1);
+            schedule2 = new Schedule(2, '2', 2020, 1, '2B', 10, 'Mon', '8:30', '10:00');
+            schedule5 = new Schedule(5, '5', 2020, 1, '2B', 10, 'Tue', '8:30', '10:00');
+            schedule8 = new Schedule(8, '8');
+
+            newSchedule = new Schedule(999, '1', '2020', '1', '9Z', '15', 'Thu', '17:30', '19:30');
             newLecture = new Lecture(999, 1, 1, moment().toDate(), 90*60*1000, moment().startOf('day').subtract(1, 'day'), Lecture.DeliveryType.PRESENCE);
-            wrongSchedule = new Schedule(-1, -1, 1970, -1, 'Wrong roomId', -1, 'Wrong day', '-1:00', '-1:00');
-            wrongLecturePrototype = new Lecture(-1, -1, -1, '-1:00', -1, '-1:00', 'Wrong delivery');
+            wrongSchedule = new Schedule(-1, -1, 1970, -1, 'Wrong roomId', -1, 'Wrong day', 'Not a time', 'Not a time');
+            wrongLecturePrototype = new Lecture(-1, -1, -1, 'Not a time', -1, 'Not a time', 'Wrong delivery');
 
             overlappedScheduleSameCourse = Schedule.from(schedule1);
             overlappedScheduleSameCourse.roomId = schedule2.roomId;
@@ -850,7 +852,10 @@ const suite = function () {
                         assert.ok(retVal > 0, 'The lecture has not been inserted');
                         done();
                     })
-                    .catch((err) => done(err));
+                    .catch((err) => {
+                        console.log(err);
+                        done(err);
+                    });
             });
         });
 
@@ -858,11 +863,13 @@ const suite = function () {
             it('correct params should return the list of calendars', function(done) {
                 dao._getCalendars()
                     .then((calendars) => {
-                        console.log(calendars);
                         assert.strictEqual(calendars.length, 5, 'Wrong number of calendars');
                         done();
                     })
-                    .catch((err) => done(err));
+                    .catch((err) => {
+                        console.log(err);
+                        done(err);
+                    });
             });
         });
 
@@ -873,7 +880,10 @@ const suite = function () {
                         assert.ok(dates.length > 0, 'No date has been generated');
                         done();
                     })
-                    .catch((err) => done(err));
+                    .catch((err) => {
+                        console.log(err);
+                        done(err);
+                    });
             });
 
             it('wrong params should return an empty list', function(done) {
@@ -882,26 +892,32 @@ const suite = function () {
                         assert.strictEqual(dates.length, 0, 'No date should be generated');
                         done();
                     })
-                    .catch((err) => done(err));
+                    .catch((err) => {
+                        console.log(err);
+                        done(err);
+                    });
             });
         });
 
         describe('_deleteLecturesByPrototype', function() {
-            it('correct params should return the number of removed lectures', function(done) {
-                dao._generateLecturePrototypeBySchedule(schedule1)
+            it('correct params should reject the request or fail', function(done) {
+                dao._generateLecturePrototypeBySchedule(schedule5)
                     .then((lecturePrototype) => {
-                        dao._deleteLecturesByPrototype(schedule1, lecturePrototype)
+                        dao._deleteLecturesByPrototype(lecturePrototype)
                         .then((nLectures) => {
                             assert.ok(nLectures > 0, 'No lecture has been removed');
                             done();
                         })
-                        .catch((err) => done(err));
+                        .catch((err) => done()); // correct case
                     })
-                    .catch((err) => done(err));
+                    .catch((err) => {
+                        console.log(err);
+                        done(err);
+                    });
             });
 
             it('wrong params should return the number of removed lectures or fail', function(done) {
-                dao._deleteLecturesByPrototype(wrongSchedule, wrongLecturePrototype)
+                dao._deleteLecturesByPrototype(wrongLecturePrototype)
                     .then((nLectures) => {
                         assert.strictEqual(nLectures, 0, 'No lecture should be removed');
                         done();
@@ -919,18 +935,24 @@ const suite = function () {
                                 assert.ok(nLectures > 0, 'No lecture has been inserted');
                                 done();
                             })
-                            .catch((err) => done(err));
+                            .catch((err) => {
+                                console.log(err);
+                                done(err);
+                            });
                     })
-                    .catch((err) => done(err));
+                    .catch((err) => {
+                        console.log(err);
+                        done(err);
+                    });
             });
 
-            it('wrong params should return the number of inserted lectures', function(done) {
+            it('wrong params should reject the request or fail', function(done) {
                 dao._addLecturesByScheduleAndPrototype(wrongSchedule, wrongLecturePrototype)
                     .then((nLectures) => {
                         assert.strictEqual(nLectures, 0, 'No lecture should be inserted');
                         done();
                     })
-                    .catch((err) => done(err));
+                    .catch((err) => done()); // correct case
             });
         });
 
@@ -947,26 +969,56 @@ const suite = function () {
             it('existing class should no modify the DB', function(done) {
                 dao._generateClassBySchedule(schedule1) // this schedule already exists in the DB
                     .then((retVal) => {
-                        console.log(retVal);
                         assert.strictEqual(retVal, 0, 'The class should not be inserted');
                         done();
                     })
+                    .catch((err) => {
+                        console.log(err);
+                        done(err)
+                    });
+            });
+        });
+
+        describe('_generateCourseBySchedule', function() {
+            it('non existing course should accept the request', function(done) {
+                dao._generateCourseBySchedule(newSchedule) // this schedule does not exists in the DB
+                    .then((retVal) => {
+                        assert.ok(retVal, 1, 'The course has not been inserted');
+                        done();
+                    })
                     .catch((err) => done(err));
+            });
+
+            it('existing course should no modify the DB', function(done) {
+                dao._generateCourseBySchedule(schedule1) // this schedule already exists in the DB
+                    .then((retVal) => {
+                        assert.strictEqual(retVal, 0, 'The course should not be inserted');
+                        done();
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        done(err)
+                    });
             });
         });
 
         describe('_generateLecturePrototypeBySchedule', function() {
             it('correct schedule should return a lecture prototype', function(done) {
-                dao._generateLecturePrototypeBySchedule(wrongSchedule)
+                dao._generateLecturePrototypeBySchedule(newSchedule)
                     .then((lecturePrototype) => {
-                        assert.strictEqual(lecturePrototype.courseId, course1.courseId, 'The generate lecture prototype is wrong');
+                        console.log(lecturePrototype);
+                        assert.strictEqual(lecturePrototype.courseId, course1.courseId, 'The generated lecture prototype is wrong');
+                        done();
                     })
                     .catch((err) => done(err));
             });
 
             it('wrong schedule should reject the request', function(done) {
                 dao._generateLecturePrototypeBySchedule(wrongSchedule)
-                    .then((lecturePrototype) => done('This must fail!'))
+                    .then((lecturePrototype) => {
+                        console.log(lecturePrototype);
+                        done('This must fail!');
+                    })
                     .catch((err) => done()); // correct case
             });
         });
@@ -987,7 +1039,10 @@ const suite = function () {
                         assert.strictEqual(nLectures, 0, 'No lectures should be generated');
                         done();
                     })
-                    .catch((err) => done(err));
+                    .catch((err) => {
+                        console.log(err);
+                        done(err);
+                    });
             });
             it('overlapping schedule of a different course should return the number of generated lectures', function(done) {
                 dao._generateLecturesBySchedule(overlappedScheduleDifferentCourse)
@@ -995,7 +1050,10 @@ const suite = function () {
                         assert.strictEqual(nLectures, 0, 'No lectures should be generated');
                         done();
                     })
-                    .catch((err) => done(err));
+                    .catch((err) => {
+                        console.log(err);
+                        done(err);
+                    });
             });
         });
 
@@ -1017,7 +1075,10 @@ const suite = function () {
                         assert.ok(nLectures > 0, 'No lecture updated'); // the exact number of lectures depends on the date you run tests
                         done();
                     })
-                    .catch((err) => done(err));
+                    .catch((err) => {
+                        console.log(err);
+                        done(err);
+                    });
             });
 
             it('wrong schedule should reject the request', function(done) {

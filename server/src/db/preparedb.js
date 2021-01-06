@@ -7,7 +7,7 @@
 const sqlite = require("sqlite3");
 const fs = require("fs");
 const path = require("path");
-const StandardErr = require("../utils/utils.js");
+const {StandardErr} = require("../utils/utils.js");
 const colors = require("colors");
 
 /**
