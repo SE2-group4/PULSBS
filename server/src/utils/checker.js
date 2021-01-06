@@ -96,7 +96,7 @@ function isLectureCancellable(lecture, requestDateTime) {
  *
  * courseId {Integer}
  * lectureId {Integer}
- * returns {Boolean}
+ * returns {Promise} boolean
  **/
 async function courseLectureCorrelation(courseId, lectureId) {
     let doesBelong = false;
@@ -114,7 +114,7 @@ async function courseLectureCorrelation(courseId, lectureId) {
  *
  * teacherId {Integer}
  * courseId {Integer}
- * returns {Boolean}
+ * returns {Promise} boolean
  **/
 async function teacherCourseCorrelation(teacherId, courseId) {
     let isTeachingThisCourse = false;

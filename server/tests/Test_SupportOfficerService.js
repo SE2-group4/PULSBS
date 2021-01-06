@@ -336,7 +336,7 @@ const testSuiteSupportOfficer = () => {
 
             const supportId = 1;
 
-            it("Should have returned an error", async function () {
+            it("Should have raised an error with wrong courseId as input", async function () {
                 const courseId = "1a";
                 const lectureId = 1;
                 const switchTo = "remote";
@@ -344,6 +344,32 @@ const testSuiteSupportOfficer = () => {
                 const errno = 3;
                 const message = "not an integer";
                 const code = 400;
+                await assert.rejects(Service.updateCourseLecture(supportId, courseId, lectureId, switchTo), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+
+            it("Should have raised an error with wrong switchTo as input", async function () {
+                const courseId = 1;
+                const lectureId = 1;
+                const switchTo = "foo";
+
+                const errno = 22;
+                const message = "not valid";
+                const code = 400;
+                await assert.rejects(Service.updateCourseLecture(supportId, courseId, lectureId, switchTo), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+
+            it("Should have raised an error with wrong course/lecture correlation", async function () {
+                const courseId = 1;
+                const lectureId = 5;
+                const switchTo = "remote";
+
+                const errno = 11;
+                const message = "not belong";
+                const code = 404;
                 await assert.rejects(Service.updateCourseLecture(supportId, courseId, lectureId, switchTo), (err) =>
                     validator(err, errno, message, code)
                 );

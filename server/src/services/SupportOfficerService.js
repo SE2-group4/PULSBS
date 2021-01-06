@@ -150,7 +150,7 @@ async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
     }
 
     // check is the course has a lecture with id = lId
-    if (!check.courseLectureCorrelation(cId, lId)) {
+    if (!(await check.courseLectureCorrelation(cId, lId))) {
         throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
     }
 
