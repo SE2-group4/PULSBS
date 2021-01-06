@@ -19,7 +19,7 @@ const defaultStatusCode = {
     LECTURE_NOT_FOUND: 404,
     LECTURE_INVALID_DELIVERY_MODE: 400,
     LECTURE_NOT_CANCELLABLE: 409,
-    LECTURE_NOT_SWITCHABLE: 406,
+    LECTURE_NOT_SWITCHABLE: 409,
     PARAM_NOT_BOOLEAN: 400,
     PARAM_NOT_DATE: 400,
     PARAM_NOT_INT: 400,
@@ -43,58 +43,6 @@ class ResponseError {
             statusCode: code,
         };
         this.statusCode = code;
-    }
-
-    static get COURSE_NOT_ENROLLED_AA() {
-        return 10;
-    }
-    static get COURSE_LECTURE_MISMATCH_AA() {
-        return 11;
-    }
-    static get DB_GENERIC_ERROR() {
-        return 40;
-    }
-    static get LECTURE_GIVEN() {
-        return 20;
-    }
-    static get LECTURE_NOT_FOUND() {
-        return 21;
-    }
-    static get LECTURE_INVALID_DELIVERY_MODE() {
-        return 22;
-    }
-    static get LECTURE_NOT_CANCELLABLE() {
-        return 23;
-    }
-    static get LECTURE_NOT_SWITCHABLE() {
-        return 24;
-    }
-    static get PARAM_NOT_BOOLEAN() {
-        return 1;
-    }
-    static get PARAM_NOT_DATE() {
-        return 2;
-    }
-    static get PARAM_NOT_INT() {
-        return 3;
-    }
-    static get QUERY_PARAM_NOT_ACCEPTED() {
-        return 4;
-    }
-    static get QUERY_PARAM_VALUE_NOT_ACCEPTED() {
-        return 5;
-    }
-    static get ENTITY_TYPE_NOT_VALID() {
-        return 6;
-    }
-    static get ENTITY_NOT_FOUND() {
-        return 7;
-    }
-    static get TEACHER_COURSE_MISMATCH_AA() {
-        return 30;
-    }
-    static get ROUTE_FORBIDDEN() {
-        return 0;
     }
 
     static errno = {
