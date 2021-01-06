@@ -5,7 +5,7 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import { slide as Menu } from 'react-burger-menu'
 import DayPickerInput from 'react-day-picker/DayPickerInput';
 import MultiselectComp from '../components/MultiselectComp';
-
+import Form from 'react-bootstrap/Form'
 import { formatDate, parseDate } from 'react-day-picker/moment';
 
 class BurgerSidebar extends React.Component {
@@ -13,38 +13,34 @@ class BurgerSidebar extends React.Component {
         super(props);
         this.state = {
             user: this.props.user,
-            from: undefined, to: undefined, selectedCourses: [], selectedTypes: [], selectedWeeks: [], selectedMonths: [],
+            from: undefined, to: undefined, selectedCourse: "", selectedWeeks: [], selectedMonths: [],
             granularity: "daily",
             months: [],
             weeks: []
         }
     }
 
-    multiselectCoursesHandle = (selectedCourses) => {
-        this.setState({ selectedCourses: selectedCourses })
-        this.props.generateGraph(selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, this.state.granularity)
-    }
-    multiselectTypesHandle = (selectedTypes) => {
-        this.setState({ selectedTypes: selectedTypes })
-        this.props.generateGraph(this.state.selectedCourses, selectedTypes, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, this.state.granularity)
+    selectCourseHandle = (selectedCourse) => {
+        this.setState({ selectedCourse: selectedCourse })
+        this.props.generateGraph(selectedCourse, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, this.state.granularity)
     }
     multiselectWeeksHandle = (selectedWeeks) => {
         this.setState({ selectedWeeks: selectedWeeks })
-        this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, this.state.granularity)
+        this.props.generateGraph(this.state.selectedCourse, selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, this.state.granularity)
     }
     multiselectMonthsHandle = (selectedMonths) => {
         this.setState({ selectedMonths: selectedMonths })
-        this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, selectedMonths, this.state.from, this.state.to, this.state.granularity)
+        this.props.generateGraph(this.state.selectedCourse, this.state.selectedWeeks, selectedMonths, this.state.from, this.state.to, this.state.granularity)
     }
 
     handleFromChange = (from) => {
         this.setState({ from: from });
-        this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, this.state.selectedMonths, from, this.state.to, this.state.granularity)
+        this.props.generateGraph(this.state.selectedCourse, this.state.selectedWeeks, this.state.selectedMonths, from, this.state.to, this.state.granularity)
     }
 
     handleToChange = (to) => {
         this.setState({ to: to }, this.showFromMonth);
-        this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, to, this.state.granularity)
+        this.props.generateGraph(this.state.selectedCourse, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, to, this.state.granularity)
     }
 
     async componentDidMount() {
@@ -59,19 +55,19 @@ class BurgerSidebar extends React.Component {
                     startDate = startDate.isoWeekday(-6)
                 }
                 while (startDate.isBefore(endDate)) {
-                    let startDateWeek = startDate.isoWeekday('Monday').format('DD-MM-YYYY');
-                    let endDateWeek = startDate.isoWeekday('Sunday').format('DD-MM-YYYY');
+                    let startDateWeek = startDate.isoWeekday('Monday').format('DD MMM YYYY');
+                    let endDateWeek = startDate.isoWeekday('Sunday').format('DD MMM YYYY');
                     startDate.add(7, 'days');
                     weeks.push([startDateWeek, endDateWeek]);
                 }
                 let allweeks = weeks.map((w) => {
-                    return { "name": w[0] + " " + w[1] }
+                    return { "name": w[0] + "-" + w[1] }
                 })
                 var months = [];
                 startDate = moment('2020-9-1');
                 endDate = moment('2021-3-30');
                 while (startDate.isBefore(endDate) || startDate.format('M') === endDate.format('M')) {
-                    months.push(startDate.format('YYYY-MM'));
+                    months.push(startDate.format('MMM YY'));
                     startDate.add(1, 'month');
                 }
                 let allmonths = months.map((m) => {
@@ -91,15 +87,15 @@ class BurgerSidebar extends React.Component {
 
     handleGranChange1 = () => {
         this.setState({ granularity: "daily" })
-        this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, "daily")
+        this.props.generateGraph(this.state.selectedCourse, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, "daily")
     }
     handleGranChange2 = () => {
         this.setState({ granularity: "weekly" })
-        this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, "weekly")
+        this.props.generateGraph(this.state.selectedCourse, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, "weekly")
     }
     handleGranChange3 = () => {
         this.setState({ granularity: "monthly" })
-        this.props.generateGraph(this.state.selectedCourses, this.state.selectedTypes, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, "monthly")
+        this.props.generateGraph(this.state.selectedCourse, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, "monthly")
     }
 
     render() {
@@ -107,96 +103,84 @@ class BurgerSidebar extends React.Component {
         const modifiers = { start: from, end: to };
         if (!this.props.courses)
             return (<></>)
-        if (this.state.granularity == "daily") { //DAILY
-            return (
-                <Menu isOpen={true}>
-                    <a id="course" className="menu-item" >Select granularity: </a>
-                    <ButtonGroup size="sm" className="mb-2">
-                        <Button onClick={this.handleGranChange1}>Daily</Button>
-                        <Button onClick={this.handleGranChange2}>Weekly</Button>
-                        <Button onClick={this.handleGranChange3}>Monthly</Button>
-                    </ButtonGroup>
-                    <a id="from" className="menu-item" >From: <div className="InputFromTo">
-                        <DayPickerInput
-                            value={from}
-                            placeholder="From (day)"
-                            format="LL"
-                            formatDate={formatDate}
-                            parseDate={parseDate}
-                            dayPickerProps={{
-                                selectedDays: [from, { from, to }],
-                                disabledDays: { after: to },
-                                toMonth: to,
-                                modifiers,
-                                numberOfMonths: 1,
-                                onDayClick: () => this.to.getInput().focus(),
-                            }}
-                            onDayChange={this.handleFromChange}
-                        />{' '}
-            To:{' '}
-                        <span className="InputFromTo-to">
-                            <DayPickerInput
-                                ref={el => (this.to = el)}
-                                value={to}
-                                placeholder="To (day)"
-                                format="LL"
-                                formatDate={formatDate}
-                                parseDate={parseDate}
-                                dayPickerProps={{
-                                    selectedDays: [from, { from, to }],
-                                    disabledDays: { before: from },
-                                    modifiers,
-                                    month: from,
-                                    fromMonth: from,
-                                    numberOfMonths: 1,
-                                }}
-                                onDayChange={this.handleToChange}
-                            />
-                        </span> </div></a>
-                    <a id="course" className="menu-item" >Courses:
-                    <MultiselectComp handle={this.multiselectCoursesHandle} options={this.props.courses} display="description" ></MultiselectComp></a>
-                    <a id="type" className="menu-item" >Type:
-                    <MultiselectComp handle={this.multiselectTypesHandle} options={this.props.typeOptions} display="name"></MultiselectComp></a>
-                </Menu >
-            )
-        }
-        if (this.state.granularity == "weekly") { // WEEKLY
-            return (
-                <Menu isOpen={true}>
-                    <a id="gran" className="menu-item" >Select granularity: </a>
-                    <ButtonGroup size="sm" className="mb-2">
-                        <Button onClick={this.handleGranChange1}>Daily</Button>
-                        <Button onClick={this.handleGranChange2}>Weekly</Button>
-                        <Button onClick={this.handleGranChange3}>Monthly</Button>
-                    </ButtonGroup>
-                    <a id="weekly" className="menu-item" >Select weeks:
-                <MultiselectComp handle={this.multiselectWeeksHandle} options={this.state.weeks} display="name" selectedValues={this.state.selectedWeeks} ></MultiselectComp></a>
-                    <a id="course" className="menu-item" >Courses:
-                <MultiselectComp handle={this.multiselectCoursesHandle} options={this.props.courses} display="description" ></MultiselectComp></a>
-                    <a id="type" className="menu-item" >Type:
-                <MultiselectComp handle={this.multiselectTypesHandle} options={this.props.typeOptions} display="name"></MultiselectComp></a>
-                </Menu >
-            )
-        }
-        if (this.state.granularity == "monthly") { //MONTHLY
-            return (
-                <Menu isOpen={true}>
-                    <a id="gran" className="menu-item" >Select granularity: </a>
-                    <ButtonGroup size="sm" className="mb-2">
-                        <Button onClick={this.handleGranChange1}>Daily</Button>
-                        <Button onClick={this.handleGranChange2}>Weekly</Button>
-                        <Button onClick={this.handleGranChange3}>Monthly</Button>
-                    </ButtonGroup>
-                    <a id="monthly" className="menu-item" >Select months:
+        return (
+            <Menu isOpen={true}>
+                <Form>
+                    <Form.Group>
+                        <Form.Label>Select granularity:</Form.Label>
+                        <ButtonGroup size="sm" className="mb-2">
+                            <Button variant="warning" onClick={this.handleGranChange1}>Daily</Button>
+                            <Button variant="warning" onClick={this.handleGranChange2}>Weekly</Button>
+                            <Button variant="warning" onClick={this.handleGranChange3}>Monthly</Button>
+                        </ButtonGroup>
+                    </Form.Group>
+                    <Form.Group>
+                        {this.state.granularity == "daily" &&
+                            <>
+                                <Form.Label>From:</Form.Label>
+                                <DayPickerInput
+                                    value={from}
+                                    placeholder="From (day)"
+                                    format="LL"
+                                    formatDate={formatDate}
+                                    parseDate={parseDate}
+                                    dayPickerProps={{
+                                        selectedDays: [from, { from, to }],
+                                        disabledDays: { after: to },
+                                        toMonth: to,
+                                        modifiers,
+                                        numberOfMonths: 1,
+                                        onDayClick: () => this.to.getInput().focus(),
+                                    }}
+                                    onDayChange={this.handleFromChange}
+                                />
+
+                                <Form.Label>To:</Form.Label>
+                                <DayPickerInput
+                                    ref={el => (this.to = el)}
+                                    value={to}
+                                    placeholder="To (day)"
+                                    format="LL"
+                                    formatDate={formatDate}
+                                    parseDate={parseDate}
+                                    dayPickerProps={{
+                                        selectedDays: [from, { from, to }],
+                                        disabledDays: { before: from },
+                                        modifiers,
+                                        month: from,
+                                        fromMonth: from,
+                                        numberOfMonths: 1,
+                                    }}
+                                    onDayChange={this.handleToChange}
+                                />
+
+                            </>
+                        }
+                        {
+                            this.state.granularity == "weekly" &&
+                            <>
+                                <Form.Label>Select weeks:</Form.Label>
+                                <MultiselectComp handle={this.multiselectWeeksHandle} options={this.state.weeks} display="name" selectedValues={this.state.selectedWeeks} ></MultiselectComp>
+                            </>
+                        }
+                        {
+                            this.state.granularity == "monthly" &&
+                            <a id="monthly" className="menu-item" >Select months:
                 <MultiselectComp handle={this.multiselectMonthsHandle} options={this.state.months} display="name" selectedValues={this.state.selectedMonths}></MultiselectComp></a>
-                    <a id="course" className="menu-item" >Courses:
-                <MultiselectComp handle={this.multiselectCoursesHandle} options={this.props.courses} display="description" ></MultiselectComp></a>
-                    <a id="type" className="menu-item" >Type:
-                <MultiselectComp handle={this.multiselectTypesHandle} options={this.props.typeOptions} display="name"></MultiselectComp></a>
-                </Menu >
-            )
-        }
+                        }
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Label>Select course:</Form.Label>
+                        <Form.Control as="select" custom onChange={(ev) => { this.selectCourseHandle(ev.target.value) }} >
+                            <option></option>
+                            {this.props.courses.map((course) => { return (<option key={course.courseId} value={course.courseId} >{course.description}</option>) })}
+                        </Form.Control>
+                    </Form.Group>
+                </Form>
+            </Menu >
+        )
     }
 }
+
 
 export default BurgerSidebar;

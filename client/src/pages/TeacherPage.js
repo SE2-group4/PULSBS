@@ -128,7 +128,7 @@ class TeacherPage extends React.Component {
 
     updateDelivery = () => {
         var deliveryToUpdate = this.state.deliveryToUpdate;
-        var newDel = deliveryToUpdate == 'PRESENCE' ? 'REMOTE' : 'PRESENCE';
+        var newDel = deliveryToUpdate === 'PRESENCE' ? 'REMOTE' : 'PRESENCE';
         API.updateDeliveryByLecture(this.state.user.userId, this.state.selectedCourse, this.state.lectureIdToUpdate, newDel)
             .then(() => {
                 //ok from server
@@ -136,7 +136,7 @@ class TeacherPage extends React.Component {
                 var newLecture, i;
                 var lectureIdToUpdate = this.state.lectureIdToUpdate;
                 newLectures.forEach(function (item, index) {
-                    if (item.lectureId == lectureIdToUpdate) {
+                    if (item.lectureId === parseInt(lectureIdToUpdate)) {
                         newLecture = new Lecture(item.lectureId, item.courseId, item.classId, item.startingDate, item.duration, item.bookingDeadline, newDel);
                         i = index;
                     }
@@ -158,7 +158,7 @@ class TeacherPage extends React.Component {
                 var i;
                 var lectureIdToDelete = this.state.lectureIdToDelete;
                 newLectures.forEach(function (item, index) {
-                    if (item.lectureId == lectureIdToDelete) {
+                    if (item.lectureId === parseInt(lectureIdToDelete)) {
                         i = index;
                     }
                 });

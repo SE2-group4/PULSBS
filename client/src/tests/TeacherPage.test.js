@@ -24,7 +24,7 @@ const lectures = [
   { lecture: new Lecture(1, 1, 1, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE") },
   { lecture: new Lecture(2, 1, 1, moment().add("2", "day").toISOString(), "1000000", moment().add("1", "day").toISOString(), "REMOTE") },
   { lecture: new Lecture(3, 2, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE") },
-  { lecture: new Lecture(4, 1, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE") },
+  { lecture: new Lecture(4, 1, 2, moment().subtract("10", "minutes").toISOString(), "1000000", moment().toISOString(), "PRESENCE") },
   { lecture: new Lecture(5, 1, 2, moment().add("1", "day").toISOString(), "1000000", moment().toISOString(), "PRESENCE") }
 ];
 const students = [
@@ -90,6 +90,15 @@ async function setupDeleteModal() {
   });
 }
 
+async function setupStudentUpdate() {
+  await fetchLectureSuccess();
+  let res = JSON.stringify(students);
+  fetch.mockResponseOnce(res);
+  await act(async () => {
+    userEvent.click(screen.getByTestId('l-4'));
+  });
+}
+
 describe('Teacher Page suite', () => {
   test('render TeacherPage component (courses API : success), testing pagination', async () => {
     await fetchCourses();
@@ -139,6 +148,9 @@ describe('Teacher Page suite', () => {
     });
     await act(async () => {
       userEvent.click(screen.getByTestId('paginationItemLecture-1')); //page 2 -> 1
+    });
+    await act(async () => {
+      userEvent.click(screen.getByTestId('c-1'))
     });
   });
 
@@ -191,16 +203,19 @@ describe('Teacher Page suite', () => {
   test('testing interaction between LecturePanel-StudentPanel (students API : success), testing pagination', async () => {
     await fetchStudentSuccess();
     expect(screen.getByTestId("selected-course")).toBeInTheDocument();
-    expect(screen.getByTestId("number-students")).toBeInTheDocument();
+    expect(screen.getByTestId("number-students-12")).toBeInTheDocument();
     let items = screen.getAllByTestId('student-row');
     expect(items).toHaveLength(4);
     await act(async () => {
-      userEvent.click(screen.getByTestId('paginationItemStudent-2')); //page 0 -> 1
+      userEvent.click(screen.getByTestId('paginationItemStudent-2')); //page 1 -> 2
     });
     items = screen.getAllByTestId('student-row');
     expect(items).toHaveLength(4);
     await act(async () => {
-      userEvent.click(screen.getByTestId('paginationItemStudent-1')); //page 1 -> 0
+      userEvent.click(screen.getByTestId('paginationItemStudent-1')); //page 2 -> 1
+    });
+    await act(async () => {
+      userEvent.click(screen.getByTestId('l-1'))
     });
   });
 
@@ -339,5 +354,42 @@ describe('Teacher Page suite', () => {
     });
     expect(screen.getByText("Lecture : server error")).toBeInTheDocument();
   });
+
+  test('testing student status update (PUT success)', async () => {
+    await setupStudentUpdate();
+    expect(screen.getByText("no present students.")).toBeInTheDocument();
+    fetch.mockResponseOnce(JSON.stringify({ body: "ok" }), { status: 204 });
+    await act(async () => {
+      userEvent.click(screen.getAllByTestId('student-row')[0]);
+    });
+    expect(screen.getByTestId("number-students-1")).toBeInTheDocument();
+  })
+
+  test('testing student status update (PUT failure : error)', async () => {
+    await setupStudentUpdate();
+    fetch.mockResponseOnce(JSON.stringify({ statusCode: 404, message: "something went wrong!" }), { status: 404 });
+    await act(async () => {
+      userEvent.click(screen.getAllByTestId('student-row')[0]);
+    });
+    expect(screen.getByText("404 : something went wrong!")).toBeInTheDocument();
+  })
+
+  test('testing student status update (PUT failure : error parsing error)', async () => {
+    await setupStudentUpdate();
+    fetch.mockResponseOnce({}, { status: 404 });
+    await act(async () => {
+      userEvent.click(screen.getAllByTestId('student-row')[0]);
+    });
+    expect(screen.getByText("Student : server error")).toBeInTheDocument();
+  })
+
+  test('testing student status update (PUT failure : server connection error)', async () => {
+    await setupStudentUpdate();
+    fetch.mockRejectOnce();
+    await act(async () => {
+      userEvent.click(screen.getAllByTestId('student-row')[0]);
+    });
+    expect(screen.getByText("Student : server error")).toBeInTheDocument();
+  })
 
 });
