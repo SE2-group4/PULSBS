@@ -65,7 +65,7 @@ class TeacherStatsPage extends React.Component {
                     <Col sm="2"></Col>
                     <Col sm="10">
                         <Chart course={this.state.selectedCourse} weeks={this.state.selectedWeeks} from={this.state.from} to={this.state.to}
-                            months={this.state.selectedMonths} granularity={this.state.granularity} managerId={this.props.user.userId} lectures={this.state.lectures} loading={this.state.loading} />
+                            months={this.state.selectedMonths} granularity={this.state.granularity} userType={this.props.user.type} lectures={this.state.lectures} loading={this.state.loading} />
                     </Col>
                 </Row>
             </Container>

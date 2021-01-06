@@ -16,33 +16,54 @@ class Chart extends React.Component {
             return (<></>)
         if (this.props.granularity == "daily") {
             const days = prepareDates(this.props.lectures, this.props.from, this.props.to)
-            return (<div>
-                <Bar
-                    data={
+            let data = {};
+            if (this.props.userType === "MANAGER")
+                data =
+                {
+
+                    labels: days,
+                    datasets: [
+                        {
+                            label: "Attendances",
+                            data: computeAttendaces(this.props.lectures),
+                            backgroundColor: 'rgb(0,255,0)'
+                        },
                         {
 
-                            labels: days,
-                            datasets: [
-                                {
-                                    label: "Attendances",
-                                    data: computeAttendaces(this.props.lectures),
-                                    backgroundColor: 'rgb(0,255,0)'
-                                },
-                                {
+                            label: "Cancellations",
+                            data: computeCancellations(this.props.lectures),
+                            backgroundColor: 'rgb(255,0,0)'
+                        },
 
-                                    label: "Cancellations",
-                                    data: computeCancellations(this.props.lectures),
-                                    backgroundColor: 'rgb(255,0,0)'
-                                },
-
-                                {
-                                    label: "Reservations",
-                                    data: computeBookings(this.props.lectures),
-                                    backgroundColor: 'rgb(0,0,255)'
-                                }
-                            ]
+                        {
+                            label: "Reservations",
+                            data: computeBookings(this.props.lectures),
+                            backgroundColor: 'rgb(0,0,255)'
                         }
+                    ]
+                }
+            else data = {
+
+                labels: days,
+                datasets: [
+                    {
+                        label: "Attendances",
+                        data: computeAttendaces(this.props.lectures),
+                        backgroundColor: 'rgb(0,255,0)'
+                    },
+
+                    {
+                        label: "Reservations",
+                        data: computeBookings(this.props.lectures),
+                        backgroundColor: 'rgb(0,0,255)'
                     }
+                ]
+            }
+            return (<div>
+                <Bar
+
+                    data={data}
+
                     height={600}
                     width={600}
                     options={{
@@ -87,30 +108,47 @@ class Chart extends React.Component {
                 const tokens = weekRange.name.split("-")
                 return tokens[0] + " - " + tokens[1]
             })
+            let data = {};
+            if (this.props.userType === "MANAGER")
+                data = {
+                    labels: weeks,
+                    datasets: [
+                        {
+                            label: "Attendances",
+                            data: computeWeeklyAvgAttendaces(this.props.lectures, this.props.weeks),
+                            backgroundColor: 'rgb(0,255,0)'
+                        },
+                        {
+                            label: "Cancellations",
+                            data: computeWeeklyAvgCancellations(this.props.lectures, this.props.weeks),
+                            backgroundColor: 'rgb(255,0,0)'
+                        },
+                        {
+                            label: "Reservations",
+                            data: computeWeeklyAvgBookings(this.props.lectures, this.props.weeks),
+                            backgroundColor: 'rgb(0,0,255)'
+                        }
+                    ]
+                }
+            else data = {
+                labels: weeks,
+                datasets: [
+                    {
+                        label: "Attendances",
+                        data: computeWeeklyAvgAttendaces(this.props.lectures, this.props.weeks),
+                        backgroundColor: 'rgb(0,255,0)'
+                    },
+
+                    {
+                        label: "Reservations",
+                        data: computeWeeklyAvgBookings(this.props.lectures, this.props.weeks),
+                        backgroundColor: 'rgb(0,0,255)'
+                    }
+                ]
+            }
             return (<div>
                 <Bar
-                    data={
-                        {
-                            labels: weeks,
-                            datasets: [
-                                {
-                                    label: "Attendances",
-                                    data: computeWeeklyAvgAttendaces(this.props.lectures, this.props.weeks),
-                                    backgroundColor: 'rgb(0,255,0)'
-                                },
-                                {
-                                    label: "Cancellations",
-                                    data: computeWeeklyAvgCancellations(this.props.lectures, this.props.weeks),
-                                    backgroundColor: 'rgb(255,0,0)'
-                                },
-                                {
-                                    label: "Reservations",
-                                    data: computeWeeklyAvgBookings(this.props.lectures, this.props.weeks),
-                                    backgroundColor: 'rgb(0,0,255)'
-                                }
-                            ]
-                        }
-                    }
+                    data={data}
                     height={600}
                     width={600}
                     options={{
@@ -152,30 +190,46 @@ class Chart extends React.Component {
         }
         else if (this.props.granularity == "monthly") {
             const months = this.props.months.map((month) => { return month.name })
+            let data;
+            if (this.props.userType === "MANAGER")
+                data = {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: "Attendances",
+                            data: computeMonthlyAvgAttendaces(this.props.lectures, this.props.months),
+                            backgroundColor: 'rgb(0,255,0)'
+                        },
+                        {
+                            label: "Cancellations",
+                            data: computeMonthlyAvgCancellations(this.props.lectures, this.props.months),
+                            backgroundColor: 'rgb(255,0,0)'
+                        },
+                        {
+                            label: "Reservations",
+                            data: computeMonthlyAvgBookings(this.props.lectures, this.props.months),
+                            backgroundColor: 'rgb(0,0,255)'
+                        }
+                    ]
+                }
+            else data = {
+                labels: months,
+                datasets: [
+                    {
+                        label: "Attendances",
+                        data: computeMonthlyAvgAttendaces(this.props.lectures, this.props.months),
+                        backgroundColor: 'rgb(0,255,0)'
+                    },
+                    {
+                        label: "Reservations",
+                        data: computeMonthlyAvgBookings(this.props.lectures, this.props.months),
+                        backgroundColor: 'rgb(0,0,255)'
+                    }
+                ]
+            }
             return (<div>
                 <Bar
-                    data={
-                        {
-                            labels: months,
-                            datasets: [
-                                {
-                                    label: "Attendances",
-                                    data: computeMonthlyAvgAttendaces(this.props.lectures, this.props.months),
-                                    backgroundColor: 'rgb(0,255,0)'
-                                },
-                                {
-                                    label: "Cancellations",
-                                    data: computeMonthlyAvgCancellations(this.props.lectures, this.props.months),
-                                    backgroundColor: 'rgb(255,0,0)'
-                                },
-                                {
-                                    label: "Reservations",
-                                    data: computeMonthlyAvgBookings(this.props.lectures, this.props.months),
-                                    backgroundColor: 'rgb(0,0,255)'
-                                }
-                            ]
-                        }
-                    }
+                    data={data}
                     height={600}
                     width={600}
                     options={{
