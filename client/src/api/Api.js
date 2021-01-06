@@ -222,6 +222,7 @@ async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, book
             if (response.ok) {
                 response.json()
                     .then((obj) => {
+
                         resolve(obj.map((l) => {
                             l.lecture["numBookings"] = l.bookings;
                             l.lecture["attendances"] = l.attendances;
@@ -515,7 +516,7 @@ async function getAllCourses(id) {
         fetch(baseURL + `/managers/${id}/courses`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { console.log(obj); resolve(obj) })
+                    .then((obj) => { resolve(obj) })
                     .catch((err) => { reject({ source: "Course", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
@@ -533,7 +534,15 @@ async function getAllCourseLectures(id, courseId) {
         fetch(baseURL + `/managers/${id}/courses/${courseId}/lectures?bookings=true&cancellations=true&attendances=true`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { /*console.log(obj)*/; resolve(obj) })
+                    .then((obj) => {
+
+                        resolve(obj.map((l) => {
+                            l.lecture["numBookings"] = l.bookings;
+                            l.lecture["attendances"] = l.attendances;
+                            return Lecture.from(l.lecture);
+                        }
+                        ));
+                    })
                     .catch((err) => { reject({ source: "Course", error: "application parse error" }) }); // something else*/
             } else {
                 // analyze the cause of error
