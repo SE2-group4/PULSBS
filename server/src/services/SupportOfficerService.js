@@ -104,14 +104,13 @@ let allCoursesWithCode = null;
 async function getCourses(supportId) {
     const { error } = convertToNumbers({ supportId });
     if (error) {
-        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     return await db.getAllCourses();
 }
 
 /**
- * TODO: should return all lectures or just the future ones
  * get all lecture of a given course
  *
  * supportId {supportId}
@@ -121,7 +120,7 @@ async function getCourses(supportId) {
 async function getCourseLectures(supportId, courseId) {
     const { error, courseId: cId } = convertToNumbers({ supportId, courseId });
     if (error) {
-        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     const lectures = await db.getLecturesByCourseAndPeriodOfTime(new Course(cId));
@@ -142,12 +141,12 @@ async function getCourseLectures(supportId, courseId) {
 async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
     const { error, courseId: cId, lectureId: lId } = convertToNumbers({ supportId, courseId, lectureId });
     if (error) {
-        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     // check is switchTo mode is admissible
     if (!check.isValidDeliveryMode(switchTo)) {
-        throw genResponseError(ResponseError.LECTURE_INVALID_DELIVERY_MODE, { delivery: switchTo });
+        throw genResponseError(errno.LECTURE_INVALID_DELIVERY_MODE, { delivery: switchTo });
     }
 
     // check is the course has a lecture with id = lId
@@ -591,13 +590,11 @@ function sendEmailsTo(subject, message, recepients = []) {
 }
 
 /**
- * save the entities in the db
- * @param {Array} of Objects. See ACCEPTED_ENTITIES for a list of accepted entities.
- * @param {String} relative path. Es. /1/uploads/students
- * @returns {Integer} 200 in case of success. Otherwise it will throw a ResponseError
+ * write object to file
+ * @param {Object}
  */
-function writeToFile(array, path = "./input/schedules.json") {
-    fs.writeFile(path, JSON.stringify(array), (err) => {
+function writeToFile(obj, path = "./input/schedules.json") {
+    fs.writeFile(path, JSON.stringify(obj), (err) => {
         if (err) console.log("an error occured");
     });
 }
