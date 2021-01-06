@@ -105,9 +105,9 @@ const testSuiteTeacherService = () => {
                         1,
                         1,
                         1,
-                        moment().add(1, "day").startOf("day").hours(8).minutes(30),
+                        moment.utc().add(1, "day").startOf("day").hours(7).minutes(30),
                         5400000,
-                        moment().subtract(1, "day").startOf("day").hours(23).minutes(59),
+                        moment.utc().subtract(1, "day").startOf("day").hours(22).minutes(59),
                         "PRESENCE"
                     ),
                     notCancellable: new Lecture(
@@ -194,6 +194,15 @@ const testSuiteTeacherService = () => {
                 );
             });
 
+            it(errorMsg.ResponseError.type + " with wrong withStatus", async function () {
+                const errno = 1;
+                const message = "not a boolean";
+                const code = 400;
+                await assert.rejects(Service.teacherGetCourseLectureStudents(4, 1, 1, ""), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+
             it(errorMsg.ResponseError.type + " with wrong correlation as input", async function () {
                 const errno = 11;
                 const message = "not belong";
@@ -217,12 +226,16 @@ const testSuiteTeacherService = () => {
                 res.forEach((student, index) => assert.equal(student.studentId, expStudentIds[index]));
             });
 
+            it("Should have returned the status of each student's booking", async function () {
+                const expBookingStatuses = ["PRESENT", "BOOKED", "NOT_PRESENT"];
+                const res = await Service.teacherGetCourseLectureStudents(...tGGG1St.input, "true");
+                res.forEach((elem, index) => assert.equal(elem.bookingStatus, expBookingStatuses[index]));
+            });
+
             it(errorMsg.Array.length + " 0", async function () {
                 const expLength = 0;
-                const expStudentIds = [];
                 const res = await Service.teacherGetCourseLectureStudents(...tGGG1Emp.input);
                 assert.equal(res.length, expLength);
-                res.forEach((student, index) => assert.equal(student.studentId, expStudentIds[index]));
             });
         });
 
@@ -262,14 +275,31 @@ const testSuiteTeacherService = () => {
                 res.forEach((elem, index) => assert.equal(elem.lecture.lectureId, expLectureIds[index]));
             });
 
-            it(errorMsg.Array.length + " 2", async function () {
+            it(errorMsg.Array.length + " 1", async function () {
                 const expLength = 1;
-                const expLectureIds = [2, 3];
+                const expLectureIds = [1];
                 const res = await Service.teacherGetCourseLectures(...tGGGFilter1Book.input);
-                assert.deepStrictEqual(res.length, expLength);
-                res.forEach((elem, index) => console.log(elem.lecture.lectureId));
+                assert.equal(res.length, expLength);
+                res.forEach((elem, index) => assert.equal(elem.lecture.lectureId, expLectureIds[index]));
             });
 
+            it("Should have returned tot bookings 1", async function () {
+                const expBookings = [1];
+                const res = await Service.teacherGetCourseLectures(...tGGGFilter1Book.input);
+                res.forEach((elem, index) => assert.equal(elem.bookings, expBookings[index]));
+            });
+
+            it("Should have returned correct tot attendances", async function () {
+                const expAttendances = [1, 0, 0];
+                const res = await Service.teacherGetCourseLectures(4, 1, { attendances: "true" });
+                res.forEach((elem, index) => assert.equal(elem.attendances, expAttendances[index]));
+            });
+
+            it("Should have returned correct tot attendances var", async function () {
+                const expAttendances = [1];
+                const res = await Service.teacherGetCourseLectures(4, 2, { attendances: "true" });
+                res.forEach((elem, index) => assert.equal(elem.attendances, expAttendances[index]));
+            });
         });
 
         describe("teacherGetCourseLecture", function () {
@@ -290,98 +320,162 @@ const testSuiteTeacherService = () => {
                 const res = await Service.teacherGetCourseLecture(...tGGG1St.input);
                 assert.equal(res.constructor, Lecture);
             });
-
             it(errorMsg.Lecture.examples.message, async function () {
                 const res = await Service.teacherGetCourseLecture(4, 1, 1);
                 assert.deepStrictEqual(res, errorMsg.Lecture.examples.notCancellable);
             });
         });
 
-        //        describe("teacherDeleteCourseLecture", function () {
-        //            beforeEach(async function clearDb() {
-        //                await prepare("testing.db", "testTeacherServices.sql", false);
-        //            });
-        //
-        //            it(errorMsg.ResponseError.type, async function () {
-        //                await assert.rejects(Service.teacherDeleteCourseLecture(...tBBBSt.input), tBBBSt.error);
-        //            });
-        //
-        //            it(errorMsg.Integer.type, async function () {
-        //                try {
-        //                    const res = await Service.teacherDeleteCourseLecture(...tGGGLectCanc.input);
-        //                    assert.strictEqual(res, 204);
-        //                } catch (err) {
-        //                    assert.fail();
-        //                }
-        //            });
-        //
-        //            it(errorMsg.Lecture.notCancellable, async function () {
-        //                // TODO test pass even if tGGGLectCanc.error is not strictly equal to the rejected object
-        //                //await assert.rejects(Service.teacherDeleteCourseLecture(...tGGGLectNotCanc.input), tGGGLectNotCanc.error);
-        //                await assert.rejects(Service.teacherDeleteCourseLecture(...tGGGLectNotCanc.input));
-        //            });
-        //        });
-        //
-        //        describe("teacherUpdateCourseLectureDeliveryMode", function () {
-        //            beforeEach(async function clearDb() {
-        //                await prepare("testing.db", "testTeacherServices.sql", false);
-        //            });
-        //
-        //            it(errorMsg.ResponseError.type, async function () {
-        //                await assert.rejects(Service.teacherUpdateCourseLectureDeliveryMode(...tBBBSt.input), tBBBSt.error);
-        //            });
-        //
-        //            it(errorMsg.Integer.type, async function () {
-        //                try {
-        //                    const res = await Service.teacherUpdateCourseLectureDeliveryMode(...tGGGSwitchTo.input);
-        //                    assert.strictEqual(res, 204);
-        //                } catch (err) {
-        //                    assert.fail();
-        //                }
-        //            });
-        //        });
-        //
-        //        describe("nextCheck", function () {
-        //            beforeEach(async function clearDb() {
-        //                await prepare("testing.db", "testTeacherServices.sql", false);
-        //            });
-        //
-        //            it("Should have returned the time difference between today's start day and the next 23:59", async function () {
-        //                // TODO weird things happening...
-        //                const diff = 23 * 60 * 60 * 1000 + 59 * 60 * 1000;
-        //                assert.strictEqual(Service.nextCheck(moment().startOf("day").toDate()), diff);
-        //            });
-        //
-        //            it("Should have returned the time difference between today's 23:59:01 and the next 23:59", async function () {
-        //                // TODO weird things happening...
-        //                const diff = 24 * 60 * 60 * 1000 - 1 * 1000;
-        //                assert.strictEqual(
-        //                    Service.nextCheck(moment().startOf("day").hours(23).minutes(59).seconds(1).toDate()),
-        //                    diff
-        //                );
-        //            });
-        //        });
-        //
-        //        describe("findSummaryExpiredLectures", function () {
-        //            beforeEach(async function clearDb() {
-        //                await prepare("testing.db", "testTeacherServices.sql", false);
-        //            });
-        //
-        //            it(errorMsg.Map.type, async function () {
-        //                const ret = await Service._findSummaryExpiredLectures();
-        //                assert.strictEqual(ret.constructor, Map);
-        //            });
-        //
-        //            it(errorMsg.Map.length + " 1", async function () {
-        //                const ret = await Service._findSummaryExpiredLectures();
-        //                const iter = ret.keys();
-        //                let count = 0;
-        //                while (iter.next().value) count++;
-        //                assert(count === 1);
-        //            });
-        //        });
+        describe("teacherDeleteCourseLecture", function () {
+            beforeEach(async function clearDb() {
+                await prepare("testing.db", "testTeacherServices.sql", false);
+            });
+
+            it(errorMsg.ResponseError.type, async function () {
+                const errno = 3;
+                const message = "not an integer";
+                const code = 400;
+                await assert.rejects(Service.teacherDeleteCourseLecture(...tBBBSt.input), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+
+            it(errorMsg.Integer.type, async function () {
+                const res = await Service.teacherDeleteCourseLecture(...tGGGLectCanc.input);
+                assert.strictEqual(res, 204);
+            });
+
+            it(errorMsg.Lecture.notCancellable, async function () {
+                const errno = 23;
+                const message = "not cancellable";
+                const code = 409;
+                await assert.rejects(Service.teacherDeleteCourseLecture(...tGGGLectNotCanc.input), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+        });
+
+        describe("teacherUpdateCourseLectureStudentStatus", function () {
+            beforeEach(async function clearDb() {
+                await prepare("testing.db", "testTeacherServices.sql", false);
+            });
+
+            it(errorMsg.ResponseError.type, async function () {
+                const errno = 3;
+                const message = "not an integer";
+                const code = 400;
+                await assert.rejects(Service.teacherUpdateCourseLectureStudentStatus(...tBBBSt.input), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+
+            it("Should have raised an error with a wrong booking status as input", async function () {
+                const errno = 50;
+                const message = "not accepted";
+                const code = 400;
+                await assert.rejects(Service.teacherUpdateCourseLectureStudentStatus(5, 3, 5, 3, ""), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+
+            it("Should not have updated the booking status of the student", async function () {
+                const errno = 52;
+                const message = "not updatable";
+                const code = 400;
+                await assert.rejects(Service.teacherUpdateCourseLectureStudentStatus(5, 3, 5, 3, "present"), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+
+            it("Should have updated the booking status of the student", async function () {
+                assert.equal(await Service.teacherUpdateCourseLectureStudentStatus(4, 1, 1, 1, "not_present"), 204);
+            });
+        });
+
+        describe("teacherUpdateCourseLectureDeliveryMode", function () {
+            beforeEach(async function clearDb() {
+                await prepare("testing.db", "testTeacherServices.sql", false);
+            });
+
+            it(errorMsg.ResponseError.type, async function () {
+                const errno = 3;
+                const message = "not an integer";
+                const code = 400;
+                await assert.rejects(Service.teacherUpdateCourseLectureDeliveryMode(...tBBBSt.input), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+
+            it(errorMsg.Integer.type, async function () {
+                const res = await Service.teacherUpdateCourseLectureDeliveryMode(...tGGGSwitchTo.input);
+                assert.strictEqual(res, 204);
+            });
+
+            it("Should not have switched the lecture with expired lecture", async function () {
+                const errno = 24;
+                const message = "not switchable";
+                const code = 409;
+                await assert.rejects(Service.teacherUpdateCourseLectureDeliveryMode(4, 1, 1, "remote"), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+
+            it("Should not have switched the lecture", async function () {
+                const errno = 24;
+                const message = "not switchable";
+                const code = 409;
+                await assert.rejects(Service.teacherUpdateCourseLectureDeliveryMode(4, 1, 1, "presence"), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+
+            it("Should have raised an error with a wrong switchTo as input", async function () {
+                const errno = 22;
+                const message = "not valid";
+                const code = 400;
+                await assert.rejects(Service.teacherUpdateCourseLectureDeliveryMode(4, 1, 1, ""), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+        });
+
+        describe("nextCheck", function () {
+            beforeEach(async function clearDb() {
+                await prepare("testing.db", "testTeacherServices.sql", false);
+            });
+
+            it("Should have returned the time difference between today's 23:00 and tomorrow's 22:59 (UTC)", async function () {
+                const diff = 23 * 60 * 60 * 1000 + 59 * 60 * 1000;
+                const res = Service.nextCheck(moment.utc().startOf("day").hours(23).toDate());
+                assert.equal(res, diff);
+            });
+
+            it("Should have returned the time difference between today's 22:00:00 and tomorrow's 22:59 (UTC)", async function () {
+                const diff = 59 * 60 * 1000;
+                const res = Service.nextCheck(moment.utc().startOf("day").hours(22).minutes(0).toDate());
+                assert.equal(res, diff);
+            });
+        });
+
+        describe("findSummaryExpiredLectures", function () {
+            beforeEach(async function clearDb() {
+                await prepare("testing.db", "testTeacherServices.sql", false);
+            });
+
+            it(errorMsg.Map.type, async function () {
+                const ret = await Service._findSummaryExpiredLectures();
+                assert.strictEqual(ret.constructor, Map);
+            });
+
+            it(errorMsg.Map.length + " 1", async function () {
+                const ret = await Service._findSummaryExpiredLectures();
+                const iter = ret.keys();
+                let count = 0;
+                while (iter.next().value) count++;
+                assert.equal(count, 1);
+            });
+        });
     });
 };
 
-testSuiteTeacherService();
 module.exports = testSuiteTeacherService;
