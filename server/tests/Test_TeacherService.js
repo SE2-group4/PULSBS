@@ -36,7 +36,6 @@ const testSuiteTeacherService = () => {
             Dao.closeConn();
         });
 
-        const resError = { payload: {}, statusCode: -1 };
         let tBBBStError;
 
         let tGGGLectCancError;

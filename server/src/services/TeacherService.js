@@ -153,7 +153,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
         lectureId,
     });
     if (error) {
-        throw genResponseError(errno.PARAM_NOT_INT, error, 400);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     await checkTeacherCorrelations(tId, cId, lId);
@@ -291,7 +291,6 @@ exports.teacherUpdateCourseLectureStudentStatus = async function (teacherId, cou
 
     return 204;
 };
-exports.teacherUpdateCourseLectureStudentStatus = this.teacherUpdateCourseLectureStudentStatus;
 
 /**
  * control if params are those in ACCEPTED_QUERY_PARAM
@@ -442,7 +441,7 @@ async function isBookingStatusUpdatable(studentId, lectureId) {
     const lectures = await db.getBookedLecturesByStudent(new Student(studentId));
 
     if (lectures.length > 0) {
-        const lecture = lectures.find((lecture) => lecture.lectureId === lectureId);
+        const lecture = lectures.find((l) => l.lectureId === lectureId);
 
         if (lecture) {
             const now = new Date();
@@ -556,7 +555,7 @@ function nextCheck(now) {
         next_at_23_59.setDate(next_at_23_59.getDate() + 1);
 
     return next_at_23_59.getTime() - now.getTime();
-};
+}
 exports.nextCheck = nextCheck;
 
 /**
@@ -581,5 +580,5 @@ async function checkForExpiredLectures() {
     }, time);
 
     return "noerror";
-};
+}
 exports.checkForExpiredLectures = checkForExpiredLectures;

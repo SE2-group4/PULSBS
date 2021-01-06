@@ -180,7 +180,7 @@ async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
             messageArgs
         );
 
-        sendEmailsTo(studentsToBeNotified, subject, message);
+        sendEmailsTo(subject, message, studentsToBeNotified);
     }
 
     return 204;
@@ -388,9 +388,10 @@ function sanitizeUserEntities(users, entityType) {
 }
 
 /**
- * get the mapFrom and mapTo properties of DB_TABLES
+ * Apply the actions defined in the mapFrom to each entity
+ * @param {Array} entities.
  * @param {String} entityType. See ACCEPTED_ENTITIES.
- * @returns {Object} with 2 properties: mapFrom and mapTo
+ * @returns {Promise} Array of sanitized entities
  */
 function getFieldsMapping(entityType) {
     const mapFrom = DB_TABLES[entityType].mapFrom;
@@ -477,7 +478,7 @@ function applyAction(entity, mapFrom, mapTo) {
 /**
  * get the mapFrom and mapTo properties of DB_TABLES
  * @param {String} entityType. See ACCEPTED_ENTITIES.
- * @returns {Object} with 2 properties: mapFrom and mapTo
+ * @returns {Promise} array of Objects
  */
 async function sanitizeTeacherCourseEntities(entities, entityType) {
     await updateAndSort("TEACHER", Teacher.getComparator("serialNumber"));
@@ -579,7 +580,7 @@ function genResponseError(nerror, error) {
     return new ResponseError(MODULE_NAME, nerror, error);
 }
 
-function sendEmailsTo(recepients = [], subject, message) {
+function sendEmailsTo(subject, message, recepients = []) {
     for (const recepient of recepients) {
         EmailService.sendCustomMail(recepient.email, subject, message)
             .then(() => {
