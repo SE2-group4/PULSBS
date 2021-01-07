@@ -20,8 +20,6 @@ const EmailQueue = require("./../entities/EmailQueue.js");
 const Booking = require("./../entities/Booking.js");
 const Class = require("./../entities/Class.js");
 const Schedule = require("./../entities/Schedule.js");
-const EmailType = require("./../entities/EmailType.js");
-const emailService = require("./../services/EmailService.js");
 const { StandardErr } = require("./../utils/utils.js");
 const User = require("../entities/User.js");
 const { POINT_CONVERSION_COMPRESSED } = require("constants");
@@ -68,21 +66,20 @@ const _transformUser = function (row) {
     }
     return { retUser, error };
 };
-/*
-let db = new sqlite.Database(dbpath, (err) => {
-    if (err) throw err;
-});
-*/
 
-/**
- * open a new database connection
- * it closes existing connections before creating the new one
- * @param {String} dbpath
- * @param {Function} cb - callback
- */
-const openConn = function openConn(dbpath = "./PULSBS.db", cb = () => {}) {
-    if (db) db.close();
+const closeConn = function (callback) {
+    if (db) {
+        db.close((err) => {
+            if (err !== null) console.log("failed closing the db", err);
+            db = null;
+            if (callback) callback();
+        });
+    }
+};
+exports.closeConn = closeConn;
 
+// rename it
+function reallyOpenConn(dbpath = "./PULSBS.db", cb) {
     const cwd = __dirname;
     dbpath = path.join(cwd, dbpath);
     db = new sqlite.Database(dbpath, (err) => {
@@ -95,9 +92,22 @@ const openConn = function openConn(dbpath = "./PULSBS.db", cb = () => {}) {
         //     //console.log(query);
         //     //console.log("TIME: ", time);
         // });
-    
+
         if (cb) cb();
     });
+}
+
+/**
+ * open a new database connection
+ * it closes existing connections before creating the new one
+ * @param {String} dbpath
+ * @param {Function} cb - callback
+ */
+const openConn = function openConn(dbpath = "./PULSBS.db", cb = () => {}) {
+    if (db) db.close(() => reallyOpenConn(dbpath, cb));
+    else {
+        reallyOpenConn(dbpath, cb);
+    }
 };
 exports.openConn = openConn;
 
@@ -109,16 +119,6 @@ const init = async function init(dbpath = "./PULSBS.db") {
     openConn(dbpath);
 };
 exports.init = init;
-
-const closeConn = function () {
-    if (db) {
-        db.close((err) => {
-            if (err !== null) console.log("failed closing the db", err);
-            db = null;
-        });
-    }
-};
-exports.closeConn = closeConn;
 
 /**
  * get a user by its id
@@ -1858,6 +1858,6 @@ const getClasses = function () {
             resolve(rows.map((row) => Class.from(row)));
         });
     });
-}
+};
 
 exports.getClasses = getClasses;
