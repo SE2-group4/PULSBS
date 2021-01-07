@@ -89,7 +89,6 @@ async function getLecturesByCourseId(Uid, Cid) {
 }
 
 function parseLectures(lectures) {
-    console.log(lectures)
     return lectures.map((lecture) => new LectureWithClassInfo(lecture.lecture.lectureId, lecture.lecture.courseId, lecture.lecture.classId, lecture.lecture.startingDate,
         lecture.lecture.duration, lecture.lecture.bookingDeadline, lecture.lecture.delivery, lecture.nBookings, lecture.class_.capacity, lecture.class_.description))
 }

@@ -119,7 +119,6 @@ describe("SupportUpdatePage suite", () => {
 
     test("Change delivery from remote to presence", async () => {
         await setupSupportUpdatePage();
-        screen.debug()
         fetch.mockResponseOnce([{}, { status: 200 }])
         await act(async () => {
             userEvent.click(screen.getByTestId("2-button"))

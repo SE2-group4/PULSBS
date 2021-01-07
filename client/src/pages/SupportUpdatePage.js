@@ -39,7 +39,6 @@ class SupportUpdatePage extends React.Component {
      * @param {Course} course 
      */
     changeCourse = (course) => {
-        console.log(course)
         this.setState({ chosenCourse: course })
     }
 
