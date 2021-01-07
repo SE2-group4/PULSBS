@@ -34,7 +34,7 @@ exports.managerGetCourseLecture = async function managerGetCourseLecture(
     const { courseId: cId, lectureId: lId } = convertedNumbers;
 
     // check is the course has a lecture with id = lId
-    if (!check.courseLectureCorrelation(cId, lId)) {
+    if (!(await check.courseLectureCorrelation(cId, lId))) {
         throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
     }
 
@@ -72,7 +72,7 @@ exports.managerGetCourseLectures = async function managerGetCourseLectures({ man
 
     const { bookings, cancellations, attendances } = convertToBooleans(query);
 
-    const lectures = await db.getLecturesByCourse(new Course(cId));
+    const lectures = await db.getLecturesByCourseAndPeriodOfTime(new Course(cId));
     const lectureWithStats = addStatsToLectures(lectures, { bookings, cancellations, attendances });
 
     return lectureWithStats;
