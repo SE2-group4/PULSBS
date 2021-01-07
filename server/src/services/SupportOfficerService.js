@@ -574,6 +574,11 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
     return;
 };
 
+const supportOfficerGetRooms = async function supportOfficerGetRooms({ managerId }) {
+    const rooms = await db.getClasses();
+    return rooms;
+};
+
 module.exports = { manageEntitiesUpload, privateFunc, getCourses, getCourseLectures, updateCourseLecture,
     supportOfficerGetSchedules,
     supportOfficerUpdateSchedule
