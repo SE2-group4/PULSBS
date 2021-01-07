@@ -16,7 +16,6 @@ class ManagerStatsPage extends React.Component {
         }
     }
     fetchCourseLectures = async () => {
-        this.setState({ loading: true })
         let items = []
         let lectures = []
         try {
@@ -25,16 +24,16 @@ class ManagerStatsPage extends React.Component {
                 lectures = await API.getAllCourseLectures(this.props.user.userId, this.state.selectedCourse)
                 for (let lecture of lectures)
                     items.push(lecture)
-                this.setState({ lectures: items, loading: false })
             }
+            this.setState({ lectures: items, loading: false })
         } catch (err) {
-            this.setState({ loading: true, fetchError: err })
+            this.setState({ loading: false, fetchError: err })
         }
     }
     generateGraph = async (selectedCourse, selectedWeeks, selectedMonths, from, to, granularity) => {
         this.setState({
             selectedCourse: selectedCourse, selectedWeeks: selectedWeeks,
-            selectedMonths: selectedMonths, from: from, to: to, granularity: granularity
+            selectedMonths: selectedMonths, from: from, to: to, granularity: granularity, loading: true
         }, this.fetchCourseLectures)
     }
 

@@ -453,6 +453,22 @@ async function updateDeliveryByLecture_S(id, courseId, lectureId, delivery) {
     });
 }
 
+
+async function deleteLecture_S(Tid, Cid, Lid) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/supportOfficers/${Tid}/courses/${Cid}/lectures/${Lid}`, {
+            method: 'DELETE'
+        }).then((response) => {
+            if (response.status === 204) {
+                resolve()
+            } else {
+                response.json()
+                    .then((obj) => { reject({ source: "Lecture", error: "can't delete lecture" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Lecture", error: "server error" }) }); // something else
+            }
+        }).catch((err) => { reject({ source: "Lecture", error: "server error" }) }); // connection errors
+    });
+}
 /************************ BOOKING MANAGER ************************************/
 
 async function getStudentBySSN(id, ssn) {
@@ -555,6 +571,6 @@ async function getAllCourseLectures(id, courseId) {
 const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
     getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport,
-    getAllCourses, resetDB, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S, updateStudentStatus, getAllCourseLectures
+    getAllCourses, resetDB, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S, updateStudentStatus, getAllCourseLectures, deleteLecture_S
 };
 export default API;
