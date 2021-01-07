@@ -87,17 +87,17 @@ const openConn = function openConn(dbpath = "./PULSBS.db", cb = () => {}) {
     dbpath = path.join(cwd, dbpath);
     db = new sqlite.Database(dbpath, (err) => {
         if (err) throw StandardErr.new("Dao", StandardErr.errno.FAILURE, err.message);
+
+        db.get("PRAGMA foreign_keys = ON");
+        // db.on("profile", (query, time) => {
+        //     // query = query.replace(/ +(?= )/g, "");
+        //     //console.log("QUERY EXECUTED");
+        //     //console.log(query);
+        //     //console.log("TIME: ", time);
+        // });
+    
+        if (cb) cb();
     });
-
-    db.get("PRAGMA foreign_keys = ON");
-    // db.on("profile", (query, time) => {
-    //     // query = query.replace(/ +(?= )/g, "");
-    //     //console.log("QUERY EXECUTED");
-    //     //console.log(query);
-    //     //console.log("TIME: ", time);
-    // });
-
-    if (cb) cb();
 };
 exports.openConn = openConn;
 
@@ -1840,3 +1840,24 @@ const updateSchedule = function (schedule) {
     });
 };
 exports.updateSchedule = updateSchedule;
+
+/**
+ * get all classe
+ * @returns {Promise} promise of list of class
+ */
+const getClasses = function () {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM Class`;
+
+        db.all(sql, [], (err, rows) => {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(rows.map((row) => Class.from(row)));
+        });
+    });
+}
+
+exports.getClasses = getClasses;

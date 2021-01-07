@@ -599,5 +599,47 @@ function writeToFile(obj, path = "./input/schedules.json") {
     });
 }
 
+
+
+/**
+ * get the list of schedules
+ * @param {Object} param - supportId
+ * @returns {Array} array of Schedule
+ */
+const supportOfficerGetSchedules = async function supportOfficerGetSchedules({ managerId }) {
+    const schedules = await db.getSchedules();
+    return schedules;
+};
+
+/**
+ * update an existing schedule
+ * @param {Object} param - supportId, scheduleId, schedule
+ * @returns {Array} array of Schedule
+ */
+const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule({ managerId, scheduleId, schedule }) {
+    scheduleId = Number(scheduleId);
+    schedule.scheduleId = scheduleId;
+
+    // check if it exists
+    const schedules = db.getSchedules();
+    const actualSchedules = schedules.filter(s => s.scheduleId === schedule.scheduleId);
+    if(actualSchedules.length === 0) {
+        throw StandardErr.new('ManagerService', StandardErr.errno.NOT_EXISTS, 'This schedule does not exist', 404);
+    }
+
+    await db.updateSchedule(schedule);
+    return;
+};
+
+const supportOfficerGetRooms = async function supportOfficerGetRooms({ managerId }) {
+    const rooms = await db.getClasses();
+    return rooms;
+};
+
 const privateFunc = { getEntityNameFromPath, genInsertSqlQueries, updateAndSort };
-module.exports = { manageEntitiesUpload, privateFunc, getCourses, getCourseLectures, updateCourseLecture };
+
+module.exports = { manageEntitiesUpload, privateFunc, getCourses, getCourseLectures, updateCourseLecture,
+    supportOfficerGetSchedules,
+    supportOfficerUpdateSchedule,
+    supportOfficerGetRooms
+};
