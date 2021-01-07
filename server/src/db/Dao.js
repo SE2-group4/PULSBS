@@ -85,17 +85,17 @@ const openConn = function openConn(dbpath = "./PULSBS.db", cb = () => {}) {
     dbpath = path.join(cwd, dbpath);
     db = new sqlite.Database(dbpath, (err) => {
         if (err) throw StandardErr.new("Dao", StandardErr.errno.FAILURE, err.message);
+
+        db.get("PRAGMA foreign_keys = ON");
+        // db.on("profile", (query, time) => {
+        //     // query = query.replace(/ +(?= )/g, "");
+        //     //console.log("QUERY EXECUTED");
+        //     //console.log(query);
+        //     //console.log("TIME: ", time);
+        // });
+    
+        if (cb) cb();
     });
-
-    db.get("PRAGMA foreign_keys = ON");
-    // db.on("profile", (query, time) => {
-    //     // query = query.replace(/ +(?= )/g, "");
-    //     //console.log("QUERY EXECUTED");
-    //     //console.log(query);
-    //     //console.log("TIME: ", time);
-    // });
-
-    if (cb) cb();
 };
 exports.openConn = openConn;
 
