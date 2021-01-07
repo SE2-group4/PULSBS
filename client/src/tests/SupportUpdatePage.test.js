@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react'
+import { render, screen, act, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import SupportUpdatePage from "../pages/SupportUpdatePage"
 import User from '../entities/user'
@@ -88,15 +88,11 @@ describe("SupportUpdatePage suite", () => {
     })
     test("Select a course filter", async () => {
         await setupSupportUpdatePage();
-        /*await act(async () => {
-            userEvent.type(screen.getByTestId("All"))
-        });*/
-        console.log(screen.getByTestId("courseSelect"))
         await act(async () => {
-            userEvent.type(screen.getByTestId("courseSelect"), "Data Science")
+            fireEvent.change(screen.getByTestId("courseSelect"), { target: { value: "Web Application 1" } })
         });
 
-        expect(screen.queryByText("Web Application 1")).not.toBeInTheDocument()
+        expect(screen.queryByTestId("2")).not.toBeInTheDocument()
         //screen.debug()
     })
 

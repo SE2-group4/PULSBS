@@ -10,6 +10,7 @@ import fetchMock from "jest-fetch-mock";
 import Course from '../entities/course';
 import Lecture from '../entities/lecture';
 import moment from 'moment';
+import Class from '../entities/class'
 fetchMock.enableMocks();
 
 beforeEach(() => {
@@ -50,13 +51,20 @@ const lecturesCourse1 = [
 ]
 const lecturesCourse2 = [
     new Lecture(2, 2, 1, moment().add("3", "hours").toISOString(), 600000, moment().add("5", "minutes").toISOString(), "inPresence"),
+    new Lecture(3, 2, 4, moment().add("1", "hours").toISOString(), 600000, moment().subtract("1", "days").toISOString(), "inPresence")
 ]
 const bookedLesson = new Lecture(3, 3, 1, moment().add("3", "hours").toISOString(), 60000, moment().add("1", "hours").toISOString(), "inPresence")
 
 const booked = [
     bookedLesson
 ];
-
+const waited = [
+    lecturesCourse2[1]
+]
+const classes = [
+    new Class(1, "1", 10),
+    new Class(2, "2", 20)
+]
 describe('App suite', () => {
     test('render App component (into login page)', async () => {
         await setupApp()
@@ -171,13 +179,13 @@ describe('App suite', () => {
             userEvent.paste(screen.getByTestId("passwordForm"), "fffff")
         });
         let allCourses = JSON.stringify(courses);
-        let bookedLectures = JSON.stringify(booked);
-        let allLecturesCourse1 = JSON.stringify(lecturesCourse1);
-        let allLecturesCourse2 = JSON.stringify(lecturesCourse2);
+        let bookedAndWaitedLectures = JSON.stringify({ "booked": booked, "waited": waited });
+        let allLecturesCourse1 = JSON.stringify(lecturesCourse1.map((l) => { return { "lecture": l, "class_": classes[0], "nBookings": 5 } }));
+        let allLecturesCourse2 = JSON.stringify(lecturesCourse2.map((l) => { return { "lecture": l, "class_": classes[0], "nBookings": 5 } }));
         fetch.mockResponses(
             [JSON.stringify(student), { status: 200 }],
             [allCourses],
-            [bookedLectures],
+            [bookedAndWaitedLectures],
             [allLecturesCourse1],
             [allLecturesCourse2]
         );

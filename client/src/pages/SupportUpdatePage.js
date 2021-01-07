@@ -280,7 +280,7 @@ function filterLectures(lectures, from, to, chosenCourse, courses, changeDeliver
 }
 function TableEntry(props) {
     return (
-        <tr key={props.lecture.lectureId}>
+        <tr key={props.lecture.lectureId} data-testid={props.lecture.courseId}>
             <td>{courseName(props.lecture.courseId, props.courses)}</td>
             <td>{props.lecture.classId}</td>
             <td>{moment(props.lecture.startingDate).format("DD-MM-YYYY")}</td>

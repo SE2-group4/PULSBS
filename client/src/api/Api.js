@@ -89,6 +89,7 @@ async function getLecturesByCourseId(Uid, Cid) {
 }
 
 function parseLectures(lectures) {
+    console.log(lectures)
     return lectures.map((lecture) => new LectureWithClassInfo(lecture.lecture.lectureId, lecture.lecture.courseId, lecture.lecture.classId, lecture.lecture.startingDate,
         lecture.lecture.duration, lecture.lecture.bookingDeadline, lecture.lecture.delivery, lecture.nBookings, lecture.class_.capacity, lecture.class_.description))
 }
@@ -495,7 +496,7 @@ async function generateReport(id, serialNumber, date) {
         fetch(baseURL + `/managers/${id}/tracingReport/${serialNumber}?date=${date}`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { console.log(obj); resolve(obj) })
+                    .then((obj) => { resolve(obj) })
                     .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
