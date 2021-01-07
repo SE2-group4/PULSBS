@@ -148,7 +148,7 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
  * returns {Integer} 204. In case of error an ResponseError
  **/
 exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectureId) {
-    await SupportService.deleteCourseLecture({teacherId}, courseId, lectureId);
+    return await SupportService.deleteCourseLecture({teacherId}, courseId, lectureId);
 };
 
 /**
