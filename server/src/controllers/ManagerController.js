@@ -10,8 +10,6 @@ router.get("/:managerId/courses", managerGetCourses);
 router.get("/:managerId/students", managerGetStudent);
 router.get("/:managerId/tracingReport/:serialNumber", managerGetReport);
 
-router.get("/:managerId/schedules", managerGetSchedules);
-router.put("/:managerId/schedules/:scheduleId", managerUpdateSchedule);
 module.exports.ManagerRouter = router;
 
 function managerGetCourseLecture(req, res) {
@@ -69,34 +67,4 @@ function managerGetReport(req, res) {
 }
 module.exports.managerGetReport = managerGetReport;
 
-/**
- * get the list of all schedules
- * @param {Object} req 
- * @param {Object} res 
- */
-function managerGetSchedules(req, res) {
-    Manager.managerGetSchedules(req.params, req.query)
-        .then(function (response) {
-            utils.writeJson(res, response);
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response);
-        });
-}
-module.exports.managerGetSchedules = managerGetSchedules;
-
-/**
- * update an existing schedule
- * @param {Object} req 
- * @param {Object} res 
- */
-function managerUpdateSchedule(req, res) {
-    Manager.managerUpdateSchedule(req.params, req.query)
-        .then(function (response) {
-            utils.writeJson(res, response);
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response);
-        });
-}
 module.exports.managerUpdateSchedule = managerUpdateSchedule;

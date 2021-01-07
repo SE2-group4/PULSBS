@@ -12,6 +12,8 @@ router.post("/:supportId/uploads/enrollments", manageEntitiesUpload);
 router.get("/:supportId/courses", supportOfficerGetCourses);
 router.get("/:supportId/courses/:courseId/lectures", supportOfficergetCourseLectures);
 router.put("/:supportId/courses/:courseId/lectures/:lectureId", supportOfficerUpdateCourseLecture);
+router.get("/:supportId/schedules", supportOfficerGetSchedules);
+router.put("/:supportId/schedules/:scheduleId", supportOfficerUpdateSchedule);
 module.exports.SupportOfficerRouter = router;
 
 function manageEntitiesUpload(req, res) {
@@ -50,6 +52,37 @@ function supportOfficergetCourseLectures(req, res) {
 
 function supportOfficerUpdateCourseLecture(req, res) {
     Officer.updateCourseLecture(req.params.supportId, req.params.courseId, req.params.lectureId, req.query.switchTo)
+        .then(function (response) {
+            utils.writeJson(res, response);
+        })
+        .catch(function (response) {
+            utils.writeJson(res, response);
+        });
+}
+
+/**
+ * get the list of all schedules
+ * @param {Object} req 
+ * @param {Object} res 
+ */
+function supportOfficerGetSchedules(req, res) {
+    Officer.supportOfficerGetSchedules(req.params, req.query)
+        .then(function (response) {
+            utils.writeJson(res, response);
+        })
+        .catch(function (response) {
+            utils.writeJson(res, response);
+        });
+}
+module.exports.managerGetSchedules = managerGetSchedules;
+
+/**
+ * update an existing schedule
+ * @param {Object} req 
+ * @param {Object} res 
+ */
+function supportOfficerUpdateSchedule(req, res) {
+    Officer.supportOfficerUpdateSchedule(req.params, req.query)
         .then(function (response) {
             utils.writeJson(res, response);
         })

@@ -203,33 +203,3 @@ exports.managerGetReport = async function managerGetReport({ managerId, serialNu
     const students = await db.managerGetReport(student, date);
     return students;
 };
-
-/**
- * get the list of schedules
- * @param {Object} param - managerId
- * @returns {Array} array of Schedule
- */
-exports.managerGetSchedules = async function managerGetSchedules({ managerId }) {
-    const schedules = await db.getSchedules();
-    return schedules;
-};
-
-/**
- * update an existing schedule
- * @param {Object} param - managerId, scheduleId, schedule
- * @returns {Array} array of Schedule
- */
-exports.managerUpdateSchedule = async function managerUpdateSchedule({ managerId, scheduleId, schedule }) {
-    scheduleId = Number(scheduleId);
-    schedule.scheduleId = scheduleId;
-
-    // check if it exists
-    const schedules = db.getSchedules();
-    const actualSchedules = schedules.filter(s => s.scheduleId === schedule.scheduleId);
-    if(actualSchedules.length === 0) {
-        throw StandardErr.new('ManagerService', StandardErr.errno.NOT_EXISTS, 'This schedule does not exist', 404);
-    }
-
-    await db.updateSchedule(schedule);
-    return;
-};
