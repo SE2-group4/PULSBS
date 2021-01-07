@@ -1,7 +1,7 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import moment from "moment";
-import API from '../api/Api';
+import Spinner from 'react-bootstrap/Spinner'
 
 class Chart extends React.Component {
 
@@ -13,7 +13,7 @@ class Chart extends React.Component {
 
     render() {
         if (this.props.loading)
-            return (<></>)
+            return <Spinner animation="border" />
         if (this.props.granularity == "daily") {
             const days = prepareDates(this.props.lectures, this.props.from, this.props.to)
             let data = {};
@@ -275,9 +275,6 @@ class Chart extends React.Component {
     }
 }
 function prepareDates(lectures, from, to) {
-    console.log(lectures)
-    console.log(from)
-    console.log(to)
     if (lectures.length === 0)
         return []
     let filteredLectures = []
@@ -289,9 +286,7 @@ function prepareDates(lectures, from, to) {
         filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isBefore(moment(to)) })
     else filteredLectures = lectures
     let dates = filteredLectures.map((lecture) => moment(lecture.startingDate).format("DD MMM YYYY")).sort((a, b) => moment(a).isBefore(b))
-    console.log(dates)
     dates = dropDuplicate(dates)
-    console.log(dates)
     return dates
 }
 function dropDuplicate(dates) {

@@ -171,9 +171,9 @@ class BurgerSidebar extends React.Component {
                     </Form.Group>
                     <Form.Group>
                         <Form.Label>Select course:</Form.Label>
-                        <Form.Control as="select" custom onChange={(ev) => { this.selectCourseHandle(ev.target.value) }} >
+                        <Form.Control as="select" custom onChange={(ev) => { this.selectCourseHandle(ev.target.value) }} data-testid="courseSelect">
                             <option></option>
-                            {this.props.courses.map((course) => { return (<option key={course.courseId} value={course.courseId} >{course.description}</option>) })}
+                            {this.props.courses.map((course) => { return (<option key={course.courseId} value={course.courseId} data-testid="course-option">{course.description}</option>) })}
                         </Form.Control>
                     </Form.Group>
                 </Form>

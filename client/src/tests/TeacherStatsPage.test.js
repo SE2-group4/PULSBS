@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, fireEvent } from '@testing-library/react';
 import { createMemoryHistory } from 'history'
 import { Router } from 'react-router-dom';
 import '@testing-library/jest-dom/extend-expect';
@@ -32,7 +32,8 @@ const lectures1 = [{
         bookingDeadline: moment().subtract("1", "day").toISOString(),
         delivery: "PRESENCE",
     },
-    numBookings: 2
+    bookings: 2,
+    attendances: 3
 },
 {
     lecture: {
@@ -44,7 +45,8 @@ const lectures1 = [{
         bookingDeadline: moment().toISOString(),
         delivery: "PRESENCE",
     },
-    numBookings: 6
+    bookings: 6,
+    attendances: 4
 }];
 const lectures2 = [{
     lecture: {
@@ -56,7 +58,8 @@ const lectures2 = [{
         bookingDeadline: moment().toISOString(),
         delivery: "REMOTE",
     },
-    numBookings: 3
+    bookings: 3,
+    attendances: 0
 }];
 
 async function setupTeacherStats() {
@@ -73,28 +76,23 @@ async function setupTeacherStats() {
     fetch.mockResponses(
         [JSON.stringify(teacher), { status: 200 }],
         [JSON.stringify(courses), { status: 200 }],
+        [JSON.stringify(courses), { status: 200 }]
     );
     await act(async () => {
         userEvent.click(screen.getByText("Login"))
+    });
+    await act(async () => {
+        userEvent.click(screen.getByText("Your Stats"));
     });
 }
 
 describe('TeacherStats suite', () => {
     test('redirect to TeacherStatsPage (all API success) then click on a lesson', async () => {
         await setupTeacherStats();
-        fetch.mockResponses(
-            [JSON.stringify(lectures1), { status: 200 }],
-            [JSON.stringify(lectures2), { status: 200 }],
-        );
-        await act(async () => {
-            userEvent.click(screen.getByText("Your Stats"));
-        });
-        await act(async () => {
-            userEvent.click(screen.getAllByText("Software Engineering 2")[0]);
-        });
+        expect(screen.getByText("Select granularity:")).toBeInTheDocument()
     });
 
-    test('redirect to TeacherStatsPage (course API fails)', async () => {
+    test('course API fails)', async () => {
         const history = createMemoryHistory()
         render(
             <Router history={history}>
@@ -115,21 +113,80 @@ describe('TeacherStats suite', () => {
         await act(async () => {
             userEvent.click(screen.getByText("Your Stats"));
         });
-        expect(screen.getByText("No events to display")).toBeInTheDocument();
-        await act(async () => {
-            userEvent.click(screen.getAllByRole("button")[9]);
-        });
-    });
+        expect(screen.getByText("Ops,an error occured during server communication")).toBeInTheDocument();
 
-    test('redirect to TeacherStatsPage (lecture API fails)', async () => {
+    });
+    test('Error fetch lectures', async () => {
+        await setupTeacherStats();
+        await act(async () => {
+            fireEvent.change(screen.getByTestId('courseSelect'), { target: { value: "2" } })
+        });
+        expect(screen.getByText("Ops,an error occured during server communication")).toBeInTheDocument()
+    })
+    test('Daily - click on daily button', async () => {
+        await setupTeacherStats();
+        await act(async () => {
+            userEvent.click(screen.getByText("Daily"))
+        });
+        expect(screen.getByText("From:")).toBeInTheDocument()
+    })
+    test('Daily - select a course', async () => {
         await setupTeacherStats();
         fetch.mockResponses(
-            [JSON.stringify({}), { status: 400 }],
-            [JSON.stringify({}), { status: 400 }],
-        );
+            [JSON.stringify(lectures2), { status: 200 }]
+        )
         await act(async () => {
-            userEvent.click(screen.getByText("Your Stats"));
+            fireEvent.change(screen.getByTestId('courseSelect'), { target: { value: "2" } })
         });
-        expect(screen.getByText("No events to display")).toBeInTheDocument();
-    });
+        expect(screen.getByTestId("Information Systems Security")).toBeInTheDocument()
+    })
+    test('Daily - change from', async () => {
+        await setupTeacherStats();
+        await act(async () => {
+            fireEvent.change(screen.getByPlaceholderText('From (day)'), { target: { value: moment().toISOString() } })
+        });
+        expect(screen.getByText("From:")).toBeInTheDocument()
+    })
+
+    test('Daily - change to', async () => {
+        await setupTeacherStats();
+        await act(async () => {
+            fireEvent.change(screen.getByPlaceholderText('To (day)'), { target: { value: moment().toISOString() } })
+        });
+        expect(screen.getByText("To:")).toBeInTheDocument()
+    })
+    test('Weekly - click on weekly button', async () => {
+        await setupTeacherStats();
+        await act(async () => {
+            userEvent.click(screen.getByText("Weekly"))
+        });
+        expect(screen.getByText("Select weeks:")).toBeInTheDocument()
+    })
+    test('Weekly - select a course', async () => {
+        await setupTeacherStats();
+        fetch.mockResponses(
+            [JSON.stringify(lectures2), { status: 200 }]
+        )
+        await act(async () => {
+            fireEvent.change(screen.getByTestId('courseSelect'), { target: { value: "2" } })
+        });
+        expect(screen.getByTestId("Information Systems Security")).toBeInTheDocument()
+    })
+    test('Weekly - select week(s)', async () => {
+
+    })
+    test('Monthly - click on monthly button', async () => {
+        await setupTeacherStats();
+        await act(async () => {
+            userEvent.click(screen.getByText("Monthly"))
+        });
+        expect(screen.getByText("Select months:")).toBeInTheDocument()
+    })
+
+    test('Monthly - select a course', async () => {
+
+    })
+    test('Monthly - select month(s)', async () => {
+
+    })
 });

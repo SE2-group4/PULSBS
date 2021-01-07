@@ -124,14 +124,10 @@ async function cancelLectureReservation(Uid, Cid, Lid) {
             method: 'DELETE'
         }).then((response) => {
             if (response.status === 200) {
-                response.json().then((obj) => { console.log(obj); resolve(obj.availableSeats) })
-                /*response.json
-                    .then((obj) => { console.log(obj) })
-                    .catch((err) => console.log(err))*/
-
+                response.json().then((obj) => { resolve(obj.availableSeats) })
             } else {
                 response.json()
-                    .then((obj) => { console.log(obj); reject(obj.error); }) // error msg in the response body
+                    .then((obj) => { reject(obj.error); }) // error msg in the response body
                     .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
             }
         }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors

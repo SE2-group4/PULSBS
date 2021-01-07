@@ -6,6 +6,7 @@ import BurgerSidebar from '../components/BurgerSidebar';
 import Chart from '../components/Chart';
 import API from '../api/Api';
 import Badge from 'react-bootstrap/Badge'
+import ErrorMsg from '../components/ErrorMsg'
 class ManagerStatsPage extends React.Component {
     constructor(props) {
         super(props);
@@ -18,12 +19,17 @@ class ManagerStatsPage extends React.Component {
         this.setState({ loading: true })
         let items = []
         let lectures = []
-        if (this.state.selectedCourse) {
-            lectures = await API.getAllCourseLectures(this.props.user.userId, this.state.selectedCourse)
-            for (let lecture of lectures)
-                items.push(lecture)
+        try {
+            if (this.state.selectedCourse) {
+
+                lectures = await API.getAllCourseLectures(this.props.user.userId, this.state.selectedCourse)
+                for (let lecture of lectures)
+                    items.push(lecture)
+                this.setState({ lectures: items, loading: false })
+            }
+        } catch (err) {
+            this.setState({ loading: true, fetchError: err })
         }
-        this.setState({ lectures: items, loading: false })
     }
     generateGraph = async (selectedCourse, selectedWeeks, selectedMonths, from, to, granularity) => {
         this.setState({
@@ -44,6 +50,8 @@ class ManagerStatsPage extends React.Component {
     }
 
     render() {
+        if (this.state.fetchError)
+            return <ErrorMsg msg="Ops,an error occurred during server communication" />
         return (<>
             <BurgerSidebar courses={this.state.courses} generateGraph={this.generateGraph} />
             <Container fluid>
