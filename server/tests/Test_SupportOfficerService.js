@@ -217,7 +217,7 @@ const testSuiteSupportOfficer = () => {
 
         after(async function clean() {
             await prepare("testing.db", "testing.sql", false);
-            Dao.closeConn();
+            //Dao.closeConn();
         });
 
         function validator(err, errno, message, statusCode) {
