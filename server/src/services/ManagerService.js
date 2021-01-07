@@ -6,6 +6,7 @@ const db = require("../db/Dao");
 const { ResponseError } = require("../utils/ResponseError");
 const { convertToNumbers, convertToBooleans, isObjectEmpty, isValueOfType } = require("../utils/converter");
 const { StandardErr } = require("../utils/utils");
+const check = require("../utils/checker");
 const Student = require("../entities/Student");
 
 const MODULE_NAME = "ManagerService";
@@ -32,8 +33,10 @@ exports.managerGetCourseLecture = async function managerGetCourseLecture(
 
     const { courseId: cId, lectureId: lId } = convertedNumbers;
 
-    const isAMatch = await isCourseMatchLecture(cId, lId);
-    if (!isAMatch) throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
+    // check is the course has a lecture with id = lId
+    if (!check.courseLectureCorrelation(cId, lId)) {
+        throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
+    }
 
     if (!isObjectEmpty(query)) {
         const areValid = areValidParams(query);
@@ -94,6 +97,7 @@ async function addStatsToLecture(lecture, { bookings, cancellations, attendances
     if (bookings) {
         lectureWithStats.bookings = await getNumBookingsOfLecture(lecture);
     }
+
     if (cancellations) {
         lectureWithStats.cancellations = await getNumCancellationsOfLecture(lecture);
     }
@@ -105,7 +109,6 @@ async function addStatsToLecture(lecture, { bookings, cancellations, attendances
     return lectureWithStats;
 }
 
-// TODO add PRESENT
 async function getNumBookingsOfLecture(lecture) {
     return await db.getNumBookingsOfLecture(lecture);
 }
@@ -119,11 +122,11 @@ async function getNumAttendacesOfLecture(lecture) {
     return await db.getNumAttendancesOfLecture(lecture);
 }
 
-async function isCourseMatchLecture(cId, lId) {
-    const { count } = await db.checkLectureAndCourse(new Course(cId), new Lecture(lId));
-    if (count === 0) return false;
-    return true;
-}
+//async function isCourseMatchLecture(cId, lId) {
+//    const { count } = await db.checkLectureAndCourse(new Course(cId), new Lecture(lId));
+//    if (count === 0) return false;
+//    return true;
+//}
 
 function genResponseError(nerror, error) {
     return new ResponseError(MODULE_NAME, nerror, error);

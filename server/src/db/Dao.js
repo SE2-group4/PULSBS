@@ -39,6 +39,8 @@ const DaoHint = {
     // add more
 };
 
+exports.DaoHint = DaoHint;
+
 /**
  * transform a db row into a specific type of user
  * @param {Object} row
@@ -107,6 +109,16 @@ const init = async function init(dbpath = "./PULSBS.db") {
     openConn(dbpath);
 };
 exports.init = init;
+
+const closeConn = function () {
+    if (db) {
+        db.close((err) => {
+            if (err !== null) console.log("failed closing the db", err);
+            db = null;
+        });
+    }
+};
+exports.closeConn = closeConn;
 
 /**
  * get a user by its id
@@ -1338,11 +1350,11 @@ const getClassByDescription = function (class_) {
         const sql = `SELECT * FROM Class WHERE description = ?`;
 
         db.get(sql, [class_.description], (err, row) => {
-            if(err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
-            if(!row) {
+            if (!row) {
                 reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "Class not found", 404));
                 return;
             }
@@ -1363,7 +1375,7 @@ const addLecture = function (lecture) {
         const sql = `INSERT INTO Lecture(courseId, classId, startingDate, duration, bookingDeadline, delivery)
             VALUES(?, ?, ?, ?, ?, ?)`;
 
-        console.log('addLecture - inserting a new lecture');
+        console.log("addLecture - inserting a new lecture");
         console.log(lecture);
 
         db.run(
@@ -1378,6 +1390,7 @@ const addLecture = function (lecture) {
             ],
             function (err) {
                 if (err) {
+                    err.message += `\nlecture: ${Object.values(lecture).join(" ")}`;
                     reject(StandardErr.fromDao(err));
                     return;
                 }
@@ -1437,9 +1450,7 @@ const _generateDatesBySchedule = function (schedule) {
                 const currentDay = moment();
                 const actualSemesterConstraint = calendars
                     .filter((c) => c.type.text === Calendar.CalendarType.SEMESTER.text)
-                    .filter((c) =>
-                        currentDay.isBetween(moment(c.startingDate), moment(c.endingDate), 'day', "[]")
-                    )[0]; // "[]": include limit dates
+                    .filter((c) => currentDay.isBetween(moment(c.startingDate), moment(c.endingDate), "day", "[]"))[0]; // "[]": include limit dates
 
                 console.log(actualAcademicYearConstraint);
                 console.log(actualSemesterConstraint);
@@ -1461,7 +1472,11 @@ const _generateDatesBySchedule = function (schedule) {
                 constraints.push(actualAcademicYearConstraint);
                 constraints.push(actualSemesterConstraint);
                 constraints.push(
-                    ...calendars.filter((c) => c.type.text !== Calendar.CalendarType.ACADEMIC_YEAR.text && c.type.text !== Calendar.CalendarType.SEMESTER.text)
+                    ...calendars.filter(
+                        (c) =>
+                            c.type.text !== Calendar.CalendarType.ACADEMIC_YEAR.text &&
+                            c.type.text !== Calendar.CalendarType.SEMESTER.text
+                    )
                 );
 
                 const validDates = [];
@@ -1470,8 +1485,11 @@ const _generateDatesBySchedule = function (schedule) {
                 let nextDate = moment().day(schedule.dayOfWeek).startOf("day").add(7, "days"); // not today, but it starts from the next week
                 do {
                     // check constraints
-                    const results = constraints.map( // forEach does not generate an array!
-                        (c) => nextDate.isBetween(moment(c.startingDate), moment(c.endingDate), 'day', "[]") === !!c.type.isAValidPeriod
+                    const results = constraints.map(
+                        // forEach does not generate an array!
+                        (c) =>
+                            nextDate.isBetween(moment(c.startingDate), moment(c.endingDate), "day", "[]") ===
+                            !!c.type.isAValidPeriod
                     ); // include limit dates
                     // "!!val": to boolean
 
@@ -1479,7 +1497,7 @@ const _generateDatesBySchedule = function (schedule) {
                     // console.log('results');
                     // console.log(results);
 
-                    if (!(results.length >=2 && !!results[0] && !!results[1]))
+                    if (!(results.length >= 2 && !!results[0] && !!results[1]))
                         // academic year or semester have been broken
                         break;
 
@@ -1519,7 +1537,7 @@ const _deleteLecturesByPrototype = function (lecturePrototype) {
                 new Date(lecturePrototype.startingDate).toISOString(),
                 new Date(lecturePrototype.startingDate).toISOString(),
                 lecturePrototype.duration,
-                lecturePrototype.classId
+                lecturePrototype.classId,
             ],
             function (err) {
                 if (err) {
@@ -1544,8 +1562,12 @@ const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype)
         // generate the list of dates of all lectures
         this._generateDatesBySchedule(schedule)
             .then((dates) => {
-                const actualStartingDates = dates.map((date) => date.add(moment(moment().diff(lecturePrototype.startingDate)).minutes(), 'm'));
-                const actualBookingDeadlines = dates.map((date) => date.add(moment(moment().diff(lecturePrototype.bookingDeadline)).minutes(), 'm'));
+                const actualStartingDates = dates.map((date) =>
+                    date.add(moment(moment().diff(lecturePrototype.startingDate)).minutes(), "m")
+                );
+                const actualBookingDeadlines = dates.map((date) =>
+                    date.add(moment(moment().diff(lecturePrototype.bookingDeadline)).minutes(), "m")
+                );
 
                 // now, let's go to generate every single and specific lecture
                 const promises = [];
@@ -1598,10 +1620,10 @@ exports._generateClassBySchedule = _generateClassBySchedule;
 
 /**
  * generate a new course given a schedule
- * @param {Schedule} schedule 
+ * @param {Schedule} schedule
  * @returns {Promise} promise of int - changed rows
  */
-const _generateCourseBySchedule = function(schedule) {
+const _generateCourseBySchedule = function (schedule) {
     return new Promise((resolve, reject) => {
         let sql = `INSERT INTO Course(description, year, code, semester) VALUES(?, ?, ?, ?)`;
         db.run(sql, [schedule.code, schedule.AAyear, schedule.code, schedule.semester], function (err) {
@@ -1614,7 +1636,7 @@ const _generateCourseBySchedule = function(schedule) {
             resolve(err ? 0 : this.changes); // in case of error, it means the class is already in the DB
         });
     });
-}
+};
 exports._generateCourseBySchedule = _generateCourseBySchedule;
 
 /**
@@ -1647,13 +1669,13 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
                 let actualStartingTime;
                 let actualEndingTime;
 
-                console.log('_generateLecturePrototypeBySchedule - actual schedule');
+                console.log("_generateLecturePrototypeBySchedule - actual schedule");
                 console.log(schedule);
-                
+
                 actualStartingTime = moment(schedule.startingTime, "hh:mm");
                 actualEndingTime = moment(schedule.endingTime, "hh:mm");
-                
-                if(!(actualStartingTime.isValid() && actualEndingTime.isValid())) {
+
+                if (!(actualStartingTime.isValid() && actualEndingTime.isValid())) {
                     reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_VALUE, "Wrong start or end time", 404));
                     return;
                 }
@@ -1678,7 +1700,10 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
 
                 resolve(lecturePrototype);
             })
-            .catch(reject);
+            .catch((err) => {
+                console.log("sono foreign", err);
+                reject(err);
+            });
     });
 };
 exports._generateLecturePrototypeBySchedule = _generateLecturePrototypeBySchedule;
@@ -1716,10 +1741,14 @@ const _generateLecturesBySchedule = function (schedule, hint = DaoHint.NO_HINT) 
                                 nLectures = values[1];
                                 resolve(nLectures);
                             })
-                            .catch(reject);
+                            .catch((err) => {
+                                reject(err);
+                            });
                     });
             })
-            .catch(reject);
+            .catch((err) => {
+                reject(err);
+            });
     });
 };
 exports._generateLecturesBySchedule = _generateLecturesBySchedule; // export needed for testing
@@ -1788,7 +1817,7 @@ const updateSchedule = function (schedule) {
                     actualSchedule.seats,
                     actualSchedule.dayOfWeek,
                     actualSchedule.startingTime,
-                    actualSchedule.endingDate
+                    actualSchedule.endingDate,
                 ],
                 function (err) {
                     if (err) {

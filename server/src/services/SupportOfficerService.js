@@ -1,3 +1,5 @@
+"use strict";
+
 const { ResponseError } = require("../utils/ResponseError");
 const { isValueOfType } = require("../utils/converter");
 const { binarySearch } = require("../utils/searchHelper");
@@ -12,9 +14,11 @@ const Schedule = require("../entities/Schedule");
 const db = require("../db/Dao");
 const utils = require("../utils/utils");
 const fs = require("fs");
-const check = require("../utils/typeChecker");
+const check = require("../utils/checker");
 
 const errno = ResponseError.errno;
+
+// constants
 const MODULE_NAME = "SupportOfficerService";
 const ACCEPTED_ENTITIES = ["STUDENTS", "COURSES", "TEACHERS", "SCHEDULES", "ENROLLMENTS", "TEACHERCOURSE"];
 const DB_TABLES = {
@@ -85,61 +89,82 @@ const DB_TABLES = {
     },
 };
 
+// globals
 // TODO: fix race conditions
 let allStudentsWithSN = null;
 let allTeachersWithSN = null;
 let allCoursesWithCode = null;
 
+/**
+ * get all courses in the system
+ *
+ * supportId {Integer}
+ * returns {Promise} array of Course's instances. A ResponseError on error.
+ **/
 async function getCourses(supportId) {
     const { error } = convertToNumbers({ supportId });
     if (error) {
-        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     return await db.getAllCourses();
 }
 
+/**
+ * get all lecture of a given course
+ *
+ * supportId {supportId}
+ * courseId {courseId}
+ * returns {Promise} array of Lecture's instances. A ResponseError on error.
+ **/
 async function getCourseLectures(supportId, courseId) {
     const { error, courseId: cId } = convertToNumbers({ supportId, courseId });
     if (error) {
-        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
-    const lectures = await db.getLecturesByCourse(new Course(courseId));
+    const lectures = await db.getLecturesByCourseAndPeriodOfTime(new Course(cId));
 
     return lectures;
 }
 
 /**
- * Update a lecture delivery mode given a lectureId, courseId, teacherId and a switchTo mode
- * TODO: not done this part The switch is valid only if the request is sent 30m before the scheduled starting time.
+ * Update a lecture delivery mode given a lectureId, courseId and a switchTo mode
+ * The switch is possible only if the request is sent 30m before the scheduled starting time.
  *
  * supportId {Integer}
  * courseId {Integer}
  * lectureId {Integer}
- * switchTo {String}. "remote" or "presence"
+ * switchTo {String} Admissible values {"remote" | "presence" }
  * returns {Integer} 204. In case of error an ResponseError
  **/
 async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
     const { error, courseId: cId, lectureId: lId } = convertToNumbers({ supportId, courseId, lectureId });
     if (error) {
-        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
+    // check is switchTo mode is admissible
     if (!check.isValidDeliveryMode(switchTo)) {
-        throw genResponseError(ResponseError.LECTURE_INVALID_DELIVERY_MODE, { delivery: switchTo });
+        throw genResponseError(errno.LECTURE_INVALID_DELIVERY_MODE, { delivery: switchTo });
     }
 
-    // TODO: check course lecture correlation
+    // check is the course has a lecture with id = lId
+    if (!(await check.courseLectureCorrelation(cId, lId))) {
+        throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
+    }
 
     const lecture = await db.getLectureById(new Lecture(lId));
+
+    // check is the request was sent 30m prior the start of the lecture
+    if (!check.isLectureSwitchable(lecture, switchTo, new Date(), false)) {
+        throw genResponseError(errno.LECTURE_NOT_SWITCHABLE, { lectureId });
+    }
+
+    // do nothing is the lecture delivery mode is already in that state
     if (lecture.delivery === switchTo.toUpperCase()) return 204;
+
     lecture.delivery = switchTo;
-
-    //if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
-    //    throw new ResponseError("TeacherService", ResponseError.LECTURE_NOT_SWITCHABLE, { lectureId }, 404);
-    //}
-
     await db.updateLectureDeliveryMode(lecture);
 
     const studentsToBeNotified = await db.getBookedStudentsByLecture(lecture);
@@ -154,35 +179,20 @@ async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
             messageArgs
         );
 
-        sendEmailsTo(studentsToBeNotified, subject, message);
+        sendEmailsTo(subject, message, studentsToBeNotified);
     }
 
     return 204;
 }
 
-function sendEmailsTo(recepients = [], subject, message) {
-    for (const recepient of recepients) {
-        EmailService.sendCustomMail(recepient.email, subject, message)
-            .then(() => {
-                console.email(`recepient: ${recepient.email}; subject: ${subject}`);
-            })
-            .catch((err) => console.error(err));
-    }
-}
-
 /**
- * save the entities in the db
- * @param {Array} of Objects. See ACCEPTED_ENTITIES for a list of accepted entities.
- * @param {String} relative path. Es. /1/uploads/students
- * @returns {Integer} 200 in case of success. Otherwise it will throw a ResponseError
- */
-
-function writeToFile(path = "./input/schedules.json", array) {
-    fs.writeFile(path, JSON.stringify(array), (err) => {
-        if (err) console.log("an error occured");
-    });
-}
-
+ * entrypoint for the routes **\/:supportId\/uploads
+ *
+ * entities {Array} of Objects. Es. [{}, {}] for the list of properties of a object look at .csv files at https://softeng.polito.it/courses/SE2/PULSeBS_Stories.html
+ * path {Integer} relative or absolute path of the endpoint. Es. ./schedules
+ *
+ * returns {Integer} 204. A ResponseError on error
+ **/
 async function manageEntitiesUpload(entities, path) {
     let entityType = getEntityNameFromPath(path);
     if (entityType === undefined) {
@@ -190,44 +200,28 @@ async function manageEntitiesUpload(entities, path) {
     }
 
     console.time("phase: mapping");
+    // map each entry of entities as a new object with the properties defined in DB_TABLES[<entityType>].mapTo
     const sanitizedEntities = await sanitizeEntities(entities, entityType);
     console.timeEnd("phase: mapping");
 
     console.time("phase: query gen");
+    // create the queries
     const sqlQueries = genSqlQueries("INSERT", entityType, sanitizedEntities);
     console.timeEnd("phase: query gen");
 
     console.time("phase: query run");
+    // run the queries
     await runBatchQueries(sqlQueries);
     console.timeEnd("phase: query run");
 
+    // check if we need to do any more processing,
+    // i.e. when uploading the schedules we need to also generate the lectures
+    // i.e. when uploading the courses we need to also update the TeacherCourse table
     if (needAdditionalSteps(entityType)) {
         return await callNextStep(entityType, entities, sanitizedEntities);
     }
 
     return 204;
-}
-
-async function callNextStep(currStep, ...args) {
-    switch (currStep) {
-        case "COURSES": {
-            return await manageEntitiesUpload(args[0], "/teachercourse");
-        }
-        case "SCHEDULES": {
-            //const s = args[0].filter((sc) => sc.code === "XY8221");
-            //console.log("sono schedules", s);
-            //try {
-            //    await db._generateLecturesBySchedule(s[0]);
-            //} catch (err) {
-            //    console.log("SOMETHING WENT WRONG");
-            //    console.log(err);
-            //}
-            break;
-        }
-        default: {
-            console.log("callNextStep", currStep, "not implemented");
-        }
-    }
 }
 
 function needAdditionalSteps(currStep) {
@@ -239,8 +233,51 @@ function needAdditionalSteps(currStep) {
 }
 
 /**
- * Transform the input entities in a suitable form
- */
+ * do more processing
+ *
+ * currStep {String} the previous step, i.e. the entity type
+ * args {Array} of Object. args[0] is the uploaded entities, args[1] are the sanitized entities
+ *
+ * returns {Integer} 204. A ResponseError on error
+ **/
+async function callNextStep(currStep, ...args) {
+    switch (currStep) {
+        case "COURSES": {
+            return await manageEntitiesUpload(args[0], "/teachercourse");
+        }
+        case "SCHEDULES": {
+            // create each sanitized entity to a Schedule
+            const schedules = args[1].map((arg) => {
+                const schedule = new Schedule(undefined, ...Object.values(arg));
+                schedule.seats = Number(schedule.seats);
+                return schedule;
+            });
+
+            try {
+                console.log("calling _generateLecturesBySchedule");
+                console.log(schedules[0]);
+                await db._generateLecturesBySchedule(schedules[0], db.DaoHint.NEW_VALUE);
+            } catch (err) {
+                console.log("sono catch di callNextStep");
+                console.log(err);
+                throw err;
+            }
+
+            break;
+        }
+        default: {
+            console.log("callNextStep", currStep, "not implemented");
+        }
+    }
+}
+
+/**
+ * map each entry of entities as a new object with the properties defined in DB_TABLES[<entityType>].mapTo
+ * entities {Array} of Objects. Es. [{}, {}] for the list of properties of a object look at .csv files at https://softeng.polito.it/courses/SE2/PULSeBS_Stories.html
+ * entityType {String} look at ACCEPTED_ENTITIES
+ *
+ * returns {Promise} array of Object's instances. A ResponseError on error
+ **/
 async function sanitizeEntities(entities, entityType) {
     switch (entityType) {
         case "STUDENTS": {
@@ -350,9 +387,10 @@ function sanitizeUserEntities(users, entityType) {
 }
 
 /**
- * get the mapFrom and mapTo properties of DB_TABLES
+ * Apply the actions defined in the mapFrom to each entity
+ * @param {Array} entities.
  * @param {String} entityType. See ACCEPTED_ENTITIES.
- * @returns {Object} with 2 properties: mapFrom and mapTo
+ * @returns {Promise} Array of sanitized entities
  */
 function getFieldsMapping(entityType) {
     const mapFrom = DB_TABLES[entityType].mapFrom;
@@ -439,7 +477,7 @@ function applyAction(entity, mapFrom, mapTo) {
 /**
  * get the mapFrom and mapTo properties of DB_TABLES
  * @param {String} entityType. See ACCEPTED_ENTITIES.
- * @returns {Object} with 2 properties: mapFrom and mapTo
+ * @returns {Promise} array of Objects
  */
 async function sanitizeTeacherCourseEntities(entities, entityType) {
     await updateAndSort("TEACHER", Teacher.getComparator("serialNumber"));
@@ -474,6 +512,7 @@ async function runBatchQueries(sqlQueries) {
         await db.execBatch(sqlQueries);
         logToFile(sqlQueries);
     } catch (err) {
+        console.log("runBatchQueries");
         console.log(err);
         throw genResponseError(errno.DB_GENERIC_ERROR, { msg: err.toString() });
     }
@@ -540,7 +579,25 @@ function genResponseError(nerror, error) {
     return new ResponseError(MODULE_NAME, nerror, error);
 }
 
-const privateFunc = { getEntityNameFromPath, genInsertSqlQueries, updateAndSort };
+function sendEmailsTo(subject, message, recepients = []) {
+    for (const recepient of recepients) {
+        EmailService.sendCustomMail(recepient.email, subject, message)
+            .then(() => {
+                console.email(`recepient: ${recepient.email}; subject: ${subject}`);
+            })
+            .catch((err) => console.error(err));
+    }
+}
+
+/**
+ * write object to file
+ * @param {Object}
+ */
+function writeToFile(obj, path = "./input/schedules.json") {
+    fs.writeFile(path, JSON.stringify(obj), (err) => {
+        if (err) console.log("an error occured");
+    });
+}
 
 
 
@@ -579,7 +636,10 @@ const supportOfficerGetRooms = async function supportOfficerGetRooms({ managerId
     return rooms;
 };
 
+const privateFunc = { getEntityNameFromPath, genInsertSqlQueries, updateAndSort };
+
 module.exports = { manageEntitiesUpload, privateFunc, getCourses, getCourseLectures, updateCourseLecture,
     supportOfficerGetSchedules,
-    supportOfficerUpdateSchedule
- };
+    supportOfficerUpdateSchedule,
+    supportOfficerGetRooms
+};

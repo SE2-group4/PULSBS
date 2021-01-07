@@ -8,25 +8,27 @@ const Email = require("../entities/Email");
 const EmailService = require("../services/EmailService");
 const utils = require("../utils/utils");
 const { ResponseError } = require("../utils/ResponseError");
-const check = require("../utils/typeChecker");
+const check = require("../utils/checker");
 const converter = require("../utils/converter");
 const ManagerService = require("./ManagerService");
-
 const db = require("../db/Dao");
-const colors = require("colors");
 
+// constants 
 const MODULE_NAME = "TeacherService";
-const errno = ResponseError.errno;
 const ACCEPTED_QUERY_PARAM = ["from", "to", "bookings", "attendances"];
 Object.freeze(ACCEPTED_QUERY_PARAM);
+
+const errno = ResponseError.errno;
 
 /**
  * Get all the students that have a booking for a given lecture
  * Only booking with status {BOOKED, PRESENT, NOT_PRESENT} will be considered
+ * If set, it will add to each element of the array the property bookingStatus, which tells you in which status the booking is in.
  *
  * teacherId {Integer}
  * courseId {Integer}
  * lectureId {Integer}
+ * withStatus {String} "true" or "false". 
  * returns {Promise} array of Student's instances. A ResponseError on error
  **/
 exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, lectureId, withStatus = false) {
@@ -74,7 +76,7 @@ function printQueryParams(bookings, attendances, dateFilter) {
 exports.teacherGetCourseLectures = async function (teacherId, courseId, queryObj = {}) {
     const { error, teacherId: tId, courseId: cId } = convertToNumbers({ teacherId, courseId });
     if (error) {
-        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     let { err, dateFilter = {}, bookings = false, attendances = false } = extractOptions(queryObj);
@@ -98,7 +100,7 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryObj
 exports.teacherGetCourses = async function (teacherId) {
     const { error, teacherId: tId } = convertToNumbers({ teacherId });
     if (error) {
-        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     const teacher = new Teacher(tId);
@@ -107,54 +109,6 @@ exports.teacherGetCourses = async function (teacherId) {
     return teacherCourses;
 };
 
-/**
- * Computes the time difference between the datetime in "now" and the next time it will clock 23:59h
- * If the parameter now is undefined or equal to the string "now", the parameter "now" is assumed to be new Date()
- *
- * nextCheck {Date | "now" | undefined} optional
- * returns {Integer} time in ms. In case of error an ResponseError
- **/
-const nextCheck = (now) => {
-    if (!now || now === "now") {
-        now = new Date();
-    }
-
-    const next_at_23_59 = new Date();
-    if (now.getHours() >= 23 && now.getMinutes() >= 59 && now.getSeconds() >= 0)
-        next_at_23_59.setDate(next_at_23_59.getDate() + 1);
-
-    next_at_23_59.setHours(23);
-    next_at_23_59.setMinutes(59);
-    next_at_23_59.setSeconds(0);
-    next_at_23_59.setMilliseconds(0);
-
-    return next_at_23_59.getTime() - now.getTime();
-};
-exports.nextCheck = nextCheck;
-
-/**
- * Check for today's expired lecture and send the summaries to the teachers in charge of the respective course
- **/
-exports.checkForExpiredLectures = async () => {
-    console.info("Checking for lectures that have today as deadline");
-
-    const summaries = await findSummaryExpiredLectures();
-
-    sendSummaryToTeachers(summaries);
-
-    console.info("Emails in queue");
-
-    const time = nextCheck();
-    const now = new Date();
-
-    console.info(`Next check scheduled at ${utils.formatDate(new Date(time + now.getTime()))}`);
-
-    setTimeout(() => {
-        this.checkForExpiredLectures();
-    }, time);
-
-    return "noerror";
-};
 
 /**
  * Retrieve a lecture given a lectureId, courseId, teacherId
@@ -199,7 +153,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
         lectureId,
     });
     if (error) {
-        throw new ResponseError("TeacherService", ResponseError.PARAM_NOT_INT, error, 400);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     await checkTeacherCorrelations(tId, cId, lId);
@@ -207,7 +161,7 @@ exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectur
     let lecture = new Lecture(lId);
     lecture = await db.getLectureById(lecture);
 
-    if (isLectureCancellable(lecture)) {
+    if (check.isLectureCancellable(lecture)) {
         const isSuccess = await db.deleteLectureById(lecture);
         if (isSuccess > 0) {
             const emailsToBeSent = await db.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED);
@@ -266,7 +220,7 @@ exports.teacherUpdateCourseLectureDeliveryMode = async function (teacherId, cour
     await checkTeacherCorrelations(tId, cId, lId);
 
     const lecture = await db.getLectureById(new Lecture(lId));
-    if (!isLectureSwitchable(lecture, new Date(), switchTo)) {
+    if (!check.isLectureSwitchable(lecture, switchTo, new Date(), true)) {
         throw genResponseError(errno.LECTURE_NOT_SWITCHABLE, { lectureId });
     }
 
@@ -337,7 +291,6 @@ exports.teacherUpdateCourseLectureStudentStatus = async function (teacherId, cou
 
     return 204;
 };
-exports.teacherUpdateCourseLectureStudentStatus = this.teacherUpdateCourseLectureStudentStatus;
 
 /**
  * control if params are those in ACCEPTED_QUERY_PARAM
@@ -448,52 +401,6 @@ function convertToNumbers(custNumbers) {
 }
 
 /**
- * Check if a lecture is cancellable.
- * A lecture is cancellable if the request is sent 1h before the scheduled starting time of a lecture
- * @param {Lecture} lecture
- * @param {Date} requestDateTime
- * @returns {Boolean}
- */
-function isLectureCancellable(lecture, requestDateTime) {
-    if (!requestDateTime) requestDateTime = new Date();
-
-    const lectTime = lecture.startingDate.getTime();
-    const cancelTime = requestDateTime.getTime();
-    const minDiffAllowed = 60 * 60 * 1000;
-
-    if (lectTime - cancelTime > minDiffAllowed) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * Check if a lecture is switchable.
- * A lecture is switchable if the request is sent 30m before the scheduled starting time of a lecture and only from PRESENCE to REMOTE
- * @param {Lecture} lecture
- * @param {Date} requestDateTime
- * @returns {Boolean}
- */
-function isLectureSwitchable(lecture, requestDateTime, newMode) {
-    if (newMode.toUpperCase() === Lecture.DeliveryType.PRESENCE || lecture.delivery === Lecture.DeliveryType.REMOTE) {
-        return false;
-    }
-
-    if (!requestDateTime) requestDateTime = new Date();
-
-    const lectTime = lecture.startingDate.getTime();
-    const switchTime = requestDateTime.getTime();
-    const minDiffAllowed = 30 * 60 * 1000;
-
-    if (lectTime - switchTime > minDiffAllowed) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
  * Send daily summaries about the lectures to the teacher in charge of the respective course
  * @param {Object} summaries. E.g. summaries = { 1: {teacher: <Teacher>, course: <Course>, lecture: <Lecture>, studentsBooked: 1}, 2: {...} }
  * @param {Date} requestDateTime
@@ -522,42 +429,6 @@ function sendSummaryToTeachers(summaries) {
 }
 
 /**
- * Check if teacherId is in charge of courseId during this academic year
- *
- * teacherId {Integer}
- * courseId {Integer}
- * returns {Boolean}
- **/
-async function teacherCourseCorrelation(teacherId, courseId) {
-    let isTeachingThisCourse = false;
-
-    const teacherCourses = await db.getCoursesByTeacher(new Teacher(teacherId));
-    if (teacherCourses.length > 0) {
-        isTeachingThisCourse = teacherCourses.some((course) => course.courseId === courseId);
-    }
-
-    return isTeachingThisCourse;
-}
-
-/**
- * Check if lectureId belongs to courseId
- *
- * courseId {Integer}
- * lectureId {Integer}
- * returns {Boolean}
- **/
-async function courseLectureCorrelation(courseId, lectureId) {
-    let doesBelong = false;
-
-    const courseLectures = await db.getLecturesByCourseId(new Course(courseId));
-    if (courseLectures.length > 0) {
-        doesBelong = courseLectures.some((lecture) => lecture.lectureId === lectureId);
-    }
-
-    return doesBelong;
-}
-
-/**
  * Check if a booking.status is updatable
  *
  * studentId {Integer}
@@ -570,7 +441,7 @@ async function isBookingStatusUpdatable(studentId, lectureId) {
     const lectures = await db.getBookedLecturesByStudent(new Student(studentId));
 
     if (lectures.length > 0) {
-        const lecture = lectures.find((lecture) => lecture.lectureId === lectureId);
+        const lecture = lectures.find((l) => l.lectureId === lectureId);
 
         if (lecture) {
             const now = new Date();
@@ -648,15 +519,66 @@ function genResponseError(nerror, error) {
 }
 
 async function checkTeacherCorrelations(teacherId, courseId, lectureId) {
-    let areCorrelated = await teacherCourseCorrelation(teacherId, courseId);
+    let areCorrelated = await check.teacherCourseCorrelation(teacherId, courseId);
     if (!areCorrelated) {
         throw genResponseError(errno.TEACHER_COURSE_MISMATCH_AA, { teacherId, courseId });
     }
 
     if (lectureId) {
-        areCorrelated = await courseLectureCorrelation(courseId, lectureId);
+        areCorrelated = await check.courseLectureCorrelation(courseId, lectureId);
         if (!areCorrelated) {
             throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
         }
     }
 }
+
+/**
+ * Computes the time difference between the datetime in "now" and the next time it will clock 23:59h
+ * If the parameter now is undefined or equal to the string "now", the parameter "now" is assumed to be new Date()
+ *
+ * nextCheck {Date | "now" | undefined} optional
+ * returns {Integer} time in ms. In case of error an ResponseError
+ **/
+function nextCheck(now) {
+    if (!now || now === "now") {
+        now = new Date();
+    }
+
+    const next_at_23_59 = new Date();
+    next_at_23_59.setDate(now.getDate());
+    next_at_23_59.setHours(23);
+    next_at_23_59.setMinutes(59);
+    next_at_23_59.setSeconds(0);
+    next_at_23_59.setMilliseconds(0);
+
+    if (now.getHours() >= 23 && now.getMinutes() >= 59 && now.getSeconds() >= 0)
+        next_at_23_59.setDate(next_at_23_59.getDate() + 1);
+
+    return next_at_23_59.getTime() - now.getTime();
+}
+exports.nextCheck = nextCheck;
+
+/**
+ * Check for today's expired lecture and send the summaries to the teachers in charge of the respective course
+ **/
+async function checkForExpiredLectures() {
+    console.info("Checking for lectures that have today as deadline");
+
+    const summaries = await findSummaryExpiredLectures();
+
+    sendSummaryToTeachers(summaries);
+
+    console.info("Emails in queue");
+
+    const time = nextCheck();
+    const now = new Date();
+
+    console.info(`Next check scheduled at ${utils.formatDate(new Date(time + now.getTime()))}`);
+
+    setTimeout(() => {
+        checkForExpiredLectures();
+    }, time);
+
+    return "noerror";
+}
+exports.checkForExpiredLectures = checkForExpiredLectures;

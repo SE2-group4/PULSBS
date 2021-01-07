@@ -28,6 +28,7 @@ class SupportUpdatePage extends React.Component {
             let lectures = []
             for (let course of courses)
                 lectures.push(...await API.getLecturesByCourseId_S(this.props.user.userId, course.courseId))
+            lectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isAfter(moment()) })
             this.setState({ courses: courses, loading: false, lectures: lectures })
         } catch (err) {
             this.setState({ communicationError: true })
@@ -111,9 +112,9 @@ function Filters(props) {
                 </Row>
                 <Row>
                     <Col>
-                        <Form.Control as="select" custom onChange={(ev) => { props.changeCourse(ev.target.value) }} /*defaultValue={props.chosenCourse}*/>
-                            <option key="All" data-testid="All" >All</option>
-                            {props.courses.map((course) => { return (<option key={course.courseId} data-testid={course.description} >{course.description}</option>) })}
+                        <Form.Control as="select" data-testid="courseSelect" custom onChange={(ev) => { props.changeCourse(ev.target.value) }} >
+                            <option key="All" value="All" data-testid="All" >All</option>
+                            {props.courses.map((course) => { return (<option key={course.courseId} data-testid={course.description} value={course.description} >{course.description}</option>) })}
                         </Form.Control>
                     </Col>
                     <Col>
@@ -278,7 +279,7 @@ function filterLectures(lectures, from, to, chosenCourse, courses, changeDeliver
 }
 function TableEntry(props) {
     return (
-        <tr>
+        <tr key={props.lecture.lectureId} data-testid={props.lecture.courseId}>
             <td>{courseName(props.lecture.courseId, props.courses)}</td>
             <td>{props.lecture.classId}</td>
             <td>{moment(props.lecture.startingDate).format("DD-MM-YYYY")}</td>

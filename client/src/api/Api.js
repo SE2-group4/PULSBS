@@ -107,7 +107,7 @@ async function bookALecture(Uid, Cid, Lid) {
         }).then((response) => {
             if (response.ok) {
                 resolve()
-            } else { console.log(response.json()); reject("Server error") }
+            } else { reject("Server error") }
         }).catch((err) => { reject("Server cannot communicate") }); // connection errors
     });
 }
@@ -124,14 +124,10 @@ async function cancelLectureReservation(Uid, Cid, Lid) {
             method: 'DELETE'
         }).then((response) => {
             if (response.status === 200) {
-                response.json().then((obj) => resolve(obj.availableSeats))
-                /*response.json
-                    .then((obj) => { console.log(obj) })
-                    .catch((err) => console.log(err))*/
-
+                response.json().then((obj) => { resolve(obj.availableSeats) })
             } else {
                 response.json()
-                    .then((obj) => { console.log(obj); reject(obj.error); }) // error msg in the response body
+                    .then((obj) => { reject(obj.error); }) // error msg in the response body
                     .catch((err) => { reject({ errors: [{ param: "Application", msg: "Cannot parse server response" }] }) }); // something else
             }
         }).catch((err) => { reject({ errors: [{ param: "Server", msg: "Cannot communicate" }] }) }); // connection errors
@@ -222,6 +218,7 @@ async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, book
             if (response.ok) {
                 response.json()
                     .then((obj) => {
+
                         resolve(obj.map((l) => {
                             l.lecture["numBookings"] = l.bookings;
                             l.lecture["attendances"] = l.attendances;
@@ -498,7 +495,7 @@ async function generateReport(id, serialNumber, date) {
         fetch(baseURL + `/managers/${id}/tracingReport/${serialNumber}?date=${date}`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { console.log(obj); resolve(obj) })
+                    .then((obj) => { resolve(obj) })
                     .catch((err) => { reject({ source: "Student", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
@@ -515,7 +512,7 @@ async function getAllCourses(id) {
         fetch(baseURL + `/managers/${id}/courses`).then((response) => {
             if (response.ok) {
                 response.json()
-                    .then((obj) => { console.log(obj); resolve(obj) })
+                    .then((obj) => { resolve(obj) })
                     .catch((err) => { reject({ source: "Course", error: "application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
@@ -528,11 +525,36 @@ async function getAllCourses(id) {
 }
 
 
+async function getAllCourseLectures(id, courseId) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/managers/${id}/courses/${courseId}/lectures?bookings=true&cancellations=true&attendances=true`).then((response) => {
+            if (response.ok) {
+                response.json()
+                    .then((obj) => {
+
+                        resolve(obj.map((l) => {
+                            l.lecture["numBookings"] = l.bookings;
+                            l.lecture["attendances"] = l.attendances;
+                            return Lecture.from(l.lecture);
+                        }
+                        ));
+                    })
+                    .catch((err) => { reject({ source: "Course", error: "application parse error" }) }); // something else*/
+            } else {
+                // analyze the cause of error
+                response.json()
+                    .then((obj) => { console.log(obj); reject({ source: "Course", error: "invalid parameter error" }); }) // error msg in the response body
+                    .catch((err) => { reject({ source: "Course", error: "server error" }) }); // something else
+            }
+        }).catch((err) => { reject({ source: "Course", error: "server error" }) }); // connection errors
+    });
+}
+
 /******************************************************************************/
 
 const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
     getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport,
-    getAllCourses, resetDB, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S, updateStudentStatus
+    getAllCourses, resetDB, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S, updateStudentStatus, getAllCourseLectures
 };
 export default API;

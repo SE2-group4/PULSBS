@@ -30,24 +30,24 @@ const courses = [
   new Course(6, "Cybersecurity", "2020")
 ]
 const lecturesCourse1 = [
-  new Lecture(1, 1, 1, moment().add("1", "hours").toISOString(), 600000, moment().subtract("1", "days").toISOString(), "inPresence"),
+  new Lecture(1, 1, 1, moment().add("1", "hours").toISOString(), 600000, moment().subtract("1", "days").toISOString(), "PRESENCE"),
   new Lecture(4, 1, 2, moment().add("1", "months").toISOString(), 600000, "11-23-2020 19:19", "remote", 10, 25, "12A")
 ]
 const lecturesCourse2 = [
-  new Lecture(2, 2, 1, moment().add("3", "hours").toISOString(), 600000, moment().add("5", "minutes").toISOString(), "inPresence"),
+  new Lecture(2, 2, 1, moment().add("3", "hours").toISOString(), 600000, moment().add("5", "minutes").toISOString(), "PRESENCE"),
 ]
-const bookedLesson = new Lecture(3, 3, 1, moment().add("3", "hours").toISOString(), 60000, moment().add("1", "hours").toISOString(), "inPresence")
+const bookedLesson = new Lecture(3, 3, 1, moment().add("3", "hours").toISOString(), 60000, moment().add("1", "hours").toISOString(), "PRESENCE")
 const lecturesCourse3 = [
-  bookedLesson,
+  bookedLesson
 ]
 const lecturesCourse4 = [
-  new Lecture(5, 4, 4, moment().add("1", "hours").toISOString(), 60000, moment().subtract("1", "hours").toISOString(), "inPresence")
+  new Lecture(5, 4, 4, moment().add("1", "hours").toISOString(), 60000, moment().subtract("1", "hours").toISOString(), "PRESENCE")
 ]
 const lecturesCourse5 = [
   new Lecture(6, 5, 7, moment().add("5", "minutes").toISOString(), 60000, moment().subtract("1", "hours"), "REMOTE")
 ]
 const lecturesCourse6 = [
-  new Lecture(7, 6, 7, moment().subtract("1", "hours").toISOString(), 60000, moment().subtract("1", "days"), "inPresence")
+  new Lecture(7, 6, 7, moment().subtract("1", "hours").toISOString(), 60000, moment().subtract("1", "days"), "PRESENCE")
 ]
 const booked = [
   bookedLesson
@@ -220,7 +220,7 @@ describe('Calendar component', () => {
       userEvent.click(screen.getByText("Computer Systems Programming"))
     });
     expect(screen.getByText("Are you sure you want to cancel your reservation for this lecture?")).toBeInTheDocument();
-    fetch.mockResponseOnce({}, { status: 204 })
+    fetch.mockResponseOnce(JSON.stringify({ availableSeats: 200 }), { status: 200 })
     await act(async () => {
       userEvent.click(screen.getByText("Yes"));
     });

@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react'
+import { render, screen, act, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import SupportUpdatePage from "../pages/SupportUpdatePage"
 import User from '../entities/user'
@@ -7,8 +7,6 @@ import userEvent from '@testing-library/user-event';
 import Course from '../entities/course';
 import Lecture from '../entities/lecture';
 import moment from 'moment';
-import { formatDate, parseDate } from 'react-day-picker/moment';
-import { scryRenderedComponentsWithType } from 'react-dom/test-utils';
 
 fetchMock.enableMocks();
 
@@ -83,36 +81,32 @@ describe("SupportUpdatePage suite", () => {
     test("Click on courses filter", async () => {
         await setupSupportUpdatePage();
         await act(async () => {
-            userEvent.click(screen.getByText("All"))
+            userEvent.type(screen.getByText("All"), "All")
         });
         expect(screen.getByTestId("Data Science")).toBeInTheDocument()
         expect(screen.getByTestId("Web Application 1")).toBeInTheDocument()
     })
-    /*
-        test("Select a course filter", async () => {
-            await setupSupportUpdatePage();
-            await act(async () => {
-                userEvent.click(screen.getByTestId("All"))
-            });
-            await act(async () => {
-                userEvent.click(screen.getByTestId("Data Science"))
-            });
-            expect(screen.queryByText("Web Application 1")).not.toBeInTheDocument()
-            screen.debug()
-        })
-        
-        test("Change from filter", async () => {
-            await setupSupportUpdatePage();
-            await act(async () => {
-                userEvent.click(screen.getByPlaceholderText("From"))
-            });
-            screen.debug()
-        })
-    
-        test("Change to filter", async () => {
-    
-        })
-    */
+    test("Select a course filter", async () => {
+        await setupSupportUpdatePage();
+        await act(async () => {
+            fireEvent.change(screen.getByTestId("courseSelect"), { target: { value: "Web Application 1" } })
+        });
+
+        expect(screen.queryByTestId("2")).not.toBeInTheDocument()
+        //screen.debug()
+    })
+
+    test("Change from filter", async () => {
+        await setupSupportUpdatePage();
+        await act(async () => {
+            userEvent.click(screen.getByPlaceholderText("From"))
+        });
+        //screen.debug()
+    })
+
+    test("Change to filter", async () => {
+
+    })
     test("Change delivery from presence to remote", async () => {
         await setupSupportUpdatePage();
         fetch.mockResponseOnce([{}, { status: 200 }])
@@ -125,7 +119,6 @@ describe("SupportUpdatePage suite", () => {
 
     test("Change delivery from remote to presence", async () => {
         await setupSupportUpdatePage();
-        screen.debug()
         fetch.mockResponseOnce([{}, { status: 200 }])
         await act(async () => {
             userEvent.click(screen.getByTestId("2-button"))
