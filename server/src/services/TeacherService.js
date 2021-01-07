@@ -83,7 +83,7 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryObj
     let { err, dateFilter = {}, bookings = false, attendances = false } = extractOptions(queryObj);
     if (err instanceof ResponseError) throw err;
 
-    printQueryParams(bookings, attendances, dateFilter);
+    //printQueryParams(bookings, attendances, dateFilter);
     await checkTeacherCorrelations(tId, cId);
 
     let lectures = await db.getLecturesByCourseAndPeriodOfTime(new Course(cId), dateFilter);
@@ -104,8 +104,7 @@ exports.teacherGetCourses = async function (teacherId) {
         throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
-    const teacher = new Teacher(tId);
-    const teacherCourses = await db.getCoursesByTeacher(teacher);
+    const teacherCourses = await db.getCoursesByTeacher(new Teacher(tId));
 
     return teacherCourses;
 };

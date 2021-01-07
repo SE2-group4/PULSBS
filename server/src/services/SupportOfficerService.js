@@ -7,7 +7,6 @@ const { convertToNumbers } = require("../utils/converter");
 const Course = require("../entities/Course");
 const Student = require("../entities/Student");
 const Teacher = require("../entities/Teacher");
-const TeacherService = require("../services/TeacherService");
 const Lecture = require("../entities/Lecture");
 const Email = require("../entities/Email");
 const EmailService = require("../services/EmailService");
@@ -266,20 +265,20 @@ async function manageEntitiesUpload(entities, path) {
         throw genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: path });
     }
 
-    console.time("phase: mapping");
+    //console.time("phase: mapping");
     // map each entry of entities as a new object with the properties defined in DB_TABLES[<entityType>].mapTo
     const sanitizedEntities = await sanitizeEntities(entities, entityType);
-    console.timeEnd("phase: mapping");
+    //console.timeEnd("phase: mapping");
 
-    console.time("phase: query gen");
+    //console.time("phase: query gen");
     // create the queries
     const sqlQueries = genSqlQueries("INSERT", entityType, sanitizedEntities);
-    console.timeEnd("phase: query gen");
+    //console.timeEnd("phase: query gen");
 
-    console.time("phase: query run");
+    //console.time("phase: query run");
     // run the queries
     await runBatchQueries(sqlQueries);
-    console.timeEnd("phase: query run");
+    //console.timeEnd("phase: query run");
 
     // check if we need to do any more processing,
     // i.e. when uploading the schedules we need to also generate the lectures
@@ -565,12 +564,10 @@ function logToFile(queries) {
 
     fs.appendFile("./queries.log", `\n${date.toISOString()}\n`, function (err) {
         if (err) return console.log(err);
-        console.log("LOG: date > queries.log");
     });
 
     fs.appendFile("./queries.log", queries.join("\n"), function (err) {
         if (err) return console.log(err);
-        console.log("LOG: queries > queries.log");
     });
 }
 
