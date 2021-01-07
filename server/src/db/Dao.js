@@ -1811,3 +1811,24 @@ const updateSchedule = function (schedule) {
     });
 };
 exports.updateSchedule = updateSchedule;
+
+/**
+ * get all classe
+ * @returns {Promise} promise of list of class
+ */
+const getClasses = function () {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM Class`;
+
+        db.all(sql, [], (err, rows) => {
+            if (err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+
+            resolve(rows.map((row) => Class.from(row)));
+        });
+    });
+}
+
+exports.getClasses = getClasses;
