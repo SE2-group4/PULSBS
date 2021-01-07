@@ -1099,6 +1099,17 @@ const suite = function () {
                     .catch((err) => done()); // correct case
             });
         });
+
+        describe('getClasses', function() {
+            it('should return the correct number of classes', function(done) {
+                dao.getClasses()
+                    .then((classes) => {
+                        assert.ok(classes.length, 3, 'Wrong number of classes retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
     });
 }
 
