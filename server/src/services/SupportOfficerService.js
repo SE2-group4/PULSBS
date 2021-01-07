@@ -7,6 +7,7 @@ const { convertToNumbers } = require("../utils/converter");
 const Course = require("../entities/Course");
 const Student = require("../entities/Student");
 const Teacher = require("../entities/Teacher");
+const TeacherService = require("../services/TeacherService");
 const Lecture = require("../entities/Lecture");
 const Email = require("../entities/Email");
 const EmailService = require("../services/EmailService");
@@ -129,6 +130,69 @@ async function getCourseLectures(supportId, courseId) {
 }
 
 /**
+ * Delete a lecture given a lectureId, courseId
+ *
+ * Only one between teacherId or supportId must be set
+ * teacherId {Ingeter|String}
+ * supportId {Integer|String}
+ * courseId {Integer|String}
+ * lectureId {Integer|String}
+ * returns {Integer} 204. A ResponseError on error
+ **/
+async function deleteCourseLecture({ teacherId, supportId }, courseId, lectureId) {
+    const requester = teacherId ? { teacherId } : { supportId };
+    const isTeacher = teacherId ? true : false;
+
+    const { error, [Object.keys(requester)[0]]: rId, courseId: cId, lectureId: lId } = convertToNumbers({
+        ...requester,
+        courseId,
+        lectureId,
+    });
+    if (error) {
+        throw genResponseError(errno.PARAM_NOT_INT, error);
+    }
+
+    if (isTeacher && (!(await check.teacherCourseCorrelation(rId, cId)))) { 
+        throw genResponseError(errno.TEACHER_COURSE_MISMATCH_AA, { teacherId: rId, courseId });
+    }
+
+    // check if the course has a lecture with id = lId
+    if (!(await check.courseLectureCorrelation(cId, lId))) {
+        throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
+    }
+
+    const lecture = await db.getLectureById(new Lecture(lId));
+
+    if (check.isLectureCancellable(lecture)) {
+        // delete lecture
+        const isSuccess = await db.deleteLectureById(lecture);
+        if (isSuccess > 0) {
+            // send emails to the students that had a booking for the deleted lecture
+            const emailsInQueue = await db.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED);
+
+            if (emailsInQueue.length > 0) {
+                // create template email
+                const aEmail = emailsInQueue[0];
+                const subjectArgs = [aEmail.courseName];
+                const messageArgs = [aEmail.startingDate];
+                const { subject, message } = EmailService.getDefaultEmail(
+                    Email.EmailType.LESSON_CANCELLED,
+                    subjectArgs,
+                    messageArgs
+                );
+
+                const recipients = emailsInQueue.map((email) => email.recipient);
+                sendEmailsTo(subject, message, recipients);
+            }
+        }
+    } else {
+        throw genResponseError(errno.LECTURE_NOT_CANCELLABLE, { lectureId: lecture.lectureId });
+    }
+
+    return 204;
+}
+
+/**
  * Update a lecture delivery mode given a lectureId, courseId and a switchTo mode
  * The switch is possible only if the request is sent 30m before the scheduled starting time.
  *
@@ -144,32 +208,34 @@ async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
         throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
-    // check is switchTo mode is admissible
+    // check if switchTo mode is admissible
     if (!check.isValidDeliveryMode(switchTo)) {
         throw genResponseError(errno.LECTURE_INVALID_DELIVERY_MODE, { delivery: switchTo });
     }
 
-    // check is the course has a lecture with id = lId
+    // check if the course has a lecture with id = lId
     if (!(await check.courseLectureCorrelation(cId, lId))) {
         throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
     }
 
     const lecture = await db.getLectureById(new Lecture(lId));
 
-    // check is the request was sent 30m prior the start of the lecture
+    // check if the request was sent 30m prior the start of the lecture
     if (!check.isLectureSwitchable(lecture, switchTo, new Date(), false)) {
         throw genResponseError(errno.LECTURE_NOT_SWITCHABLE, { lectureId });
     }
 
-    // do nothing is the lecture delivery mode is already in that state
+    // do nothing if the lecture delivery mode is already in that state
     if (lecture.delivery === switchTo.toUpperCase()) return 204;
 
     lecture.delivery = switchTo;
     await db.updateLectureDeliveryMode(lecture);
 
+    // notify the students that have a booking for this lecture
     const studentsToBeNotified = await db.getBookedStudentsByLecture(lecture);
     if (studentsToBeNotified.length > 0) {
         const course = await db.getCourseByLecture(lecture);
+
         const subjectArgs = [course.description];
         const messageArgs = [utils.formatDate(lecture.startingDate), lecture.delivery];
 
@@ -179,7 +245,8 @@ async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
             messageArgs
         );
 
-        sendEmailsTo(subject, message, studentsToBeNotified);
+        const recipientsEmails = studentsToBeNotified.map((obj) => obj.student.email);
+        sendEmailsTo(subject, message, recipientsEmails);
     }
 
     return 204;
@@ -579,11 +646,11 @@ function genResponseError(nerror, error) {
     return new ResponseError(MODULE_NAME, nerror, error);
 }
 
-function sendEmailsTo(subject, message, recepients = []) {
-    for (const recepient of recepients) {
-        EmailService.sendCustomMail(recepient.email, subject, message)
+function sendEmailsTo(subject, message, recipientsEmails = []) {
+    for (const email of recipientsEmails) {
+        EmailService.sendCustomMail(email, subject, message)
             .then(() => {
-                console.email(`recepient: ${recepient.email}; subject: ${subject}`);
+                console.email(`recepient: ${email}; subject: ${subject}`);
             })
             .catch((err) => console.error(err));
     }
@@ -598,8 +665,6 @@ function writeToFile(obj, path = "./input/schedules.json") {
         if (err) console.log("an error occured");
     });
 }
-
-
 
 /**
  * get the list of schedules
@@ -622,9 +687,9 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
 
     // check if it exists
     const schedules = db.getSchedules();
-    const actualSchedules = schedules.filter(s => s.scheduleId === schedule.scheduleId);
-    if(actualSchedules.length === 0) {
-        throw StandardErr.new('ManagerService', StandardErr.errno.NOT_EXISTS, 'This schedule does not exist', 404);
+    const actualSchedules = schedules.filter((s) => s.scheduleId === schedule.scheduleId);
+    if (actualSchedules.length === 0) {
+        throw StandardErr.new("ManagerService", StandardErr.errno.NOT_EXISTS, "This schedule does not exist", 404);
     }
 
     await db.updateSchedule(schedule);
@@ -638,8 +703,14 @@ const supportOfficerGetRooms = async function supportOfficerGetRooms({ managerId
 
 const privateFunc = { getEntityNameFromPath, genInsertSqlQueries, updateAndSort };
 
-module.exports = { manageEntitiesUpload, privateFunc, getCourses, getCourseLectures, updateCourseLecture,
+module.exports = {
+    manageEntitiesUpload,
+    privateFunc,
+    getCourses,
+    getCourseLectures,
+    deleteCourseLecture,
+    updateCourseLecture,
     supportOfficerGetSchedules,
     supportOfficerUpdateSchedule,
-    supportOfficerGetRooms
+    supportOfficerGetRooms,
 };

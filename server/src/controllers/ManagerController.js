@@ -66,5 +66,3 @@ function managerGetReport(req, res) {
         });
 }
 module.exports.managerGetReport = managerGetReport;
-
-module.exports.managerUpdateSchedule = managerUpdateSchedule;
