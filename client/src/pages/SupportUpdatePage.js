@@ -86,9 +86,11 @@ class SupportUpdatePage extends React.Component {
         API.deleteLecture_S(this.props.user.userId, lecture.courseId, lecture.lectureId)
             .then(() => {
                 let lectures = this.state.lectures;
+
                 for (let i = 0; i < lectures.length; i++)
                     if (lectures[i].lectureId == lecture.lectureId)
-                        lectures.splice(i, 0)
+                        lectures.splice(i, 1)
+
                 this.setState({ loading: false, lectures: lectures })
             })
             .catch(() => {

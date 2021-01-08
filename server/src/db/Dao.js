@@ -86,12 +86,12 @@ function reallyOpenConn(dbpath = "./PULSBS.db", cb) {
         if (err) throw StandardErr.new("Dao", StandardErr.errno.FAILURE, err.message);
 
         db.get("PRAGMA foreign_keys = ON");
-        // db.on("profile", (query, time) => {
-        //     // query = query.replace(/ +(?= )/g, "");
-        //     //console.log("QUERY EXECUTED");
-        //     //console.log(query);
-        //     //console.log("TIME: ", time);
-        // });
+        //db.on("profile", (query, time) => {
+        //     query = query.replace(/ +(?= )/g, "");
+        //     console.log("QUERY EXECUTED");
+        //     console.log(query);
+        //     console.log("TIME: ", time);
+        //});
 
         if (cb) cb();
     });
@@ -1190,15 +1190,19 @@ exports.getClassByLecture = getClassByLecture;
  */
 const execBatch = function (queries) {
     return new Promise((resolve, reject) => {
-        db.run("BEGIN TRANSACTION;");
+        db.serialize(() => {
+            db.run("BEGIN TRANSACTION;");
 
-        queries.forEach((query) =>
-            db.run(query, function (error) {
-                if (error) reject(error);
-            })
-        );
+            db.parallelize(function () {
+                queries.forEach((query) =>
+                    db.run(query, function (error) {
+                        if (error) reject(error);
+                    })
+                );
+            });
 
-        db.run("END TRANSACTION;", () => resolve());
+            db.run("END TRANSACTION;", () => resolve());
+        });
     });
 };
 exports.execBatch = execBatch;
@@ -1221,25 +1225,6 @@ const getCourseByCode = function (code) {
     });
 };
 exports.getCourseByCode = getCourseByCode;
-
-/**
- * get a student given his serial number
- * @param {Integer} serialNumber
- */
-const getStudentBySN = function (serialNumber) {
-    return new Promise((resolve, reject) => {
-        const sql = `SELECT User.* FROM User WHERE type = STUDENT AND serialNumber = ?`;
-        db.get(sql, [serialNumber], (err, row) => {
-            if (err) {
-                reject(StandardErr.fromDao(err));
-                return;
-            }
-
-            resolve(Student.from(row));
-        });
-    });
-};
-exports.getStudentBySN = getStudentBySN;
 
 /**
  * get all students

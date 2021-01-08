@@ -122,12 +122,6 @@ async function getNumAttendacesOfLecture(lecture) {
     return await db.getNumAttendancesOfLecture(lecture);
 }
 
-//async function isCourseMatchLecture(cId, lId) {
-//    const { count } = await db.checkLectureAndCourse(new Course(cId), new Lecture(lId));
-//    if (count === 0) return false;
-//    return true;
-//}
-
 function genResponseError(nerror, error) {
     return new ResponseError(MODULE_NAME, nerror, error);
 }
