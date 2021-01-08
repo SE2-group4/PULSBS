@@ -14,7 +14,7 @@ const ManagerService = require("./ManagerService");
 const SupportService = require("../services/SupportOfficerService");
 const db = require("../db/Dao");
 
-// constants 
+// constants
 const MODULE_NAME = "TeacherService";
 const ACCEPTED_QUERY_PARAM = ["from", "to", "bookings", "attendances"];
 Object.freeze(ACCEPTED_QUERY_PARAM);
@@ -29,7 +29,7 @@ const errno = ResponseError.errno;
  * teacherId {Integer}
  * courseId {Integer}
  * lectureId {Integer}
- * withStatus {String} "true" or "false". 
+ * withStatus {String} "true" or "false".
  * returns {Promise} array of Student's instances. A ResponseError on error
  **/
 exports.teacherGetCourseLectureStudents = async function (teacherId, courseId, lectureId, withStatus = false) {
@@ -109,7 +109,6 @@ exports.teacherGetCourses = async function (teacherId) {
     return teacherCourses;
 };
 
-
 /**
  * Retrieve a lecture given a lectureId, courseId, teacherId
  *
@@ -147,7 +146,7 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
  * returns {Integer} 204. In case of error an ResponseError
  **/
 exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectureId) {
-    return await SupportService.deleteCourseLecture({teacherId}, courseId, lectureId);
+    return await SupportService.deleteCourseLecture({ teacherId }, courseId, lectureId);
 };
 
 /**
@@ -496,22 +495,22 @@ async function checkTeacherCorrelations(teacherId, courseId, lectureId) {
  * nextCheck {Date | "now" | undefined} optional
  * returns {Integer} time in ms. In case of error an ResponseError
  **/
-function nextCheck(now) {
-    if (!now || now === "now") {
-        now = new Date();
+function nextCheck(otherDateTime) {
+    if (!otherDateTime || otherDateTime === "now") {
+        otherDateTime = new Date();
     }
 
     const next_at_23_59 = new Date();
-    next_at_23_59.setDate(now.getDate());
+
+    if (otherDateTime.getHours() >= 23 && otherDateTime.getMinutes() >= 59 && otherDateTime.getSeconds() >= 0)
+        next_at_23_59.setDate(otherDateTime.getDate() + 1);
+
     next_at_23_59.setHours(23);
     next_at_23_59.setMinutes(59);
     next_at_23_59.setSeconds(0);
     next_at_23_59.setMilliseconds(0);
 
-    if (now.getHours() >= 23 && now.getMinutes() >= 59 && now.getSeconds() >= 0)
-        next_at_23_59.setDate(next_at_23_59.getDate() + 1);
-
-    return next_at_23_59.getTime() - now.getTime();
+    return next_at_23_59.getTime() - otherDateTime.getTime();
 }
 exports.nextCheck = nextCheck;
 

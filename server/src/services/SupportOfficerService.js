@@ -151,7 +151,7 @@ async function deleteCourseLecture({ teacherId, supportId }, courseId, lectureId
         throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
-    if (isTeacher && (!(await check.teacherCourseCorrelation(rId, cId)))) { 
+    if (isTeacher && !(await check.teacherCourseCorrelation(rId, cId))) {
         throw genResponseError(errno.TEACHER_COURSE_MISMATCH_AA, { teacherId: rId, courseId });
     }
 
