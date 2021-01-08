@@ -103,18 +103,18 @@ const testSuiteTeacherService = () => {
                         1,
                         1,
                         1,
-                        moment.utc().add(1, "day").startOf("day").hours(7).minutes(30),
+                        moment().add(1, "day").startOf("day").hours(8).minutes(30),
                         5400000,
-                        moment.utc().subtract(1, "day").startOf("day").hours(22).minutes(59),
+                        moment().subtract(1, "day").startOf("day").hours(23).minutes(59),
                         "PRESENCE"
                     ),
                     notCancellable: new Lecture(
                         1,
                         1,
                         1,
-                        moment.utc().subtract(1, "day").startOf("day").hours(7).minutes(30).toISOString(),
+                        moment().subtract(1, "day").startOf("day").hours(8).minutes(30).toISOString(),
                         5400000,
-                        moment().utc().subtract(2, "day").startOf("day").hours(22).minutes(59).toISOString(),
+                        moment().subtract(2, "day").startOf("day").hours(23).minutes(59).toISOString(),
                         "PRESENCE"
                     ),
                 },
@@ -318,6 +318,7 @@ const testSuiteTeacherService = () => {
                 const res = await Service.teacherGetCourseLecture(...tGGG1St.input);
                 assert.equal(res.constructor, Lecture);
             });
+
             it(errorMsg.Lecture.examples.message, async function () {
                 const res = await Service.teacherGetCourseLecture(4, 1, 1);
                 assert.deepStrictEqual(res, errorMsg.Lecture.examples.notCancellable);
@@ -442,15 +443,28 @@ const testSuiteTeacherService = () => {
                 await prepare("testing.db", "testTeacherServices.sql", false);
             });
 
-            it("Should have returned the time difference between today's 23:00 and tomorrow's 22:59 (UTC)", async function () {
-                const diff = 23 * 60 * 60 * 1000 + 59 * 60 * 1000;
-                const res = Service.nextCheck(moment.utc().startOf("day").hours(23).toDate());
+            it("Should have returned the time difference between today's 23:00 and today's 23:59 (local)", async function () {
+                const diff = 59 * 60 * 1000;
+                const res = Service.nextCheck(moment().startOf("day").hours(23).toDate());
                 assert.equal(res, diff);
             });
 
-            it("Should have returned the time difference between today's 22:00:00 and tomorrow's 22:59 (UTC)", async function () {
-                const diff = 59 * 60 * 1000;
-                const res = Service.nextCheck(moment.utc().startOf("day").hours(22).minutes(0).toDate());
+            it("Should have returned the time difference between today's 23:59 and tomorrow's 23:59 (local)", async function () {
+                const diff = 24 * 60 * 60 * 1000;
+                //const diff = 23 * 60 * 60 * 1000 + 59 * 60 * 1000;
+                const res = Service.nextCheck(moment().startOf("day").hours(23).minutes(59).toDate());
+                assert.equal(res, diff);
+            });
+
+            it("Should have returned the time difference between today's 23:59:01 and tomorrow's 23:59:00 (local)", async function () {
+                const diff = 24 * 60 * 60 * 1000 - 1 * 1000;
+                const res = Service.nextCheck(moment().startOf("day").hours(23).minutes(59).seconds(1).toDate());
+                assert.equal(res, diff);
+            });
+
+            it("Should have returned the time difference between today's 00:00 and today's 23:59 (local)", async function () {
+                const diff = 23 * 60 * 60 * 1000 + 59 * 60 * 1000;
+                const res = Service.nextCheck(moment().startOf("day").toDate());
                 assert.equal(res, diff);
             });
         });
