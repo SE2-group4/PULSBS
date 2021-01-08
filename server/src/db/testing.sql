@@ -80,7 +80,7 @@ INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWee
 
 -- Lecture related to schedules
 -- weekday: 0 Sunday, 1 Monday, 2 Tuesday ...
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(8, 5, 2, DATETIME('now', 'weekday 1', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'weekday 1', 'start of day', '23 hours', '00 minutes'), 'PRESENCE');
+INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(8, 4, 2, DATETIME('now', 'weekday 1', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'weekday 1', 'start of day', '23 hours', '00 minutes'), 'PRESENCE');
 
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(1, DATETIME('now', '-1 month', 'start of day'), DATETIME('now', '+8 month', 'start of day'), 'ACADEMIC_YEAR', 1);
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(2, DATETIME('now', '-1 month', 'start of day'), DATETIME('now', '+3 month', 'start of day'), 'SEMESTER', 1);
