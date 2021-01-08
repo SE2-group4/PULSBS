@@ -23,6 +23,7 @@ const prepare = require('../src/db/preparedb.js');
 const API_KEY = '1714443a-b87e-4616-8c6f-19d1d6cf2eee';
 const NAMESPACE = 'tjw85';
 const MAIL_URL = `https://api.testmail.app/api/json?apikey=${API_KEY}&namespace=${NAMESPACE}&pretty=true`;
+const skipEmails = true; // ATTENTION: this flag will skip all email tests
 
 const testmailClient = new GraphQLClient(
     // API endpoint:
@@ -170,8 +171,11 @@ const suite = function() {
                                 assert.ok(lectures.waited.find((currLecture) => currLecture.lectureId === lecture6.lectureId) == undefined, 'Student waiting not resolved');
                                 assert.ok(lectures.booked.find((currLecture) => currLecture.lectureId === lecture6.lectureId) != undefined, 'Student booking not added');
 
+                                if(skipEmails != undefined && skipEmails) {
+                                    done();
+                                    return;
+                                }
                                 console.log('Checking emails...');
-
                                 retrieveEmails('student.storti')
                                     .then((response) => {
                                         // range of the accepted receiving
