@@ -32,6 +32,7 @@ function Header(props) {
         <Nav className="mr-auto">
           <Nav.Link as={Link} to={"/supportPage/setup"} ><strong>Setup</strong></Nav.Link>
           <Nav.Link as={Link} to={"/supportPage/update"}><strong>Update Bookable Lectures</strong></Nav.Link>
+          <Nav.Link as={Link} to={"/supportPage/schedules"}><strong>Update Schedules</strong></Nav.Link>
         </Nav>
       }
       {props.isAuth &&
