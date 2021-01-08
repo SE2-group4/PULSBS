@@ -1069,8 +1069,10 @@ const suite = function () {
         });
 
         describe('updateSchedule', function() {
+            const updatedSchedule = Schedule.from(schedule1);
+            updatedSchedule.room = class2.description;
             it('existing schedule with correct new params should update the schedule', function(done) {
-                dao.updateSchedule(schedule1)
+                dao.updateSchedule(updatedSchedule)
                     .then((nLectures) => {
                         assert.ok(nLectures > 0, 'No lecture updated'); // the exact number of lectures depends on the date you run tests
                         done();
