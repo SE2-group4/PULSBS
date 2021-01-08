@@ -397,6 +397,101 @@ const testSuiteSupportOfficer = () => {
                 assert.equal(res, 204);
             });
         });
+
+        describe('supportOfficerGetSchedules', function () {
+            beforeEach(async function clearDb() {
+                await prepare('testing.db', 'testing.sql', false);
+            });
+
+            it('should return the list of schedules', function(done) {
+                Service.supportOfficerGetSchedules()
+                    .then((schedules) => {
+                        assert.strictEqual(schedules.length, 5, 'Wrong number of schedules retrieved');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+        });
+
+        describe('supportOfficerUpdateSchedule', function () {
+            beforeEach(async function clearDb() {
+                await prepare('testing.db', 'testing.sql', false);
+            });
+
+            it('existing schedule with correct new params should update the schedule', function(done) {
+                const updatedSchedule = Schedule.from(schedule1);
+                updatedSchedule.room = class2.description;
+
+                Service.supportOfficerUpdateSchedule({
+                        managerId: 1,
+                        scheduleId: updatedSchedule.scheduleId,
+                        schedule: updatedSchedule
+                    })
+                    .then((nLectures) => {
+                        assert.ok(nLectures > 0, 'No lecture updated'); // the exact number of lectures depends on the date you run tests
+                        done();
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        done(err);
+                    });
+            });
+
+            it('wrong schedule should reject the request', function(done) {
+                const wrongSchedule = new Schedule(-1, -1, 1970, -1, 'Wrong roomId', -1, 'Wrong day', 'Not a time', 'Not a time');
+                
+                Service.supportOfficerUpdateSchedule({
+                        managerId: 1,
+                        scheduleId: wrongSchedule.scheduleId,
+                        schedule: wrongSchedule
+                    })
+                    .then((nLectures) => done('This must fail!'))
+                    .catch((err) => done()); // correct case
+            });
+
+            it('correct schedule but overlapped with another one of the same course should reject the request', function(done) {
+                const overlappedScheduleSameCourse = Schedule.from(schedule1);
+                overlappedScheduleSameCourse.roomId = schedule2.roomId;
+
+                Service.supportOfficerUpdateSchedule({
+                        managerId: 1,
+                        scheduleId: overlappedScheduleSameCourse.scheduleId,
+                        schedule: overlappedScheduleSameCourse
+                    })
+                    .then((nLectures) => done('This must fail!'))
+                    .catch((err) => done()); // correct case
+            });
+
+            it('correct schedule but overlapped with another one of a different course in the same class should reject the request', function(done) {
+                const overlappedScheduleDifferentCourse = Schedule.from(schedule1);
+                overlappedScheduleDifferentCourse.roomId = schedule2.roomId;
+                overlappedScheduleDifferentCourse.startingTime = schedule2.startingTime;
+                overlappedScheduleDifferentCourse.endingTime = schedule2.endingTime;
+
+                Service.supportOfficerUpdateSchedule({
+                        managerId: 1,
+                        scheduleId: overlappedScheduleDifferentCourse.scheduleId,
+                        schedule: overlappedScheduleDifferentCourse
+                    })
+                    .then((nLectures) => done('This must fail!'))
+                    .catch((err) => done()); // correct case
+            });
+        });
+
+        describe('supportOfficerGetRooms', function () {
+            beforeEach(async function clearDb() {
+                await prepare('testing.db', 'testing.sql', false);
+            });
+
+            it('should return the correct number of rooms', function(done) {
+                Service.supportOfficerGetRooms()
+                    .then((rooms) => {
+                        assert.strictEqual(rooms.length, 3, 'Wrong number of rooms');
+                        done();
+                    })
+                    .catch((err) => done(err));
+            })
+        });
     });
 };
 
