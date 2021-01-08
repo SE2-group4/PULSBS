@@ -477,15 +477,51 @@ async function getSchedulesBySupportId(id) {
                     .then((obj) => {
                         resolve(obj.map((s) => Schedule.from(s)));
                     })
-                    .catch((err) => { reject({ source: "SupportOfficer", error: "application parse error" }) }); // something else
+                    .catch(() => { reject({ source: "SupportOfficer", error: "Application parse error" }) }); // something else
             } else {
                 // analyze the cause of error
-                if (response.status === 404)
-                    response.json()
-                        .then((obj) => reject({ source: obj.statusCode, error: obj.message }))
-                        .catch(() => reject({ source: "SupportOfficer", error: "Server error" }));
-                else reject("err")
+                response.json()
+                    .then((obj) => reject({ source: obj.statusCode, error: obj.message }))
+                    .catch(() => reject({ source: "SupportOfficer", error: "Server error" }));
+            }
+        }).catch(() => { reject({ source: "SupportOfficer", error: "Server connection error" }) }); // connection errors
+    });
+}
 
+async function changeScheduleData(id, newSchedule) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/supportOfficers/${id}/schedules/${newSchedule.scheduleId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newSchedule),
+        }).then((response) => {
+            if (response.ok) {
+                resolve();
+            } else {
+                response.json()
+                    .then((obj) => { reject({ source: "SupportOfficer", error: obj.message }); }) // error msg in the response body
+                    .catch(() => { reject({ source: "SupportOfficer", error: "Server error" }) }); // something else
+            }
+        }).catch(() => { reject({ source: "SupportOfficer", error: "Server error" }) }); // connection errors
+    });
+}
+
+async function getRoomsBySupportId(id) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/supportOfficers/${id}/rooms`).then((response) => {
+            if (response.ok) {
+                response.json()
+                    .then((obj) => {
+                        resolve(obj);
+                    })
+                    .catch(() => { reject({ source: "SupportOfficer", error: "Application parse error" }) }); // something else
+            } else {
+                // analyze the cause of error
+                response.json()
+                    .then((obj) => reject({ source: "SupportOfficer", error: obj.message }))
+                    .catch(() => reject({ source: "SupportOfficer", error: "Server error" }));
             }
         }).catch(() => { reject({ source: "SupportOfficer", error: "Server connection error" }) }); // connection errors
     });
@@ -594,6 +630,6 @@ const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
     getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport,
     getAllCourses, resetDB, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S, updateStudentStatus, getAllCourseLectures, deleteLecture_S,
-    getSchedulesBySupportId
+    getSchedulesBySupportId, changeScheduleData, getRoomsBySupportId
 };
 export default API;

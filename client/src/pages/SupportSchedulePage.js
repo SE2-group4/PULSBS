@@ -65,18 +65,17 @@ class SupportSchedulePage extends React.Component {
     }
 
     submit = (day, room, startingTime, endingTime) => {
-        /*API.changeScheduleData(scheduleId,day,room,startingTime,endingTime)
+        this.setState({ loading: true });
+        /*Promise.all([API.changeScheduleData(this.props.user.userId,scheduleId,day,room,startingTime,endingTime),API.getRoomsBySupportId(this.props.user.userId)])
         .then(()=>{
-
+            //all ok
         })
         .catch(()=>{
-
+            //error
         });
         */
-        //ok from server
-        this.setState({ loading: true });
         {
-
+            //ok from server 
             let schedules = this.state.schedules;
             let i = schedules.indexOf(this.state.selectedSchedule);
             schedules[i].dayOfWeek = day;
@@ -272,16 +271,16 @@ function courseName(id, courses) {
             return course.description
 }
 
-function updateEndingTime(startingTime, endingTimes) {
-    let i = endingTimes.indexOf(startingTime);
+function updateEndingTime(startingTime, endingTimes_) {
+    let i = endingTimes_.indexOf(startingTime);
     i++;
-    return endingTimes[i];
+    return endingTimes_[i];
 }
 
-function updateStartingTime(endingTime, startingTimes) {
-    let i = startingTimes.indexOf(endingTime);
+function updateStartingTime(endingTime, startingTimes_) {
+    let i = startingTimes_.indexOf(endingTime);
     i--;
-    return startingTimes[i];
+    return startingTimes_[i];
 }
 
 export default SupportSchedulePage;
