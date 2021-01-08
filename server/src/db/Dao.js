@@ -1219,6 +1219,12 @@ const getCourseByCode = function (code) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
+            if (!row) {
+                reject(StandardErr.new('Dao', StandardErr.errno.NOT_EXISTS, 'Course not found', 404));
+                return;
+            }
+            console.log('getCourseByCode - row');
+            console.log(row);
 
             resolve(Course.from(row));
         });
@@ -1360,8 +1366,8 @@ const addLecture = function (lecture) {
         const sql = `INSERT INTO Lecture(courseId, classId, startingDate, duration, bookingDeadline, delivery)
             VALUES(?, ?, ?, ?, ?, ?)`;
 
-        console.log("addLecture - inserting a new lecture");
-        console.log(lecture);
+        // console.log("addLecture - inserting a new lecture");
+        // console.log(lecture);
 
         db.run(
             sql,
@@ -1414,7 +1420,7 @@ exports._getCalendars = _getCalendars;
  */
 const _generateDatesBySchedule = function (schedule) {
     return new Promise((resolve, reject) => {
-        this._getCalendars()
+        _getCalendars()
             .then((calendars) => {
                 // adapt for moment usage
                 calendars = calendars.map((c) => {
@@ -1424,7 +1430,7 @@ const _generateDatesBySchedule = function (schedule) {
                 });
 
                 // find the actual academic year
-                // const currentAcademicYear = this._getCurrentAcademicYear();
+                // const currentAcademicYear = _getCurrentAcademicYear();
                 const currentAcademicYear = schedule.AAyear;
                 const actualAcademicYearConstraint = calendars
                     .filter((c) => c.type.text === Calendar.CalendarType.ACADEMIC_YEAR.text)
@@ -1497,7 +1503,7 @@ const _generateDatesBySchedule = function (schedule) {
                     nextDate = nextDate.add(7, "days");
                 } while (true);
 
-                console.log(`_generateDatesBySchedule - valid dates generated: ${validDates}`);
+                // console.log(`_generateDatesBySchedule - valid dates generated: ${validDates}`);
                 resolve(validDates);
             })
             .catch(reject);
@@ -1549,7 +1555,7 @@ exports._deleteLecturesByPrototype = _deleteLecturesByPrototype; // export neede
 const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype) {
     return new Promise((resolve, reject) => {
         // generate the list of dates of all lectures
-        this._generateDatesBySchedule(schedule)
+        _generateDatesBySchedule(schedule)
             .then((dates) => {
                 const lecture_init_date = lecturePrototype.startingDate.clone().startOf('day');
                 const init_offset = lecturePrototype.startingDate.diff(lecture_init_date);
@@ -1560,8 +1566,8 @@ const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype)
                 const day_diff = lecturePrototype.startingDate.clone().startOf('day').diff(lecturePrototype.bookingDeadline.clone().startOf('day'), 'days');
                 const actualBookingDeadlines = dates.map((date) => date.clone().startOf('day').add(deadline_offset, 'ms').subtract(day_diff, 'days'));
 
-                console.log(`actualStartingDates: ${actualStartingDates}`);
-                console.log(`actualBookingDeadlines: ${actualBookingDeadlines}`);
+                // console.log(`actualStartingDates: ${actualStartingDates}`);
+                // console.log(`actualBookingDeadlines: ${actualBookingDeadlines}`);
 
                 // now, let's go to generate every single and specific lecture
                 const promises = [];
@@ -1572,7 +1578,7 @@ const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype)
                     currLecture.startingDate = actualStartingDates[i];
                     currLecture.bookingDeadline = actualBookingDeadlines[i];
 
-                    promises.push(this.addLecture(currLecture));
+                    promises.push(addLecture(currLecture));
                 }
 
                 Promise.all(promises)
@@ -1644,21 +1650,20 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
         const class_ = new Class();
         class_.description = schedule.roomId;
         Promise.all([
-            this._generateClassBySchedule(schedule),
-            this.getClassByDescription(class_),
-            this._generateCourseBySchedule(schedule),
-            this.getCourseByCode(schedule.code),
+            _generateClassBySchedule(schedule),
+            getClassByDescription(class_),
+            _generateCourseBySchedule(schedule),
+            getCourseByCode(schedule.code),
         ])
             .then((values) => {
+                console.log(`values:`);
+                console.log(values);
                 const actualClass = values[1];
                 const actualCourse = values[3];
 
-                // console.log('actual schedule'.cyan);
-                // console.log(schedule);
-                // console.log('actual course'.cyan);
-                // console.log(actualCourse);
-                // console.log('actual class'.cyan);
-                // console.log(actualClass);
+                console.log(`actual schedule: ${schedule.scheduleId}`.cyan);
+                console.log(`actual course: ${actualCourse.courseId}`.cyan);
+                console.log(`actual class: ${actualClass.classId}`.cyan);
 
                 let actualStartingTime;
                 let actualEndingTime;
@@ -1707,25 +1712,26 @@ exports._generateLecturePrototypeBySchedule = _generateLecturePrototypeBySchedul
  */
 const _generateLecturesBySchedule = function (schedule, hint = DaoHint.NO_HINT) {
     return new Promise((resolve, reject) => {
-        this._generateLecturePrototypeBySchedule(schedule)
+        _generateLecturePrototypeBySchedule(schedule)
             .then((lecturePrototype) => {
                 let nLectures = 0;
 
                 let promises = [];
-                if (hint == DaoHint.NEW_VALUE) promises.push(this._deleteLecturesByPrototype(lecturePrototype));
-                promises.push(this._addLecturesByScheduleAndPrototype(schedule, lecturePrototype));
+                if (hint == DaoHint.NEW_VALUE) promises.push(_deleteLecturesByPrototype(lecturePrototype));
+                promises.push(_addLecturesByScheduleAndPrototype(schedule, lecturePrototype));
 
                 Promise.all(promises)
                     .then((values) => {
-                        let nLectures = values[1];
+                        let nLectures = values[values.length-1];
                         resolve(nLectures);
+                        return;
                     })
                     .catch((err) => {
                         // maybe the hint was wrong
                         // it can retry a maximum of 1 times
                         promises = [
-                            this._deleteLecturesByPrototype(lecturePrototype),
-                            this._addLecturesByScheduleAndPrototype(schedule, lecturePrototype),
+                            _deleteLecturesByPrototype(lecturePrototype),
+                            _addLecturesByScheduleAndPrototype(schedule, lecturePrototype),
                         ];
                         Promise.all(promises)
                             .then((values) => {
@@ -1787,6 +1793,8 @@ const updateSchedule = function (schedule) {
             }
             // actualSchedule.startingTime = moment(actualSchedule.startingTime);
             // actualSchedule.endingDate = moment(actualSchedule.endingDate);
+            console.log(`Updated schedule to insert:`);
+            console.log(actualSchedule);
 
             const updateSql = `UPDATE Schedule
                 SET code = ?,
@@ -1809,20 +1817,20 @@ const updateSchedule = function (schedule) {
                     actualSchedule.dayOfWeek,
                     actualSchedule.startingTime,
                     actualSchedule.endingDate,
+                    actualSchedule.scheduleId
                 ],
                 function (err) {
                     if (err) {
                         reject(StandardErr.fromDao(err));
                         return;
                     }
+                    
                     if (!this.changes) {
-                        reject(
-                            StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "Unable to update the schedule", 500)
-                        );
+                        reject( StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "Unable to update the schedule, no rows changed", 500));
                         return;
                     }
 
-                    this._generateLecturesBySchedule(actualSchedule, DaoHint.ALREADY_PRESENT)
+                    _generateLecturesBySchedule(actualSchedule, DaoHint.ALREADY_PRESENT)
                         .then(resolve)
                         .catch(reject);
                 }
