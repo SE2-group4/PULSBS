@@ -7,11 +7,10 @@ import Spinner from 'react-bootstrap/Spinner';
 import Table from 'react-bootstrap/Table';
 import Pagination from 'react-bootstrap/Pagination';
 import Schedule from '../entities/schedule';
-import moment from 'moment';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import Course from '../entities/course';
+import Jumbotron from 'react-bootstrap/Jumbotron';
 
 const scheduleForPage = 10;
 
@@ -24,27 +23,22 @@ const rooms = ["r1", "r2", "r3"]; //to call
 class SupportSchedulePage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { schedules: null, courses: null, rooms: null, loading: true, currPage: 1, selectedSchedule: null }
+        this.state = { schedules: null, courses: null, rooms: null, filters: null, loading: true, currPage: 1, selectedSchedule: null }
     }
 
     async componentDidMount() {
-        /*API.getSchedulesBySupportId(this.props.user.userId)
-            .then((schedules) => {
-                console.log(schedules);
-                this.setState({ loading: false });
-            })
-            .catch((error) => {
-                console.log(error);
-                this.setState({ loading: false });
-            })*/
         try {
+            //let schedules=API.getSchedulesBySupportId(this.props.user.userId);
             let courses = await API.getCoursesBySupportId(this.props.user.userId);
-            let rooms_ = rooms;
+            let rooms_ = rooms; //actual call
+            //debug only (start)
             schedulesFake.forEach((item) => {
                 if (rooms_.indexOf(item.roomId) === -1)
                     rooms_.push(item.roomId)
             });
-            this.setState({ schedules: schedulesFake, courses: courses, rooms: rooms, loading: false });
+            //debug only (end)
+            let filters = courses.map((c) => c.description);
+            this.setState({ schedules: schedulesFake, courses: courses, rooms: rooms, filters: filters, loading: false });
         } catch (error) {
             this.setState({ loading: false });
         }
@@ -62,6 +56,16 @@ class SupportSchedulePage extends React.Component {
 
     closeModal = () => {
         this.setState({ selectedSchedule: null });
+    }
+
+    changeFilters = (desc) => {
+        let filters;
+        if (desc === "All")
+            filters = this.state.courses.map((c) => c.description);
+        else
+            filters = [desc,];
+        this.setState({ filters: filters })
+
     }
 
     submit = (day, room, startingTime, endingTime) => {
@@ -97,8 +101,11 @@ class SupportSchedulePage extends React.Component {
                 <Container fluid>
                     <Row>
                         <Col sm={10}>
+                            <Col sm={4}>
+                                <Filters courses={this.state.courses} change={this.changeFilters} />
+                            </Col>
                             <br />
-                            <ScheduleTable schedules={this.state.schedules} current={this.state.currPage} edit={this.openModal} courses={this.state.courses} />
+                            <ScheduleTable schedules={this.state.schedules} current={this.state.currPage} edit={this.openModal} courses={this.state.courses} filters={this.state.filters} />
                         </Col>
                     </Row>
                 </Container>
@@ -106,11 +113,23 @@ class SupportSchedulePage extends React.Component {
     }
 }
 
+function Filters(props) {
+    if (props.courses.length !== 0)
+        return <Jumbotron>
+            <strong>Select a course : </strong>
+            <Form.Control as="select" data-testid="courseSelect" custom onChange={(ev) => { props.change(ev.target.value) }} >
+                <option key="All" value="All" data-testid="All" >All</option>
+                {props.courses.map((course) => { return (<option key={course.courseId} data-testid={"c" + course.courseId} value={course.description} >{course.description}</option>) })}
+            </Form.Control>
+        </Jumbotron>;
+}
+
 function ScheduleTable(props) {
-    let nPages = Math.ceil(props.schedules.length / scheduleForPage);
+    let filtered = props.schedules.filter((s) => props.filters.indexOf(courseName(s.code, props.courses)) !== -1);
+    let nPages = Math.ceil(filtered.length / scheduleForPage);
     let items = [];
     let tableEntries = [];
-    if (props.schedules.length !== 0) {
+    if (filtered.length !== 0) {
         for (let number = 1; number <= nPages; number++) {
             items.push(
                 <Pagination.Item data-testid={"paginationItemSchedule-" + number} key={number} active={number === parseInt(props.current)} >
@@ -120,14 +139,13 @@ function ScheduleTable(props) {
         }
 
         for (let entry = (props.current - 1) * scheduleForPage; entry <= props.current * scheduleForPage - 1; entry++) {
-            let schedule = props.schedules[entry];
+            let schedule = filtered[entry];
             if (schedule)
                 tableEntries.push(<ScheduleRow key={schedule.scheduleId} schedule={schedule} edit={props.edit} courses={props.courses} />);
         }
     }
 
     return <>
-        <strong>Schedules list:</strong><br />
         <Table striped hover>
             <thead style={{ whiteSpace: "nowrap" }}>
                 <tr>
@@ -147,7 +165,7 @@ function ScheduleTable(props) {
             </tbody>
         </Table>
         {nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
-        {props.schedules.length === 0 && <label>No schedules available.</label>}
+        {filtered.length === 0 && <label>No schedules available.</label>}
     </>;
 }
 
@@ -175,22 +193,22 @@ class FormModal extends React.Component {
         this.state = { day: this.props.schedule.dayOfWeek, room: this.props.schedule.roomId, startingTime: this.props.schedule.startingTime, endingTime: this.props.schedule.endingTime, changed: null };
     }
     changeDay = (day) => {
-        this.setState({ day: day, changed: true });
+        this.setState({ day: day, changed: somethingChanged(this.props.schedule, day, this.state.room, this.state.startingTime, this.state.endingTime) });
     }
     changeRoom = (roomId) => {
-        this.setState({ room: roomId, changed: true });
+        this.setState({ room: roomId, changed: somethingChanged(this.props.schedule, this.state.day, roomId, this.state.startingTime, this.state.endingTime) });
     }
     changeST = (st) => {
         let et = this.state.endingTime;
-        if (st >= this.state.endingTime)
+        if (st >= et && st !== "8:30")
             et = updateEndingTime(st, endingTimes);
-        this.setState({ startingTime: st, endingTime: et, changed: true });
+        this.setState({ startingTime: st, endingTime: et, changed: somethingChanged(this.props.schedule, this.state.day, this.state.room, st, et) });
     }
     changeET = (et) => {
         let st = this.state.startingTime;
-        if (et <= this.state.startingTime)
+        if (et <= st && st !== "8:30")
             st = updateStartingTime(et, startingTimes);
-        this.setState({ startingTime: st, endingTime: et, changed: true });
+        this.setState({ startingTime: st, endingTime: et, changed: somethingChanged(this.props.schedule, this.state.day, this.state.room, st, et) });
     }
     handleSubmit = () => {
         this.props.submitData(this.state.day, this.state.room, this.state.startingTime, this.state.endingTime);
@@ -281,6 +299,13 @@ function updateStartingTime(endingTime, startingTimes_) {
     let i = startingTimes_.indexOf(endingTime);
     i--;
     return startingTimes_[i];
+}
+
+function somethingChanged(oldSchedule, day, room, st, et) {
+    if (oldSchedule.dayOfWeek !== day || (oldSchedule.roomId).toString() !== room || oldSchedule.startingTime !== st || oldSchedule.endingTime !== et)
+        return true;
+    else
+        return false;
 }
 
 export default SupportSchedulePage;
