@@ -53,16 +53,16 @@ INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, 
 INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, city, serialNumber, birthday) VALUES(32, 'SUPPORT', 'Alberto', 'Angela', 'officer32@test.it', 'officer32', '32', 'Turin', '32', DATETIME('now', '-20 year', 'start of day'));
 
 -- Courses
-INSERT INTO Course(courseId, description, year) VALUES(1, 'Software enginnering 2', 1);
-INSERT INTO Course(courseId, description, year) VALUES(2, 'Computer system security', 1);
-INSERT INTO Course(courseId, description, year) VALUES(3, 'Machine learning and artificial intelligence', 1);
-INSERT INTO Course(courseId, description, year) VALUES(4, 'Web application', 1);
-INSERT INTO Course(courseId, description, year) VALUES(5, 'Big data', 1);
-INSERT INTO Course(courseId, description, year) VALUES(6, 'Optimization methods and algorithms', 1);
-INSERT INTO Course(courseId, description, year) VALUES(7, 'System-on-chip architecture', 1);
-INSERT INTO Course(courseId, description, year) VALUES(8, 'Human Computer Interaction', 1);
-INSERT INTO Course(courseId, description, year) VALUES(9, 'Energy management for IoT', 1);
-INSERT INTO Course(courseId, description, year) VALUES(10, 'GPU programming', 1);
+INSERT INTO Course(courseId, code, description, year) VALUES(1, 1, 'Software enginnering 2', 1);
+INSERT INTO Course(courseId, code, description, year) VALUES(2, 2, 'Computer system security', 1);
+INSERT INTO Course(courseId, code, description, year) VALUES(3, 3, 'Machine learning and artificial intelligence', 1);
+INSERT INTO Course(courseId, code, description, year) VALUES(4, 4, 'Web application', 1);
+INSERT INTO Course(courseId, code, description, year) VALUES(5, 5, 'Big data', 1);
+INSERT INTO Course(courseId, code, description, year) VALUES(6, 6, 'Optimization methods and algorithms', 1);
+INSERT INTO Course(courseId, code, description, year) VALUES(7, 7, 'System-on-chip architecture', 1);
+INSERT INTO Course(courseId, code, description, year) VALUES(8, 8, 'Human Computer Interaction', 1);
+INSERT INTO Course(courseId, code, description, year) VALUES(9, 9, 'Energy management for IoT', 1);
+INSERT INTO Course(courseId, code, description, year) VALUES(10, 10, 'GPU programming', 1);
 
 -- TeacherCourse
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(11, 1, 1);
