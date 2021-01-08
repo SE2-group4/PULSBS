@@ -683,7 +683,7 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
     schedule.scheduleId = scheduleId;
 
     // check if it exists
-    const schedules = db.getSchedules();
+    const schedules = await db.getSchedules();
     const actualSchedules = schedules.filter((s) => s.scheduleId === schedule.scheduleId);
     if (actualSchedules.length === 0) {
         throw StandardErr.new("ManagerService", StandardErr.errno.NOT_EXISTS, "This schedule does not exist", 404);
@@ -693,6 +693,11 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
     return;
 };
 
+/**
+ * get all classes/rooms from the system
+ * @param {Object} param - managerId
+ * @returns {Array} array of Class
+ */
 const supportOfficerGetRooms = async function supportOfficerGetRooms({ managerId }) {
     const rooms = await db.getClasses();
     return rooms;
