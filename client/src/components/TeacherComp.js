@@ -7,6 +7,9 @@ import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import Pagination from 'react-bootstrap/Pagination';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import { GoCheck } from 'react-icons/go';
 
 const Checkbox = ({ name, checked = false, onChange, type }) => (
     <Form.Check name={name} checked={checked} onChange={onChange} data-testid={type + "-" + name} />
@@ -67,9 +70,15 @@ class CoursePanel extends React.Component {
                         {tableEntries}
                     </tbody>
                 </Table>
-                {nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
-                {this.props.courses.length === 0 && <label>no courses available.</label>}
-                <span className="selectedText">{this.props.sCourse && <label data-testid="selected-course">Selected course: <b>{this.props.sCourse}</b></label>}</span>
+                <Row>
+                    <Col >
+                        {nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
+                        {this.props.courses.length === 0 && <label>no courses available.</label>}
+                    </Col>
+                    <Col className="text-right">
+                        {this.props.sCourse && <label data-testid="selected-course">Selected course: <b>{this.props.sCourse}</b></label>}
+                    </Col>
+                </Row>
             </Container>
             <br />
         </>;
@@ -149,9 +158,15 @@ class LecturePanel extends React.Component {
                         {tableEntries}
                     </tbody>
                 </Table>
-                {nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
-                {this.props.lectures.length === 0 && <label>no lectures available.</label>}
-                <span className="selectedText" >{this.props.sLecture && <label data-testid="selected-lecture">Selected lecture: <b>{this.props.sLecture}</b></label>}</span>
+                <Row>
+                    <Col>
+                        {nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
+                        {this.props.lectures.length === 0 && <label>no lectures available.</label>}
+                    </Col>
+                    <Col className="text-right">
+                        {this.props.sLecture && <label data-testid="selected-lecture">Selected lecture: <b>{this.props.sLecture}</b></label>}
+                    </Col>
+                </Row>
             </Container>
             <br />
         </>;
@@ -227,7 +242,7 @@ class StudentPanel extends React.Component {
         for (let entry = (this.props.currentPage - 1) * elementForPage; entry <= this.props.currentPage * elementForPage - 1; entry++) {
             let student = this.props.students[entry];
             if (student)
-                tableEntries.push(<StudentPanelRow key={student.studentId} student={student} updateStudent={this.updateStudent} />);
+                tableEntries.push(<StudentPanelRow key={student.studentId} student={student} updateStudent={this.updateStudent} present={this.props.enable} />);
         }
         let numText = this.props.present ? <>Number of present students: <b>{this.props.students.length} / {this.props.numStudents}</b></> : <>Number of students: <b>{this.props.students.length}</b></>;
         let noStudentText = this.props.present ? "no present students." : "no students listed.";
@@ -246,9 +261,15 @@ class StudentPanel extends React.Component {
                         {tableEntries}
                     </tbody>
                 </Table>
-                {nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
-                {this.props.students.length === 0 && <label>{noStudentText}</label>}
-                <span className="selectedText">{this.props.students.length !== 0 && <label data-testid={"number-students-" + this.props.students.length}>{numText}</label>}</span>
+                <Row>
+                    <Col>
+                        {nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
+                        {this.props.students.length === 0 && <label>{noStudentText}</label>}
+                    </Col>
+                    <Col className="text-right">
+                        {this.props.students.length !== 0 && <label data-testid={"number-students-" + this.props.students.length}>{numText}</label>}
+                    </Col>
+                </Row>
             </Container>
             <br />
         </>;
@@ -256,10 +277,10 @@ class StudentPanel extends React.Component {
 }
 
 function StudentPanelRow(props) {
-    return <tr data-testid="student-row" as={Button} onClick={() => props.updateStudent(props.student)}>
+    return <tr data-testid="student-row" as={Button} onClick={() => props.updateStudent(props.student)} className={props.present ? "tab-cursor" : "tab-na"}>
         <td>{props.student.lastName}</td>
         <td>{props.student.firstName}</td>
-        <td>{props.student.studentId}</td>
+        <td>{props.student.studentId} {props.present && props.student.bookingStatus && props.student.bookingStatus === "PRESENT" && <GoCheck size={16} className="check-right" />}</td>
     </tr>;
 }
 

@@ -202,7 +202,22 @@ Note: Beware of modifying this element as it can break the animations - you shou
   #multiselectContainerReact{
     background-color:white;
   }
+  .text-right{
+    text-align: right;
+  }
+  .check-right{
+    position: absolute;
+    right: 10%;
+  }
+  .tab-cursor:hover{
+    cursor: pointer;
+  }
+  .tab-na:hover{
+    cursor: not-allowed;
+  }
   /*
   .groupHeading { /* To chanage group heading style*/
     
   /*}
+  
+  

@@ -3,6 +3,7 @@ import Container from "react-bootstrap/Container"
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
+import Badge from 'react-bootstrap/Badge';
 import moment from 'moment';
 import API from "../api/Api";
 import { CoursePanel, LecturePanel, StudentPanel, EditModal, DeleteModal, ErrorModal } from '../components/TeacherComp';
@@ -95,12 +96,13 @@ class TeacherPage extends React.Component {
     }
 
     changePage = (name, number) => {
-        if (name === "currCPage")
-            this.setState({ currCPage: number });
-        else if (name === "currLPage")
-            this.setState({ currLPage: number });
-        else
-            this.setState({ currSPage: number });
+        if (number)
+            if (name === "currCPage")
+                this.setState({ currCPage: number });
+            else if (name === "currLPage")
+                this.setState({ currLPage: number });
+            else
+                this.setState({ currSPage: number });
     }
 
     //Error handler
@@ -179,18 +181,23 @@ class TeacherPage extends React.Component {
 
     updateStudent = (student) => {
         //check: is student already signed present?
+        let students = this.state.students;
         let presents = this.state.presentStudents.slice();
         let newStatus = presents.indexOf(student) === -1 ? "present" : "not_present";
         API.updateStudentStatus(this.state.user.userId, this.state.selectedCourse, this.state.selectedLecture, student.studentId, newStatus)
             .then(() => {
                 //ok from server
-                if (newStatus === "present")
+                let j = students.indexOf(student);
+                if (newStatus === "present") {
                     presents.push(student);
+                    students[j].bookingStatus = "PRESENT";
+                }
                 else {
                     let i = presents.indexOf(student);
                     presents.splice(i, 1);
+                    students[j].bookingStatus = "NOT_PRESENT";
                 }
-                this.setState({ presentStudents: presents });
+                this.setState({ students: students, presentStudents: presents });
             })
             .catch((error) => {
                 //!ok from server
@@ -224,6 +231,10 @@ class TeacherPage extends React.Component {
                 <Container fluid>
                     <Row>
                         <Col sm={6}>
+                            <h5>{" "}</h5>
+                            <br />
+                            <br />
+                            <br />
                             <CoursePanel
                                 courses={this.state.courses} sCourse={this.state.selectedCourse}                                //courses
                                 currentPage={this.state.currCPage} change={this.changePage}                                     //pagination
@@ -241,7 +252,7 @@ class TeacherPage extends React.Component {
                         </Col>
                         <Col sm={6}>
                             {this.state.selectedLecture && <>
-                                {takeAttendances ? <>Lecture <b>in progress</b>, click on a student to sign his presence/absence to the lecture.</> : " "}<br /><br />
+                                {takeAttendances ? <><h5><Badge variant="success">In progress</Badge></h5>Lecture in progress, click on a student to sign his presence/absence to the lecture.</> : " "}<br /><br />
                                 <StudentPanel
                                     students={this.state.students}                                                      //students
                                     currentPage={this.state.currSPage} change={this.changePage}                         //pagination
