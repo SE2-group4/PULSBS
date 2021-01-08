@@ -8,6 +8,8 @@ const assert = require("assert").strict;
 const Dao = require("../src/db/Dao.js");
 const Service = require("../src/services/SupportOfficerService.js");
 const prepare = require("../src/db/preparedb.js");
+const Schedule = require('../src/entities/Schedule.js');
+const Class = require('../src/entities/Class.js');
 
 //TODO: finish schedules tests
 const testSuiteSupportOfficer = () => {
@@ -404,7 +406,7 @@ const testSuiteSupportOfficer = () => {
             });
 
             it('should return the list of schedules', function(done) {
-                Service.supportOfficerGetSchedules()
+                Service.supportOfficerGetSchedules({ managerId: 1 })
                     .then((schedules) => {
                         assert.strictEqual(schedules.length, 5, 'Wrong number of schedules retrieved');
                         done();
@@ -419,8 +421,10 @@ const testSuiteSupportOfficer = () => {
             });
 
             it('existing schedule with correct new params should update the schedule', function(done) {
-                const updatedSchedule = Schedule.from(schedule1);
-                updatedSchedule.room = class2.description;
+                const schedule1 = new Schedule(1, '1', 2020, 1, '1A', 10, 'Mon', '8:30', '10:00');
+                const updatedSchedule = schedule1;
+                const class2 = new Class(2, '2B', 10);
+                updatedSchedule.roomId = class2.classId;
 
                 Service.supportOfficerUpdateSchedule({
                         managerId: 1,
@@ -450,7 +454,9 @@ const testSuiteSupportOfficer = () => {
             });
 
             it('correct schedule but overlapped with another one of the same course should reject the request', function(done) {
+                const schedule1 = new Schedule(1, '1', 2020, 1, '1A', 10, 'Mon', '8:30', '10:00');
                 const overlappedScheduleSameCourse = Schedule.from(schedule1);
+                const schedule2 = new Schedule(2, '2', 2020, 1, '2B', 10, 'Mon', '8:30', '10:00');
                 overlappedScheduleSameCourse.roomId = schedule2.roomId;
 
                 Service.supportOfficerUpdateSchedule({
@@ -463,7 +469,9 @@ const testSuiteSupportOfficer = () => {
             });
 
             it('correct schedule but overlapped with another one of a different course in the same class should reject the request', function(done) {
+                const schedule1 = new Schedule(1, '1', 2020, 1, '1A', 10, 'Mon', '8:30', '10:00');
                 const overlappedScheduleDifferentCourse = Schedule.from(schedule1);
+                const schedule2 = new Schedule(2, '2', 2020, 1, '2B', 10, 'Mon', '8:30', '10:00');
                 overlappedScheduleDifferentCourse.roomId = schedule2.roomId;
                 overlappedScheduleDifferentCourse.startingTime = schedule2.startingTime;
                 overlappedScheduleDifferentCourse.endingTime = schedule2.endingTime;
@@ -484,7 +492,7 @@ const testSuiteSupportOfficer = () => {
             });
 
             it('should return the correct number of rooms', function(done) {
-                Service.supportOfficerGetRooms()
+                Service.supportOfficerGetRooms({ managerId: 1 })
                     .then((rooms) => {
                         assert.strictEqual(rooms.length, 3, 'Wrong number of rooms');
                         done();
