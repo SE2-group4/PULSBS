@@ -2,6 +2,7 @@ import User from '../entities/user';
 import Course from '../entities/course';
 import Lecture from '../entities/lecture';
 import Student from '../entities/student';
+import Schedule from '../entities/schedule';
 import LectureWithClassInfo from '../entities/lectureWithClassInfo';
 
 var sizeof = require('object-sizeof');
@@ -222,7 +223,6 @@ async function getLecturesByCourseIdByTeacherId(Uid, Cid, dateFrom, dateTo, book
             if (response.ok) {
                 response.json()
                     .then((obj) => {
-
                         resolve(obj.map((l) => {
                             l.lecture["numBookings"] = l.bookings;
                             l.lecture["attendances"] = l.attendances;
@@ -457,6 +457,28 @@ async function updateDeliveryByLecture_S(id, courseId, lectureId, delivery) {
     });
 }
 
+async function getSchedulesBySupportId(id) {
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/supportOfficers/${id}/schedules`).then((response) => {
+            if (response.ok) {
+                response.json()
+                    .then((obj) => {
+                        resolve(obj.map((s) => Schedule.from(s)));
+                    })
+                    .catch((err) => { reject({ source: "SupportOfficer", error: "application parse error" }) }); // something else
+            } else {
+                // analyze the cause of error
+                if (response.status === 404)
+                    response.json()
+                        .then((obj) => reject({ source: obj.statusCode, error: obj.message }))
+                        .catch(() => reject({ source: "SupportOfficer", error: "Server error" }));
+                else reject("err")
+
+            }
+        }).catch(() => { reject({ source: "SupportOfficer", error: "Server connection error" }) }); // connection errors
+    });
+}
+
 /************************ BOOKING MANAGER ************************************/
 
 async function getStudentBySSN(id, ssn) {
@@ -559,6 +581,6 @@ async function getAllCourseLectures(id, courseId) {
 const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
     getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport,
-    getAllCourses, resetDB, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S, updateStudentStatus, getAllCourseLectures
+    getAllCourses, resetDB, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S, updateStudentStatus, getAllCourseLectures, getSchedulesBySupportId
 };
 export default API;
