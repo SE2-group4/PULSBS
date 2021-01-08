@@ -242,7 +242,7 @@ class StudentPanel extends React.Component {
         for (let entry = (this.props.currentPage - 1) * elementForPage; entry <= this.props.currentPage * elementForPage - 1; entry++) {
             let student = this.props.students[entry];
             if (student)
-                tableEntries.push(<StudentPanelRow key={student.studentId} student={student} updateStudent={this.updateStudent} present={this.props.enable} />);
+                tableEntries.push(<StudentPanelRow key={student.studentId} student={student} updateStudent={this.updateStudent} enable={this.props.enable} present={this.props.present} />);
         }
         let numText = this.props.present ? <>Number of present students: <b>{this.props.students.length} / {this.props.numStudents}</b></> : <>Number of students: <b>{this.props.students.length}</b></>;
         let noStudentText = this.props.present ? "no present students." : "no students listed.";
@@ -277,10 +277,16 @@ class StudentPanel extends React.Component {
 }
 
 function StudentPanelRow(props) {
-    return <tr data-testid="student-row" as={Button} onClick={() => props.updateStudent(props.student)} className={props.present ? "tab-cursor" : "tab-na"}>
+    let className = "";
+    if (!props.enable && props.present)
+        className = "tab-na";
+    else if (props.enable && !props.present)
+        className = "tab-cursor";
+
+    return <tr data-testid="student-row" as={Button} onClick={() => props.updateStudent(props.student)} className={className}>
         <td>{props.student.lastName}</td>
         <td>{props.student.firstName}</td>
-        <td>{props.student.studentId} {props.present && props.student.bookingStatus && props.student.bookingStatus === "PRESENT" && <GoCheck size={16} className="check-right" />}</td>
+        <td>{props.student.studentId} {props.enable && !props.present && props.student.bookingStatus && props.student.bookingStatus === "PRESENT" && <GoCheck size={16} className="check-right" />}</td>
     </tr>;
 }
 

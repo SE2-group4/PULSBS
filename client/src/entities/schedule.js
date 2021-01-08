@@ -17,7 +17,7 @@ class Schedule {
      * @returns {Schedule} new schedule
      */
     static from(obj) {
-        return Object.assign(new Schedule(), obj);;
+        return Object.assign(new Schedule(), obj);
     }
 }
 

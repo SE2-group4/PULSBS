@@ -219,6 +219,12 @@ class TeacherPage extends React.Component {
                 takeAttendances = moment().isBetween(moment(lecture.startingDate), moment(lecture.startingDate).add(lecture.duration, "milliseconds")) ? true : false;
             }
         }
+
+        let space = <><h5>{" "}</h5>
+            <br />
+            <br />
+            <br /></>;
+
         return (
             <>
                 { this.state.lectureIdToUpdate &&
@@ -231,17 +237,34 @@ class TeacherPage extends React.Component {
                 <Container fluid>
                     <Row>
                         <Col sm={6}>
-                            <h5>{" "}</h5>
-                            <br />
-                            <br />
-                            <br />
+                            {space}
                             <CoursePanel
                                 courses={this.state.courses} sCourse={this.state.selectedCourse}                                //courses
                                 currentPage={this.state.currCPage} change={this.changePage}                                     //pagination
                                 update={this.updateLectures} reset={this.resetSelected}                                         //interaction with Lecture Panel
                             />
-                            <br />
-                            <br />
+
+
+                        </Col>
+                        <Col sm={6}>
+                            {this.state.selectedLecture && <>
+                                {takeAttendances ? <><h5><Badge variant="success">In progress</Badge></h5>Lecture in progress, click on a student to sign his presence/absence to the lecture.<br /><br /></> : space}
+                                <StudentPanel
+                                    students={this.state.students}                                                      //students
+                                    currentPage={this.state.currSPage} change={this.changePage}                         //pagination
+                                    updateStudent={this.updateStudent} enable={takeAttendances}                         //student presence manag
+                                    present={false}
+                                />
+                                <br />
+
+                            </>}
+
+                        </Col>
+                    </Row>
+                    <br />
+                    <br />
+                    <Row>
+                        <Col sm={6}>
                             {this.state.selectedCourse && <LecturePanel
                                 lectures={this.state.lectures} sLecture={this.state.selectedLecture}                                //lectures
                                 currentPage={this.state.currLPage} change={this.changePage}                                         //pagination
@@ -251,29 +274,20 @@ class TeacherPage extends React.Component {
                             />}
                         </Col>
                         <Col sm={6}>
-                            {this.state.selectedLecture && <>
-                                {takeAttendances ? <><h5><Badge variant="success">In progress</Badge></h5>Lecture in progress, click on a student to sign his presence/absence to the lecture.</> : " "}<br /><br />
+                            {this.state.selectedLecture && takeAttendances &&
                                 <StudentPanel
-                                    students={this.state.students}                                                      //students
+                                    students={this.state.presentStudents.sort((a, b) => a.studentId - b.studentId)}     //students
                                     currentPage={this.state.currSPage} change={this.changePage}                         //pagination
-                                    updateStudent={this.updateStudent} enable={takeAttendances}                         //student presence manag
-                                    present={false}
+                                    updateStudent={this.updateStudent} enable={false}                                   //student presence manag
+                                    present={true} numStudents={this.state.students.length}
                                 />
-                                <br />
-                                {takeAttendances &&
-                                    <StudentPanel
-                                        students={this.state.presentStudents.sort((a, b) => a.studentId - b.studentId)}     //students
-                                        currentPage={this.state.currSPage} change={this.changePage}                         //pagination
-                                        updateStudent={this.updateStudent} enable={false}                                   //student presence manag
-                                        present={true} numStudents={this.state.students.length}
-                                    />
-                                }
-                            </>}
+                            }
                             <Col sm={4}>
-                                {(this.state.studentLoading || this.state.lectureLoading) && <label>Loading...&emsp;&emsp;<Spinner animation="border" /></label>}
+
                             </Col>
                         </Col>
                     </Row>
+                    {(this.state.studentLoading || this.state.lectureLoading) && <label className="teacher-loading">Loading...&emsp;&emsp;<Spinner animation="border" /></label>}
                 </Container>
             </>
         );

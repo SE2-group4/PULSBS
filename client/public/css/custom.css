@@ -216,6 +216,11 @@ Note: Beware of modifying this element as it can break the animations - you shou
   .tab-na:hover{
     cursor: not-allowed;
   }
+  .teacher-loading{
+    position: absolute;
+    right: 5%;
+    bottom: 5%;
+  }
   /*
   .groupHeading { /* To chanage group heading style*/
     
