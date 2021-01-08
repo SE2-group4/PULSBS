@@ -11,11 +11,15 @@ class Course {
      * @param {Number} courseId
      * @param {String} description
      * @param {Number} year - relative year (eg. 1 = first year of the master degree)
+     * @param {Number} semester
+     * @param {String} code
      */
-    constructor(courseId = -1, description = null, year = -1) {
+    constructor(courseId = -1, description = null, year = -1, semester = -1, code = -1) {
         this.courseId = courseId;
         this.description = description;
         this.year = year;
+        this.semester = semester;
+        this.code = code;
     }
 
     /**
