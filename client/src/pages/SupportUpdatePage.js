@@ -19,7 +19,7 @@ import ErrorMsg from '../components/ErrorMsg';
 class SupportUpdatePage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { loading: true, chosenCourse: "All", from: undefined, to: undefined }
+        this.state = { loadingPage: true, chosenCourse: "All", from: undefined, to: undefined }
     }
 
     async componentDidMount() {
@@ -29,9 +29,9 @@ class SupportUpdatePage extends React.Component {
             for (let course of courses)
                 lectures.push(...await API.getLecturesByCourseId_S(this.props.user.userId, course.courseId))
             lectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isAfter(moment()) })
-            this.setState({ courses: courses, loading: false, lectures: lectures })
+            this.setState({ courses: courses, loadingPage: false, lectures: lectures })
         } catch (err) {
-            this.setState({ communicationError: true })
+            this.setState({ communicationError: true, loadingPage: false })
         }
     }
     /**
@@ -39,7 +39,6 @@ class SupportUpdatePage extends React.Component {
      * @param {Course} course 
      */
     changeCourse = (course) => {
-        console.log(course)
         this.setState({ chosenCourse: course })
     }
 
@@ -60,7 +59,7 @@ class SupportUpdatePage extends React.Component {
     }
 
     /**
-     * Change delivery of selected course
+     * Change delivery of selected lecture
      * @param {Lecture} lecture 
      */
     changeDelivery = (lecture) => {
@@ -75,15 +74,34 @@ class SupportUpdatePage extends React.Component {
 
             })
             .catch(() => {
-                this.setState({ communicationError: true })
+                this.setState({ communicationError: true, loading: false })
             })
     }
+    /**
+     * Remove lecture
+     * @param {Lecture} lecture
+     */
+    deleteLecture = (lecture) => {
+        this.setState({ loading: true })
+        API.deleteLecture_S(this.props.user.userId, lecture.courseId, lecture.lectureId)
+            .then(() => {
+                let lectures = this.state.lectures;
+                for (let i = 0; i < lectures.length; i++)
+                    if (lectures[i].lectureId == lecture.lectureId)
+                        lectures.splice(i, 0)
+                this.setState({ loading: false, lectures: lectures })
+            })
+            .catch(() => {
+                this.setState({ communicationError: true, loading: false })
+            })
+    }
+
 
     render() {
         if (this.state.communicationError)
             return <ErrorMsg msg="Ops, an error occured during server communication" />
 
-        if (this.state.loading)
+        if (this.state.loadingPage)
             return (<Spinner animation="border" ></Spinner>)
 
         return (
@@ -93,7 +111,7 @@ class SupportUpdatePage extends React.Component {
                         from={this.state.from} to={this.state.to} changeFrom={this.changeFrom} changeTo={this.changeTo} />
                 </Container>
                 <Lectures lectures={this.state.lectures} from={this.state.from} to={this.state.to} chosenCourse={this.state.chosenCourse} courses={this.state.courses}
-                    changeDelivery={this.changeDelivery} />
+                    changeDelivery={this.changeDelivery} deleteLecture={this.deleteLecture} />
             </>
         )
     }
@@ -223,7 +241,7 @@ class FromToDayPicker extends React.Component {
 function Lectures(props) {
 
     const [active, setActive] = useState(1);
-    let lectures = filterLectures(props.lectures, props.from, props.to, props.chosenCourse, props.courses, props.changeDelivery)
+    let lectures = filterLectures(props.lectures, props.from, props.to, props.chosenCourse, props.courses, props.changeDelivery, props.deleteLecture)
     if (lectures.length === 0)
         return <Alert variant="warning">No lectures</Alert>
     let nPages = Math.floor(lectures.length / 11) + 1;
@@ -253,6 +271,7 @@ function Lectures(props) {
                         <th>Booking deadline</th>
                         <th>Delivery</th>
                         <th>Change delivery</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -264,7 +283,7 @@ function Lectures(props) {
     )
 }
 
-function filterLectures(lectures, from, to, chosenCourse, courses, changeDelivery) {
+function filterLectures(lectures, from, to, chosenCourse, courses, changeDelivery, deleteLecture) {
     let filterLectures = lectures
     if (chosenCourse !== "All")
         filterLectures = filterLectures.filter((lecture) => courseName(lecture.courseId, courses) === chosenCourse)
@@ -274,13 +293,18 @@ function filterLectures(lectures, from, to, chosenCourse, courses, changeDeliver
         filterLectures = filterLectures.filter((lecture) => moment(lecture.startingDate).isBefore(to))
     let entries = []
     for (let lecture of filterLectures) {
-        entries.push(<TableEntry lecture={lecture} courses={courses} changeDelivery={changeDelivery} />)
+        entries.push(<TableEntry lecture={lecture} courses={courses} changeDelivery={changeDelivery} deleteLecture={deleteLecture} />)
     }
     return entries
 }
+
+const trash = <svg className="bi bi-trash" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+    <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+</svg>
 function TableEntry(props) {
     return (
-        <tr key={props.lecture.lectureId}>
+        <tr key={props.lecture.lectureId} data-testid={props.lecture.courseId}>
             <td>{courseName(props.lecture.courseId, props.courses)}</td>
             <td>{props.lecture.classId}</td>
             <td>{moment(props.lecture.startingDate).format("DD-MM-YYYY")}</td>
@@ -288,8 +312,12 @@ function TableEntry(props) {
             <td>{moment(props.lecture.startingDate).add(props.lecture.duration, "milliseconds").format("HH:mm")}</td>
             <td>{moment(props.lecture.bookingDeadline).format("DD-MM-YYYY HH:mm")}</td>
             <td>{props.lecture.delivery === "REMOTE" ? "REMOTE" : "IN PRESENCE"}</td>
-            <td>{props.lecture.delivery === "REMOTE" ? <Button data-testid={props.lecture.lectureId + "-button"} variant="warning" onClick={() => props.changeDelivery(props.lecture)} >Change to "In Presence"</Button> : <Button data-testid={props.lecture.lectureId + "-button"} variant="warning" onClick={() => props.changeDelivery(props.lecture)}>Change to "Remote"</Button>}</td>
-
+            <td>{props.lecture.delivery === "REMOTE" ?
+                <Button data-testid={props.lecture.lectureId + "-button"} variant="warning" onClick={() => props.changeDelivery(props.lecture)} >Change to "In Presence"</Button>
+                :
+                <Button data-testid={props.lecture.lectureId + "-button"} variant="warning" onClick={() => props.changeDelivery(props.lecture)}>Change to "Remote"&emsp;&emsp;</Button>}
+            </td>
+            <td><Button variant="danger" onClick={() => props.deleteLecture(props.lecture)}>{trash}</Button></td>
         </tr >
     )
 }

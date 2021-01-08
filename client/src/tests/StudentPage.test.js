@@ -220,7 +220,7 @@ describe('Calendar component', () => {
       userEvent.click(screen.getByText("Computer Systems Programming"))
     });
     expect(screen.getByText("Are you sure you want to cancel your reservation for this lecture?")).toBeInTheDocument();
-    fetch.mockResponseOnce({ availableSets: 200 }, { status: 200 })
+    fetch.mockResponseOnce(JSON.stringify({ availableSeats: 200 }), { status: 200 })
     await act(async () => {
       userEvent.click(screen.getByText("Yes"));
     });

@@ -104,14 +104,13 @@ let allCoursesWithCode = null;
 async function getCourses(supportId) {
     const { error } = convertToNumbers({ supportId });
     if (error) {
-        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     return await db.getAllCourses();
 }
 
 /**
- * TODO: should return all lectures or just the future ones
  * get all lecture of a given course
  *
  * supportId {supportId}
@@ -121,12 +120,75 @@ async function getCourses(supportId) {
 async function getCourseLectures(supportId, courseId) {
     const { error, courseId: cId } = convertToNumbers({ supportId, courseId });
     if (error) {
-        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
     const lectures = await db.getLecturesByCourseAndPeriodOfTime(new Course(cId));
 
     return lectures;
+}
+
+/**
+ * Delete a lecture given a lectureId, courseId
+ *
+ * Only one between teacherId or supportId must be set
+ * teacherId {Ingeter|String}
+ * supportId {Integer|String}
+ * courseId {Integer|String}
+ * lectureId {Integer|String}
+ * returns {Integer} 204. A ResponseError on error
+ **/
+async function deleteCourseLecture({ teacherId, supportId }, courseId, lectureId) {
+    const requester = teacherId ? { teacherId } : { supportId };
+    const isTeacher = teacherId ? true : false;
+
+    const { error, [Object.keys(requester)[0]]: rId, courseId: cId, lectureId: lId } = convertToNumbers({
+        ...requester,
+        courseId,
+        lectureId,
+    });
+    if (error) {
+        throw genResponseError(errno.PARAM_NOT_INT, error);
+    }
+
+    if (isTeacher && (!(await check.teacherCourseCorrelation(rId, cId)))) { 
+        throw genResponseError(errno.TEACHER_COURSE_MISMATCH_AA, { teacherId: rId, courseId });
+    }
+
+    // check if the course has a lecture with id = lId
+    if (!(await check.courseLectureCorrelation(cId, lId))) {
+        throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
+    }
+
+    const lecture = await db.getLectureById(new Lecture(lId));
+
+    if (check.isLectureCancellable(lecture)) {
+        // delete lecture
+        const isSuccess = await db.deleteLectureById(lecture);
+        if (isSuccess > 0) {
+            // send emails to the students that had a booking for the deleted lecture
+            const emailsInQueue = await db.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED);
+
+            if (emailsInQueue.length > 0) {
+                // create template email
+                const aEmail = emailsInQueue[0];
+                const subjectArgs = [aEmail.courseName];
+                const messageArgs = [aEmail.startingDate];
+                const { subject, message } = EmailService.getDefaultEmail(
+                    Email.EmailType.LESSON_CANCELLED,
+                    subjectArgs,
+                    messageArgs
+                );
+
+                const recipients = emailsInQueue.map((email) => email.recipient);
+                sendEmailsTo(subject, message, recipients);
+            }
+        }
+    } else {
+        throw genResponseError(errno.LECTURE_NOT_CANCELLABLE, { lectureId: lecture.lectureId });
+    }
+
+    return 204;
 }
 
 /**
@@ -142,35 +204,37 @@ async function getCourseLectures(supportId, courseId) {
 async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
     const { error, courseId: cId, lectureId: lId } = convertToNumbers({ supportId, courseId, lectureId });
     if (error) {
-        throw genResponseError(ResponseError.PARAM_NOT_INT, error);
+        throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
-    // check is switchTo mode is admissible
+    // check if switchTo mode is admissible
     if (!check.isValidDeliveryMode(switchTo)) {
-        throw genResponseError(ResponseError.LECTURE_INVALID_DELIVERY_MODE, { delivery: switchTo });
+        throw genResponseError(errno.LECTURE_INVALID_DELIVERY_MODE, { delivery: switchTo });
     }
 
-    // check is the course has a lecture with id = lId
-    if (!check.courseLectureCorrelation(cId, lId)) {
+    // check if the course has a lecture with id = lId
+    if (!(await check.courseLectureCorrelation(cId, lId))) {
         throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
     }
 
     const lecture = await db.getLectureById(new Lecture(lId));
 
-    // check is the request was sent 30m prior the start of the lecture
+    // check if the request was sent 30m prior the start of the lecture
     if (!check.isLectureSwitchable(lecture, switchTo, new Date(), false)) {
         throw genResponseError(errno.LECTURE_NOT_SWITCHABLE, { lectureId });
     }
 
-    // do nothing is the lecture delivery mode is already in that state
+    // do nothing if the lecture delivery mode is already in that state
     if (lecture.delivery === switchTo.toUpperCase()) return 204;
 
     lecture.delivery = switchTo;
     await db.updateLectureDeliveryMode(lecture);
 
+    // notify the students that have a booking for this lecture
     const studentsToBeNotified = await db.getBookedStudentsByLecture(lecture);
     if (studentsToBeNotified.length > 0) {
         const course = await db.getCourseByLecture(lecture);
+
         const subjectArgs = [course.description];
         const messageArgs = [utils.formatDate(lecture.startingDate), lecture.delivery];
 
@@ -180,7 +244,8 @@ async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
             messageArgs
         );
 
-        sendEmailsTo(subject, message, studentsToBeNotified);
+        const recipientsEmails = studentsToBeNotified.map((obj) => obj.student.email);
+        sendEmailsTo(subject, message, recipientsEmails);
     }
 
     return 204;
@@ -200,20 +265,20 @@ async function manageEntitiesUpload(entities, path) {
         throw genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: path });
     }
 
-    console.time("phase: mapping");
+    //console.time("phase: mapping");
     // map each entry of entities as a new object with the properties defined in DB_TABLES[<entityType>].mapTo
     const sanitizedEntities = await sanitizeEntities(entities, entityType);
-    console.timeEnd("phase: mapping");
+    //console.timeEnd("phase: mapping");
 
-    console.time("phase: query gen");
+    //console.time("phase: query gen");
     // create the queries
     const sqlQueries = genSqlQueries("INSERT", entityType, sanitizedEntities);
-    console.timeEnd("phase: query gen");
+    //console.timeEnd("phase: query gen");
 
-    console.time("phase: query run");
+    //console.time("phase: query run");
     // run the queries
     await runBatchQueries(sqlQueries);
-    console.timeEnd("phase: query run");
+    //console.timeEnd("phase: query run");
 
     // check if we need to do any more processing,
     // i.e. when uploading the schedules we need to also generate the lectures
@@ -499,12 +564,10 @@ function logToFile(queries) {
 
     fs.appendFile("./queries.log", `\n${date.toISOString()}\n`, function (err) {
         if (err) return console.log(err);
-        console.log("LOG: date > queries.log");
     });
 
     fs.appendFile("./queries.log", queries.join("\n"), function (err) {
         if (err) return console.log(err);
-        console.log("LOG: queries > queries.log");
     });
 }
 
@@ -580,27 +643,71 @@ function genResponseError(nerror, error) {
     return new ResponseError(MODULE_NAME, nerror, error);
 }
 
-function sendEmailsTo(subject, message, recepients = []) {
-    for (const recepient of recepients) {
-        EmailService.sendCustomMail(recepient.email, subject, message)
+function sendEmailsTo(subject, message, recipientsEmails = []) {
+    for (const email of recipientsEmails) {
+        EmailService.sendCustomMail(email, subject, message)
             .then(() => {
-                console.email(`recepient: ${recepient.email}; subject: ${subject}`);
+                console.email(`recepient: ${email}; subject: ${subject}`);
             })
             .catch((err) => console.error(err));
     }
 }
 
 /**
- * save the entities in the db
- * @param {Array} of Objects. See ACCEPTED_ENTITIES for a list of accepted entities.
- * @param {String} relative path. Es. /1/uploads/students
- * @returns {Integer} 200 in case of success. Otherwise it will throw a ResponseError
+ * write object to file
+ * @param {Object}
  */
-function writeToFile(array, path = "./input/schedules.json") {
-    fs.writeFile(path, JSON.stringify(array), (err) => {
+function writeToFile(obj, path = "./input/schedules.json") {
+    fs.writeFile(path, JSON.stringify(obj), (err) => {
         if (err) console.log("an error occured");
     });
 }
 
+/**
+ * get the list of schedules
+ * @param {Object} param - supportId
+ * @returns {Array} array of Schedule
+ */
+const supportOfficerGetSchedules = async function supportOfficerGetSchedules({ managerId }) {
+    const schedules = await db.getSchedules();
+    return schedules;
+};
+
+/**
+ * update an existing schedule
+ * @param {Object} param - supportId, scheduleId, schedule
+ * @returns {Array} array of Schedule
+ */
+const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule({ managerId, scheduleId, schedule }) {
+    scheduleId = Number(scheduleId);
+    schedule.scheduleId = scheduleId;
+
+    // check if it exists
+    const schedules = db.getSchedules();
+    const actualSchedules = schedules.filter((s) => s.scheduleId === schedule.scheduleId);
+    if (actualSchedules.length === 0) {
+        throw StandardErr.new("ManagerService", StandardErr.errno.NOT_EXISTS, "This schedule does not exist", 404);
+    }
+
+    await db.updateSchedule(schedule);
+    return;
+};
+
+const supportOfficerGetRooms = async function supportOfficerGetRooms({ managerId }) {
+    const rooms = await db.getClasses();
+    return rooms;
+};
+
 const privateFunc = { getEntityNameFromPath, genInsertSqlQueries, updateAndSort };
-module.exports = { manageEntitiesUpload, privateFunc, getCourses, getCourseLectures, updateCourseLecture };
+
+module.exports = {
+    manageEntitiesUpload,
+    privateFunc,
+    getCourses,
+    getCourseLectures,
+    deleteCourseLecture,
+    updateCourseLecture,
+    supportOfficerGetSchedules,
+    supportOfficerUpdateSchedule,
+    supportOfficerGetRooms,
+};

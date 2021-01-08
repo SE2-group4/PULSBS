@@ -7,7 +7,7 @@ const defaultTemplates = {
         message: "Dear student,\nyour lecture scheduled for {0} has been cancelled.\n",
     },
     LESSON_UPDATE_DELIVERY: {
-        subject: "Course {0} - LECTURE UPDATE",
+        subject: "Course {0} - LECTURE UPDATE DELIVERY MODE",
         message: "Dear student,\nyour lecture scheduled for {0} has been switched to {1} mode.\n",
     },
     STUDENT_NEW_BOOKING: {

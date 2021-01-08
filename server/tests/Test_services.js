@@ -20,8 +20,8 @@ const suite = function() {
         Test_GeneralService();
         Test_StudentService();
         Test_TeacherService();
-        Test_ManagerService();
         Test_SupportOfficerService();
+        Test_ManagerService();
         Test_email();
     });
 }

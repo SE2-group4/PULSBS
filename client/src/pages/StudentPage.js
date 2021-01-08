@@ -59,9 +59,10 @@ class StudentPage extends React.Component {
                 API.cancelLectureReservation(this.state.user.userId, courseId, lectureId)
                     .then(async (availableSeats) => {
                         let changedEvent;
-                        console.log(availableSeats)
                         if (availableSeats <= 0)
                             changedEvent = await this.changeEvent(lectureId, "orange", "full")
+                        else if (isExpired(lectureId, this.state.events))
+                            changedEvent = await this.changeEvent(lectureId, "red", "expired")
                         else changedEvent = await this.changeEvent(lectureId, "green", "bookable")
                         resolve(changedEvent)
                     })
@@ -138,18 +139,18 @@ function buildEvents(booked, waited, all, courses) {
         for (let lecture of array) {
             let availableSeats = lecture.classCapacity - lecture.numBookings;
             if (moment(lecture.startingDate).isBefore(moment()))
-                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "black", "past", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY")))
+                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "black", "past", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY HH:mm")))
             else if (isWaited(lecture, waited))
-                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "orange", "inWaitingList", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY"), availableSeats, lecture.className))
+                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "orange", "inWaitingList", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY HH:mm"), availableSeats, lecture.className))
             else if (lecture.delivery === "REMOTE")
-                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "grey", "remote", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY")))
+                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "grey", "remote", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY HH:mm")))
             else if (isBooked(lecture, booked))
-                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "blue", "booked", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY"), availableSeats, lecture.className))
+                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "blue", "booked", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY HH:mm"), availableSeats, lecture.className))
             else if (moment(lecture.bookingDeadline).isBefore(moment()))
-                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "red", "expired", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY"), null, lecture.className))
+                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "red", "expired", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY HH:mm"), null, lecture.className))
             else if (availableSeats <= 0)
-                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "orange", "full", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY"), availableSeats, lecture.className))
-            else events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "green", "bookable", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY"), availableSeats, lecture.className))
+                events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "orange", "full", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY HH:mm"), availableSeats, lecture.className))
+            else events.push(new CalendarEvent(events.length, courseName(courses, lecture.courseId), moment(lecture.startingDate).toISOString(), moment(lecture.startingDate).add(lecture.duration, "milliseconds").toISOString(), "green", "bookable", lecture.lectureId, lecture.courseId, moment(lecture.bookingDeadline).format("DD-MM-YYYY HH:mm"), availableSeats, lecture.className))
         }
     return events;
 }
@@ -181,5 +182,16 @@ function courseName(courses, courseId) {
         if (c.courseId === courseId)
             return c.description;
 }
-
+/**
+ * Return true if the lesson is expired
+ * @param {*} id 
+ * @param {*} events 
+ */
+function isExpired(id, events) {
+    for (let event of events)
+        if (event.lectureId == id)
+            if (moment(event.bookingDeadline).isBefore(moment()))
+                return true
+    return false
+}
 export default StudentPage

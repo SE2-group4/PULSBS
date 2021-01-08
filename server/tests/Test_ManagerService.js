@@ -6,105 +6,143 @@
 
 "use strict";
 
-const assert = require("assert");
-const path = require("path");
+const assert = require("assert").strict;
 
 const dao = require("../src/db/Dao.js");
 const service = require("../src/services/ManagerService.js");
 const Student = require("../src/entities/Student.js");
-const Teacher = require("../src/entities/Teacher.js");
-const Lecture = require("../src/entities/Lecture.js");
-const Course = require("../src/entities/Course.js");
-const EmailType = require("../src/entities/EmailType.js");
-const Email = require("../src/entities/Email.js");
 const prepare = require("../src/db/preparedb.js");
-const { italic } = require("colors");
 
 const suite = function () {
-    before(function (done) {
-        dao.init("testing.db");
-        done();
+    before(async function () {
+        await dao.init("testing.db");
     });
 
-    beforeEach(function (done) {
-        reset(done);
+    beforeEach(async function () {
+        await prepare("testing.db", "testing.sql", false);
     });
 
-    const reset = (done) => {
-        prepare("testing.db", "testing.sql", false)
-            .then(() => done())
-            .catch((err) => done(err));
-    };
+    function validator(err, errno, message, statusCode) {
+        const payload = err.payload;
+        assert.equal(payload.errno, errno);
+        assert(payload.message.includes(message));
+        assert.equal(payload.statusCode, statusCode);
+        assert.equal(payload.statusCode, err.statusCode);
+
+        return true;
+    }
 
     describe("ManagerService", function () {
-
         describe("managerGetCourseLecture", function () {
-            it("Should have thrown an error", async () => {
-                await assert.rejects(service.managerGetCourseLecture({ managerId: "error" }));
+            it("Should have raised an error", async () => {
+                const errno = 3;
+                const message = "not an integer";
+                const code = 400;
+                await assert.rejects(service.managerGetCourseLecture({ managerId: "error" }), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+
+            it("Should have raised an error with wrong correlation as input", async () => {
+                const errno = 11;
+                const message = "not belong";
+                const code = 404;
+                await assert.rejects(
+                    service.managerGetCourseLecture({ managerId: 1, courseId: 2, lectureId: 1 }),
+                    (err) => validator(err, errno, message, code)
+                );
             });
 
             it("Should have returned lecture with id 1", async () => {
-                const lectureObj = await service.managerGetCourseLecture({ managerId: 1, courseId: 1, lectureId: 1 });
-                assert.strictEqual(lectureObj.lecture.lectureId, 1);
+                const ret = await service.managerGetCourseLecture({ managerId: 1, courseId: 1, lectureId: 1 });
+                assert.strictEqual(ret.lecture.lectureId, 1);
             });
         });
 
         describe("managerGetCourseLectures", function () {
-            it("Should have thrown an error", async () => {
-                await assert.rejects(service.managerGetCourseLectures({ managerId: "error" }));
+            it("Should have raised an error", async () => {
+                const errno = 3;
+                const message = "not an integer";
+                const code = 400;
+                await assert.rejects(service.managerGetCourseLectures({ managerId: "error" }), (err) =>
+                    validator(err, errno, message, code)
+                );
             });
 
             it("Should have returned an array", async () => {
                 const lectures = await service.managerGetCourseLectures({ managerId: 1, courseId: 1 });
-                assert(lectures.constructor === Array);
+                assert.equal(lectures.constructor, Array);
             });
 
-            it("Should have returned an array of length", async () => {
+            it("Should have returned an array of length 2", async () => {
                 const lectures = await service.managerGetCourseLectures({ managerId: 1, courseId: 1 });
-                assert.strictEqual(lectures.length, 2);
+                assert.equal(lectures.length, 2);
             });
 
             it("Should have returned an array of elements", async () => {
-                const lectures = await service.managerGetCourseLectures({ managerId: 1, courseId: 1 });
+                const ret = await service.managerGetCourseLectures({ managerId: 1, courseId: 1 });
                 const expected = [1, 4];
-                for(let i = 0; i < expected.length; i++) {
-                    assert.strictEqual(lectures[i].lecture.lectureId, expected[i]);
-                }
+                ret.forEach((elem,index) => assert.equal(elem.lecture.lectureId, expected[index]));
             });
 
-            it("Should have returned an array of elements + bookings", async () => {
-                const lectures = await service.managerGetCourseLectures({ managerId: 1, courseId: 1 }, {bookings: true});
+            it("Should have returned an array of elements with query", async () => {
+                const ret = await service.managerGetCourseLectures(
+                    { managerId: 1, courseId: 1 },
+                    { bookings: true, cancellations: true, attendances:true }
+                );
                 const expectedBookings = [1, 1];
-                for(let i = 0; i < expectedBookings.length; i++) {
-                    assert(lectures[i].bookings, expectedBookings[i]);
-                }
+                const expectedCancellations = [0, 0];
+                const expectedAttendances = [0, 0];
+                ret.forEach((elem,index) => {
+                    assert.equal(elem.bookings, expectedBookings[index])
+                    assert.equal(elem.cancellations, expectedCancellations[index])
+                    assert.equal(elem.attendances, expectedAttendances[index])
+                })
             });
 
+            it("Should have returned an array of elements with query 2", async () => {
+                const ret = await service.managerGetCourseLectures(
+                    { managerId: 1, courseId: 6 },
+                    { bookings: true, cancellations: true, attendances:true }
+                );
+                const expectedLectures = [5, 6]
+                const expectedBookings = [2, 1];
+                const expectedCancellations = [0, 0];
+                const expectedAttendances = [2, 0];
+                ret.forEach((elem,index) => {
+                    assert.equal(elem.lecture.lectureId, expectedLectures[index])
+                    assert.equal(elem.bookings, expectedBookings[index])
+                    assert.equal(elem.cancellations, expectedCancellations[index])
+                    assert.equal(elem.attendances, expectedAttendances[index])
+                })
+            });
         });
 
         describe("managerGetCourses", function () {
-            it("Should have thrown an error", async () => {
-                await assert.rejects(service.managerGetCourses({ managerId: "error" }));
+            it("Should have raised an error", async () => {
+                const errno = 3;
+                const message = "not an integer";
+                const code = 400;
+                await assert.rejects(service.managerGetCourses({ managerId: "error" }), (err) =>
+                    validator(err, errno, message, code)
+                );
             });
 
             it("Should have returned an array", async () => {
                 const courses = await service.managerGetCourses({ managerId: 1 });
-                assert(courses.constructor === Array);
+                assert.equal(courses.constructor, Array);
             });
 
-            it("Should have returned an array of length", async () => {
+            it("Should have returned an array of length 6", async () => {
                 const courses = await service.managerGetCourses({ managerId: 1 });
-                assert.strictEqual(courses.length, 6);
+                assert.equal(courses.length, 6);
             });
 
             it("Should have returned an array of elements", async () => {
-                const courses = await service.managerGetCourses({ managerId: 1 });
+                const ret = await service.managerGetCourses({ managerId: 1 });
                 const expected = [1, 2, 3, 4, 5, 6];
-                for(let i = 0; i < courses.length; i++) {
-                    assert.strictEqual(courses[i].courseId, expected[i]);
-                }
+                ret.forEach((course ,index) => assert.equal(course.courseId, expected[index]));
             });
-
         });
 
         describe("managerGetStudent", function () {
@@ -180,6 +218,4 @@ const suite = function () {
     });
 };
 
-suite();
 module.exports = suite;
-

@@ -5,12 +5,13 @@ const Course = require("../entities/Course");
 const Teacher = require("../entities/Teacher");
 const Student = require("../entities/Student");
 const Email = require("../entities/Email");
-const EmailService = require("../services/EmailService");
 const utils = require("../utils/utils");
 const { ResponseError } = require("../utils/ResponseError");
 const check = require("../utils/checker");
 const converter = require("../utils/converter");
+const EmailService = require("../services/EmailService");
 const ManagerService = require("./ManagerService");
+const SupportService = require("../services/SupportOfficerService");
 const db = require("../db/Dao");
 
 // constants 
@@ -82,7 +83,7 @@ exports.teacherGetCourseLectures = async function (teacherId, courseId, queryObj
     let { err, dateFilter = {}, bookings = false, attendances = false } = extractOptions(queryObj);
     if (err instanceof ResponseError) throw err;
 
-    printQueryParams(bookings, attendances, dateFilter);
+    //printQueryParams(bookings, attendances, dateFilter);
     await checkTeacherCorrelations(tId, cId);
 
     let lectures = await db.getLecturesByCourseAndPeriodOfTime(new Course(cId), dateFilter);
@@ -103,8 +104,7 @@ exports.teacherGetCourses = async function (teacherId) {
         throw genResponseError(errno.PARAM_NOT_INT, error);
     }
 
-    const teacher = new Teacher(tId);
-    const teacherCourses = await db.getCoursesByTeacher(teacher);
+    const teacherCourses = await db.getCoursesByTeacher(new Teacher(tId));
 
     return teacherCourses;
 };
@@ -147,50 +147,7 @@ exports.teacherGetCourseLecture = async function (teacherId, courseId, lectureId
  * returns {Integer} 204. In case of error an ResponseError
  **/
 exports.teacherDeleteCourseLecture = async function (teacherId, courseId, lectureId) {
-    const { error, teacherId: tId, courseId: cId, lectureId: lId } = convertToNumbers({
-        teacherId,
-        courseId,
-        lectureId,
-    });
-    if (error) {
-        throw genResponseError(errno.PARAM_NOT_INT, error);
-    }
-
-    await checkTeacherCorrelations(tId, cId, lId);
-
-    let lecture = new Lecture(lId);
-    lecture = await db.getLectureById(lecture);
-
-    if (check.isLectureCancellable(lecture)) {
-        const isSuccess = await db.deleteLectureById(lecture);
-        if (isSuccess > 0) {
-            const emailsToBeSent = await db.getEmailsInQueueByEmailType(Email.EmailType.LESSON_CANCELLED);
-
-            if (emailsToBeSent.length > 0) {
-                const aEmail = emailsToBeSent[0];
-                const subjectArgs = [aEmail.courseName];
-                const messageArgs = [aEmail.startingDate];
-                const { subject, message } = EmailService.getDefaultEmail(
-                    Email.EmailType.LESSON_CANCELLED,
-                    subjectArgs,
-                    messageArgs
-                );
-
-                emailsToBeSent.forEach((email) =>
-                    EmailService.sendCustomMail(email.recipient, subject, message)
-                        .then(() => {
-                            console.email("CANCELLATION email sent to " + email.recipient);
-                            db.deleteEmailQueueById(email);
-                        })
-                        .catch((err) => console.error(err))
-                );
-            }
-        }
-    } else {
-        throw genResponseError(errno.LECTURE_NOT_CANCELLABLE, { lectureId: lecture.lectureId });
-    }
-
-    return 204;
+    return await SupportService.deleteCourseLecture({teacherId}, courseId, lectureId);
 };
 
 /**

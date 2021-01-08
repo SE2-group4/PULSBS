@@ -34,7 +34,7 @@ exports.managerGetCourseLecture = async function managerGetCourseLecture(
     const { courseId: cId, lectureId: lId } = convertedNumbers;
 
     // check is the course has a lecture with id = lId
-    if (!check.courseLectureCorrelation(cId, lId)) {
+    if (!(await check.courseLectureCorrelation(cId, lId))) {
         throw genResponseError(errno.COURSE_LECTURE_MISMATCH_AA, { courseId, lectureId });
     }
 
@@ -72,7 +72,7 @@ exports.managerGetCourseLectures = async function managerGetCourseLectures({ man
 
     const { bookings, cancellations, attendances } = convertToBooleans(query);
 
-    const lectures = await db.getLecturesByCourse(new Course(cId));
+    const lectures = await db.getLecturesByCourseAndPeriodOfTime(new Course(cId));
     const lectureWithStats = addStatsToLectures(lectures, { bookings, cancellations, attendances });
 
     return lectureWithStats;
@@ -205,34 +205,4 @@ exports.managerGetReport = async function managerGetReport({ managerId, serialNu
     const student = new Student(serialNumber);
     const students = await db.managerGetReport(student, date);
     return students;
-};
-
-/**
- * get the list of schedules
- * @param {Object} param - managerId
- * @returns {Array} array of Schedule
- */
-exports.managerGetSchedules = async function managerGetSchedules({ managerId }) {
-    const schedules = await db.getSchedules();
-    return schedules;
-};
-
-/**
- * update an existing schedule
- * @param {Object} param - managerId, scheduleId, schedule
- * @returns {Array} array of Schedule
- */
-exports.managerUpdateSchedule = async function managerUpdateSchedule({ managerId, scheduleId, schedule }) {
-    scheduleId = Number(scheduleId);
-    schedule.scheduleId = scheduleId;
-
-    // check if it exists
-    const schedules = db.getSchedules();
-    const actualSchedules = schedules.filter((s) => s.scheduleId === schedule.scheduleId);
-    if (actualSchedules.length === 0) {
-        throw StandardErr.new("ManagerService", StandardErr.errno.NOT_EXISTS, "This schedule does not exist", 404);
-    }
-
-    await db.updateSchedule(schedule);
-    return;
 };

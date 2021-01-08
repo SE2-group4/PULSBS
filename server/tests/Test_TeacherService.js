@@ -5,8 +5,6 @@ const path = require("path");
 
 const Dao = require("../src/db/Dao.js");
 const Service = require("../src/services/TeacherService.js");
-const Teacher = require("../src/entities/Teacher.js");
-const Student = require("../src/entities/Student.js");
 const Lecture = require("../src/entities/Lecture.js");
 const { ResponseError } = require("../src/utils/ResponseError.js");
 const prepare = require("../src/db/preparedb.js");
@@ -15,7 +13,8 @@ const moment = require("moment");
 const testSuiteTeacherService = () => {
     describe("TeacherService", function () {
         before(async function openDb() {
-            Dao.init("testing.db");
+            await Dao.init("testing.db");
+
             tBBBStError = new ResponseError(
                 "TeacherService",
                 ResponseError.PARAM_NOT_INT,
@@ -33,7 +32,7 @@ const testSuiteTeacherService = () => {
 
         after(async function openDb() {
             await prepare("testing.db", "testTeacherServices.sql", false);
-            Dao.closeConn();
+            //Dao.closeConn();
         });
 
         let tBBBStError;

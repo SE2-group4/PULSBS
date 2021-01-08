@@ -198,17 +198,17 @@ const testSuiteSupportOfficer = () => {
         { Code: "XY0821", Student: "900008" },
         { Code: "XY4521", Student: "900009" },
     ];
-    const sdlEntities = [
-        { Code: "XY1211", Room: 1, Day: "Mon", Seats: 120, Time: "8:30-11:30" },
-        { Code: "XY4911", Room: 1, Day: "Mon", Seats: 120, Time: "11:30-13:00" },
-        { Code: "XY1211", Room: 2, Day: "Tue", Seats: 120, Time: "16:00-17:30" },
-        { Code: "XY4911", Room: 2, Day: "Tue", Seats: 120, Time: "13:00-16:00" },
-        { Code: "XY7121", Room: 3, Day: "Mon", Seats: 80, Time: "10:00-11:30" },
-        { Code: "XY0821", Room: 4, Day: "Mon", Seats: 80, Time: "8:30-10:00" },
-        { Code: "XY4521", Room: 3, Day: "Mon", Seats: 80, Time: "8:30-11:30" },
-        { Code: "XY8221", Room: 4, Day: "Mon", Seats: 80, Time: "10:00-11:30" },
-        { Code: "XY1921", Room: 3, Day: "Mon", Seats: 80, Time: "13:00-14:30" },
-    ];
+    //const sdlEntities = [
+    //    { Code: "XY1211", Room: 1, Day: "Mon", Seats: 120, Time: "8:30-11:30" },
+    //    { Code: "XY4911", Room: 1, Day: "Mon", Seats: 120, Time: "11:30-13:00" },
+    //    { Code: "XY1211", Room: 2, Day: "Tue", Seats: 120, Time: "16:00-17:30" },
+    //    { Code: "XY4911", Room: 2, Day: "Tue", Seats: 120, Time: "13:00-16:00" },
+    //    { Code: "XY7121", Room: 3, Day: "Mon", Seats: 80, Time: "10:00-11:30" },
+    //    { Code: "XY0821", Room: 4, Day: "Mon", Seats: 80, Time: "8:30-10:00" },
+    //    { Code: "XY4521", Room: 3, Day: "Mon", Seats: 80, Time: "8:30-11:30" },
+    //    { Code: "XY8221", Room: 4, Day: "Mon", Seats: 80, Time: "10:00-11:30" },
+    //    { Code: "XY1921", Room: 3, Day: "Mon", Seats: 80, Time: "13:00-14:30" },
+    //];
 
     describe("SupportOfficerService", function () {
         before(async function openDb() {
@@ -217,12 +217,15 @@ const testSuiteSupportOfficer = () => {
 
         after(async function clean() {
             await prepare("testing.db", "testing.sql", false);
-            Dao.closeConn();
+            //Dao.closeConn();
         });
 
-        function validator(err, errno, message) {
-            assert.equal(err.payload.errno, errno);
-            assert(err.payload.message.includes(message));
+        function validator(err, errno, message, statusCode) {
+            const payload = err.payload;
+            assert.equal(payload.errno, errno);
+            assert(payload.message.includes(message));
+            assert.equal(payload.statusCode, statusCode);
+            assert.equal(payload.statusCode, err.statusCode);
 
             return true;
         }
@@ -235,8 +238,9 @@ const testSuiteSupportOfficer = () => {
             it("Should have rejected the request", async function () {
                 const errno = 6;
                 const message = "not valid";
+                const code = 400;
                 await assert.rejects(Service.manageEntitiesUpload(stdEntities, "/api/foo"), (err) =>
-                    validator(err, errno, message)
+                    validator(err, errno, message, code)
                 );
             });
 
@@ -268,33 +272,16 @@ const testSuiteSupportOfficer = () => {
             //    });
         });
 
-        //describe("updateAndSort", function () {
-        //    beforeEach(async function clearDb() {
-        //        await prepare("testing.db", "testSupportOfficerService.sql", false);
-        //    });
-
-        //    it("Should have sorted the array", async function () {
-        //        const array = await Service.privateFunc.updateAndSort("STUDENT", Student.getComparator("serialNumber"));
-        //        //const expectedOrder = ["SN1", "SN2", "SN3"];
-        //        assert(true);
-        //    });
-
-        //    it("Should have sorted the array", async function () {
-        //        const array = await Service.privateFunc.updateAndSort("TEACHER", Teacher.getComparator("serialNumber"));
-        //        //const expectedOrder = ["SN4", "SN5"];
-        //        assert(true);
-        //    });
-
-        //    it("Should have sorted the array", async function () {
-        //        const array = await Service.privateFunc.updateAndSort("COURSE", Course.getComparator("code"));
-        //        //const expectedOrder = ["SN1", "SN2", "SN3"];
-        //        assert(true);
-        //    });
-        //});
-
         describe("getCourses", function () {
             beforeEach(async function clearDb() {
                 await prepare("testing.db", "testSupportOfficerService.sql", false);
+            });
+
+            it("Should have raised an error", async function () {
+                const errno = 3;
+                const message = "not an integer";
+                const code = 400;
+                await assert.rejects(Service.getCourses("foo"), (err) => validator(err, errno, message, code));
             });
 
             it("Should have returned an array", async function () {
@@ -317,6 +304,13 @@ const testSuiteSupportOfficer = () => {
 
             const supportId = 1;
             const courseId = 1;
+
+            it("Should have raised an error", async function () {
+                const errno = 3;
+                const message = "not an integer";
+                const code = 400;
+                await assert.rejects(Service.getCourseLectures(supportId, "foo"), (err) => validator(err, errno, message, code));
+            });
 
             it("Should have returned an array", async function () {
                 const res = await Service.getCourseLectures(supportId, courseId);
@@ -342,15 +336,42 @@ const testSuiteSupportOfficer = () => {
 
             const supportId = 1;
 
-            it("Should have returned an error", async function () {
+            it("Should have raised an error with wrong courseId as input", async function () {
                 const courseId = "1a";
                 const lectureId = 1;
                 const switchTo = "remote";
 
                 const errno = 3;
                 const message = "not an integer";
+                const code = 400;
                 await assert.rejects(Service.updateCourseLecture(supportId, courseId, lectureId, switchTo), (err) =>
-                    validator(err, errno, message)
+                    validator(err, errno, message, code)
+                );
+            });
+
+            it("Should have raised an error with wrong switchTo as input", async function () {
+                const courseId = 1;
+                const lectureId = 1;
+                const switchTo = "foo";
+
+                const errno = 22;
+                const message = "not valid";
+                const code = 400;
+                await assert.rejects(Service.updateCourseLecture(supportId, courseId, lectureId, switchTo), (err) =>
+                    validator(err, errno, message, code)
+                );
+            });
+
+            it("Should have raised an error with wrong course/lecture correlation", async function () {
+                const courseId = 1;
+                const lectureId = 5;
+                const switchTo = "remote";
+
+                const errno = 11;
+                const message = "not belong";
+                const code = 404;
+                await assert.rejects(Service.updateCourseLecture(supportId, courseId, lectureId, switchTo), (err) =>
+                    validator(err, errno, message, code)
                 );
             });
 
@@ -361,8 +382,9 @@ const testSuiteSupportOfficer = () => {
 
                 const errno = 24;
                 const message = "not switchable";
+                const code = 409;
                 await assert.rejects(Service.updateCourseLecture(supportId, courseId, lectureId, switchTo), (err) =>
-                    validator(err, errno, message)
+                    validator(err, errno, message, code)
                 );
             });
 
@@ -370,6 +392,7 @@ const testSuiteSupportOfficer = () => {
                 const courseId = 1;
                 const lectureId = 2;
                 const switchTo = "remote";
+
                 const res = await Service.updateCourseLecture(supportId, courseId, lectureId, switchTo);
                 assert.equal(res, 204);
             });

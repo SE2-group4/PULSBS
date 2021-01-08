@@ -127,7 +127,7 @@
 
 /* Color/shape of burger icon bars on hover*/
 .bm-burger-bars-hover {
-  background: #a90000;
+  background: orange;
 }
 
 /* Position and sizing of clickable cross button */
@@ -146,7 +146,7 @@ Sidebar wrapper styles
 Note: Beware of modifying this element as it can break the animations - you should not need to touch it in most cases
 */
 .bm-menu-wrap {
-  position: fixed;
+  position: relative;
   height: 100%;
 }
 
@@ -170,7 +170,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
 
 /* Individual item */
 .bm-item {
-  display: inline-block;
+  float: right;
   outline: none;
 }
 

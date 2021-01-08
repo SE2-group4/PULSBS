@@ -1,8 +1,8 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import moment from "moment";
-import API from '../api/Api';
-
+import Spinner from 'react-bootstrap/Spinner'
+import Alert from 'react-bootstrap/Alert'
 class Chart extends React.Component {
 
     constructor(props) {
@@ -13,7 +13,10 @@ class Chart extends React.Component {
 
     render() {
         if (this.props.loading)
-            return (<></>)
+            return <Spinner animation="border" />
+        if (this.props.lectures.length === 0)
+            return <Alert variant="warning">No course selected</Alert>
+
         if (this.props.granularity == "daily") {
             const days = prepareDates(this.props.lectures, this.props.from, this.props.to)
             let data = {};
@@ -25,19 +28,19 @@ class Chart extends React.Component {
                     datasets: [
                         {
                             label: "Attendances",
-                            data: computeAttendaces(this.props.lectures),
+                            data: computeAttendaces(this.props.lectures, this.props.from, this.props.to),
                             backgroundColor: 'rgb(0,255,0)'
                         },
                         {
 
                             label: "Cancellations",
-                            data: computeCancellations(this.props.lectures),
+                            data: computeCancellations(this.props.lectures, this.props.from, this.props.to),
                             backgroundColor: 'rgb(255,0,0)'
                         },
 
                         {
                             label: "Reservations",
-                            data: computeBookings(this.props.lectures),
+                            data: computeBookings(this.props.lectures, this.props.from, this.props.to),
                             backgroundColor: 'rgb(0,0,255)'
                         }
                     ]
@@ -48,13 +51,13 @@ class Chart extends React.Component {
                 datasets: [
                     {
                         label: "Attendances",
-                        data: computeAttendaces(this.props.lectures),
+                        data: computeAttendaces(this.props.lectures, this.props.from, this.props.to),
                         backgroundColor: 'rgb(0,255,0)'
                     },
 
                     {
                         label: "Reservations",
-                        data: computeBookings(this.props.lectures),
+                        data: computeBookings(this.props.lectures, this.props.from, this.props.to),
                         backgroundColor: 'rgb(0,0,255)'
                     }
                 ]
@@ -275,23 +278,18 @@ class Chart extends React.Component {
     }
 }
 function prepareDates(lectures, from, to) {
-    console.log(lectures)
-    console.log(from)
-    console.log(to)
     if (lectures.length === 0)
         return []
     let filteredLectures = []
     if (from && to)
-        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isBefore(moment(to)) && moment(lecture.startingDate).isAfter(moment(from)) })
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isSameOrBefore(moment(to)) && moment(lecture.startingDate).isSameOrAfter(moment(from)) })
     else if (from)
-        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isAfter(moment(from)) })
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isSameOrAfter(moment(from)) })
     else if (to)
-        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isBefore(moment(to)) })
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isSameOrBefore(moment(to)) })
     else filteredLectures = lectures
     let dates = filteredLectures.map((lecture) => moment(lecture.startingDate).format("DD MMM YYYY")).sort((a, b) => moment(a).isBefore(b))
-    console.log(dates)
     dates = dropDuplicate(dates)
-    console.log(dates)
     return dates
 }
 function dropDuplicate(dates) {
@@ -301,14 +299,44 @@ function dropDuplicate(dates) {
             res.push(date)
     return res
 }
-function computeAttendaces(lectures) {
-    return lectures.map((lecture) => { return lecture.attendances })
+function computeAttendaces(lectures, from, to) {
+    if (lectures.length === 0)
+        return []
+    let filteredLectures = []
+    if (from && to)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isSameOrBefore(moment(to)) && moment(lecture.startingDate).isSameOrAfter(moment(from)) })
+    else if (from)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isSameOrAfter(moment(from)) })
+    else if (to)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isSameOrBefore(moment(to)) })
+    else filteredLectures = lectures
+    return filteredLectures.map((lecture) => { return lecture.attendances })
 }
-function computeCancellations(lectures) {
-    return lectures.map((lecture) => { return lecture.cancellations })
+function computeCancellations(lectures, from, to) {
+    if (lectures.length === 0)
+        return []
+    let filteredLectures = []
+    if (from && to)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isSameOrBefore(moment(to)) && moment(lecture.startingDate).isSameOrAfter(moment(from)) })
+    else if (from)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isSameOrAfter(moment(from)) })
+    else if (to)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isSameOrBefore(moment(to)) })
+    else filteredLectures = lectures
+    return filteredLectures.map((lecture) => { return lecture.cancellations })
 }
-function computeBookings(lectures) {
-    return lectures.map((lecture) => { return lecture.numBookings })
+function computeBookings(lectures, from, to) {
+    if (lectures.length === 0)
+        return []
+    let filteredLectures = []
+    if (from && to)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isSameOrBefore(moment(to)) && moment(lecture.startingDate).isSameOrAfter(moment(from)) })
+    else if (from)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isSameOrAfter(moment(from)) })
+    else if (to)
+        filteredLectures = lectures.filter((lecture) => { return moment(lecture.startingDate).isSameOrBefore(moment(to)) })
+    else filteredLectures = lectures
+    return filteredLectures.map((lecture) => { return lecture.numBookings })
 }
 
 
