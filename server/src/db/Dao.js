@@ -1360,14 +1360,14 @@ const addLecture = function (lecture) {
         const sql = `INSERT INTO Lecture(courseId, classId, startingDate, duration, bookingDeadline, delivery)
             VALUES(?, ?, ?, ?, ?, ?)`;
 
-        // console.log("addLecture - inserting a new lecture");
-        // console.log(lecture);
+        console.log("addLecture - inserting a new lecture");
+        console.log(lecture);
 
         db.run(
             sql,
             [
                 lecture.courseId,
-                lecture.courseId,
+                lecture.classId,
                 lecture.startingDate.toISOString(),
                 lecture.duration,
                 lecture.bookingDeadline.toISOString(),
@@ -1375,7 +1375,6 @@ const addLecture = function (lecture) {
             ],
             function (err) {
                 if (err) {
-                    err.message += `\nlecture: ${Object.values(lecture).join(" ")}`;
                     reject(StandardErr.fromDao(err));
                     return;
                 }
@@ -1554,13 +1553,15 @@ const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype)
             .then((dates) => {
                 const lecture_init_date = lecturePrototype.startingDate.clone().startOf('day');
                 const init_offset = lecturePrototype.startingDate.diff(lecture_init_date);
-                const actualStartingDates = dates.map((date) => date.add(init_offset, 'ms'));
+                const actualStartingDates = dates.map((date) => date.clone().startOf('day').add(init_offset, 'ms'));
 
-                const lecture_deadline_date = lecturePrototype.startingDate.clone().startOf('day');
-                const deadline_offset = lecturePrototype.startingDate.diff(lecture_deadline_date);
-                const actualBookingDeadlines = dates.map((date) => date.add(deadline_offset, 'ms'));
+                const lecture_deadline_date = lecturePrototype.bookingDeadline.clone().startOf('day');
+                const deadline_offset = lecturePrototype.bookingDeadline.diff(lecture_deadline_date);
+                const day_diff = lecturePrototype.startingDate.clone().startOf('day').diff(lecturePrototype.bookingDeadline.clone().startOf('day'), 'days');
+                const actualBookingDeadlines = dates.map((date) => date.clone().startOf('day').add(deadline_offset, 'ms').subtract(day_diff, 'days'));
 
                 console.log(`actualStartingDates: ${actualStartingDates}`);
+                console.log(`actualBookingDeadlines: ${actualBookingDeadlines}`);
 
                 // now, let's go to generate every single and specific lecture
                 const promises = [];
@@ -1626,7 +1627,7 @@ const _generateCourseBySchedule = function (schedule) {
                 return;
             }
 
-            resolve(err ? 0 : this.changes); // in case of error, it means the class is already in the DB
+            resolve(err ? 0 : this.changes); // in case of error, it means the course is already in the DB
         });
     });
 };
