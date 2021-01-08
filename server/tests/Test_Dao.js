@@ -894,7 +894,7 @@ const suite = function () {
                     })
                     .catch((err) => {
                         console.log(err);
-                        done(err);
+                        done(); // correct case
                     });
             });
         });
@@ -983,7 +983,7 @@ const suite = function () {
             it('non existing course should accept the request', function(done) {
                 dao._generateCourseBySchedule(newSchedule) // this schedule does not exists in the DB
                     .then((retVal) => {
-                        assert.ok(retVal, 1, 'The course has not been inserted');
+                        assert.strictEqual(retVal, 1, 'The course has not been inserted');
                         done();
                     })
                     .catch((err) => done(err));
@@ -1036,7 +1036,7 @@ const suite = function () {
             it('overlapping schedule of the same course should return the number of generated lectures', function(done) {
                 dao._generateLecturesBySchedule(overlappedScheduleSameCourse)
                     .then((nLectures) => {
-                        assert.strictEqual(nLectures, 0, 'No lectures should be generated');
+                        assert.ok(!nLectures, `No lectures should be generated, but nLectures was ${nLectures}`);
                         done();
                     })
                     .catch((err) => {
@@ -1047,7 +1047,7 @@ const suite = function () {
             it('overlapping schedule of a different course should return the number of generated lectures', function(done) {
                 dao._generateLecturesBySchedule(overlappedScheduleDifferentCourse)
                     .then((nLectures) => {
-                        assert.strictEqual(nLectures, 0, 'No lectures should be generated');
+                        assert.ok(!nLectures, `No lectures should be generated, but nLectures was ${nLectures}`);
                         done();
                     })
                     .catch((err) => {
@@ -1069,9 +1069,10 @@ const suite = function () {
         });
 
         describe('updateSchedule', function() {
-            const updatedSchedule = Schedule.from(schedule1);
-            updatedSchedule.room = class2.description;
             it('existing schedule with correct new params should update the schedule', function(done) {
+                const updatedSchedule = Schedule.from(schedule1);
+                updatedSchedule.room = class2.description;
+
                 dao.updateSchedule(updatedSchedule)
                     .then((nLectures) => {
                         assert.ok(nLectures > 0, 'No lecture updated'); // the exact number of lectures depends on the date you run tests
