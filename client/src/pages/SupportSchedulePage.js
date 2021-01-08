@@ -11,6 +11,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Jumbotron from 'react-bootstrap/Jumbotron';
+import ErrorMsg from '../components/ErrorMsg';
 
 const scheduleForPage = 10;
 
@@ -23,13 +24,14 @@ const rooms = ["r1", "r2", "r3"]; //to call
 class SupportSchedulePage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { schedules: null, courses: null, rooms: null, filters: null, loading: true, currPage: 1, selectedSchedule: null }
+        this.state = { schedules: null, courses: null, rooms: null, filters: null, genError: null, loading: true, currPage: 1, selectedSchedule: null }
     }
 
     async componentDidMount() {
         try {
             //let schedules=API.getSchedulesBySupportId(this.props.user.userId);
             let courses = await API.getCoursesBySupportId(this.props.user.userId);
+            //let rooms_=API.getRoomsBySupportId(this.props.user.userId);
             let rooms_ = rooms; //actual call
             //debug only (start)
             schedulesFake.forEach((item) => {
@@ -40,7 +42,8 @@ class SupportSchedulePage extends React.Component {
             let filters = courses.map((c) => c.description);
             this.setState({ schedules: schedulesFake, courses: courses, rooms: rooms, filters: filters, loading: false });
         } catch (error) {
-            this.setState({ loading: false });
+            let errormsg = err.source + " : " + err.error;
+            this.setState({ genError: errormsg, loading: false });
         }
 
     }
@@ -64,22 +67,32 @@ class SupportSchedulePage extends React.Component {
             filters = this.state.courses.map((c) => c.description);
         else
             filters = [desc,];
-        this.setState({ filters: filters })
+        this.setState({ filters: filters });
 
     }
 
     submit = (day, room, startingTime, endingTime) => {
         this.setState({ loading: true });
-        /*Promise.all([API.changeScheduleData(this.props.user.userId,scheduleId,day,room,startingTime,endingTime),API.getRoomsBySupportId(this.props.user.userId)])
+        let newSchedule = new Schedule();
+        newSchedule.scheduleId = this.state.selectedSchedule.scheduleId;
+        newSchedule.dayOfWeek = this.state.selectedSchedule.dayOfWeek === day ? null : day;
+        newSchedule.roomId = this.state.selectedSchedule.roomId === room ? null : room;
+        newSchedule.startingTime = this.state.selectedSchedule.startingTime === startingTime ? null : startingTime;
+        newSchedule.endingTime = this.state.selectedSchedule.endingTime === endingTime ? null : endingTime;
+        /*
+        API.changeScheduleData(this.props.user.userId,scheduleId,day,room,startingTime,endingTime)
         .then(()=>{
             //all ok
         })
         .catch(()=>{
             //error
+            let errormsg = err.source + " : " + err.error;
+            this.setState({ genError: errormsg,loading: false });
         });
         */
         {
-            //ok from server 
+            //ok from server
+            console.log(newSchedule);
             let schedules = this.state.schedules;
             let i = schedules.indexOf(this.state.selectedSchedule);
             schedules[i].dayOfWeek = day;
@@ -93,23 +106,24 @@ class SupportSchedulePage extends React.Component {
 
     render() {
         if (this.state.loading)
-            return (<Spinner animation="border" ></Spinner>);
-        else
-            return <>
+            return <Spinner animation="border" ></Spinner>;
+        if (this.state.genError)
+            return <ErrorMsg msg={this.state.genError} />;
 
-                {this.state.selectedSchedule && <FormModal schedule={this.state.selectedSchedule} close={this.closeModal} courses={this.state.courses} rooms={this.state.rooms} submitData={this.submit} />}
-                <Container fluid>
-                    <Row>
-                        <Col sm={10}>
-                            <Col sm={4}>
-                                <Filters courses={this.state.courses} change={this.changeFilters} />
-                            </Col>
-                            <br />
-                            <ScheduleTable schedules={this.state.schedules} current={this.state.currPage} edit={this.openModal} courses={this.state.courses} filters={this.state.filters} />
+        return <>
+            {this.state.selectedSchedule && <FormModal schedule={this.state.selectedSchedule} close={this.closeModal} courses={this.state.courses} rooms={this.state.rooms} submitData={this.submit} />}
+            <Container fluid>
+                <Row>
+                    <Col sm={10}>
+                        <Col sm={4}>
+                            <Filters courses={this.state.courses} change={this.changeFilters} />
                         </Col>
-                    </Row>
-                </Container>
-            </>;
+                        <br />
+                        <ScheduleTable schedules={this.state.schedules} current={this.state.currPage} edit={this.openModal} courses={this.state.courses} filters={this.state.filters} />
+                    </Col>
+                </Row>
+            </Container>
+        </>;
     }
 }
 
@@ -253,25 +267,25 @@ class FormModal extends React.Component {
                     <Col sm={3}>
                         <b>Day of the week:</b>
                         <Form.Control as="select" data-testid="daySelect" custom onChange={(ev) => { this.changeDay(ev.target.value) }} >
-                            {daysOfWeek.map((d) => <option key={d} data-testid={"day"} value={d} selected={d === this.state.day ? true : false}>{d}</option>)}
+                            {daysOfWeek.map((d) => <option key={d} data-testid={"day" + d} value={d} selected={d === this.state.day ? true : false}>{d}</option>)}
                         </Form.Control>
                     </Col>
                     <Col sm={3}>
                         <b>Room Id:</b>
                         <Form.Control as="select" data-testid="roomSelect" custom onChange={(ev) => { this.changeRoom(ev.target.value) }} >
-                            {this.props.rooms.map((r) => <option key={r} data-testid={"room"} value={r} selected={r === this.state.room ? true : false}>{r}</option>)}
+                            {this.props.rooms.map((r) => <option key={r} data-testid={"room" + r} value={r} selected={r === this.state.room ? true : false}>{r}</option>)}
                         </Form.Control>
                     </Col>
                     <Col sm={3}>
                         <b>Starting Time:</b>
                         <Form.Control as="select" data-testid="stSelect" custom onChange={(ev) => { this.changeST(ev.target.value) }} >
-                            {startingTimes.map((s) => <option key={s} data-testid={"st"} value={s} selected={s === this.state.startingTime ? true : false}>{s}</option>)}
+                            {startingTimes.map((s) => <option key={s} data-testid={"st" + s} value={s} selected={s === this.state.startingTime ? true : false}>{s}</option>)}
                         </Form.Control>
                     </Col>
                     <Col sm={3}>
                         <b>Ending Time:</b>
                         <Form.Control as="select" data-testid="etSelect" custom onChange={(ev) => { this.changeET(ev.target.value) }} >
-                            {endingTimes.map((e) => <option key={e} data-testid={"et"} value={e} selected={e === this.state.endingTime ? true : false}>{e}</option>)}
+                            {endingTimes.map((e) => <option key={e} data-testid={"et" + e} value={e} selected={e === this.state.endingTime ? true : false}>{e}</option>)}
                         </Form.Control>
                     </Col>
                 </Row>
