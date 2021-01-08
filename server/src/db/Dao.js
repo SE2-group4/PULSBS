@@ -1360,8 +1360,8 @@ const addLecture = function (lecture) {
         const sql = `INSERT INTO Lecture(courseId, classId, startingDate, duration, bookingDeadline, delivery)
             VALUES(?, ?, ?, ?, ?, ?)`;
 
-        console.log("addLecture - inserting a new lecture");
-        console.log(lecture);
+        // console.log("addLecture - inserting a new lecture");
+        // console.log(lecture);
 
         db.run(
             sql,
@@ -1437,16 +1437,17 @@ const _generateDatesBySchedule = function (schedule) {
                     .filter((c) => c.type.text === Calendar.CalendarType.SEMESTER.text)
                     .filter((c) => currentDay.isBetween(moment(c.startingDate), moment(c.endingDate), "day", "[]"))[0]; // "[]": include limit dates
 
-                console.log(actualAcademicYearConstraint);
-                console.log(actualSemesterConstraint);
+                // console.log(actualAcademicYearConstraint);
+                // console.log(actualSemesterConstraint);
 
                 if (!(actualAcademicYearConstraint && actualSemesterConstraint)) {
                     reject(
                         StandardErr.new(
                             "Dao",
                             StandardErr.errno.NOT_EXISTS,
-                            "Academic year or semester not defined, unable to generate dates",
-                            500
+                            'The given schedule cannot fit any academic year or semester, unable to generate dates',
+                            // "Academic year or semester not defined, unable to generate dates",
+                            404
                         )
                     );
                     return;
@@ -1468,6 +1469,7 @@ const _generateDatesBySchedule = function (schedule) {
 
                 // find the initial date from today
                 let nextDate = moment().day(schedule.dayOfWeek).startOf("day").add(7, "days"); // not today, but it starts from the next week
+                // console.log(`_generateDatesBySchedule - init nextDate: ${nextDate}`);
                 do {
                     // check constraints
                     const results = constraints.map(
@@ -1486,14 +1488,17 @@ const _generateDatesBySchedule = function (schedule) {
                         // academic year or semester have been broken
                         break;
 
-                    if (results.every((r) => r === true))
+                    if (results.every((r) => r === true)) {
                         // if all constraints have been passed
-                        validDates.push(nextDate);
+                        validDates.push(nextDate.clone());
+                        // console.log(`_generateDatesBySchedule - valid date found: ${nextDate}`);
+                    }
 
                     // generate next date
                     nextDate = nextDate.add(7, "days");
                 } while (true);
 
+                console.log(`_generateDatesBySchedule - valid dates generated: ${validDates}`);
                 resolve(validDates);
             })
             .catch(reject);
@@ -1547,12 +1552,15 @@ const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype)
         // generate the list of dates of all lectures
         this._generateDatesBySchedule(schedule)
             .then((dates) => {
-                const actualStartingDates = dates.map((date) =>
-                    date.add(moment(moment().diff(lecturePrototype.startingDate)).minutes(), "m")
-                );
-                const actualBookingDeadlines = dates.map((date) =>
-                    date.add(moment(moment().diff(lecturePrototype.bookingDeadline)).minutes(), "m")
-                );
+                const lecture_init_date = lecturePrototype.startingDate.clone().startOf('day');
+                const init_offset = lecturePrototype.startingDate.diff(lecture_init_date);
+                const actualStartingDates = dates.map((date) => date.add(init_offset, 'ms'));
+
+                const lecture_deadline_date = lecturePrototype.startingDate.clone().startOf('day');
+                const deadline_offset = lecturePrototype.startingDate.diff(lecture_deadline_date);
+                const actualBookingDeadlines = dates.map((date) => date.add(deadline_offset, 'ms'));
+
+                console.log(`actualStartingDates: ${actualStartingDates}`);
 
                 // now, let's go to generate every single and specific lecture
                 const promises = [];
@@ -1654,8 +1662,8 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
                 let actualStartingTime;
                 let actualEndingTime;
 
-                console.log("_generateLecturePrototypeBySchedule - actual schedule");
-                console.log(schedule);
+                // console.log("_generateLecturePrototypeBySchedule - actual schedule");
+                // console.log(schedule);
 
                 actualStartingTime = moment(schedule.startingTime, "hh:mm");
                 actualEndingTime = moment(schedule.endingTime, "hh:mm");
@@ -1664,8 +1672,8 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
                     reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_VALUE, "Wrong start or end time", 404));
                     return;
                 }
-                console.log(actualStartingTime);
-                console.log(actualEndingTime);
+                // console.log(actualStartingTime);
+                // console.log(actualEndingTime);
 
                 const actualDuration = actualEndingTime.diff(actualStartingTime, "milliseconds"); // in milliseconds
                 const bookingDeadlineTime = moment("23:00", "hh:mm").subtract(1, "day"); // by default, the booking deadline is the day before at 23:00
@@ -1680,15 +1688,12 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
                 lecturePrototype.delivery = Lecture.DeliveryType.PRESENCE;
 
                 // TODO: remove these lines
-                console.log("lecturePrototype:");
-                console.log(lecturePrototype);
+                // console.log("lecturePrototype:");
+                // console.log(lecturePrototype);
 
                 resolve(lecturePrototype);
             })
-            .catch((err) => {
-                console.log("sono foreign", err);
-                reject(err);
-            });
+            .catch(reject);
     });
 };
 exports._generateLecturePrototypeBySchedule = _generateLecturePrototypeBySchedule;
