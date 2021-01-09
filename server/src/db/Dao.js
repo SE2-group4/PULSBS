@@ -1223,8 +1223,8 @@ const getCourseByCode = function (code) {
                 reject(StandardErr.new('Dao', StandardErr.errno.NOT_EXISTS, 'Course not found', 404));
                 return;
             }
-            console.log('getCourseByCode - row');
-            console.log(row);
+            // console.log('getCourseByCode - row');
+            // console.log(row);
 
             resolve(Course.from(row));
         });
@@ -1365,7 +1365,6 @@ const addLecture = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO Lecture(courseId, classId, startingDate, duration, bookingDeadline, delivery)
             VALUES(?, ?, ?, ?, ?, ?)`;
-
         // console.log("addLecture - inserting a new lecture");
         // console.log(lecture);
 
@@ -1579,6 +1578,8 @@ const _generateLectureByScheduleAndPrototype = function (schedule, lectureProtot
 
                     lectures.push(currLecture);
                 }
+                // console.log('_generateLectureByScheduleAndPrototype - lectures');
+                // console.log(lectures);
                 resolve(lectures);
             })
             .catch(reject);
@@ -1597,7 +1598,7 @@ const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype)
         _generateLectureByScheduleAndPrototype(schedule, lecturePrototype)
             .then((lectures) => {
                 const promises = [];
-                for(const lecture in lectures)
+                for(const lecture of lectures)
                     promises.push(addLecture(lecture));
 
                 Promise.all(promises)
@@ -1607,7 +1608,7 @@ const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype)
                             reject(StardardErr.new("Dao", StardardErr.errno.FAILURE, "Unable to insert lectures", 500));
                             return;
                         }
-                        resolve(dates.length); // returns the number of inserted lectures
+                        resolve(lectures.length); // returns the number of inserted lectures
                     })
                     .catch(reject);
             })
@@ -1675,8 +1676,8 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
             getCourseByCode(schedule.code),
         ])
             .then((values) => {
-                console.log(`values:`);
-                console.log(values);
+                // console.log(`values:`);
+                // console.log(values);
                 const actualClass = values[1];
                 const actualCourse = values[3];
 
@@ -1812,8 +1813,9 @@ const updateSchedule = function (schedule) {
             }
             // actualSchedule.startingTime = moment(actualSchedule.startingTime);
             // actualSchedule.endingDate = moment(actualSchedule.endingDate);
-            console.log(`Updated schedule to insert:`);
-            console.log(actualSchedule);
+
+            // console.log(`Updated schedule to insert:`);
+            // console.log(actualSchedule);
 
             const updateSql = `UPDATE Schedule
                 SET code = ?,
@@ -1908,7 +1910,7 @@ exports.getScheduleById = getScheduleById;
  * @param {Schedule} schedule - schedule updates
  * @returns {Promise} Promise of Object - preview
  */
-const updateSchedulePreview = function(schedule) {
+const getUpdateSchedulePreview = function(schedule) {
     return new Promise((resolve, reject) => {
         getScheduleById(schedule) // get the schedule as-is from the DB
             .then(async (currentSchedule) => {
@@ -1963,5 +1965,6 @@ const updateSchedulePreview = function(schedule) {
             .catch(reject);
     });
 };
+exports.getUpdateSchedulePreview = getUpdateSchedulePreview;
 
 exports.getClasses = getClasses;
