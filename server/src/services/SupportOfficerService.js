@@ -676,21 +676,72 @@ const supportOfficerGetSchedules = async function supportOfficerGetSchedules({ m
 /**
  * update an existing schedule
  * @param {Object} param - supportId, scheduleId, schedule
- * @returns {Array} array of Schedule
+ * @returns {Number} number of updated schedules
  */
 const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule({ managerId, scheduleId, schedule }) {
     scheduleId = Number(scheduleId);
     schedule.scheduleId = scheduleId;
 
     // check if it exists
-    const schedules = await db.getSchedules();
-    const actualSchedules = schedules.filter((s) => s.scheduleId === schedule.scheduleId);
-    if (actualSchedules.length === 0) {
-        throw StandardErr.new("ManagerService", StandardErr.errno.NOT_EXISTS, "This schedule does not exist", 404);
-    }
+    await db.getScheduleById(schedule);
+    // const schedules = await db.getSchedules();
+    // const actualSchedules = schedules.filter((s) => s.scheduleId === schedule.scheduleId);
+    // if (actualSchedules.length === 0) {
+    //     throw StandardErr.new("ManagerService", StandardErr.errno.NOT_EXISTS, "This schedule does not exist", 404);
+    // }
 
-    await db.updateSchedule(schedule);
-    return;
+    /*
+    preview = {
+        schedules : {
+            currentSchedule : Schedule,
+            newSchedule : Schedule // filled with all the missing params
+        },
+        course : Course,
+        classes : {
+            currentClass : Class,
+            newClass : Class
+        },
+        lectures : [
+            {
+                currentLecture : Lecture, // what is in the DB right now
+                newLecture : Lecture // corresponding new lecture
+            }
+        ]
+    }
+    */
+    const preview = db.updateSchedulePreview(schedule); // get a preview of data which will be modified
+    const retVal = await db.updateSchedule(schedule);
+
+    // get all booked students for each lecture which should be modified
+    let promises = [];
+    for(const lectureRow in preview.lectures) {
+        promises.push(db.getBookedStudentsByLecture(lectureRow.currentLecture));
+    }
+    const studentsPerLecture = await Promise.all(promises);
+    // parallel arrays: studentsPerLecture[i] refers to preview.lectures[i]
+
+    promises = [];
+    for(let i=0; i<preview.lectures.length; i++) {
+        const lectureRow = preview.lectures[i];
+        const currentLecture = lectureRow.currentLecture;
+        const newLecture = lectureRow.newLecture;
+        const students = studentsPerLecture[i];
+
+        for(const student in students) {
+            const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_UPDATE_SCHEDULE, [
+                preview.course.description,
+                utils.formatDate(currentLecture.date),
+                preview.classes.currentClass.description,
+                utils.formatDate(newLecture.date),
+                preview.classes.newClass.description
+            ]);
+            promises.push(emailService.sendCustomMail( actualStudent.email, defaultEmail.subject,defaultEmail.message));
+        }
+    }
+    await Promise.all(promises); // send all emails in a sync way
+    // Promise.all(promises); // send all emails in a async way
+
+    return retVal;
 };
 
 /**
