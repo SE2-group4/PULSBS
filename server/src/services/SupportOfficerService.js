@@ -684,13 +684,11 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
 
     // check if it exists
     await db.getScheduleById(schedule);
-    // const schedules = await db.getSchedules();
-    // const actualSchedules = schedules.filter((s) => s.scheduleId === schedule.scheduleId);
-    // if (actualSchedules.length === 0) {
-    //     throw StandardErr.new("ManagerService", StandardErr.errno.NOT_EXISTS, "This schedule does not exist", 404);
-    // }
 
     /*
+    PREVIEW PROTOTYPE
+    PLEASE DO NOT REMOVE THIS COMMENT
+
     preview = {
         schedules : {
             currentSchedule : Schedule,
@@ -709,7 +707,7 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
         ]
     }
     */
-    const preview = db.updateSchedulePreview(schedule); // get a preview of data which will be modified
+    const preview = db.getUpdateSchedulePreview(schedule); // get a preview of data which will be modified
     const retVal = await db.updateSchedule(schedule);
 
     // get all booked students for each lecture which should be modified
@@ -719,6 +717,9 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
     }
     const studentsPerLecture = await Promise.all(promises);
     // parallel arrays: studentsPerLecture[i] refers to preview.lectures[i]
+
+    console.log('supportOfficerUpdateSchedule - preview');
+    console.log(preview);
 
     promises = [];
     for(let i=0; i<preview.lectures.length; i++) {
