@@ -5,6 +5,8 @@
  */
 "use strict";
 
+const moment = require('moment');
+
 class Schedule {
     /**
      * class constructor
