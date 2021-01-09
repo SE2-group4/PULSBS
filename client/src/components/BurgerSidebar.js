@@ -166,8 +166,10 @@ class BurgerSidebar extends React.Component {
                         }
                         {
                             this.state.granularity == "monthly" &&
-                            <a id="monthly" className="menu-item" >Select months:
-                <MultiselectComp handle={this.multiselectMonthsHandle} options={this.state.months} display="name" selectedValues={this.state.selectedMonths}></MultiselectComp></a>
+                            <>
+                                <Form.Label>Select months:</Form.Label>
+                                <MultiselectComp handle={this.multiselectMonthsHandle} options={this.state.months} display="name" selectedValues={this.state.selectedMonths}></MultiselectComp>
+                            </>
                         }
                     </Form.Group>
                     <Form.Group>
