@@ -1547,14 +1547,13 @@ const _deleteLecturesByPrototype = function (lecturePrototype) {
 exports._deleteLecturesByPrototype = _deleteLecturesByPrototype; // export needed for testing
 
 /**
- * generate a list of lectures and insert them into the DB
- * @param {Schedule} schedule
- * @param {Lecture} lecturePrototype
- * @returns {Promise} promise of int - number of inserted lectures
+ * generate all realistic lectures
+ * @param {Schedule} schedule 
+ * @param {Lecture} lecturePrototype 
+ * @returns {Promise} - promise of Array of Lecture
  */
-const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype) {
+const _generateLectureByScheduleAndPrototype = function (schedule, lecturePrototype) {
     return new Promise((resolve, reject) => {
-        // generate the list of dates of all lectures
         _generateDatesBySchedule(schedule)
             .then((dates) => {
                 const lecture_init_date = lecturePrototype.startingDate.clone().startOf('day');
@@ -1570,7 +1569,7 @@ const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype)
                 // console.log(`actualBookingDeadlines: ${actualBookingDeadlines}`);
 
                 // now, let's go to generate every single and specific lecture
-                const promises = [];
+                const lectures = [];
                 for (let i = 0; i < dates.length; i++) {
                     const currLecture = Lecture.from(lecturePrototype); // clone
 
@@ -1578,8 +1577,28 @@ const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype)
                     currLecture.startingDate = actualStartingDates[i];
                     currLecture.bookingDeadline = actualBookingDeadlines[i];
 
-                    promises.push(addLecture(currLecture));
+                    lectures.push(currLecture);
                 }
+                resolve(lectures);
+            })
+            .catch(reject);
+    });
+}
+exports._generateLectureByScheduleAndPrototype = _generateLectureByScheduleAndPrototype;
+
+/**
+ * generate a list of lectures and insert them into the DB
+ * @param {Schedule} schedule
+ * @param {Lecture} lecturePrototype
+ * @returns {Promise} promise of int - number of inserted lectures
+ */
+const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype) {
+    return new Promise((resolve, reject) => {
+        _generateLectureByScheduleAndPrototype(schedule, lecturePrototype)
+            .then((lectures) => {
+                const promises = [];
+                for(const lecture in lectures)
+                    promises.push(addLecture(lecture));
 
                 Promise.all(promises)
                     .then((values) => {
@@ -1856,6 +1875,92 @@ const getClasses = function () {
 
             resolve(rows.map((row) => Class.from(row)));
         });
+    });
+};
+
+/**
+ * get a schedule from the DB
+ * @param {Schedule} schedule - scheduleId needed
+ * @returns {Promise} promise of Schedule
+ */
+const getScheduleById = function(schedule) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM Schedule WHERE scheduleId = ?`;
+
+        db.get(sql, [schedule.scheduleId], (err, row) => {
+            if(err) {
+                reject(StandardErr.fromDao(err));
+                return;
+            }
+            if(!row) {
+                reject(StandardErr.new('Dao', StandardErr.errno.NOT_EXISTS, 'Schedule not found', 404));
+                return;
+            }
+
+            resolve(Schedule.from(row));
+        });
+    });
+};
+exports.getScheduleById = getScheduleById;
+
+/**
+ * build a preview of which data the schedule update will change
+ * @param {Schedule} schedule - schedule updates
+ * @returns {Promise} Promise of Object - preview
+ */
+const updateSchedulePreview = function(schedule) {
+    return new Promise((resolve, reject) => {
+        getScheduleById(schedule) // get the schedule as-is from the DB
+            .then(async (currentSchedule) => {
+                const class_ = new Class();
+                class_.description = schedule.roomId;
+                Promise.all([
+                    _generateCourseBySchedule(schedule),
+                    getCourseByCode(schedule.code),
+                    getClassByDescription(currentSchedule.roomId), // currentClass
+                    _generateClassBySchedule(schedule),
+                    getClassByDescription(class_), // newClass
+                ])
+                    .then(async (values) => {
+                        const course = values[1];
+                        const currentClass = values[2];
+                        const newClass = values[4];
+        
+                        // merge objects
+                        const newSchedule = new Schedule();
+                        for (const prop in schedule) {
+                            newSchedule[prop] = currentSchedule[prop] || newSchedule[prop]; // assign only not-null properties
+                        }
+
+                        const currentLectures = getLecturesByCourse(course); // only future lectures
+                        const lecturePrototype = await _generateLecturePrototypeBySchedule(newSchedule);
+                        const newLectures = await _generateLectureByScheduleAndPrototype(newSchedule, lecturePrototype); // only future lectures
+                        const lectures = [];
+                        for(let i=0; i<Math.max(currentLectures.length, newLectures.length); i++) {
+                            lectures.push({
+                                currentLecture : currentLectures[i] || new Lecture(),
+                                newLecture : newLectures[i] || new Lecture()
+                            });
+                        }
+
+                        // finally, build the preview object
+                        const preview = {
+                            schedules : {
+                                currentSchedule : currentSchedule,
+                                newSchedule : newSchedule
+                            },
+                            course : course,
+                            classes : {
+                                currentClass : currentClass,
+                                newClass : newClass
+                            },
+                            lectures : lectures
+                        };
+                        resolve(preview);
+                    })
+                    .catch(reject);
+            })
+            .catch(reject);
     });
 };
 
