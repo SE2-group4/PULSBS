@@ -516,5 +516,4 @@ const testSuiteSupportOfficer = () => {
     });
 };
 
-testSuiteSupportOfficer();
 module.exports = testSuiteSupportOfficer;
