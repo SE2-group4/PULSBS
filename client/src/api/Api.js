@@ -383,6 +383,29 @@ async function uploadChunck(id, type, list) {
     });
 }
 
+async function uploadTEST(id, type, data) {
+    /*
+    console.log(data);
+    console.log(data instanceof File);
+    */
+    let formData = new FormData();
+    formData.append('file', data);
+    return new Promise((resolve, reject) => {
+        fetch(baseURL + `/supportOfficers/${id}/uploads/${type}`, {
+            method: 'POST',
+            body: formData,
+        }).then((response) => {
+            if (response.ok)
+                resolve();
+            else
+                response.json()
+                    .then((obj) => { reject({ source: "SupportOfficer", error: obj.message }); }) // error msg in the response body
+                    .catch(() => { reject({ source: "SupportOfficer", error: "server error" }) }); // something else
+        }).catch(() => { reject({ source: "Upload", error: "Server connection error" }) }); // connection errors
+    });
+
+}
+
 /**
 * request a db reset to server
 */
@@ -630,6 +653,7 @@ const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
     getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport,
     getAllCourses, resetDB, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S, updateStudentStatus, getAllCourseLectures, deleteLecture_S,
-    getSchedulesBySupportId, changeScheduleData, getRoomsBySupportId
+    getSchedulesBySupportId, changeScheduleData, getRoomsBySupportId,
+    uploadTEST
 };
 export default API;

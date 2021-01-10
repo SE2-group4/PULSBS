@@ -39,7 +39,7 @@ class SupportPage extends React.Component {
             if (JSON.stringify(Object.getOwnPropertyNames(data[0].data)) !== JSON.stringify(fileProps.get(name)))
                 this.setState({ genError: filename.name + " is not in an expected format." });
             else
-                this.setState({ [name]: data });
+                this.setState({ [name]: data.length, [name + "File"]: filename });
         } else
             this.setState({ genError: filename.name + " is not a valid file (expected type: csv)." });
     }
@@ -62,18 +62,18 @@ class SupportPage extends React.Component {
      */
     handleOnRemoveFile = (data, name) => {
         if (!this.state.loading)
-            this.setState({ [name]: null })
+            this.setState({ [name]: null, [name + "File"]: null })
     }
 
     /**
      * Calculates the length of each loaded array, then opens the SummaryModal component
      */
     showModal = () => {
-        let students = this.state.studentsArray ? "students: " + this.state.studentsArray.length : "";
-        let courses = this.state.coursesArray ? "courses: " + this.state.coursesArray.length : "";
-        let professors = this.state.professorsArray ? "professors: " + this.state.professorsArray.length : "";
-        let schedules = this.state.schedulesArray ? "schedules: " + this.state.schedulesArray.length : "";
-        let enrollments = this.state.enrollmentsArray ? "enrollments: " + this.state.enrollmentsArray.length : "";
+        let students = this.state.studentsArray ? "students: " + this.state.studentsArray : "";
+        let courses = this.state.coursesArray ? "courses: " + this.state.coursesArray : "";
+        let professors = this.state.professorsArray ? "professors: " + this.state.professorsArray : "";
+        let schedules = this.state.schedulesArray ? "schedules: " + this.state.schedulesArray : "";
+        let enrollments = this.state.enrollmentsArray ? "enrollments: " + this.state.enrollmentsArray : "";
         let elems = students || courses || professors || schedules || enrollments ? [students, courses, professors, schedules, enrollments] : [];
         this.setState({ show: true, elems: elems });
     }
@@ -90,26 +90,26 @@ class SupportPage extends React.Component {
      */
     sendFiles = async () => {
         let promises = [];
-        if (this.state.studentsArray)
-            promises.push(API.uploadList(this.props.user.userId, "students", this.state.studentsArray));
-        if (this.state.professorsArray)
-            promises.push(API.uploadList(this.props.user.userId, "teachers", this.state.professorsArray));
-        if (this.state.schedulesArray)
-            promises.push(API.uploadList(this.props.user.userId, "schedules", this.state.schedulesArray));
+        if (this.state.studentsArrayFile)
+            promises.push(API.uploadTEST(this.props.user.userId, "students", this.state.studentsArrayFile));
+        if (this.state.professorsArrayFile)
+            promises.push(API.uploadTEST(this.props.user.userId, "teachers", this.state.professorsArrayFile));
+        if (this.state.schedulesArrayFile)
+            promises.push(API.uploadTEST(this.props.user.userId, "schedules", this.state.schedulesArrayFile));
         Promise.all(promises)
             .then(() => {
-                this.uploadCoursesEnrollments(this.state.coursesArray, this.state.enrollmentsArray)
+                this.uploadCoursesEnrollments(this.state.coursesArrayFile, this.state.enrollmentsArrayFile)
                     .then(() => this.setState({ elems: null, success: true, loading: false })) //ok
                     .catch((err) => {
                         let errormsg = err.source + " : " + err.error;
                         this.setState({ elems: null, genError: errormsg, loading: false });
-                        API.resetDB().catch((error) => console.error(error));
+                        //API.resetDB().catch((error) => console.error(error));
                     });
             })
             .catch((err) => {
                 let errormsg = err.source + " : " + err.error;
                 this.setState({ elems: null, genError: errormsg, loading: false });
-                API.resetDB().catch((error) => console.error(error));
+                //API.resetDB().catch((error) => console.error(error));
             })
 
         this.setState({ show: false, loading: true });
@@ -118,10 +118,10 @@ class SupportPage extends React.Component {
     uploadCoursesEnrollments = (courses, enrollments) => {
         return new Promise((resolve, reject) => {
             if (courses)
-                API.uploadList(this.props.user.userId, "courses", courses)
+                API.uploadTEST(this.props.user.userId, "courses", courses)
                     .then(() => {
                         if (enrollments)
-                            API.uploadList(this.props.user.userId, "enrollments", enrollments)
+                            API.uploadTEST(this.props.user.userId, "enrollments", enrollments)
                                 .then(() => resolve()) //ok
                                 .catch((err) => {
                                     reject(err);
@@ -133,7 +133,7 @@ class SupportPage extends React.Component {
                         reject(err);
                     });
             else if (!courses && enrollments)
-                API.uploadList(this.props.user.userId, "enrollments", enrollments)
+                API.uploadTEST(this.props.user.userId, "enrollments", enrollments)
                     .then(() => resolve()) //ok
                     .catch((err) => {
                         reject(err);
