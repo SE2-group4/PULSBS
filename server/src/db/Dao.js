@@ -87,10 +87,10 @@ function reallyOpenConn(dbpath = "./PULSBS.db", cb) {
 
         db.get("PRAGMA foreign_keys = ON");
         //db.on("profile", (query, time) => {
-        //     query = query.replace(/ +(?= )/g, "");
-        //     console.log("QUERY EXECUTED");
-        //     console.log(query);
-        //     console.log("TIME: ", time);
+        //    query = query.replace(/ +(?= )/g, "");
+        //    console.log("QUERY EXECUTED");
+        //    console.log(query);
+        //    console.log("TIME: ", time);
         //});
 
         if (cb) cb();
@@ -1190,22 +1190,55 @@ exports.getClassByLecture = getClassByLecture;
  */
 const execBatch = function (queries) {
     return new Promise((resolve, reject) => {
-        db.serialize(() => {
+        db.serialize(async () => {
             db.run("BEGIN TRANSACTION;");
 
-            db.parallelize(function () {
-                queries.forEach((query) =>
-                    db.run(query, function (error) {
-                        if (error) reject(error);
-                    })
-                );
-            });
+            //db.parallelize(function () {
+            //    queries.forEach((query) =>
+            //        db.run(query, function (error) {
+            //            if (error) {
+            //                didError = true;
+            //                reject(error);
+            //            }
+            //        })
+            //    );
+            //});
 
-            db.run("END TRANSACTION;", () => resolve());
+            try {
+                await wrapQueriesIntoPromises(queries);
+                db.run("COMMIT;", () => {
+                    resolve();
+                });
+            } catch (error) {
+                db.run("ROLLBACK TRANSACTION;", () => {
+                    reject(error);
+                });
+            }
         });
     });
 };
 exports.execBatch = execBatch;
+
+/**
+ * wrap each query into a promise
+ * @param {Array} of String 
+ * @returns {Promise} promise
+ */
+async function wrapQueriesIntoPromises(queries) {
+    const promises = queries.map((query) => {
+        const promise = new Promise((res, rej) => {
+            db.run(query, function (error) {
+                if (error) {
+                    rej(error.toString() + "\n" + query);
+                }
+                res();
+            });
+        });
+        return promise;
+    });
+
+    await Promise.all(promises);
+}
 
 /**
  * get course given its code
@@ -1220,7 +1253,7 @@ const getCourseByCode = function (code) {
                 return;
             }
             if (!row) {
-                reject(StandardErr.new('Dao', StandardErr.errno.NOT_EXISTS, 'Course not found', 404));
+                reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "Course not found", 404));
                 return;
             }
             // console.log('getCourseByCode - row');
@@ -1449,7 +1482,7 @@ const _generateDatesBySchedule = function (schedule) {
                         StandardErr.new(
                             "Dao",
                             StandardErr.errno.NOT_EXISTS,
-                            'The given schedule cannot fit any academic year or semester, unable to generate dates',
+                            "The given schedule cannot fit any academic year or semester, unable to generate dates",
                             // "Academic year or semester not defined, unable to generate dates",
                             404
                         )
@@ -1547,22 +1580,27 @@ exports._deleteLecturesByPrototype = _deleteLecturesByPrototype; // export neede
 
 /**
  * generate all realistic lectures
- * @param {Schedule} schedule 
- * @param {Lecture} lecturePrototype 
+ * @param {Schedule} schedule
+ * @param {Lecture} lecturePrototype
  * @returns {Promise} - promise of Array of Lecture
  */
 const _generateLectureByScheduleAndPrototype = function (schedule, lecturePrototype) {
     return new Promise((resolve, reject) => {
         _generateDatesBySchedule(schedule)
             .then((dates) => {
-                const lecture_init_date = lecturePrototype.startingDate.clone().startOf('day');
+                const lecture_init_date = lecturePrototype.startingDate.clone().startOf("day");
                 const init_offset = lecturePrototype.startingDate.diff(lecture_init_date);
-                const actualStartingDates = dates.map((date) => date.clone().startOf('day').add(init_offset, 'ms'));
+                const actualStartingDates = dates.map((date) => date.clone().startOf("day").add(init_offset, "ms"));
 
-                const lecture_deadline_date = lecturePrototype.bookingDeadline.clone().startOf('day');
+                const lecture_deadline_date = lecturePrototype.bookingDeadline.clone().startOf("day");
                 const deadline_offset = lecturePrototype.bookingDeadline.diff(lecture_deadline_date);
-                const day_diff = lecturePrototype.startingDate.clone().startOf('day').diff(lecturePrototype.bookingDeadline.clone().startOf('day'), 'days');
-                const actualBookingDeadlines = dates.map((date) => date.clone().startOf('day').add(deadline_offset, 'ms').subtract(day_diff, 'days'));
+                const day_diff = lecturePrototype.startingDate
+                    .clone()
+                    .startOf("day")
+                    .diff(lecturePrototype.bookingDeadline.clone().startOf("day"), "days");
+                const actualBookingDeadlines = dates.map((date) =>
+                    date.clone().startOf("day").add(deadline_offset, "ms").subtract(day_diff, "days")
+                );
 
                 // console.log(`actualStartingDates: ${actualStartingDates}`);
                 // console.log(`actualBookingDeadlines: ${actualBookingDeadlines}`);
@@ -1584,7 +1622,7 @@ const _generateLectureByScheduleAndPrototype = function (schedule, lectureProtot
             })
             .catch(reject);
     });
-}
+};
 exports._generateLectureByScheduleAndPrototype = _generateLectureByScheduleAndPrototype;
 
 /**
@@ -1598,8 +1636,7 @@ const _addLecturesByScheduleAndPrototype = function (schedule, lecturePrototype)
         _generateLectureByScheduleAndPrototype(schedule, lecturePrototype)
             .then((lectures) => {
                 const promises = [];
-                for(const lecture of lectures)
-                    promises.push(addLecture(lecture));
+                for (const lecture of lectures) promises.push(addLecture(lecture));
 
                 Promise.all(promises)
                     .then((values) => {
@@ -1742,7 +1779,7 @@ const _generateLecturesBySchedule = function (schedule, hint = DaoHint.NO_HINT) 
 
                 Promise.all(promises)
                     .then((values) => {
-                        let nLectures = values[values.length-1];
+                        let nLectures = values[values.length - 1];
                         resolve(nLectures);
                         return;
                     })
@@ -1838,22 +1875,27 @@ const updateSchedule = function (schedule) {
                     actualSchedule.dayOfWeek,
                     actualSchedule.startingTime,
                     actualSchedule.endingDate,
-                    actualSchedule.scheduleId
+                    actualSchedule.scheduleId,
                 ],
                 function (err) {
                     if (err) {
                         reject(StandardErr.fromDao(err));
                         return;
                     }
-                    
+
                     if (!this.changes) {
-                        reject( StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "Unable to update the schedule, no rows changed", 500));
+                        reject(
+                            StandardErr.new(
+                                "Dao",
+                                StandardErr.errno.NOT_EXISTS,
+                                "Unable to update the schedule, no rows changed",
+                                500
+                            )
+                        );
                         return;
                     }
 
-                    _generateLecturesBySchedule(actualSchedule, DaoHint.ALREADY_PRESENT)
-                        .then(resolve)
-                        .catch(reject);
+                    _generateLecturesBySchedule(actualSchedule, DaoHint.ALREADY_PRESENT).then(resolve).catch(reject);
                 }
             );
         });
@@ -1885,17 +1927,17 @@ const getClasses = function () {
  * @param {Schedule} schedule - scheduleId needed
  * @returns {Promise} promise of Schedule
  */
-const getScheduleById = function(schedule) {
+const getScheduleById = function (schedule) {
     return new Promise((resolve, reject) => {
         const sql = `SELECT * FROM Schedule WHERE scheduleId = ?`;
 
         db.get(sql, [schedule.scheduleId], (err, row) => {
-            if(err) {
+            if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
-            if(!row) {
-                reject(StandardErr.new('Dao', StandardErr.errno.NOT_EXISTS, 'Schedule not found', 404));
+            if (!row) {
+                reject(StandardErr.new("Dao", StandardErr.errno.NOT_EXISTS, "Schedule not found", 404));
                 return;
             }
 
@@ -1910,7 +1952,7 @@ exports.getScheduleById = getScheduleById;
  * @param {Schedule} schedule - schedule updates
  * @returns {Promise} Promise of Object - preview
  */
-const getUpdateSchedulePreview = function(schedule) {
+const getUpdateSchedulePreview = function (schedule) {
     return new Promise((resolve, reject) => {
         getScheduleById(schedule) // get the schedule as-is from the DB
             .then(async (currentSchedule) => {
@@ -1927,7 +1969,7 @@ const getUpdateSchedulePreview = function(schedule) {
                         const course = values[1];
                         const currentClass = values[2];
                         const newClass = values[4];
-        
+
                         // merge objects
                         const newSchedule = new Schedule();
                         for (const prop in schedule) {
@@ -1938,25 +1980,25 @@ const getUpdateSchedulePreview = function(schedule) {
                         const lecturePrototype = await _generateLecturePrototypeBySchedule(newSchedule);
                         const newLectures = await _generateLectureByScheduleAndPrototype(newSchedule, lecturePrototype); // only future lectures
                         const lectures = [];
-                        for(let i=0; i<Math.max(currentLectures.length, newLectures.length); i++) {
+                        for (let i = 0; i < Math.max(currentLectures.length, newLectures.length); i++) {
                             lectures.push({
-                                currentLecture : currentLectures[i] || new Lecture(),
-                                newLecture : newLectures[i] || new Lecture()
+                                currentLecture: currentLectures[i] || new Lecture(),
+                                newLecture: newLectures[i] || new Lecture(),
                             });
                         }
 
                         // finally, build the preview object
                         const preview = {
-                            schedules : {
-                                currentSchedule : currentSchedule,
-                                newSchedule : newSchedule
+                            schedules: {
+                                currentSchedule: currentSchedule,
+                                newSchedule: newSchedule,
                             },
-                            course : course,
-                            classes : {
-                                currentClass : currentClass,
-                                newClass : newClass
+                            course: course,
+                            classes: {
+                                currentClass: currentClass,
+                                newClass: newClass,
                             },
-                            lectures : lectures
+                            lectures: lectures,
                         };
                         resolve(preview);
                     })

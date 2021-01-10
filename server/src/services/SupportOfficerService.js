@@ -259,7 +259,7 @@ async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
  *
  * returns {Integer} 204. A ResponseError on error
  **/
-async function manageEntitiesUpload(entities, path) {
+async function manageEntitiesUpload(entities, path, filename) {
     let entityType = getEntityNameFromPath(path);
     if (entityType === undefined) {
         throw genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: path });
@@ -277,7 +277,12 @@ async function manageEntitiesUpload(entities, path) {
 
     //console.time("phase: query run");
     // run the queries
-    await runBatchQueries(sqlQueries);
+    try {
+        await runBatchQueries(sqlQueries);
+    } catch (err) {
+        const message = {filename, reason: err.payload.message};
+        throw genResponseError(errno.FILE_INCORRECT_FORMAT, message);
+    }
     //console.timeEnd("phase: query run");
 
     // check if we need to do any more processing,
@@ -573,12 +578,22 @@ function logToFile(queries) {
 
 async function runBatchQueries(sqlQueries) {
     try {
+        console.time("batch");
         await db.execBatch(sqlQueries);
+        console.timeEnd("batch");
         logToFile(sqlQueries);
     } catch (err) {
-        console.log("runBatchQueries");
-        console.log(err);
-        throw genResponseError(errno.DB_GENERIC_ERROR, { msg: err.toString() });
+        let typeError = errno.DB_GENERIC_ERROR;
+        let message = err.toString();
+
+        const strToCompare = "constraint failed: ";
+        if (message.includes(strToCompare)) {
+            const index = message.indexOf(strToCompare);
+            typeError = errno.DB_SQLITE_CONSTRAINT_FAILED;
+            message = message.slice(index + strToCompare.length);
+        }
+
+        throw genResponseError(typeError, { msg: message});
     }
 }
 
@@ -712,31 +727,31 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
 
     // get all booked students for each lecture which should be modified
     let promises = [];
-    for(const lectureRow in preview.lectures) {
+    for (const lectureRow in preview.lectures) {
         promises.push(db.getBookedStudentsByLecture(lectureRow.currentLecture));
     }
     const studentsPerLecture = await Promise.all(promises);
     // parallel arrays: studentsPerLecture[i] refers to preview.lectures[i]
 
-    console.log('supportOfficerUpdateSchedule - preview');
+    console.log("supportOfficerUpdateSchedule - preview");
     console.log(preview);
 
     promises = [];
-    for(let i=0; i<preview.lectures.length; i++) {
+    for (let i = 0; i < preview.lectures.length; i++) {
         const lectureRow = preview.lectures[i];
         const currentLecture = lectureRow.currentLecture;
         const newLecture = lectureRow.newLecture;
         const students = studentsPerLecture[i];
 
-        for(const student in students) {
+        for (const student in students) {
             const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_UPDATE_SCHEDULE, [
                 preview.course.description,
                 utils.formatDate(currentLecture.date),
                 preview.classes.currentClass.description,
                 utils.formatDate(newLecture.date),
-                preview.classes.newClass.description
+                preview.classes.newClass.description,
             ]);
-            promises.push(emailService.sendCustomMail( actualStudent.email, defaultEmail.subject,defaultEmail.message));
+            promises.push(emailService.sendCustomMail(actualStudent.email, defaultEmail.subject, defaultEmail.message));
         }
     }
     await Promise.all(promises); // send all emails in a sync way

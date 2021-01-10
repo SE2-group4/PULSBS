@@ -1,14 +1,34 @@
+"use strict";
+
 const express = require("express");
 const router = express.Router();
 const Officer = require("../services/SupportOfficerService");
 const utils = require("../utils/writer");
+const multer = require("multer");
 const fs = require("fs");
+const csv = require("csvtojson");
+const path = require("path");
 
-router.post("/:supportId/uploads/students", manageEntitiesUpload);
-router.post("/:supportId/uploads/courses", manageEntitiesUpload);
-router.post("/:supportId/uploads/teachers", manageEntitiesUpload);
-router.post("/:supportId/uploads/schedules", manageEntitiesUpload);
-router.post("/:supportId/uploads/enrollments", manageEntitiesUpload);
+const MODULE_PATH = __dirname;
+const UPLOAD_PATH = path.join(MODULE_PATH, "../uploads/");
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, UPLOAD_PATH);
+    },
+
+    // By default, multer removes file extensions so let's add them back
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    },
+});
+const upload = multer({ storage: storage });
+
+router.post("/:supportId/uploads/students", upload.single("file"), manageEntitiesUpload);
+router.post("/:supportId/uploads/courses", upload.single("file"), manageEntitiesUpload);
+router.post("/:supportId/uploads/teachers", upload.single("file"), manageEntitiesUpload);
+router.post("/:supportId/uploads/schedules", upload.single("file"), manageEntitiesUpload);
+router.post("/:supportId/uploads/enrollments", upload.single("file"), manageEntitiesUpload);
 router.get("/:supportId/courses", supportOfficerGetCourses);
 router.get("/:supportId/courses/:courseId/lectures", supportOfficergetCourseLectures);
 router.put("/:supportId/courses/:courseId/lectures/:lectureId", supportOfficerUpdateCourseLecture);
@@ -23,10 +43,12 @@ module.exports.SupportOfficerRouter = router;
  * @param {Object} req
  * @param {Object} res
  */
-function manageEntitiesUpload(req, res) {
+async function manageEntitiesUpload(req, res) {
     //const schedules = fs.readFileSync("./input/schedules.json", "utf-8");
+    const entitiesArray = await csv().fromFile(req.file.path);
 
-    Officer.manageEntitiesUpload(req.body, req.path)
+    Officer.manageEntitiesUpload(entitiesArray, req.path, req.file.originalname)
+        //Officer.manageEntitiesUpload(req.body, req.path)
         //Officer.manageEntitiesUpload(JSON.parse(schedules), "./schedules")
         .then(function (response) {
             utils.writeJson(res, response);
@@ -67,7 +89,7 @@ function supportOfficergetCourseLectures(req, res) {
 }
 
 /**
- * retrieve the lecture with a given id 
+ * retrieve the lecture with a given id
  * @param {Object} req
  * @param {Object} res
  */
@@ -110,7 +132,6 @@ function supportOfficerGetRooms(req, res) {
             utils.writeJson(res, response);
         });
 }
-
 
 /**
  * get the list of all schedules

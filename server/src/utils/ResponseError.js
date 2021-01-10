@@ -15,6 +15,7 @@ const defaultStatusCode = {
     COURSE_NOT_ENROLLED_AA: 400,
     COURSE_LECTURE_MISMATCH_AA: 404,
     DB_GENERIC_ERROR: 500,
+    DB_SQLITE_CONSTRAINT_FAILED: 409,
     LECTURE_GIVEN: 400,
     LECTURE_NOT_FOUND: 404,
     LECTURE_INVALID_DELIVERY_MODE: 400,
@@ -27,6 +28,7 @@ const defaultStatusCode = {
     QUERY_PARAM_NOT_VALUE_ACCEPTED: 400,
     ENTITY_TYPE_NOT_VALID: 400,
     ENTITY_NOT_FOUND: 404,
+    FILE_INCORRECT_FORMAT: 400,
     TEACHER_COURSE_MISMATCH_AA: 404,
     ROUTE_FORBIDDEN: 401,
 };
@@ -52,6 +54,7 @@ class ResponseError {
         COURSE_NOT_ENROLLED_AA: 10,
         COURSE_LECTURE_MISMATCH_AA: 11,
         DB_GENERIC_ERROR: 40,
+        DB_SQLITE_CONSTRAINT_FAILED: 41,
         LECTURE_GIVEN: 20,
         LECTURE_NOT_FOUND: 21,
         LECTURE_INVALID_DELIVERY_MODE: 22,
@@ -65,6 +68,7 @@ class ResponseError {
         QUERY_PARAM_VALUE_NOT_ACCEPTED: 5,
         ENTITY_TYPE_NOT_VALID: 6,
         ENTITY_NOT_FOUND: 7,
+        FILE_INCORRECT_FORMAT: 9,
         TEACHER_COURSE_MISMATCH_AA: 30,
         ROUTE_FORBIDDEN: 0,
     };
@@ -88,6 +92,9 @@ class ResponseError {
 
             case ResponseError.errno.DB_GENERIC_ERROR:
                 return `DB failure: ${args.msg}`;
+
+            case ResponseError.errno.DB_SQLITE_CONSTRAINT_FAILED:
+                return `DB constraint failed: ${args.msg}`;
 
             case ResponseError.errno.LECTURE_GIVEN:
                 return "message not implemented";
@@ -137,6 +144,9 @@ class ResponseError {
 
             case ResponseError.errno.ENTITY_NOT_FOUND:
                 return `Entity ${args.type} not found`;
+
+            case ResponseError.errno.FILE_INCORRECT_FORMAT:
+                return `filename: ${args.filename} reason: ${args.reason}`;
 
             case ResponseError.errno.TEACHER_COURSE_MISMATCH_AA:
                 return `course (courseId = ${args.courseId}) is not taught by this teacher (teacherId = ${args.teacherId})`;
