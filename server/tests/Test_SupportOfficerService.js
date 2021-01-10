@@ -8,8 +8,8 @@ const assert = require("assert").strict;
 const Dao = require("../src/db/Dao.js");
 const Service = require("../src/services/SupportOfficerService.js");
 const prepare = require("../src/db/preparedb.js");
-const Schedule = require('../src/entities/Schedule.js');
-const Class = require('../src/entities/Class.js');
+const Schedule = require("../src/entities/Schedule.js");
+const Class = require("../src/entities/Class.js");
 
 //TODO: finish schedules tests
 const testSuiteSupportOfficer = () => {
@@ -200,6 +200,7 @@ const testSuiteSupportOfficer = () => {
         { Code: "XY0821", Student: "900008" },
         { Code: "XY4521", Student: "900009" },
     ];
+
     //const sdlEntities = [
     //    { Code: "XY1211", Room: 1, Day: "Mon", Seats: 120, Time: "8:30-11:30" },
     //    { Code: "XY4911", Room: 1, Day: "Mon", Seats: 120, Time: "11:30-13:00" },
@@ -252,7 +253,7 @@ const testSuiteSupportOfficer = () => {
             });
 
             it("Should have successfully added the courses", async function () {
-                Service.manageEntitiesUpload(tchEntities, "/api/teachers");
+                await Service.manageEntitiesUpload(tchEntities, "/api/teachers");
                 const retCode = await Service.manageEntitiesUpload(crsEntities, "/api/courses");
                 assert.equal(retCode, 204);
             });
@@ -311,7 +312,9 @@ const testSuiteSupportOfficer = () => {
                 const errno = 3;
                 const message = "not an integer";
                 const code = 400;
-                await assert.rejects(Service.getCourseLectures(supportId, "foo"), (err) => validator(err, errno, message, code));
+                await assert.rejects(Service.getCourseLectures(supportId, "foo"), (err) =>
+                    validator(err, errno, message, code)
+                );
             });
 
             it("Should have returned an array", async function () {
@@ -400,39 +403,39 @@ const testSuiteSupportOfficer = () => {
             });
         });
 
-        describe('supportOfficerGetSchedules', function () {
+        describe("supportOfficerGetSchedules", function () {
             beforeEach(async function clearDb() {
-                await prepare('testing.db', 'testing.sql', false);
+                await prepare("testing.db", "testing.sql", false);
             });
 
-            it('should return the list of schedules', function(done) {
+            it("should return the list of schedules", function (done) {
                 Service.supportOfficerGetSchedules({ managerId: 1 })
                     .then((schedules) => {
-                        assert.strictEqual(schedules.length, 5, 'Wrong number of schedules retrieved');
+                        assert.strictEqual(schedules.length, 5, "Wrong number of schedules retrieved");
                         done();
                     })
                     .catch((err) => done(err));
             });
         });
 
-        describe('supportOfficerUpdateSchedule', function () {
+        describe("supportOfficerUpdateSchedule", function () {
             beforeEach(async function clearDb() {
-                await prepare('testing.db', 'testing.sql', false);
+                await prepare("testing.db", "testing.sql", false);
             });
 
-            it('existing schedule with correct new params should update the schedule', function(done) {
-                const schedule1 = new Schedule(1, '1', 2020, 1, '1A', 10, 'Mon', '8:30', '10:00');
+            it("existing schedule with correct new params should update the schedule", function (done) {
+                const schedule1 = new Schedule(1, "1", 2020, 1, "1A", 10, "Mon", "8:30", "10:00");
                 const updatedSchedule = schedule1;
-                const class2 = new Class(2, '2B', 10);
+                const class2 = new Class(2, "2B", 10);
                 updatedSchedule.roomId = class2.classId;
 
                 Service.supportOfficerUpdateSchedule({
-                        managerId: 1,
-                        scheduleId: updatedSchedule.scheduleId,
-                        schedule: updatedSchedule
-                    })
+                    managerId: 1,
+                    scheduleId: updatedSchedule.scheduleId,
+                    schedule: updatedSchedule,
+                })
                     .then((nLectures) => {
-                        assert.ok(nLectures > 0, 'No lecture updated'); // the exact number of lectures depends on the date you run tests
+                        assert.ok(nLectures > 0, "No lecture updated"); // the exact number of lectures depends on the date you run tests
                         done();
                     })
                     .catch((err) => {
@@ -441,66 +444,77 @@ const testSuiteSupportOfficer = () => {
                     });
             });
 
-            it('wrong schedule should reject the request', function(done) {
-                const wrongSchedule = new Schedule(-1, -1, 1970, -1, 'Wrong roomId', -1, 'Wrong day', 'Not a time', 'Not a time');
-                
+            it("wrong schedule should reject the request", function (done) {
+                const wrongSchedule = new Schedule(
+                    -1,
+                    -1,
+                    1970,
+                    -1,
+                    "Wrong roomId",
+                    -1,
+                    "Wrong day",
+                    "Not a time",
+                    "Not a time"
+                );
+
                 Service.supportOfficerUpdateSchedule({
-                        managerId: 1,
-                        scheduleId: wrongSchedule.scheduleId,
-                        schedule: wrongSchedule
-                    })
-                    .then((nLectures) => done('This must fail!'))
+                    managerId: 1,
+                    scheduleId: wrongSchedule.scheduleId,
+                    schedule: wrongSchedule,
+                })
+                    .then((nLectures) => done("This must fail!"))
                     .catch((err) => done()); // correct case
             });
 
-            it('correct schedule but overlapped with another one of the same course should reject the request', function(done) {
-                const schedule1 = new Schedule(1, '1', 2020, 1, '1A', 10, 'Mon', '8:30', '10:00');
+            it("correct schedule but overlapped with another one of the same course should reject the request", function (done) {
+                const schedule1 = new Schedule(1, "1", 2020, 1, "1A", 10, "Mon", "8:30", "10:00");
                 const overlappedScheduleSameCourse = Schedule.from(schedule1);
-                const schedule2 = new Schedule(2, '2', 2020, 1, '2B', 10, 'Mon', '8:30', '10:00');
+                const schedule2 = new Schedule(2, "2", 2020, 1, "2B", 10, "Mon", "8:30", "10:00");
                 overlappedScheduleSameCourse.roomId = schedule2.roomId;
 
                 Service.supportOfficerUpdateSchedule({
-                        managerId: 1,
-                        scheduleId: overlappedScheduleSameCourse.scheduleId,
-                        schedule: overlappedScheduleSameCourse
-                    })
-                    .then((nLectures) => done('This must fail!'))
+                    managerId: 1,
+                    scheduleId: overlappedScheduleSameCourse.scheduleId,
+                    schedule: overlappedScheduleSameCourse,
+                })
+                    .then((nLectures) => done("This must fail!"))
                     .catch((err) => done()); // correct case
             });
 
-            it('correct schedule but overlapped with another one of a different course in the same class should reject the request', function(done) {
-                const schedule1 = new Schedule(1, '1', 2020, 1, '1A', 10, 'Mon', '8:30', '10:00');
+            it("correct schedule but overlapped with another one of a different course in the same class should reject the request", function (done) {
+                const schedule1 = new Schedule(1, "1", 2020, 1, "1A", 10, "Mon", "8:30", "10:00");
                 const overlappedScheduleDifferentCourse = Schedule.from(schedule1);
-                const schedule2 = new Schedule(2, '2', 2020, 1, '2B', 10, 'Mon', '8:30', '10:00');
+                const schedule2 = new Schedule(2, "2", 2020, 1, "2B", 10, "Mon", "8:30", "10:00");
                 overlappedScheduleDifferentCourse.roomId = schedule2.roomId;
                 overlappedScheduleDifferentCourse.startingTime = schedule2.startingTime;
                 overlappedScheduleDifferentCourse.endingTime = schedule2.endingTime;
 
                 Service.supportOfficerUpdateSchedule({
-                        managerId: 1,
-                        scheduleId: overlappedScheduleDifferentCourse.scheduleId,
-                        schedule: overlappedScheduleDifferentCourse
-                    })
-                    .then((nLectures) => done('This must fail!'))
+                    managerId: 1,
+                    scheduleId: overlappedScheduleDifferentCourse.scheduleId,
+                    schedule: overlappedScheduleDifferentCourse,
+                })
+                    .then((nLectures) => done("This must fail!"))
                     .catch((err) => done()); // correct case
             });
         });
 
-        describe('supportOfficerGetRooms', function () {
+        describe("supportOfficerGetRooms", function () {
             beforeEach(async function clearDb() {
-                await prepare('testing.db', 'testing.sql', false);
+                await prepare("testing.db", "testing.sql", false);
             });
 
-            it('should return the correct number of rooms', function(done) {
+            it("should return the correct number of rooms", function (done) {
                 Service.supportOfficerGetRooms({ managerId: 1 })
                     .then((rooms) => {
-                        assert.strictEqual(rooms.length, 3, 'Wrong number of rooms');
+                        assert.strictEqual(rooms.length, 3, "Wrong number of rooms");
                         done();
                     })
                     .catch((err) => done(err));
-            })
+            });
         });
     });
 };
 
+testSuiteSupportOfficer();
 module.exports = testSuiteSupportOfficer;
