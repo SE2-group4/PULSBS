@@ -148,6 +148,9 @@ describe("SupportSchedulePage suite", () => {
             fireEvent.change(screen.getByTestId("daySelect"), { target: { value: "Mon" } })
         });
         expect(screen.getByTestId("form-submit").getAttribute("disabled")).toBe(""); //no more changes => button disabled
+        await act(async () => {
+            userEvent.click(screen.getByTestId('form-close'));
+        });
     })
     test("testing Submit (put API success )", async () => {
         await setupSupportSchedulePage();
