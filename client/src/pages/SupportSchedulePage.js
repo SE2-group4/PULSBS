@@ -15,12 +15,6 @@ import ErrorMsg from '../components/ErrorMsg';
 
 const scheduleForPage = 10;
 
-const schedulesFake = [
-    new Schedule(1, 5, 1, 1, 1, 10, 'Mon', '8:30', '11:30'),
-    new Schedule(2, 6, 1, 1, 1, 10, 'Wed', '14:30', '16:00'),
-];
-const rooms = ["r1", "r2", "r3"]; //to call
-
 class SupportSchedulePage extends React.Component {
     constructor(props) {
         super(props);
@@ -29,20 +23,14 @@ class SupportSchedulePage extends React.Component {
 
     async componentDidMount() {
         try {
-            //let schedules=API.getSchedulesBySupportId(this.props.user.userId);
+            let schedules = await API.getSchedulesBySupportId(this.props.user.userId);
             let courses = await API.getCoursesBySupportId(this.props.user.userId);
-            //let rooms_=API.getRoomsBySupportId(this.props.user.userId);
-            let rooms_ = rooms; //actual call
-            //debug only (start)
-            schedulesFake.forEach((item) => {
-                if (rooms_.indexOf(item.roomId) === -1)
-                    rooms_.push(item.roomId)
-            });
-            //debug only (end)
+            let rooms = await API.getRoomsBySupportId(this.props.user.userId);
             let filters = courses.map((c) => c.description);
-            this.setState({ schedules: schedulesFake, courses: courses, rooms: rooms, filters: filters, loading: false });
-        } catch (error) {
-            let errormsg = error.source + " : " + error.error;
+            let rooms_ = rooms.map((r) => r.description);
+            this.setState({ schedules: schedules, courses: courses, rooms: rooms_, filters: filters, loading: false });
+        } catch (err) {
+            let errormsg = err.source + " : " + err.error;
             this.setState({ genError: errormsg, loading: false });
         }
 
@@ -72,44 +60,36 @@ class SupportSchedulePage extends React.Component {
     }
 
     submit = (day, room, startingTime, endingTime) => {
-        this.setState({ loading: true });
         let newSchedule = new Schedule();
         newSchedule.scheduleId = this.state.selectedSchedule.scheduleId;
         newSchedule.dayOfWeek = this.state.selectedSchedule.dayOfWeek === day ? null : day;
         newSchedule.roomId = this.state.selectedSchedule.roomId === room ? null : room;
         newSchedule.startingTime = this.state.selectedSchedule.startingTime === startingTime ? null : startingTime;
         newSchedule.endingTime = this.state.selectedSchedule.endingTime === endingTime ? null : endingTime;
-        /*
-        API.changeScheduleData(this.props.user.userId,scheduleId,day,room,startingTime,endingTime)
-        .then(()=>{
-            //all ok
-        })
-        .catch(()=>{
-            //error
-            let errormsg = err.source + " : " + err.error;
-            this.setState({ genError: errormsg,loading: false });
-        });
-        */
-        {
-            //ok from server
-            console.log(newSchedule);
-            let schedules = this.state.schedules;
-            let i = schedules.indexOf(this.state.selectedSchedule);
-            schedules[i].dayOfWeek = day;
-            schedules[i].roomId = room;
-            schedules[i].startingTime = startingTime;
-            schedules[i].endingTime = endingTime;
-            this.setState({ schedules: schedules, loading: false, selectedSchedule: null });
-        }
 
+        API.changeScheduleData(this.props.user.userId, newSchedule)
+            .then(() => {
+                //ok from server
+                let schedules = this.state.schedules;
+                let i = schedules.indexOf(this.state.selectedSchedule);
+                schedules[i].dayOfWeek = day;
+                schedules[i].roomId = room;
+                schedules[i].startingTime = startingTime;
+                schedules[i].endingTime = endingTime;
+                this.setState({ schedules: schedules, selectedSchedule: null });
+            })
+            .catch((err) => {
+                //error
+                let errormsg = err.source + " : " + err.error;
+                this.setState({ genError: errormsg, selectedSchedule: null });
+            });
     }
 
     render() {
-        if (this.state.loading)
-            return <Spinner animation="border" ></Spinner>;
         if (this.state.genError)
             return <ErrorMsg msg={this.state.genError} />;
-
+        if (this.state.loading)
+            return <Spinner animation="border" ></Spinner>;
         return <>
             {this.state.selectedSchedule && <FormModal schedule={this.state.selectedSchedule} close={this.closeModal} courses={this.state.courses} rooms={this.state.rooms} submitData={this.submit} />}
             <Container fluid>
@@ -184,7 +164,7 @@ function ScheduleTable(props) {
 }
 
 function ScheduleRow(props) {
-    return <tr>
+    return <tr data-testid="schedule-row">
         <td>{props.schedule.scheduleId}</td>
         <td>{courseName(props.schedule.code, props.courses)}</td>
         <td>{props.schedule.AAyear}</td>
@@ -193,7 +173,7 @@ function ScheduleRow(props) {
         <td>{props.schedule.dayOfWeek}</td>
         <td>{props.schedule.startingTime}</td>
         <td>{props.schedule.endingTime}</td>
-        <td><Button onClick={() => props.edit(props.schedule)} variant="warning">Edit</Button></td>
+        <td><Button data-testid={"edit-" + props.schedule.scheduleId} onClick={() => props.edit(props.schedule)} variant="warning">Edit</Button></td>
     </tr>
 }
 
@@ -267,13 +247,13 @@ class FormModal extends React.Component {
                     <Col sm={3}>
                         <b>Day of the week:</b>
                         <Form.Control as="select" data-testid="daySelect" custom onChange={(ev) => { this.changeDay(ev.target.value) }} >
-                            {daysOfWeek.map((d) => <option key={d} data-testid={"day" + d} value={d} selected={d === this.state.day ? true : false}>{d}</option>)}
+                            {daysOfWeek.map((d) => <option key={d} data-testid={"day-option"} value={d} selected={d === this.state.day ? true : false}>{d}</option>)}
                         </Form.Control>
                     </Col>
                     <Col sm={3}>
                         <b>Room Id:</b>
                         <Form.Control as="select" data-testid="roomSelect" custom onChange={(ev) => { this.changeRoom(ev.target.value) }} >
-                            {this.props.rooms.map((r) => <option key={r} data-testid={"room" + r} value={r} selected={r === this.state.room ? true : false}>{r}</option>)}
+                            {this.props.rooms.map((r) => <option key={r} data-testid={"room-option"} value={r} selected={r === this.state.room ? true : false}>{r}</option>)}
                         </Form.Control>
                     </Col>
                     <Col sm={3}>
