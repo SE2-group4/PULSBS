@@ -42,7 +42,7 @@ class SupportSchedulePage extends React.Component {
             let filters = courses.map((c) => c.description);
             this.setState({ schedules: schedulesFake, courses: courses, rooms: rooms, filters: filters, loading: false });
         } catch (error) {
-            let errormsg = err.source + " : " + err.error;
+            let errormsg = error.source + " : " + error.error;
             this.setState({ genError: errormsg, loading: false });
         }
 

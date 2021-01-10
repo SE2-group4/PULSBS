@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment'
-import Button from 'react-bootstrap/Button'
+import ToggleButton from 'react-bootstrap/ToggleButton'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import { slide as Menu } from 'react-burger-menu'
 import DayPickerInput from 'react-day-picker/DayPickerInput';
@@ -16,7 +16,8 @@ class BurgerSidebar extends React.Component {
             from: undefined, to: undefined, selectedCourse: "", selectedWeeks: [], selectedMonths: [],
             granularity: "daily",
             months: [],
-            weeks: []
+            weeks: [],
+            checked1: true, checked2: false, checked3: false
         }
     }
 
@@ -86,15 +87,15 @@ class BurgerSidebar extends React.Component {
     }
 
     handleGranChange1 = () => {
-        this.setState({ granularity: "daily" })
+        this.setState({ granularity: "daily", checked1: true, checked2: false, checked3: false })
         this.props.generateGraph(this.state.selectedCourse, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, "daily")
     }
     handleGranChange2 = () => {
-        this.setState({ granularity: "weekly" })
+        this.setState({ granularity: "weekly", checked1: false, checked2: true, checked3: false })
         this.props.generateGraph(this.state.selectedCourse, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, "weekly")
     }
     handleGranChange3 = () => {
-        this.setState({ granularity: "monthly" })
+        this.setState({ granularity: "monthly", checked1: false, checked2: false, checked3: true })
         this.props.generateGraph(this.state.selectedCourse, this.state.selectedWeeks, this.state.selectedMonths, this.state.from, this.state.to, "monthly")
     }
 
@@ -108,10 +109,10 @@ class BurgerSidebar extends React.Component {
                 <Form>
                     <Form.Group>
                         <Form.Label>Select granularity:</Form.Label>
-                        <ButtonGroup size="sm" className="mb-2">
-                            <Button variant="warning" onClick={this.handleGranChange1}>Daily</Button>
-                            <Button variant="warning" onClick={this.handleGranChange2}>Weekly</Button>
-                            <Button variant="warning" onClick={this.handleGranChange3}>Monthly</Button>
+                        <ButtonGroup toggle size="sm" className="mb-2">
+                            <ToggleButton type="checkbox" variant="warning" checked={this.state.checked1} onClick={this.handleGranChange1}>Daily</ToggleButton>
+                            <ToggleButton type="checkbox" variant="warning" checked={this.state.checked2} onClick={this.handleGranChange2}>Weekly</ToggleButton>
+                            <ToggleButton type="checkbox" variant="warning" checked={this.state.checked3} onClick={this.handleGranChange3}>Monthly</ToggleButton>
                         </ButtonGroup>
                     </Form.Group>
                     <Form.Group>
@@ -165,8 +166,10 @@ class BurgerSidebar extends React.Component {
                         }
                         {
                             this.state.granularity == "monthly" &&
-                            <a id="monthly" className="menu-item" >Select months:
-                <MultiselectComp handle={this.multiselectMonthsHandle} options={this.state.months} display="name" selectedValues={this.state.selectedMonths}></MultiselectComp></a>
+                            <>
+                                <Form.Label>Select months:</Form.Label>
+                                <MultiselectComp handle={this.multiselectMonthsHandle} options={this.state.months} display="name" selectedValues={this.state.selectedMonths}></MultiselectComp>
+                            </>
                         }
                     </Form.Group>
                     <Form.Group>

@@ -5,6 +5,8 @@
  */
 "use strict";
 
+const moment = require('moment');
+
 class Schedule {
     /**
      * class constructor
@@ -47,6 +49,17 @@ class Schedule {
      */
     static from(obj) {
         const schedule = Object.assign(new Schedule(), obj);
+
+        // adapt dates
+        const initDate = moment(schedule.startingTime);
+        if(initDate.isValid()) {
+            schedule.startingTime = initDate.format('hh:mm');
+        }
+        const finiDate = moment(schedule.startingTime);
+        if(finiDate.isValid()) {
+            schedule.startingTime = initDate.format('hh:mm');
+        }
+
         return schedule;
     }
 }

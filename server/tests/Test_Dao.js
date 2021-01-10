@@ -929,6 +929,27 @@ const suite = function () {
             });
         });
 
+        describe('_generateLectureByScheduleAndPrototype', function() {
+            it('correct params should return the number of generated lectures', function(done) {
+                dao._generateLecturePrototypeBySchedule(newSchedule)
+                    .then((lecturePrototype) => {
+                        dao._generateLectureByScheduleAndPrototype(newSchedule, lecturePrototype)
+                            .then((lectures) => {
+                                assert.ok(lectures.length > 0, 'No lecture has been generated');
+                                done();
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                                done(err);
+                            });
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        done(err);
+                    });
+            });
+        });
+
         describe('_addLecturesByScheduleAndPrototype', function() {
             it('correct params should return the number of inserted lectures', function(done) {
                 dao._generateLecturePrototypeBySchedule(newSchedule)
