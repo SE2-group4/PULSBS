@@ -37,6 +37,7 @@ class SupportSchedulePage extends React.Component {
             let filters = courses.map((c) => c.description + "-" + c.code);
             this.setState({ schedules: schedules_, courses: courses, rooms: rooms, filters: filters, loading: false });
         } catch (err) {
+            console.log(err);
             let errormsg = err.source + " : " + err.error;
             this.setState({ genError: errormsg, loading: false });
         }

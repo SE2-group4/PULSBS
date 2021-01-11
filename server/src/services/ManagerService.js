@@ -41,7 +41,7 @@ exports.managerGetCourseLecture = async function managerGetCourseLecture(
     if (!isObjectEmpty(query)) {
         const areValid = areValidParams(query);
 
-        if (!areValid) throw genResponseError(errno.QUERY_PARAM_NOT_ACCEPTED, { query });
+        if (!areValid) throw genResponseError(errno.QUERY_PARAM_NOT_ACCEPTED, { params: Object.keys(query) });
     }
 
     const { bookings, cancellations, attendances } = convertToBooleans(query);
@@ -67,7 +67,7 @@ exports.managerGetCourseLectures = async function managerGetCourseLectures({ man
     if (!isObjectEmpty(query)) {
         const areValid = areValidParams(query);
 
-        if (!areValid) throw genResponseError(errno.QUERY_PARAM_NOT_ACCEPTED, { query });
+        if (!areValid) throw genResponseError(errno.QUERY_PARAM_NOT_ACCEPTED, { params: Object.keys(query) });
     }
 
     const { bookings, cancellations, attendances } = convertToBooleans(query);
@@ -182,7 +182,7 @@ exports.managerGetStudent = async function managerGetStudent({ managerId }, quer
             "Manager service",
             StandardErr.errno.GENERIC,
             "No query used (expected at least one)",
-            500
+            400 
         );
     }
 };

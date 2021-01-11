@@ -1728,8 +1728,8 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
                 // console.log("_generateLecturePrototypeBySchedule - actual schedule");
                 // console.log(schedule);
 
-                actualStartingTime = moment(schedule.startingTime, "hh:mm");
-                actualEndingTime = moment(schedule.endingTime, "hh:mm");
+                actualStartingTime = moment(schedule.startingTime, "HH:mm");
+                actualEndingTime = moment(schedule.endingTime, "HH:mm");
 
                 if (!(actualStartingTime.isValid() && actualEndingTime.isValid())) {
                     reject(StandardErr.new("Dao", StandardErr.errno.UNEXPECTED_VALUE, "Wrong start or end time", 404));
@@ -1739,7 +1739,7 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
                 // console.log(actualEndingTime);
 
                 const actualDuration = actualEndingTime.diff(actualStartingTime, "milliseconds"); // in milliseconds
-                const bookingDeadlineTime = moment("23:00", "hh:mm").subtract(1, "day"); // by default, the booking deadline is the day before at 23:00
+                const bookingDeadlineTime = moment("23:00", "HH:mm").subtract(1, "day"); // by default, the booking deadline is the day before at 23:00
 
                 // build the prototype
                 const lecturePrototype = new Lecture();
@@ -1844,17 +1844,20 @@ const updateSchedule = function (schedule) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
-
             const actualSchedule = Schedule.from(row);
 
-            console.log('updateSchedule - schedule and actualSchedule');
+            console.log('updateSchedule - schedule, actualSchedule');
             console.log(schedule);
             console.log(actualSchedule);
 
             // merge objects
-            for (const prop in schedule) {
-                actualSchedule[prop] = schedule[prop] || actualSchedule[prop]; // assign only not-null properties
+            for (const prop in actualSchedule) {
+                actualSchedule[prop] = schedule[prop] && schedule[prop] != -1 ? schedule[prop] : actualSchedule[prop]; // assign only not-null properties
             }
+
+            console.log('updateSchedule - actualSchedule updated');
+            console.log(actualSchedule);
+
             // actualSchedule.startingTime = moment(actualSchedule.startingTime);
             // actualSchedule.endingDate = moment(actualSchedule.endingDate);
 
@@ -1880,8 +1883,8 @@ const updateSchedule = function (schedule) {
                     actualSchedule.roomId,
                     actualSchedule.seats,
                     actualSchedule.dayOfWeek,
-                    moment(actualSchedule.startingTime).format('hh:mm'),
-                    moment(actualSchedule.endingDate).format('hh:mm'),
+                    moment(actualSchedule.startingTime).format('HH:mm'),
+                    moment(actualSchedule.endingDate).format('HH:mm'),
                     actualSchedule.scheduleId,
                 ],
                 function (err) {
@@ -1963,29 +1966,43 @@ const getUpdateSchedulePreview = function (schedule) {
     return new Promise((resolve, reject) => {
         getScheduleById(schedule) // get the schedule as-is from the DB
             .then(async (currentSchedule) => {
+                const currentClass = new Class();
+                currentClass.description = currentSchedule.roomId;
                 const class_ = new Class();
                 class_.description = schedule.roomId;
                 Promise.all([
-                    _generateCourseBySchedule(schedule),
+                    // _generateCourseBySchedule(schedule),
                     getCourseByCode(schedule.code),
-                    getClassByDescription(currentSchedule.roomId), // currentClass
+                    getClassByDescription(currentClass), // currentClass
                     _generateClassBySchedule(schedule),
-                    getClassByDescription(class_), // newClass
+                    new Promise((resolve, reject) => {
+                        getClassByDescription(class_) // newClass
+                            .then(resolve)
+                            .catch((err) => resolve(new Class()));
+                    })
                 ])
                     .then(async (values) => {
-                        const course = values[1];
-                        const currentClass = values[2];
-                        const newClass = values[4];
+                        const course = values[0];
+                        const currentClass = values[1];
+                        let newClass = values[3];
+                        newClass = newClass.classId > 0 ? newClass : currentClass;
 
                         // merge objects
                         const newSchedule = new Schedule();
-                        for (const prop in schedule) {
-                            newSchedule[prop] = currentSchedule[prop] || newSchedule[prop]; // assign only not-null properties
+                        for (const prop in newSchedule) {
+                            newSchedule[prop] = schedule[prop] && schedule[prop] != -1 ? schedule[prop] : currentSchedule[prop]; // assign only not-null properties
                         }
 
-                        const currentLectures = getLecturesByCourse(course); // only future lectures
+                        console.log('getUpdateSchedulePreview - schedule, currentSchedule, newSchedule');
+                        console.log(schedule);
+                        console.log(currentSchedule);
+                        console.log(newSchedule);
+
+                        const currentLectures = await getLecturesByCourse(course); // only future lectures
                         const lecturePrototype = await _generateLecturePrototypeBySchedule(newSchedule);
                         const newLectures = await _generateLectureByScheduleAndPrototype(newSchedule, lecturePrototype); // only future lectures
+
+                        console.log('Lecture old-new mapping...');
                         const lectures = [];
                         for (let i = 0; i < Math.max(currentLectures.length, newLectures.length); i++) {
                             lectures.push({
@@ -1995,6 +2012,7 @@ const getUpdateSchedulePreview = function (schedule) {
                         }
 
                         // finally, build the preview object
+                        console.log('building the preview...');
                         const preview = {
                             schedules: {
                                 currentSchedule: currentSchedule,
