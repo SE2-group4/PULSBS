@@ -724,10 +724,14 @@ const supportOfficerGetSchedules = async function supportOfficerGetSchedules({ m
  */
 const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule({ managerId, scheduleId, schedule }) {
     scheduleId = Number(scheduleId);
-    schedule.scheduleId = scheduleId;
+    console.log(schedule);
+    const paramSchedule = Schedule.from(schedule);
+    paramSchedule.scheduleId = scheduleId;
 
     // check if it exists
-    await db.getScheduleById(schedule);
+    const actualSchedule = await db.getScheduleById(paramSchedule);
+    console.log('actual schedule into DB');
+    console.log(actualSchedule);
 
     /*
     PREVIEW PROTOTYPE
@@ -751,8 +755,8 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
         ]
     }
     */
-    const preview = db.getUpdateSchedulePreview(schedule); // get a preview of data which will be modified
-    const retVal = await db.updateSchedule(schedule);
+    const preview = await db.getUpdateSchedulePreview(paramSchedule); // get a preview of data which will be modified
+    const retVal = await db.updateSchedule(paramSchedule);
 
     // get all booked students for each lecture which should be modified
     let promises = [];

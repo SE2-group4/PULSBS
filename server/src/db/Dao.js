@@ -1517,9 +1517,9 @@ const _generateDatesBySchedule = function (schedule) {
                     ); // include limit dates
                     // "!!val": to boolean
 
-                    // console.log('checking date ' + nextDate.toISOString());
-                    // console.log('results');
-                    // console.log(results);
+                    console.log('checking date ' + nextDate.toISOString());
+                    console.log('results');
+                    console.log(results);
 
                     if (!(results.length >= 2 && !!results[0] && !!results[1]))
                         // academic year or semester have been broken
@@ -1834,15 +1834,22 @@ exports.getSchedules = getSchedules;
  */
 const updateSchedule = function (schedule) {
     return new Promise((resolve, reject) => {
+        console.log('updateSchedule - schedule as param:');
+        console.log(schedule);
+
         const sql = `SELECT * FROM Schedule WHERE scheduleId = ?`;
 
-        db.get(sql, [], (err, row) => {
+        db.get(sql, [schedule.scheduleId], (err, row) => {
             if (err) {
                 reject(StandardErr.fromDao(err));
                 return;
             }
 
             const actualSchedule = Schedule.from(row);
+
+            console.log('updateSchedule - schedule and actualSchedule');
+            console.log(schedule);
+            console.log(actualSchedule);
 
             // merge objects
             for (const prop in schedule) {
@@ -1873,8 +1880,8 @@ const updateSchedule = function (schedule) {
                     actualSchedule.roomId,
                     actualSchedule.seats,
                     actualSchedule.dayOfWeek,
-                    actualSchedule.startingTime,
-                    actualSchedule.endingDate,
+                    moment(actualSchedule.startingTime).format('hh:mm'),
+                    moment(actualSchedule.endingDate).format('hh:mm'),
                     actualSchedule.scheduleId,
                 ],
                 function (err) {
