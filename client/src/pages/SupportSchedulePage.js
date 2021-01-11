@@ -27,12 +27,12 @@ class SupportSchedulePage extends React.Component {
             let courses = await API.getCoursesBySupportId(this.props.user.userId);
             let rooms = await API.getRoomsBySupportId(this.props.user.userId);
             let schedules_ = schedules.map((s) => {
-                let st = s.startingTime;
-                let et = s.endingTime;
+                // let st = s.startingTime;
+                // let et = s.endingTime;
                 let roomid = s.roomId;
                 s.roomId = roomid.toString();
-                s.startingTime = st.substring(0, st.length - 3);
-                s.endingTime = et.substring(0, et.length - 3);
+                // s.startingTime = st.substring(0, st.length - 3);
+                // s.endingTime = et.substring(0, et.length - 3);
                 return s;
             })
             //console.log(schedules_);
@@ -41,6 +41,7 @@ class SupportSchedulePage extends React.Component {
             let filters = courses.map((c) => c.description + "-" + c.code);
             this.setState({ schedules: schedules_, courses: courses, rooms: rooms, filters: filters, loading: false });
         } catch (err) {
+            console.log(err);
             let errormsg = err.source + " : " + err.error;
             this.setState({ genError: errormsg, loading: false });
         }
