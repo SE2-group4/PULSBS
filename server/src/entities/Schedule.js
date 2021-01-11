@@ -51,13 +51,13 @@ class Schedule {
         const schedule = Object.assign(new Schedule(), obj);
 
         // adapt dates
-        const initDate = moment(schedule.startingTime);
+        const initDate = moment(schedule.startingTime, 'HH:mm');
         if(initDate.isValid()) {
-            schedule.startingTime = initDate.format('hh:mm');
+            schedule.startingTime = initDate.format('HH:mm');
         }
-        const finiDate = moment(schedule.endingTime);
+        const finiDate = moment(schedule.endingTime, 'HH:mm');
         if(finiDate.isValid()) {
-            schedule.endingTime = finiDate.format('hh:mm');
+            schedule.endingTime = finiDate.format('HH:mm');
         }
 
         return schedule;
