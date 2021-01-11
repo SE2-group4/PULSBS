@@ -29,10 +29,15 @@ class SupportSchedulePage extends React.Component {
             let schedules_ = schedules.map((s) => {
                 let st = s.startingTime;
                 let et = s.endingTime;
+                let roomid = s.roomId;
+                s.roomId = roomid.toString();
                 s.startingTime = st.substring(0, st.length - 3);
                 s.endingTime = et.substring(0, et.length - 3);
                 return s;
             })
+            //console.log(schedules_);
+            //console.log(rooms);
+            //console.log(courses);
             let filters = courses.map((c) => c.description + "-" + c.code);
             this.setState({ schedules: schedules_, courses: courses, rooms: rooms, filters: filters, loading: false });
         } catch (err) {
@@ -72,7 +77,7 @@ class SupportSchedulePage extends React.Component {
         newSchedule.roomId = this.state.selectedSchedule.roomId === room ? null : room;
         newSchedule.startingTime = this.state.selectedSchedule.startingTime === startingTime ? null : startingTime;
         newSchedule.endingTime = this.state.selectedSchedule.endingTime === endingTime ? null : endingTime;
-
+        console.log(newSchedule);
         API.changeScheduleData(this.props.user.userId, newSchedule)
             .then(() => {
                 //ok from server
@@ -179,7 +184,7 @@ function ScheduleRow(props) {
         <td>{props.schedule.code}</td>
         <td>{props.schedule.AAyear}</td>
         <td>{props.schedule.semester}</td>
-        <td>{roomDesc(props.schedule.roomId, props.rooms)}</td>
+        <td>{props.schedule.roomId}</td>
         <td>{props.schedule.dayOfWeek}</td>
         <td>{props.schedule.startingTime}</td>
         <td>{props.schedule.endingTime}</td>
@@ -215,7 +220,7 @@ class FormModal extends React.Component {
         this.setState({ startingTime: st, endingTime: et, changed: somethingChanged(this.props.schedule, this.state.day, this.state.room, st, et) });
     }
     handleSubmit = () => {
-        this.props.submitData(this.state.day, parseInt(this.state.room), this.state.startingTime, this.state.endingTime);
+        this.props.submitData(this.state.day, this.state.room, this.state.startingTime, this.state.endingTime);
     }
 
     render() {
@@ -246,7 +251,7 @@ class FormModal extends React.Component {
                             <td>{courseName(this.props.schedule.code, this.props.courses)}</td>
                             <td>{this.props.schedule.AAyear}</td>
                             <td>{this.props.schedule.semester}</td>
-                            <td>{roomDesc(this.props.schedule.roomId, this.props.rooms)}</td>
+                            <td>{this.props.schedule.roomId}</td>
                             <td>{this.props.schedule.dayOfWeek}</td>
                             <td>{this.props.schedule.startingTime}</td>
                             <td>{this.props.schedule.endingTime}</td>
@@ -263,7 +268,7 @@ class FormModal extends React.Component {
                     <Col sm={3}>
                         <b>Room:</b>
                         <Form.Control as="select" data-testid="roomSelect" custom onChange={(ev) => { this.changeRoom(ev.target.value) }} >
-                            {this.props.rooms.map((r) => <option key={r.classId} data-testid={"room-option"} value={r.classId} selected={r.classId === this.state.room ? true : false}>{r.description}</option>)}
+                            {this.props.rooms.map((r) => <option key={r.classId} data-testid={"room-option"} value={r.description} selected={r.description === this.state.room ? true : false}>{r.description}</option>)}
                         </Form.Control>
                     </Col>
                     <Col sm={3}>
@@ -312,7 +317,7 @@ function updateStartingTime(endingTime, startingTimes_) {
 }
 
 function somethingChanged(oldSchedule, day, room, st, et) {
-    if (oldSchedule.dayOfWeek !== day || (oldSchedule.roomId).toString() !== room || oldSchedule.startingTime !== st || oldSchedule.endingTime !== et)
+    if (oldSchedule.dayOfWeek !== day || oldSchedule.roomId !== room || oldSchedule.startingTime !== st || oldSchedule.endingTime !== et)
         return true;
     else
         return false;
