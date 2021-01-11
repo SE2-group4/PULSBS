@@ -324,7 +324,7 @@ function extractOptions(queryObj = {}) {
             case "attendances": {
                 if (!converter.isValueOfType("boolean", value))
                     return {
-                        err: genResponseError(errno.PARAM_NOT_BOOLEAN, { bookings: queryObj[key] }),
+                        err: genResponseError(errno.PARAM_NOT_BOOLEAN, { attendances: queryObj[key] }),
                     };
 
                 options.attendances = converter.toBoolean(value);
