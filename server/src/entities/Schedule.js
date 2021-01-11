@@ -55,10 +55,14 @@ class Schedule {
         if(initDate.isValid()) {
             schedule.startingTime = initDate.format('HH:mm');
         }
+        else
+            schedule.startingTime = null;
         const finiDate = moment(schedule.endingTime, 'HH:mm');
         if(finiDate.isValid()) {
             schedule.endingTime = finiDate.format('HH:mm');
         }
+        else
+            schedule.endingTime = null;
 
         return schedule;
     }
