@@ -55,9 +55,9 @@ class Schedule {
         if(initDate.isValid()) {
             schedule.startingTime = initDate.format('hh:mm');
         }
-        const finiDate = moment(schedule.startingTime);
+        const finiDate = moment(schedule.endingTime);
         if(finiDate.isValid()) {
-            schedule.startingTime = initDate.format('hh:mm');
+            schedule.endingTime = finiDate.format('hh:mm');
         }
 
         return schedule;
