@@ -160,11 +160,12 @@ function supportOfficerGetSchedules(req, res) {
  * @param {Object} res
  */
 function supportOfficerUpdateSchedule(req, res) {
-    Officer.supportOfficerUpdateSchedule(req.body, req.query)
+    Officer.supportOfficerUpdateSchedule(req.params, req.body, req.query)
         .then(function (response) {
             utils.writeJson(res, response);
         })
         .catch(function (response) {
+            console.error(response);
             utils.writeJson(res, response);
         });
 }
