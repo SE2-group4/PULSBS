@@ -15,6 +15,7 @@ const db = require("../db/Dao");
 const utils = require("../utils/utils");
 const fs = require("fs");
 const check = require("../utils/checker");
+const csv = require("csvtojson");
 
 const errno = ResponseError.errno;
 
@@ -254,8 +255,20 @@ async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
 /**
  * entrypoint for the routes **\/:supportId\/uploads
  *
- * entities {Array} of Objects. Es. [{}, {}] for the list of properties of a object look at .csv files at https://softeng.polito.it/courses/SE2/PULSeBS_Stories.html
- * path {Integer} relative or absolute path of the endpoint. Es. ./schedules
+ * @param {Object} req
+ * @returns {Integer} 204. A ResponseError on error
+ **/
+async function manageFileUpload(req) {
+    if (!req.file) throw genResponseError(errno.FILE_MISSING);
+    const entities = await csv().fromFile(req.file.path);
+    return await manageEntitiesUpload(entities, req.path, req.file.originalname);
+}
+
+/**
+ * manage the entities's upload
+ *
+ *@param entities {Array} of Objects. Es. [{}, {}] for the list of properties of a object look at .csv files at https://softeng.polito.it/courses/SE2/PULSeBS_Stories.html
+ *@param path {Integer} relative or absolute path of the endpoint. Es. ./schedules
  *
  * returns {Integer} 204. A ResponseError on error
  **/
@@ -280,7 +293,7 @@ async function manageEntitiesUpload(entities, path, filename) {
     try {
         await runBatchQueries(sqlQueries);
     } catch (err) {
-        const message = {filename, reason: err.payload.message};
+        const message = { filename, reason: err.payload.message };
         throw genResponseError(errno.FILE_INCORRECT_FORMAT, message);
     }
     //console.timeEnd("phase: query run");
@@ -593,7 +606,7 @@ async function runBatchQueries(sqlQueries) {
             message = message.slice(index + strToCompare.length);
         }
 
-        throw genResponseError(typeError, { msg: message});
+        throw genResponseError(typeError, { msg: message });
     }
 }
 
@@ -774,6 +787,7 @@ const privateFunc = { getEntityNameFromPath, genInsertSqlQueries, updateAndSort 
 
 module.exports = {
     manageEntitiesUpload,
+    manageFileUpload,
     privateFunc,
     getCourses,
     getCourseLectures,

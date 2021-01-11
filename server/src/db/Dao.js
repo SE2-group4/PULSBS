@@ -1,4 +1,4 @@
-/**
+/*
  * database access management
  * @author Gastaldi Paolo
  * @version 1.0.0
@@ -1221,7 +1221,7 @@ exports.execBatch = execBatch;
 
 /**
  * wrap each query into a promise
- * @param {Array} of String 
+ * @param {Array} of String
  * @returns {Promise} promise
  */
 async function wrapQueriesIntoPromises(queries) {

@@ -29,6 +29,7 @@ const defaultStatusCode = {
     ENTITY_TYPE_NOT_VALID: 400,
     ENTITY_NOT_FOUND: 404,
     FILE_INCORRECT_FORMAT: 400,
+    FILE_MISSING: 400,
     TEACHER_COURSE_MISMATCH_AA: 404,
     ROUTE_FORBIDDEN: 401,
 };
@@ -68,7 +69,8 @@ class ResponseError {
         QUERY_PARAM_VALUE_NOT_ACCEPTED: 5,
         ENTITY_TYPE_NOT_VALID: 6,
         ENTITY_NOT_FOUND: 7,
-        FILE_INCORRECT_FORMAT: 9,
+        FILE_INCORRECT_FORMAT: 60,
+        FILE_MISSING: 61,
         TEACHER_COURSE_MISMATCH_AA: 30,
         ROUTE_FORBIDDEN: 0,
     };
@@ -147,6 +149,9 @@ class ResponseError {
 
             case ResponseError.errno.FILE_INCORRECT_FORMAT:
                 return `filename: ${args.filename} reason: ${args.reason}`;
+
+            case ResponseError.errno.FILE_MISSING:
+                return `File missing`;
 
             case ResponseError.errno.TEACHER_COURSE_MISMATCH_AA:
                 return `course (courseId = ${args.courseId}) is not taught by this teacher (teacherId = ${args.teacherId})`;

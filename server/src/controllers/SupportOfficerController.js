@@ -5,9 +5,8 @@ const router = express.Router();
 const Officer = require("../services/SupportOfficerService");
 const utils = require("../utils/writer");
 const multer = require("multer");
-const fs = require("fs");
-const csv = require("csvtojson");
 const path = require("path");
+const fs = require("fs");
 
 const MODULE_PATH = __dirname;
 const UPLOAD_PATH = path.join(MODULE_PATH, "../uploads/");
@@ -24,11 +23,11 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-router.post("/:supportId/uploads/students", upload.single("file"), manageEntitiesUpload);
-router.post("/:supportId/uploads/courses", upload.single("file"), manageEntitiesUpload);
-router.post("/:supportId/uploads/teachers", upload.single("file"), manageEntitiesUpload);
-router.post("/:supportId/uploads/schedules", upload.single("file"), manageEntitiesUpload);
-router.post("/:supportId/uploads/enrollments", upload.single("file"), manageEntitiesUpload);
+router.post("/:supportId/uploads/students", upload.single("file"), manageFileUpload);
+router.post("/:supportId/uploads/courses", upload.single("file"), manageFileUpload);
+router.post("/:supportId/uploads/teachers", upload.single("file"), manageFileUpload);
+router.post("/:supportId/uploads/schedules", upload.single("file"), manageFileUpload);
+router.post("/:supportId/uploads/enrollments", upload.single("file"), manageFileUpload);
 router.get("/:supportId/courses", supportOfficerGetCourses);
 router.get("/:supportId/courses/:courseId/lectures", supportOfficergetCourseLectures);
 router.put("/:supportId/courses/:courseId/lectures/:lectureId", supportOfficerUpdateCourseLecture);
@@ -43,19 +42,26 @@ module.exports.SupportOfficerRouter = router;
  * @param {Object} req
  * @param {Object} res
  */
-async function manageEntitiesUpload(req, res) {
+function manageFileUpload(req, res) {
     //const schedules = fs.readFileSync("./input/schedules.json", "utf-8");
-    const entitiesArray = await csv().fromFile(req.file.path);
 
-    Officer.manageEntitiesUpload(entitiesArray, req.path, req.file.originalname)
-        //Officer.manageEntitiesUpload(req.body, req.path)
-        //Officer.manageEntitiesUpload(JSON.parse(schedules), "./schedules")
+    Officer.manageFileUpload(req)
         .then(function (response) {
             utils.writeJson(res, response);
         })
         .catch(function (response) {
             utils.writeJson(res, response);
         });
+
+    //Officer.manageEntitiesUpload(entitiesArray, req.path, req.file.originalname)
+    //    //Officer.manageEntitiesUpload(req.body, req.path)
+    //    //Officer.manageEntitiesUpload(JSON.parse(schedules), "./schedules")
+    //    .then(function (response) {
+    //        utils.writeJson(res, response);
+    //    })
+    //    .catch(function (response) {
+    //        utils.writeJson(res, response);
+    //    });
 }
 
 /**
