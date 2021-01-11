@@ -1517,9 +1517,9 @@ const _generateDatesBySchedule = function (schedule) {
                     ); // include limit dates
                     // "!!val": to boolean
 
-                    console.log('checking date ' + nextDate.toISOString());
-                    console.log('results');
-                    console.log(results);
+                    // console.log('checking date ' + nextDate.toISOString());
+                    // console.log('results');
+                    // console.log(results);
 
                     if (!(results.length >= 2 && !!results[0] && !!results[1]))
                         // academic year or semester have been broken
@@ -1874,6 +1874,8 @@ const updateSchedule = function (schedule) {
                     startingTime = ?,
                     endingTime = ?
                 WHERE scheduleId = ?`;
+            const initDate = moment(actualSchedule.startingTime, 'HH:mm');
+            const finiDate = moment(actualSchedule.endingTime, 'HH:mm');
             db.run(
                 updateSql,
                 [
@@ -1883,8 +1885,8 @@ const updateSchedule = function (schedule) {
                     actualSchedule.roomId,
                     actualSchedule.seats,
                     actualSchedule.dayOfWeek,
-                    moment(actualSchedule.startingTime).format('HH:mm'),
-                    moment(actualSchedule.endingDate).format('HH:mm'),
+                    initDate.isValid() ? initDate.format('HH:mm') : '00:00',
+                    finiDate.isValid() ? finiDate.format('HH:mm') : '00:00',
                     actualSchedule.scheduleId,
                 ],
                 function (err) {
@@ -1972,7 +1974,7 @@ const getUpdateSchedulePreview = function (schedule) {
                 class_.description = schedule.roomId;
                 Promise.all([
                     // _generateCourseBySchedule(schedule),
-                    getCourseByCode(schedule.code),
+                    getCourseByCode(currentSchedule.code),
                     getClassByDescription(currentClass), // currentClass
                     _generateClassBySchedule(schedule),
                     new Promise((resolve, reject) => {
