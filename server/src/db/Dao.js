@@ -1716,7 +1716,7 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
                 // console.log(`values:`);
                 // console.log(values);
                 const actualClass = values[1];
-                const actualCourse = values[3];
+                const actualCourse = values[2];
 
                 console.log(`actual schedule: ${schedule.scheduleId}`.cyan);
                 console.log(`actual course: ${actualCourse.courseId}`.cyan);
