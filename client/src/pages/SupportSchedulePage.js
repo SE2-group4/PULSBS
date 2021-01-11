@@ -27,12 +27,8 @@ class SupportSchedulePage extends React.Component {
             let courses = await API.getCoursesBySupportId(this.props.user.userId);
             let rooms = await API.getRoomsBySupportId(this.props.user.userId);
             let schedules_ = schedules.map((s) => {
-                let st = s.startingTime;
-                let et = s.endingTime;
                 let roomid = s.roomId;
                 s.roomId = roomid.toString();
-                s.startingTime = st.substring(0, st.length - 3);
-                s.endingTime = et.substring(0, et.length - 3);
                 return s;
             })
             //console.log(schedules_);
@@ -296,12 +292,6 @@ function courseName(code, courses) {
     for (let course of courses)
         if (course.code === code)
             return course.description
-}
-
-function roomDesc(id, rooms) {
-    for (let room of rooms)
-        if (room.classId === id)
-            return room.description
 }
 
 function updateEndingTime(startingTime, endingTimes_) {

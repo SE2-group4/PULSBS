@@ -15,8 +15,8 @@ beforeEach(() => {
 const officer = new User(1, "SUPPORT", "Pino", "Insegno", "officer@test.it", "mercanteinfiera");
 
 const schedules = [
-    new Schedule(1, "1", 1, 1, 1, 10, 'Mon', '8:30:00', '11:30:00'),
-    new Schedule(2, "2", 1, 1, 2, 10, 'Wed', '14:30:00', '16:00:00'),
+    new Schedule(1, "1", 1, 1, "r1", 10, 'Mon', '8:30', '11:30'),
+    new Schedule(2, "2", 1, 1, "r2", 10, 'Wed', '14:30', '16:00'),
 ];
 
 const rooms = [{ classId: 1, description: "r1" }, { classId: 2, description: "r2" }, { classId: 3, description: "r3" }];
@@ -144,7 +144,7 @@ describe("SupportSchedulePage suite", () => {
         await act(async () => {
             fireEvent.change(screen.getByTestId("daySelect"), { target: { value: "Mon" } })
         });
-        expect(screen.getByTestId("form-submit").getAttribute("disabled")).toBe(null); //no more changes => button disabled
+        expect(screen.getByTestId("form-submit").getAttribute("disabled")).toBe(""); //no more changes => button disabled
         await act(async () => {
             userEvent.click(screen.getByTestId('form-close'));
         });
@@ -162,7 +162,7 @@ describe("SupportSchedulePage suite", () => {
             fireEvent.change(screen.getByTestId("daySelect"), { target: { value: "Fri" } })
         });
         await act(async () => {
-            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: '3' } })
+            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: 'r3' } })
         });
         await act(async () => {
             fireEvent.change(screen.getByTestId("stSelect"), { target: { value: "16:00" } })
@@ -207,7 +207,7 @@ describe("SupportSchedulePage suite", () => {
             userEvent.click(screen.getByTestId('edit-2'));
         });
         await act(async () => {
-            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: '3' } })
+            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: 'r3' } })
         });
         fetch.mockResponseOnce({}, { status: 400 });
         await act(async () => {
@@ -221,7 +221,7 @@ describe("SupportSchedulePage suite", () => {
             userEvent.click(screen.getByTestId('edit-2'));
         });
         await act(async () => {
-            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: '1' } })
+            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: 'r1' } })
         });
         fetch.mockRejectOnce();
         await act(async () => {
