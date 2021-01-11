@@ -1709,14 +1709,14 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
         Promise.all([
             _generateClassBySchedule(schedule),
             getClassByDescription(class_),
-            _generateCourseBySchedule(schedule),
+            // _generateCourseBySchedule(schedule), // removed
             getCourseByCode(schedule.code),
         ])
             .then((values) => {
                 // console.log(`values:`);
                 // console.log(values);
                 const actualClass = values[1];
-                const actualCourse = values[3];
+                const actualCourse = values[2];
 
                 console.log(`actual schedule: ${schedule.scheduleId}`.cyan);
                 console.log(`actual course: ${actualCourse.courseId}`.cyan);
