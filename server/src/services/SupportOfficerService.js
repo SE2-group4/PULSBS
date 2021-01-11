@@ -260,7 +260,10 @@ async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
  **/
 async function manageFileUpload(req) {
     if (!req.file) throw genResponseError(errno.FILE_MISSING);
+
+    // convert the csv file into an array of objects
     const entities = await csv().fromFile(req.file.path);
+
     return await manageEntitiesUpload(entities, req.path, req.file.originalname);
 }
 
@@ -320,7 +323,9 @@ function needAdditionalSteps(currStep) {
  * do more processing
  *
  * currStep {String} the previous step, i.e. the entity type
- * args {Array} of Object. args[0] is the uploaded entities, args[1] are the sanitized entities
+ * args {Array} of Object.
+ * - args[0] are the uploaded entities
+ * - args[1] are the sanitized entities
  *
  * returns {Integer} 204. A ResponseError on error
  **/
@@ -371,6 +376,8 @@ async function sanitizeEntities(entities, entityType) {
             return sanitizeUserEntities(entities, entityType);
         }
         case "COURSES": {
+            // check that every teacher is already in the db. Otherwise throw an error
+            await checkForTeachersPresence(entities);
             return sanitizeGenericEntities(entities, entityType);
         }
         case "ENROLLMENTS": {
@@ -383,6 +390,15 @@ async function sanitizeEntities(entities, entityType) {
             return await sanitizeTeacherCourseEntities(entities, entityType);
         }
     }
+}
+
+/**
+ * Check that every teacher is already in the system. It looks for the "serialNumber".
+ * It throws an error in case the entity is not found.
+ */
+async function checkForTeachersPresence(entities) {
+    await updateAndSort("TEACHER", Teacher.getComparator("serialNumber"));
+    entities.forEach((entity) => getTeacherIdFromSerialNumber(entity.Teacher));
 }
 
 /**
