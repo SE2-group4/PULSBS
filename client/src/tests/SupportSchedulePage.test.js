@@ -125,7 +125,7 @@ describe("SupportSchedulePage suite", () => {
         let items = screen.getAllByTestId("schedule-row");
         expect(items).toHaveLength(2);
         await act(async () => {
-            fireEvent.change(screen.getByTestId("courseSelect"), { target: { value: "Web Application 1" } })
+            fireEvent.change(screen.getByTestId("courseSelect"), { target: { value: "Web Application 1-1" } })
         });
         items = screen.getAllByTestId("schedule-row");
         expect(items).toHaveLength(1);

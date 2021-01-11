@@ -26,18 +26,15 @@ class SupportSchedulePage extends React.Component {
             let schedules = await API.getSchedulesBySupportId(this.props.user.userId);
             let courses = await API.getCoursesBySupportId(this.props.user.userId);
             let rooms = await API.getRoomsBySupportId(this.props.user.userId);
-            schedules.map((s) => {
+            let schedules_ = schedules.map((s) => {
                 let st = s.startingTime;
                 let et = s.endingTime;
                 s.startingTime = st.substring(0, st.length - 3);
                 s.endingTime = et.substring(0, et.length - 3);
                 return s;
             })
-            //console.log(schedules);
-            //console.log(courses);
-            //console.log(rooms);
-            let filters = courses.map((c) => c.description);
-            this.setState({ schedules: schedules, courses: courses, rooms: rooms, filters: filters, loading: false });
+            let filters = courses.map((c) => c.description + "-" + c.code);
+            this.setState({ schedules: schedules_, courses: courses, rooms: rooms, filters: filters, loading: false });
         } catch (err) {
             let errormsg = err.source + " : " + err.error;
             this.setState({ genError: errormsg, loading: false });
@@ -61,10 +58,9 @@ class SupportSchedulePage extends React.Component {
     changeFilters = (desc) => {
         let filters;
         if (desc === "All")
-            filters = this.state.courses.map((c) => c.description);
+            filters = this.state.courses.map((c) => c.description + "-" + c.code);
         else
             filters = [desc,];
-        //console.log(filters);
         this.setState({ filters: filters });
 
     }
@@ -100,17 +96,19 @@ class SupportSchedulePage extends React.Component {
             return <ErrorMsg msg={this.state.genError} />;
         if (this.state.loading)
             return <Spinner animation="border" ></Spinner>;
+        let filtered = this.state.schedules.filter((s) => this.state.filters.indexOf(courseName(s.code, this.state.courses) + "-" + s.code) !== -1);
+        //console.log(filtered.length);
         return <>
             {this.state.selectedSchedule &&
                 <FormModal schedule={this.state.selectedSchedule} close={this.closeModal} courses={this.state.courses} rooms={this.state.rooms} submitData={this.submit} />}
             <Container fluid>
                 <Row>
                     <Col sm={10}>
-                        <Col sm={4}>
+                        <Col sm={6}>
                             <Filters courses={this.state.courses} change={this.changeFilters} />
                         </Col>
                         <br />
-                        <ScheduleTable schedules={this.state.schedules} current={this.state.currPage} edit={this.openModal} courses={this.state.courses} rooms={this.state.rooms}
+                        <ScheduleTable schedules={filtered} current={this.state.currPage} edit={this.openModal} courses={this.state.courses} rooms={this.state.rooms}
                             filters={this.state.filters} onClick={this.changePage} />
                     </Col>
                 </Row>
@@ -125,13 +123,13 @@ function Filters(props) {
             <strong>Select a course : </strong>
             <Form.Control as="select" data-testid="courseSelect" custom onChange={(ev) => { props.change(ev.target.value) }} >
                 <option key="All" value="All" data-testid="All" >All</option>
-                {props.courses.map((course) => { return (<option key={course.courseId} data-testid={"c" + course.courseId} value={course.description} >{course.description}</option>) })}
+                {props.courses.map((course) => { return (<option key={course.courseId} data-testid={"c" + course.courseId} value={course.description + "-" + course.code} >{course.description + " - " + course.code}</option>) })}
             </Form.Control>
         </Jumbotron>;
 }
 
 function ScheduleTable(props) {
-    let filtered = props.schedules.filter((s) => props.filters.indexOf(courseName(s.code, props.courses)) !== -1);
+    let filtered = props.schedules;
     let nPages = Math.ceil(filtered.length / scheduleForPage);
     let items = [];
     let tableEntries = [];
@@ -155,6 +153,7 @@ function ScheduleTable(props) {
                 <tr>
                     <th>Schedule Id</th>
                     <th>Course</th>
+                    <th>Code</th>
                     <th>AAyear</th>
                     <th>Semester</th>
                     <th>Room</th>
@@ -177,6 +176,7 @@ function ScheduleRow(props) {
     return <tr data-testid="schedule-row">
         <td>{props.schedule.scheduleId}</td>
         <td>{courseName(props.schedule.code, props.courses)}</td>
+        <td>{props.schedule.code}</td>
         <td>{props.schedule.AAyear}</td>
         <td>{props.schedule.semester}</td>
         <td>{roomDesc(props.schedule.roomId, props.rooms)}</td>

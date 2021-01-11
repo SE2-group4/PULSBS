@@ -95,10 +95,10 @@ class SupportPage extends React.Component {
                 await API.uploadTEST(this.props.user.userId, "students", this.state.studentsArrayFile);
             if (this.state.professorsArrayFile)
                 await API.uploadTEST(this.props.user.userId, "teachers", this.state.professorsArrayFile);
-            if (this.state.schedulesArrayFile)
-                await API.uploadTEST(this.props.user.userId, "schedules", this.state.schedulesArrayFile);
             if (this.state.coursesArrayFile)
                 await API.uploadTEST(this.props.user.userId, "courses", this.state.coursesArrayFile);
+            if (this.state.schedulesArrayFile)
+                await API.uploadTEST(this.props.user.userId, "schedules", this.state.schedulesArrayFile);
             if (this.state.enrollmentsArrayFile)
                 await API.uploadTEST(this.props.user.userId, "enrollments", this.state.enrollmentsArrayFile);
             this.setState({ elems: null, success: true, loading: false }); //ok
