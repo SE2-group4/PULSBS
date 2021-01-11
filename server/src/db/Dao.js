@@ -1709,7 +1709,7 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
         Promise.all([
             _generateClassBySchedule(schedule),
             getClassByDescription(class_),
-            _generateCourseBySchedule(schedule),
+            // _generateCourseBySchedule(schedule), // removed
             getCourseByCode(schedule.code),
         ])
             .then((values) => {
