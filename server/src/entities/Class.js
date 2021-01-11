@@ -8,8 +8,8 @@
 class Class {
     /**
      * class constructor
-     * @param {Number} classId 
-     * @param {String} description 
+     * @param {Number} classId
+     * @param {String} description - correspond to Schedule.roomId
      * @param {Number} capacity 
      */
     constructor(classId = -1, description = null, capacity = 0) {
