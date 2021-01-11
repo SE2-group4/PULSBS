@@ -765,14 +765,14 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
     // get all booked students for each lecture which should be modified
     let promises = [];
     for (const lectureRow of preview.lectures) {
-        console.log(lectureRow);
+        // console.log(lectureRow);
         promises.push(db.getBookedStudentsByLecture(lectureRow.currentLecture));
     }
     const studentsPerLecture = await Promise.all(promises);
     // parallel arrays: studentsPerLecture[i] refers to preview.lectures[i]
 
-    console.log("supportOfficerUpdateSchedule - preview");
-    console.log(preview);
+    // console.log("supportOfficerUpdateSchedule - preview");
+    // console.log(preview);
 
     promises = [];
     for (let i = 0; i < preview.lectures.length; i++) {
