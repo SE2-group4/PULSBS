@@ -344,8 +344,8 @@ async function callNextStep(currStep, ...args) {
 
             try {
                 console.log("calling _generateLecturesBySchedule");
-                console.log(schedules[0]);
-                await db._generateLecturesBySchedule(schedules[0], db.DaoHint.NEW_VALUE);
+                for(const schedule of schedules)
+                    await db._generateLecturesBySchedule(schedule, db.DaoHint.NEW_VALUE);
             } catch (err) {
                 console.log("sono catch di callNextStep");
                 console.log(err);
