@@ -72,11 +72,11 @@ INSERT INTO EmailQueue(queueId, sender, recipient, emailType, teacherId, student
 INSERT INTO WaitingList(studentId, lectureId, date) VALUES(1, 6, DATETIME('now'));
 INSERT INTO WaitingList(studentId, lectureId, date) VALUES(2, 6, DATETIME('now', '-1 hour'));
 
-INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(1, '1', '2020', '1', '1A', '10', 'Mon', DATETIME('8:30'), DATETIME('10:00'));
-INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(2, '2', '2020', '1', '2B', '10', 'Mon', DATETIME('8:30'), DATETIME('10:00'));
-INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(3, '3', '2020', '2', '3C', '10', 'Mon', DATETIME('8:30'), DATETIME('10:00'));
-INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(4, '4', '2020', '2', '9Z', '10', 'Tue', DATETIME('8:30'), DATETIME('10:00'));
-INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(5, '5', '2020', '1', '2B', '10', 'Tue', DATETIME('8:30'), DATETIME('10:00'));
+INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(1, '1', '2020', '1', '1A', '10', 'Mon', DATETIME('08:30'), DATETIME('10:00'));
+INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(2, '2', '2020', '1', '2B', '10', 'Mon', DATETIME('08:30'), DATETIME('10:00'));
+INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(3, '3', '2020', '2', '3C', '10', 'Mon', DATETIME('08:30'), DATETIME('10:00'));
+INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(4, '4', '2020', '2', '9Z', '10', 'Tue', DATETIME('08:30'), DATETIME('10:00'));
+INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(5, '5', '2020', '1', '2B', '10', 'Tue', DATETIME('08:30'), DATETIME('10:00'));
 
 -- Lecture related to schedules
 -- weekday: 0 Sunday, 1 Monday, 2 Tuesday ...
