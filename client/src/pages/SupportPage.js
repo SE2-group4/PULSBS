@@ -37,11 +37,11 @@ class SupportPage extends React.Component {
         let match = filename.name.match(/.+(\.csv)$/);
         if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel" || match) {
             if (JSON.stringify(Object.getOwnPropertyNames(data[0].data)) !== JSON.stringify(fileProps.get(name)))
-                this.setState({ genError: filename.name + " is not in an expected format." });
+                this.setState({ genError: filename.name + " is not in an expected format.", [name]: null, [name + "File"]: null });
             else
                 this.setState({ [name]: data.length, [name + "File"]: filename });
         } else
-            this.setState({ genError: filename.name + " is not a valid file (expected type: csv)." });
+            this.setState({ genError: filename.name + " is not a valid file (expected type: csv).", [name]: null, [name + "File"]: null });
     }
 
     /**
@@ -89,30 +89,23 @@ class SupportPage extends React.Component {
      * Manages the API calls for each of the type of entry loaded
      */
     sendFiles = async () => {
-        let promises = [];
-        if (this.state.studentsArrayFile)
-            promises.push(API.uploadTEST(this.props.user.userId, "students", this.state.studentsArrayFile));
-        if (this.state.professorsArrayFile)
-            promises.push(API.uploadTEST(this.props.user.userId, "teachers", this.state.professorsArrayFile));
-        if (this.state.schedulesArrayFile)
-            promises.push(API.uploadTEST(this.props.user.userId, "schedules", this.state.schedulesArrayFile));
-        Promise.all(promises)
-            .then(() => {
-                this.uploadCoursesEnrollments(this.state.coursesArrayFile, this.state.enrollmentsArrayFile)
-                    .then(() => this.setState({ elems: null, success: true, loading: false })) //ok
-                    .catch((err) => {
-                        let errormsg = err.source + " : " + err.error;
-                        this.setState({ elems: null, genError: errormsg, loading: false });
-                        //API.resetDB().catch((error) => console.error(error));
-                    });
-            })
-            .catch((err) => {
-                let errormsg = err.source + " : " + err.error;
-                this.setState({ elems: null, genError: errormsg, loading: false });
-                //API.resetDB().catch((error) => console.error(error));
-            })
-
         this.setState({ show: false, loading: true });
+        try {
+            if (this.state.studentsArrayFile)
+                await API.uploadTEST(this.props.user.userId, "students", this.state.studentsArrayFile);
+            if (this.state.professorsArrayFile)
+                await API.uploadTEST(this.props.user.userId, "teachers", this.state.professorsArrayFile);
+            if (this.state.schedulesArrayFile)
+                await API.uploadTEST(this.props.user.userId, "schedules", this.state.schedulesArrayFile);
+            if (this.state.coursesArrayFile)
+                await API.uploadTEST(this.props.user.userId, "courses", this.state.coursesArrayFile);
+            if (this.state.enrollmentsArrayFile)
+                await API.uploadTEST(this.props.user.userId, "enrollments", this.state.enrollmentsArrayFile);
+            this.setState({ elems: null, success: true, loading: false }); //ok
+        } catch (err) {
+            let errormsg = err.source + " : " + err.error;
+            this.setState({ elems: null, genError: errormsg, loading: false });
+        }
     }
 
     uploadCoursesEnrollments = (courses, enrollments) => {

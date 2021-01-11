@@ -4,8 +4,6 @@ import SupportSchedulePage from "../pages/SupportSchedulePage";
 import User from '../entities/user';
 import fetchMock from "jest-fetch-mock";
 import userEvent from '@testing-library/user-event';
-import Lecture from '../entities/lecture';
-import Course from '../entities/course';
 import Schedule from '../entities/schedule';
 
 fetchMock.enableMocks();
@@ -17,15 +15,15 @@ beforeEach(() => {
 const officer = new User(1, "SUPPORT", "Pino", "Insegno", "officer@test.it", "mercanteinfiera");
 
 const schedules = [
-    new Schedule(1, 1, 1, 1, 'r1', 10, 'Mon', '8:30', '11:30'),
-    new Schedule(2, 2, 1, 1, 'r2', 10, 'Wed', '14:30', '16:00'),
+    new Schedule(1, "1", 1, 1, 1, 10, 'Mon', '8:30:00', '11:30:00'),
+    new Schedule(2, "2", 1, 1, 2, 10, 'Wed', '14:30:00', '16:00:00'),
 ];
 
-const rooms = [{ description: "r1" }, { description: "r2" }, { description: "r3" }];
+const rooms = [{ classId: 1, description: "r1" }, { classId: 2, description: "r2" }, { classId: 3, description: "r3" }];
 
 const courses = [
-    new Course(1, "Web Application 1", "2020"),
-    new Course(2, "Data Science", "2020"),
+    { courseId: 1, description: "Web Application 1", code: "1" },
+    { courseId: 2, description: "Data Science", code: "2" },
 ]
 
 async function setupSupportSchedulePage() {
@@ -122,7 +120,6 @@ describe("SupportSchedulePage suite", () => {
         })
         //TO_DO expect
     })
-
     test("click on course select", async () => {
         await setupSupportSchedulePage();
         let items = screen.getAllByTestId("schedule-row");
@@ -147,7 +144,7 @@ describe("SupportSchedulePage suite", () => {
         await act(async () => {
             fireEvent.change(screen.getByTestId("daySelect"), { target: { value: "Mon" } })
         });
-        expect(screen.getByTestId("form-submit").getAttribute("disabled")).toBe(""); //no more changes => button disabled
+        expect(screen.getByTestId("form-submit").getAttribute("disabled")).toBe(null); //no more changes => button disabled
         await act(async () => {
             userEvent.click(screen.getByTestId('form-close'));
         });
@@ -165,7 +162,7 @@ describe("SupportSchedulePage suite", () => {
             fireEvent.change(screen.getByTestId("daySelect"), { target: { value: "Fri" } })
         });
         await act(async () => {
-            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: "r3" } })
+            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: '3' } })
         });
         await act(async () => {
             fireEvent.change(screen.getByTestId("stSelect"), { target: { value: "16:00" } })
@@ -210,7 +207,7 @@ describe("SupportSchedulePage suite", () => {
             userEvent.click(screen.getByTestId('edit-2'));
         });
         await act(async () => {
-            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: "r3" } })
+            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: '3' } })
         });
         fetch.mockResponseOnce({}, { status: 400 });
         await act(async () => {
@@ -224,7 +221,7 @@ describe("SupportSchedulePage suite", () => {
             userEvent.click(screen.getByTestId('edit-2'));
         });
         await act(async () => {
-            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: "r1" } })
+            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: '1' } })
         });
         fetch.mockRejectOnce();
         await act(async () => {
@@ -232,5 +229,4 @@ describe("SupportSchedulePage suite", () => {
         });
         expect(screen.getByText("SupportOfficer : Server error")).toBeInTheDocument();
     })
-
 });
