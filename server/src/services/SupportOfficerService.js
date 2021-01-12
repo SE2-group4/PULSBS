@@ -772,11 +772,13 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
         promises.push(db.getBookedStudentsByLecture(lectureRow.currentLecture));
     }
     const studentsPerLecture = await Promise.all(promises);
+
     // parallel arrays: studentsPerLecture[i] refers to preview.lectures[i]
 
     // console.log("supportOfficerUpdateSchedule - preview");
     // console.log(preview);
 
+    console.log('sending emails...'.cyan);
     promises = [];
     for (let i = 0; i < preview.lectures.length; i++) {
         const lectureRow = preview.lectures[i];
@@ -784,15 +786,19 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
         const newLecture = lectureRow.newLecture;
         const students = studentsPerLecture[i];
 
-        for (const student in students) {
-            const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_UPDATE_SCHEDULE, [
+        for (const studentRow of students) {
+            const student = studentRow.student;
+            console.log('current student to inform of the schedule update:');
+            console.log(student);
+            console.log(student.email);
+            const defaultEmail = EmailService.getDefaultEmail(Email.EmailType.STUDENT_UPDATE_SCHEDULE, [
                 preview.course.description,
                 utils.formatDate(currentLecture.date),
                 preview.classes.currentClass.description,
                 utils.formatDate(newLecture.date),
                 preview.classes.newClass.description,
             ]);
-            promises.push(emailService.sendCustomMail(actualStudent.email, defaultEmail.subject, defaultEmail.message));
+            promises.push(EmailService.sendCustomMail(student.email, defaultEmail.subject, defaultEmail.message));
         }
     }
     await Promise.all(promises); // send all emails in a sync way
