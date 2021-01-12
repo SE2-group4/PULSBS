@@ -296,20 +296,21 @@ async function manageEntitiesUpload(entities, path, filename) {
         //console.time("phase: query run");
         // run the queries
         await runBatchQueries(sqlQueries);
+        //console.timeEnd("phase: query run");
+
+        // check if we need to do any more processing,
+        // i.e. when uploading the schedules we need to also generate the lectures
+        // i.e. when uploading the courses we need to also update the TeacherCourse table
+        if (needAdditionalSteps(entityType)) {
+            return await callNextStep(entityType, entities, sanitizedEntities);
+        }
+
+        return 204;
+
     } catch (err) {
         const message = { filename, reason: err.payload.message };
         throw genResponseError(errno.FILE_INCORRECT_FORMAT, message);
     }
-    //console.timeEnd("phase: query run");
-
-    // check if we need to do any more processing,
-    // i.e. when uploading the schedules we need to also generate the lectures
-    // i.e. when uploading the courses we need to also update the TeacherCourse table
-    if (needAdditionalSteps(entityType)) {
-        return await callNextStep(entityType, entities, sanitizedEntities);
-    }
-
-    return 204;
 }
 
 function needAdditionalSteps(currStep) {
