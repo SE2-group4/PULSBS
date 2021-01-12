@@ -50,7 +50,7 @@ class ManagerStatsPage extends React.Component {
 
     render() {
         if (this.state.fetchError)
-            return <ErrorMsg msg="Ops,an error occurred during server communication" />
+            return <ErrorMsg msg="Ops,an error occurred during server communication" onClose={() => { }} />
         return (<>
             <BurgerSidebar courses={this.state.courses} generateGraph={this.generateGraph} />
             <Container fluid>

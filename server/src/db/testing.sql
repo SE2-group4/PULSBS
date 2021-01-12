@@ -128,8 +128,8 @@ CREATE TRIGGER check_time_overlapping_before_update_schedule
                     code = NEW.code
                     AND scheduleId <> NEW.scheduleId
                     AND dayOfWeek = NEW.dayOfWeek
-                    AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
-                    AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
+                    AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
 			THEN RAISE(ABORT, 'New schedule overlapped with an existing one with the same code')
 		END IF;
 		SELECT CASE WHEN (
@@ -140,8 +140,8 @@ CREATE TRIGGER check_time_overlapping_before_update_schedule
                     AND AAyear = NEW.AAyear
                     AND semester = NEW.semester
                     AND dayOfWeek = NEW.dayOfWeek
-                    AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
-                    AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
+                    AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
 			THEN RAISE(ABORT, 'New schedule overlapped with an existing one in the same class')
 		END IF;
 	END;
