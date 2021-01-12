@@ -35,13 +35,23 @@ class SupportPage extends React.Component {
     handleOnDrop = (data, name, filename) => {
         let type = filename.type;
         let match = filename.name.match(/.+(\.csv)$/);
-        if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel" || match) {
-            if (JSON.stringify(Object.getOwnPropertyNames(data[0].data)) !== JSON.stringify(fileProps.get(name)))
-                this.setState({ genError: filename.name + " is not in an expected format.", [name]: null, [name + "File"]: null });
-            else
-                this.setState({ [name]: data.length, [name + "File"]: filename });
-        } else
-            this.setState({ genError: filename.name + " is not a valid file (expected type: csv).", [name]: null, [name + "File"]: null });
+        let valid = true;
+        for (let d of data)
+            if (d.errors.length)
+                valid = false;
+
+        if (!valid) {
+            this.setState({ genError: filename.name + " has an invalid row. Please check it again.", [name]: null, [name + "File"]: null });
+        }
+        else {
+            if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel" || match) {
+                if (JSON.stringify(Object.getOwnPropertyNames(data[0].data)) !== JSON.stringify(fileProps.get(name)))
+                    this.setState({ genError: filename.name + " is not in an expected format.", [name]: null, [name + "File"]: null });
+                else
+                    this.setState({ [name]: data.length, [name + "File"]: filename });
+            } else
+                this.setState({ genError: filename.name + " is not a valid file (expected type: csv).", [name]: null, [name + "File"]: null });
+        }
     }
 
     /**
