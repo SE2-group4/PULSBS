@@ -7,3 +7,9 @@ client/debug.log
 .DS_Store
 server/src/db/preparedb.js
 server/tests/code_tests.js
+server/src/uploads/Courses-completo.csv
+.gitignore
+server/src/uploads/Professors-completo.csv
+server/src/uploads/Enrollment.csv
+server/src/uploads/Students.csv
+server/queries.log
