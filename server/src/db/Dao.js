@@ -79,7 +79,7 @@ const closeConn = function (callback) {
 exports.closeConn = closeConn;
 
 // rename it
-function reallyOpenConn(dbpath = "./PULSBS.db", cb) {
+function reallyOpenConn(dbpath = "./PULSBS.db", cb = () => {}) {
     const cwd = __dirname;
     dbpath = path.join(cwd, dbpath);
     db = new sqlite.Database(dbpath, (err) => {
