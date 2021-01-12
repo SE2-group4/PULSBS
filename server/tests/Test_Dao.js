@@ -36,7 +36,7 @@ const suite = function () {
         let wrongCourse;
         let wrongClass;
 
-        let class1, class2;
+        let class1, class2, class3;
 
         let schedule1, schedule2, schedule5, schedule8;
         let newSchedule;
@@ -76,13 +76,14 @@ const suite = function () {
 
             class1 = new Class(1, '1A', 10);
             class2 = new Class(2, '2B', 10);
+            class3 = new Class(3, '3C', 10);
 
             schedule1 = new Schedule(1, '1', 2020, 1, '1A', 10, 'Mon', '8:30', '10:00');
             schedule2 = new Schedule(2, '2', 2020, 1, '2B', 10, 'Mon', '8:30', '10:00');
             schedule5 = new Schedule(5, '5', 2020, 1, '2B', 10, 'Tue', '8:30', '10:00');
             schedule8 = new Schedule(8, '8');
 
-            newSchedule = new Schedule(999, 'A brand new course', '2020', '1', '9Z', '15', 'Thu', '17:30', '19:30');
+            newSchedule = new Schedule(999, course1.code, '2020', '1', '9Z', '15', 'Thu', '17:30', '19:30');
             newLecture = new Lecture(999, 1, 1, moment().toDate(), 90*60*1000, moment().startOf('day').subtract(1, 'day'), Lecture.DeliveryType.PRESENCE);
             wrongSchedule = new Schedule(-1, -1, 1970, -1, 'Wrong roomId', -1, 'Wrong day', 'Not a time', 'Not a time');
             wrongLecturePrototype = new Lecture(-1, -1, -1, 'Not a time', -1, 'Not a time', 'Wrong delivery');
@@ -1004,14 +1005,15 @@ const suite = function () {
         });
 
         describe('_generateCourseBySchedule', function() {
-            it('non existing course should accept the request', function(done) {
-                dao._generateCourseBySchedule(newSchedule) // this schedule does not exists in the DB
-                    .then((retVal) => {
-                        assert.strictEqual(retVal, 1, 'The course has not been inserted');
-                        done();
-                    })
-                    .catch((err) => done(err));
-            });
+            // IMPORTANT: REMOVED FEATURE
+            // it('non existing course should accept the request', function(done) {
+            //     dao._generateCourseBySchedule(newSchedule) // this schedule does not exists in the DB
+            //         .then((retVal) => {
+            //             assert.strictEqual(retVal, 1, 'The course has not been inserted');
+            //             done();
+            //         })
+            //         .catch((err) => done(err));
+            // });
 
             it('existing course should no modify the DB', function(done) {
                 dao._generateCourseBySchedule(schedule1) // this schedule already exists in the DB
@@ -1104,7 +1106,7 @@ const suite = function () {
         describe('updateSchedule', function() {
             it('existing schedule with correct new params should update the schedule', function(done) {
                 const updatedSchedule = Schedule.from(schedule1);
-                updatedSchedule.roomId = class2.description;
+                updatedSchedule.roomId = class3.description;
 
                 dao.updateSchedule(updatedSchedule)
                     .then((nLectures) => {

@@ -265,7 +265,7 @@ INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod)
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(2, DATETIME('now', '-1 month', 'start of day'), DATETIME('now', '+3 month', 'start of day'), 'SEMESTER', 1);
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(3, DATETIME('now', '+4 month', 'start of day'), DATETIME('now', '+8 month', 'start of day'), 'SEMESTER', 1);
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(4, DATETIME('now', '+7 day', 'start of day'), DATETIME('now', '14 day', 'start of day'), 'HOLIDAYS', 0);
-INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(5, DATETIME('now', '+30 dau', 'start of day'), DATETIME('now', '32 day', 'start of day'), 'HOLIDAYS', 0);
+INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(5, DATETIME('now', '+30 day', 'start of day'), DATETIME('now', '32 day', 'start of day'), 'HOLIDAYS', 0);
 
 -- << Triggers >>
 
@@ -279,6 +279,7 @@ CREATE TRIGGER check_time_overlapping_before_insert_schedule
                 FROM Schedule
                 WHERE
                     code = NEW.code
+                    AND scheduleId <> NEW.scheduleId
                     AND dayOfWeek = NEW.dayOfWeek
                     AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
                     AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
@@ -307,6 +308,7 @@ CREATE TRIGGER check_time_overlapping_before_update_schedule
             SELECT COUNT(*) <> 0 FROM Schedule
                 WHERE
                     code = NEW.code
+                    AND scheduleId <> NEW.scheduleId
                     AND dayOfWeek = NEW.dayOfWeek
                     AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
                     AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )

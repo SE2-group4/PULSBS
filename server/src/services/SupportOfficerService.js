@@ -16,6 +16,7 @@ const utils = require("../utils/utils");
 const fs = require("fs");
 const check = require("../utils/checker");
 const csv = require("csvtojson");
+const moment = require('moment');
 
 const errno = ResponseError.errno;
 
@@ -455,7 +456,8 @@ function getSemester() {
 function getStartingTime(orario) {
     const regex = /[0-9]+/g;
     const match = orario.match(regex);
-    return `${match[0]}:${match[1]}:00`;
+    const dateString = `${match[0]}:${match[1]}:00`;
+    return moment(dateString, 'hh:mm:ss').format('HH:mm:ss'); // 2 digits for the hour needed
 }
 
 /**
@@ -466,7 +468,8 @@ function getStartingTime(orario) {
 function getEndingTime(orario) {
     const regex = /[0-9]+/g;
     const match = orario.match(regex);
-    return `${match[2]}:${match[3]}:00`;
+    const dateString = `${match[2]}:${match[3]}:00`;
+    return moment(dateString, 'hh:mm:ss').format('HH:mm:ss'); // 2 digits for the hour needed
 }
 
 /**
@@ -719,10 +722,11 @@ const supportOfficerGetSchedules = async function supportOfficerGetSchedules({ m
 
 /**
  * update an existing schedule
- * @param {Object} param - supportId, scheduleId, schedule
+ * @param {Object} param - supportId, scheduleId
+ * @param {Object} body - schedule
  * @returns {Number} number of updated schedules
  */
-const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule({ managerId, scheduleId, schedule }) {
+const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule({ managerId, scheduleId }, schedule) {
     scheduleId = Number(scheduleId);
     console.log(schedule);
     const paramSchedule = Schedule.from(schedule);
@@ -755,19 +759,23 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
         ]
     }
     */
+    console.log('generating preview...'.cyan);
     const preview = await db.getUpdateSchedulePreview(paramSchedule); // get a preview of data which will be modified
+    console.log('preview okay'.cyan);
     const retVal = await db.updateSchedule(paramSchedule);
+    console.log('schedule update okay'.cyan);
 
     // get all booked students for each lecture which should be modified
     let promises = [];
-    for (const lectureRow in preview.lectures) {
+    for (const lectureRow of preview.lectures) {
+        // console.log(lectureRow);
         promises.push(db.getBookedStudentsByLecture(lectureRow.currentLecture));
     }
     const studentsPerLecture = await Promise.all(promises);
     // parallel arrays: studentsPerLecture[i] refers to preview.lectures[i]
 
-    console.log("supportOfficerUpdateSchedule - preview");
-    console.log(preview);
+    // console.log("supportOfficerUpdateSchedule - preview");
+    // console.log(preview);
 
     promises = [];
     for (let i = 0; i < preview.lectures.length; i++) {
