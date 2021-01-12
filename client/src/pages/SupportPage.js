@@ -92,48 +92,20 @@ class SupportPage extends React.Component {
         this.setState({ show: false, loading: true });
         try {
             if (this.state.studentsArrayFile)
-                await API.uploadTEST(this.props.user.userId, "students", this.state.studentsArrayFile);
+                await API.uploadList(this.props.user.userId, "students", this.state.studentsArrayFile);
             if (this.state.professorsArrayFile)
-                await API.uploadTEST(this.props.user.userId, "teachers", this.state.professorsArrayFile);
+                await API.uploadList(this.props.user.userId, "teachers", this.state.professorsArrayFile);
             if (this.state.coursesArrayFile)
-                await API.uploadTEST(this.props.user.userId, "courses", this.state.coursesArrayFile);
+                await API.uploadList(this.props.user.userId, "courses", this.state.coursesArrayFile);
             if (this.state.schedulesArrayFile)
-                await API.uploadTEST(this.props.user.userId, "schedules", this.state.schedulesArrayFile);
+                await API.uploadList(this.props.user.userId, "schedules", this.state.schedulesArrayFile);
             if (this.state.enrollmentsArrayFile)
-                await API.uploadTEST(this.props.user.userId, "enrollments", this.state.enrollmentsArrayFile);
+                await API.uploadList(this.props.user.userId, "enrollments", this.state.enrollmentsArrayFile);
             this.setState({ elems: null, success: true, loading: false }); //ok
         } catch (err) {
             let errormsg = err.source + " : " + err.error;
             this.setState({ elems: null, genError: errormsg, loading: false });
         }
-    }
-
-    uploadCoursesEnrollments = (courses, enrollments) => {
-        return new Promise((resolve, reject) => {
-            if (courses)
-                API.uploadTEST(this.props.user.userId, "courses", courses)
-                    .then(() => {
-                        if (enrollments)
-                            API.uploadTEST(this.props.user.userId, "enrollments", enrollments)
-                                .then(() => resolve()) //ok
-                                .catch((err) => {
-                                    reject(err);
-                                });
-                        else
-                            resolve(); //ok
-                    })
-                    .catch((err) => {
-                        reject(err);
-                    });
-            else if (!courses && enrollments)
-                API.uploadTEST(this.props.user.userId, "enrollments", enrollments)
-                    .then(() => resolve()) //ok
-                    .catch((err) => {
-                        reject(err);
-                    });
-            else
-                resolve(); //ok
-        });
     }
 
     /**

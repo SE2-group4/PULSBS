@@ -18,7 +18,7 @@ const scheduleForPage = 10;
 class SupportSchedulePage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { schedules: null, courses: null, rooms: null, filters: null, genError: null, loading: true, currPage: 1, selectedSchedule: null }
+        this.state = { schedules: null, courses: null, rooms: null, filters: null, genError: null, putError: null, loading: true, currPage: 1, selectedSchedule: null }
     }
 
     async componentDidMount() {
@@ -44,6 +44,9 @@ class SupportSchedulePage extends React.Component {
 
     }
 
+    closeError = () => {
+        this.setState({ putError: null });
+    }
     changePage = (number) => {
         if (number)
             this.setState({ currPage: number });
@@ -89,13 +92,15 @@ class SupportSchedulePage extends React.Component {
             .catch((err) => {
                 //error
                 let errormsg = err.source + " : " + err.error;
-                this.setState({ genError: errormsg, selectedSchedule: null });
+                this.setState({ putError: errormsg, selectedSchedule: null });
             });
     }
 
     render() {
         if (this.state.genError)
-            return <ErrorMsg msg={this.state.genError} />;
+            return <Col sm={4}>
+                <ErrorMsg msg={this.state.genError} onClose={() => { }} />
+            </Col>;
         if (this.state.loading)
             return <Spinner animation="border" ></Spinner>;
         let filtered = this.state.schedules.filter((s) => this.state.filters.indexOf(courseName(s.code, this.state.courses) + "-" + s.code) !== -1);
@@ -105,14 +110,17 @@ class SupportSchedulePage extends React.Component {
                 <FormModal schedule={this.state.selectedSchedule} close={this.closeModal} courses={this.state.courses} rooms={this.state.rooms} submitData={this.submit} />}
             <Container fluid>
                 <Row>
-                    <Col sm={10}>
-                        <Col sm={6}>
-                            <Filters courses={this.state.courses} change={this.changeFilters} />
-                        </Col>
-                        <br />
-                        <ScheduleTable schedules={filtered} current={this.state.currPage} edit={this.openModal} courses={this.state.courses} rooms={this.state.rooms}
-                            filters={this.state.filters} onClick={this.changePage} />
+                    <Col sm={6}>
+                        <Filters courses={this.state.courses} change={this.changeFilters} />
                     </Col>
+                    <Col sm={4}>
+                        {this.state.putError && <ErrorMsg msg={this.state.putError} onClose={this.closeError} />}
+                    </Col>
+                </Row>
+                <br />
+                <Row>
+                    <ScheduleTable schedules={filtered} current={this.state.currPage} edit={this.openModal} courses={this.state.courses} rooms={this.state.rooms}
+                        filters={this.state.filters} onClick={this.changePage} />
                 </Row>
             </Container>
         </>;

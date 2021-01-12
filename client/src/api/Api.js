@@ -342,52 +342,13 @@ async function updateStudentStatus(Uid, Cid, Lid, Sid, status) {
 /************************* SUPPORT OFFICER API *************************************/
 
 /**
-* performs a POST to send a list of elements to back-end
+* performs a POST to send a file to back-end
 * @param {*} id officerId
 * @param {*} type string [students,courses,teachers,lectures,classes]
-* @param {*} list array of elements of the specified type
+* @param {*} data file
 */
-async function uploadList(id, type, list) {
-    let listToUpload = list.map((l) => l.data);
-    let kB = sizeof(listToUpload) / 1024; //kB
-    let limit = 100; //kB
-    let num = Math.ceil(kB / limit); //num of pack needed
-    let chunkLength = Math.ceil(listToUpload.length / num); //elem/pack
-    let i = 0, currentChunk = [];
-    try {
-        for (let n = 0; n < num; n++) {
-            currentChunk = JSON.stringify(listToUpload.slice(i, i + chunkLength));
-            await uploadChunck(id, type, currentChunk);
-            i += chunkLength;
-        }
-        return new Promise((resolve, reject) => resolve()); //success
-    } catch (err) {
-        return new Promise((resolve, reject) => reject(err)); //at least one POST fails
-    }
-}
 
-async function uploadChunck(id, type, list) {
-    return new Promise((resolve, reject) => {
-        fetch(baseURL + `/supportOfficers/${id}/uploads/${type}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: list,
-        }).then((response) => {
-            if (response.ok)
-                resolve();
-            else
-                reject({ source: "Upload", error: "Server error" })
-        }).catch((err) => { reject({ source: "Upload", error: "Server connection error" }) }); // connection errors
-    });
-}
-
-async function uploadTEST(id, type, data) {
-    /*
-    console.log(data);
-    console.log(data instanceof File);
-    */
+async function uploadList(id, type, data) {
     let formData = new FormData();
     formData.append('file', data);
     return new Promise((resolve, reject) => {
@@ -405,23 +366,6 @@ async function uploadTEST(id, type, data) {
     });
 
 }
-
-/**
-* request a db reset to server
-*/
-
-async function resetDB() {
-    return new Promise((resolve, reject) => {
-        fetch(baseURL + `/reset`).then((response) => {
-            if (response.ok) {
-                resolve();
-            } else {
-                reject("server error"); //server errors
-            }
-        }).catch((err) => { reject("connection error") }); // connection errors
-    })
-}
-
 
 async function getCoursesBySupportId(id) {
     return new Promise((resolve, reject) => {
@@ -652,8 +596,7 @@ async function getAllCourseLectures(id, courseId) {
 const API = {
     userLogin, userLogout, getCoursesByStudentId, getLecturesByCourseId, bookALecture, cancelLectureReservation, getBookedLectures, putInWaitingList, getCoursesByTeacherId,
     getLecturesByCourseIdByTeacherId, getStudentsByLecture, updateDeliveryByLecture, deleteLecture, uploadList, getStudentBySerialNumber, getStudentBySSN, generateReport,
-    getAllCourses, resetDB, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S, updateStudentStatus, getAllCourseLectures, deleteLecture_S,
+    getAllCourses, getCoursesBySupportId, getLecturesByCourseId_S, updateDeliveryByLecture_S, updateStudentStatus, getAllCourseLectures, deleteLecture_S,
     getSchedulesBySupportId, changeScheduleData, getRoomsBySupportId,
-    uploadTEST
 };
 export default API;
