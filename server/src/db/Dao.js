@@ -1597,7 +1597,7 @@ const _generateLectureByScheduleAndPrototype = function (schedule, lectureProtot
     return new Promise((resolve, reject) => {
         _generateDatesBySchedule(schedule)
             .then((dates) => {
-                console.log(`dates: ${dates}`);
+                // console.log(`dates: ${dates}`);
                 
                 const lecture_init_date = lecturePrototype.startingDate.clone().startOf("day");
                 const init_offset = lecturePrototype.startingDate.diff(lecture_init_date);
@@ -1613,8 +1613,8 @@ const _generateLectureByScheduleAndPrototype = function (schedule, lectureProtot
                     date.clone().startOf("day").add(deadline_offset, "ms").subtract(day_diff, "days")
                 );
 
-                console.log(`actualStartingDates: ${actualStartingDates}`);
-                console.log(`actualBookingDeadlines: ${actualBookingDeadlines}`);
+                // console.log(`actualStartingDates: ${actualStartingDates}`);
+                // console.log(`actualBookingDeadlines: ${actualBookingDeadlines}`);
 
                 // now, let's go to generate every single and specific lecture
                 const lectures = [];
@@ -1729,9 +1729,9 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
                 const actualClass = values[1];
                 const actualCourse = values[2];
 
-                console.log(`actual schedule: ${schedule.scheduleId}`.cyan);
-                console.log(`actual course: ${actualCourse.courseId}`.cyan);
-                console.log(`actual class: ${actualClass.classId}`.cyan);
+                // console.log(`actual schedule: ${schedule.scheduleId}`.cyan);
+                // console.log(`actual course: ${actualCourse.courseId}`.cyan);
+                // console.log(`actual class: ${actualClass.classId}`.cyan);
 
                 let actualStartingTime;
                 let actualEndingTime;
@@ -1845,8 +1845,8 @@ exports.getSchedules = getSchedules;
  */
 const updateSchedule = function (schedule) {
     return new Promise((resolve, reject) => {
-        console.log('updateSchedule - schedule as param:');
-        console.log(schedule);
+        // console.log('updateSchedule - schedule as param:');
+        // console.log(schedule);
 
         const sql = `SELECT * FROM Schedule WHERE scheduleId = ?`;
 
@@ -1857,17 +1857,17 @@ const updateSchedule = function (schedule) {
             }
             const actualSchedule = Schedule.from(row);
 
-            console.log('updateSchedule - schedule, actualSchedule');
-            console.log(schedule);
-            console.log(actualSchedule);
+            // console.log('updateSchedule - schedule, actualSchedule');
+            // console.log(schedule);
+            // console.log(actualSchedule);
 
             // merge objects
             for (const prop in actualSchedule) {
                 actualSchedule[prop] = schedule[prop] && schedule[prop] != -1 ? schedule[prop] : actualSchedule[prop]; // assign only not-null properties
             }
 
-            console.log('updateSchedule - actualSchedule updated');
-            console.log(actualSchedule);
+            // console.log('updateSchedule - actualSchedule updated');
+            // console.log(actualSchedule);
 
             // actualSchedule.startingTime = moment(actualSchedule.startingTime);
             // actualSchedule.endingDate = moment(actualSchedule.endingDate);
@@ -2006,10 +2006,10 @@ const getUpdateSchedulePreview = function (schedule) {
                             newSchedule[prop] = schedule[prop] && schedule[prop] != -1 ? schedule[prop] : currentSchedule[prop]; // assign only not-null properties
                         }
 
-                        console.log('getUpdateSchedulePreview - schedule, currentSchedule, newSchedule');
-                        console.log(schedule);
-                        console.log(currentSchedule);
-                        console.log(newSchedule);
+                        // console.log('getUpdateSchedulePreview - schedule, currentSchedule, newSchedule');
+                        // console.log(schedule);
+                        // console.log(currentSchedule);
+                        // console.log(newSchedule);
 
                         const currentLectures = await getLecturesByCourse(course); // only future lectures
                         const lecturePrototype = await _generateLecturePrototypeBySchedule(newSchedule);
