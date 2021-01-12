@@ -77,7 +77,6 @@ class SupportSchedulePage extends React.Component {
         newSchedule.roomId = this.state.selectedSchedule.roomId === room ? null : room;
         newSchedule.startingTime = this.state.selectedSchedule.startingTime === startingTime ? null : startingTime;
         newSchedule.endingTime = this.state.selectedSchedule.endingTime === endingTime ? null : endingTime;
-        console.log(newSchedule);
         API.changeScheduleData(this.props.user.userId, newSchedule)
             .then(() => {
                 //ok from server
@@ -198,7 +197,7 @@ function ScheduleRow(props) {
 }
 
 const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const startingTimes = ["8:30", "10:00", "11:30", "13:00", "14:30", "16:00", "17:30"];
+const startingTimes = ["08:30", "10:00", "11:30", "13:00", "14:30", "16:00", "17:30"];
 const endingTimes = ["10:00", "11:30", "13:00", "14:30", "16:00", "17:30", "19:00"];
 
 class FormModal extends React.Component {
