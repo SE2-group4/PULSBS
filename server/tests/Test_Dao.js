@@ -903,11 +903,11 @@ const suite = function () {
             });
         });
 
-        describe('_deleteLecturesByPrototype', function() {
+        describe('_deleteLecturesBySchedule', function() {
             it('correct params should reject the request or fail', function(done) {
                 dao._generateLecturePrototypeBySchedule(schedule5)
                     .then((lecturePrototype) => {
-                        dao._deleteLecturesByPrototype(lecturePrototype)
+                        dao._deleteLecturesBySchedule(schedule5, lecturePrototype)
                         .then((nLectures) => {
                             assert.ok(nLectures > 0, 'No lecture has been removed');
                             done();
@@ -921,7 +921,7 @@ const suite = function () {
             });
 
             it('wrong params should return the number of removed lectures or fail', function(done) {
-                dao._deleteLecturesByPrototype(wrongLecturePrototype)
+                dao._deleteLecturesBySchedule(wrongSchedule, wrongLecturePrototype)
                     .then((nLectures) => {
                         assert.strictEqual(nLectures, 0, 'No lecture should be removed');
                         done();
