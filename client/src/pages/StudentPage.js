@@ -114,7 +114,7 @@ class StudentPage extends React.Component {
      */
     render() {
         if (this.state.fetchError)
-            return <ErrorMsg msg={this.state.fetchError} />
+            return <ErrorMsg msg={this.state.fetchError} onClose={() => { }} />
         if (this.state.loading)
             return <Spinner animation="border" />
         return (

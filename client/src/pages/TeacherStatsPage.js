@@ -51,7 +51,7 @@ class TeacherStatsPage extends React.Component {
 
     render() {
         if (this.state.fetchError) {
-            return <ErrorMsg msg="Ops,an error occured during server communication" />
+            return <ErrorMsg msg="Ops,an error occured during server communication" onClose={() => { }} />
         }
         return (<>
             <BurgerSidebar courses={this.state.courses} generateGraph={this.generateGraph} />
