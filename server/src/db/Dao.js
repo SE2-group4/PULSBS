@@ -1397,9 +1397,9 @@ exports.getClassByDescription = getClassByDescription;
 const addLecture = function (lecture) {
     return new Promise((resolve, reject) => {
         const sql = `INSERT INTO Lecture(courseId, classId, startingDate, duration, bookingDeadline, delivery)
-            VALUES(?, ?, ?, ?, ?, ?)`;
-        // console.log("addLecture - inserting a new lecture");
-        // console.log(lecture);
+            VALUES(?, ?, DATETIME(?, "localtime"), ?, DATETIME(?, "localtime"), ?)`;
+        console.log("addLecture - inserting a new lecture");
+        console.log(lecture);
 
         db.run(
             sql,
@@ -1461,6 +1461,8 @@ const _generateDatesBySchedule = function (schedule) {
                     return c;
                 });
 
+                const gmt_diff = moment().utc().startOf('day').subtract(moment().local().startOf('day'));
+
                 // find the actual academic year
                 // const currentAcademicYear = _getCurrentAcademicYear();
                 const currentAcademicYear = schedule.AAyear;
@@ -1505,7 +1507,8 @@ const _generateDatesBySchedule = function (schedule) {
                 const validDates = [];
 
                 // find the initial date from today
-                let nextDate = moment().day(schedule.dayOfWeek).startOf("day").add(7, "days"); // not today, but it starts from the next week
+                // IMPORTANT: working with UTC dates for generating 'nextDate' values, fixed with the local time when saving into 'validDates'
+                let nextDate = moment().day(schedule.dayOfWeek).utc().startOf("day").add(7, "days"); // not today, but it starts from the next week
                 // console.log(`_generateDatesBySchedule - init nextDate: ${nextDate}`);
                 do {
                     // check constraints
@@ -1527,12 +1530,13 @@ const _generateDatesBySchedule = function (schedule) {
 
                     if (results.every((r) => r === true)) {
                         // if all constraints have been passed
-                        validDates.push(nextDate.clone());
+                        validDates.push(nextDate.clone().subtract(gmt_diff, 'ms'));
                         // console.log(`_generateDatesBySchedule - valid date found: ${nextDate}`);
                     }
 
                     // generate next date
-                    nextDate = nextDate.add(7, "days");
+                    nextDate.add(7, "days").startOf("day");
+                    // nextDate = nextDate.add(7, "days").startOf("day");
                 } while (true);
 
                 // console.log(`_generateDatesBySchedule - valid dates generated: ${validDates}`);
@@ -1550,19 +1554,24 @@ exports._generateDatesBySchedule = _generateDatesBySchedule; // export needed fo
  */
 const _deleteLecturesByPrototype = function (lecturePrototype) {
     return new Promise((resolve, reject) => {
+        console.log('_deleteLecturesByPrototype - lecturePrototype');
+        console.log(lecturePrototype);
+
         const sql = `DELETE FROM Lecture
             WHERE courseId = ?
+                AND STRFTIME('%w', startingDate) = ?
                 AND STRFTIME('%H', startingDate) = STRFTIME('%H', ?)
                 AND STRFTIME('%M', startingDate) = STRFTIME('%M', ?)
                 AND duration = ?
-                AND classId = ?`;
+                AND classId = ?`
 
         db.run(
             sql,
             [
                 lecturePrototype.courseId,
-                new Date(lecturePrototype.startingDate).toISOString(),
-                new Date(lecturePrototype.startingDate).toISOString(),
+                moment(lecturePrototype.startingDate).day(),
+                moment(lecturePrototype.startingDate, 'HH:mm:ss').toISOString(),
+                moment(lecturePrototype.startingDate, 'HH:mm:ss').toISOString(),
                 lecturePrototype.duration,
                 lecturePrototype.classId,
             ],
@@ -1588,6 +1597,8 @@ const _generateLectureByScheduleAndPrototype = function (schedule, lectureProtot
     return new Promise((resolve, reject) => {
         _generateDatesBySchedule(schedule)
             .then((dates) => {
+                console.log(`dates: ${dates}`);
+                
                 const lecture_init_date = lecturePrototype.startingDate.clone().startOf("day");
                 const init_offset = lecturePrototype.startingDate.diff(lecture_init_date);
                 const actualStartingDates = dates.map((date) => date.clone().startOf("day").add(init_offset, "ms"));
@@ -1602,8 +1613,8 @@ const _generateLectureByScheduleAndPrototype = function (schedule, lectureProtot
                     date.clone().startOf("day").add(deadline_offset, "ms").subtract(day_diff, "days")
                 );
 
-                // console.log(`actualStartingDates: ${actualStartingDates}`);
-                // console.log(`actualBookingDeadlines: ${actualBookingDeadlines}`);
+                console.log(`actualStartingDates: ${actualStartingDates}`);
+                console.log(`actualBookingDeadlines: ${actualBookingDeadlines}`);
 
                 // now, let's go to generate every single and specific lecture
                 const lectures = [];
@@ -1774,7 +1785,7 @@ const _generateLecturesBySchedule = function (schedule, hint = DaoHint.NO_HINT) 
                 let nLectures = 0;
 
                 let promises = [];
-                if (hint == DaoHint.NEW_VALUE) promises.push(_deleteLecturesByPrototype(lecturePrototype));
+                if (hint != DaoHint.NEW_VALUE) promises.push(_deleteLecturesByPrototype(lecturePrototype));
                 promises.push(_addLecturesByScheduleAndPrototype(schedule, lecturePrototype));
 
                 Promise.all(promises)
@@ -1885,8 +1896,8 @@ const updateSchedule = function (schedule) {
                     actualSchedule.roomId,
                     actualSchedule.seats,
                     actualSchedule.dayOfWeek,
-                    initDate.isValid() ? initDate.format('HH:mm') : '00:00',
-                    finiDate.isValid() ? finiDate.format('HH:mm') : '00:00',
+                    initDate.isValid() ? initDate.format('HH:mm:ss') : '00:00:00',
+                    finiDate.isValid() ? finiDate.format('HH:mm:ss') : '00:00:00',
                     actualSchedule.scheduleId,
                 ],
                 function (err) {
