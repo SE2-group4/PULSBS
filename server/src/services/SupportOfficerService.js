@@ -16,7 +16,7 @@ const utils = require("../utils/utils");
 const fs = require("fs");
 const check = require("../utils/checker");
 const csv = require("csvtojson");
-const moment = require('moment');
+const moment = require("moment");
 
 const errno = ResponseError.errno;
 
@@ -282,19 +282,19 @@ async function manageEntitiesUpload(entities, path, filename) {
         throw genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: path });
     }
 
-    //console.time("phase: mapping");
-    // map each entry of entities as a new object with the properties defined in DB_TABLES[<entityType>].mapTo
-    const sanitizedEntities = await sanitizeEntities(entities, entityType);
-    //console.timeEnd("phase: mapping");
-
-    //console.time("phase: query gen");
-    // create the queries
-    const sqlQueries = genSqlQueries("INSERT", entityType, sanitizedEntities);
-    //console.timeEnd("phase: query gen");
-
-    //console.time("phase: query run");
-    // run the queries
     try {
+        //console.time("phase: mapping");
+        // map each entry of entities as a new object with the properties defined in DB_TABLES[<entityType>].mapTo
+        const sanitizedEntities = await sanitizeEntities(entities, entityType);
+        //console.timeEnd("phase: mapping");
+
+        //console.time("phase: query gen");
+        // create the queries
+        const sqlQueries = genSqlQueries("INSERT", entityType, sanitizedEntities);
+        //console.timeEnd("phase: query gen");
+
+        //console.time("phase: query run");
+        // run the queries
         await runBatchQueries(sqlQueries);
     } catch (err) {
         const message = { filename, reason: err.payload.message };
@@ -345,8 +345,7 @@ async function callNextStep(currStep, ...args) {
 
             try {
                 console.log("calling _generateLecturesBySchedule");
-                for(const schedule of schedules)
-                    await db._generateLecturesBySchedule(schedule, db.DaoHint.NEW_VALUE);
+                for (const schedule of schedules) await db._generateLecturesBySchedule(schedule, db.DaoHint.NEW_VALUE);
             } catch (err) {
                 console.log("sono catch di callNextStep");
                 console.log(err);
@@ -457,7 +456,7 @@ function getStartingTime(orario) {
     const regex = /[0-9]+/g;
     const match = orario.match(regex);
     const dateString = `${match[0]}:${match[1]}:00`;
-    return moment(dateString, 'hh:mm:ss').format('HH:mm:ss'); // 2 digits for the hour needed
+    return moment(dateString, "hh:mm:ss").format("HH:mm:ss"); // 2 digits for the hour needed
 }
 
 /**
@@ -469,7 +468,7 @@ function getEndingTime(orario) {
     const regex = /[0-9]+/g;
     const match = orario.match(regex);
     const dateString = `${match[2]}:${match[3]}:00`;
-    return moment(dateString, 'hh:mm:ss').format('HH:mm:ss'); // 2 digits for the hour needed
+    return moment(dateString, "hh:mm:ss").format("HH:mm:ss"); // 2 digits for the hour needed
 }
 
 /**
@@ -734,7 +733,7 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
 
     // check if it exists
     const actualSchedule = await db.getScheduleById(paramSchedule);
-    console.log('actual schedule into DB');
+    console.log("actual schedule into DB");
     console.log(actualSchedule);
 
     /*
@@ -759,11 +758,11 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
         ]
     }
     */
-    console.log('generating preview...'.cyan);
+    console.log("generating preview...".cyan);
     const preview = await db.getUpdateSchedulePreview(paramSchedule); // get a preview of data which will be modified
-    console.log('preview okay'.cyan);
+    console.log("preview okay".cyan);
     const retVal = await db.updateSchedule(paramSchedule);
-    console.log('schedule update okay'.cyan);
+    console.log("schedule update okay".cyan);
 
     // get all booked students for each lecture which should be modified
     let promises = [];
@@ -778,7 +777,7 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
     // console.log("supportOfficerUpdateSchedule - preview");
     // console.log(preview);
 
-    console.log('sending emails...'.cyan);
+    console.log("sending emails...".cyan);
     promises = [];
     for (let i = 0; i < preview.lectures.length; i++) {
         const lectureRow = preview.lectures[i];
@@ -788,7 +787,7 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
 
         for (const studentRow of students) {
             const student = studentRow.student;
-            console.log('current student to inform of the schedule update:');
+            console.log("current student to inform of the schedule update:");
             console.log(student);
             console.log(student.email);
             const defaultEmail = EmailService.getDefaultEmail(Email.EmailType.STUDENT_UPDATE_SCHEDULE, [
