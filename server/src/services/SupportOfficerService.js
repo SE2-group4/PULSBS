@@ -16,6 +16,7 @@ const utils = require("../utils/utils");
 const fs = require("fs");
 const check = require("../utils/checker");
 const csv = require("csvtojson");
+const moment = require('moment');
 
 const errno = ResponseError.errno;
 
@@ -455,7 +456,8 @@ function getSemester() {
 function getStartingTime(orario) {
     const regex = /[0-9]+/g;
     const match = orario.match(regex);
-    return `${match[0]}:${match[1]}:00`;
+    const dateString = `${match[0]}:${match[1]}:00`;
+    return moment(dateString, 'hh:mm:ss').format('HH:mm:ss'); // 2 digits for the hour needed
 }
 
 /**
@@ -466,7 +468,8 @@ function getStartingTime(orario) {
 function getEndingTime(orario) {
     const regex = /[0-9]+/g;
     const match = orario.match(regex);
-    return `${match[2]}:${match[3]}:00`;
+    const dateString = `${match[2]}:${match[3]}:00`;
+    return moment(dateString, 'hh:mm:ss').format('HH:mm:ss'); // 2 digits for the hour needed
 }
 
 /**
