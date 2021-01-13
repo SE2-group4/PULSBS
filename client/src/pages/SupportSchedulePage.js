@@ -313,8 +313,7 @@ function updateStartingTime(endingTime, startingTimes_) {
 function somethingChanged(oldSchedule, day, room, st, et) {
     if (oldSchedule.dayOfWeek !== day || oldSchedule.roomId !== room || oldSchedule.startingTime !== st || oldSchedule.endingTime !== et)
         return true;
-    else
-        return false;
+    return false;
 }
 
 export default SupportSchedulePage;
