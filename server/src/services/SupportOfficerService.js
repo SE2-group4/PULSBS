@@ -378,7 +378,6 @@ const hasExpFields = (entities, entityType) => {
     for (const entity of entities) {
         const hasAll = minExpFields.every((name) => entity.hasOwnProperty(name));
         if (!hasAll) {
-            console.log(entity);
             throw genResponseError(errno.ENTITY_MISSING_FIELDS, { fields: minExpFields });
         }
     }
@@ -660,7 +659,6 @@ function logToFile(queries) {
 
 async function runBatchQueries(sqlQueries) {
     try {
-        console.log("running", sqlQueries);
         await db.execBatch(sqlQueries);
         logToFile(sqlQueries);
     } catch (err) {
