@@ -1399,17 +1399,17 @@ const addLecture = function (lecture) {
         const sql = `INSERT INTO Lecture(courseId, classId, startingDate, duration, bookingDeadline, delivery)
             VALUES(?, ?, DATETIME(?, 'localtime'), ?, DATETIME(?, 'localtime'), ?)`;
             // VALUES(?, ?, DATETIME(?), ?, DATETIME(?), ?)`;
-        console.log("addLecture - inserting a new lecture");
-        console.log(lecture);
+        // console.log("addLecture - inserting a new lecture");
+        // console.log(lecture);
 
         db.run(
             sql,
             [
                 lecture.courseId,
                 lecture.classId,
-                lecture.startingDate.utc().toISOString(),
+                moment(lecture.startingDate).utc().toISOString(),
                 lecture.duration,
-                lecture.bookingDeadline.utc().toISOString(),
+                moment(lecture.startingDate).utc().toISOString(),
                 lecture.delivery,
             ],
             function (err) {
@@ -1462,8 +1462,8 @@ const _generateDatesBySchedule = function (schedule) {
                     return c;
                 });
 
-                console.log('_generateDatesBySchedule - schedule');
-                console.log(schedule);
+                // console.log('_generateDatesBySchedule - schedule');
+                // console.log(schedule);
 
                 // const gmt_diff = moment().utc().startOf('day').subtract(moment().local().startOf('day'));
 
@@ -1525,9 +1525,9 @@ const _generateDatesBySchedule = function (schedule) {
                     ); // include limit dates
                     // "!!val": to boolean
 
-                    console.log('checking date ' + nextDate.toISOString());
-                    console.log('results');
-                    console.log(results);
+                    // console.log('checking date ' + nextDate.toISOString());
+                    // console.log('results');
+                    // console.log(results);
 
                     if (!(results.length >= 2 && !!results[0] && !!results[1]))
                         // academic year or semester have been broken
@@ -1561,13 +1561,13 @@ const _deleteLecturesBySchedule = function (schedule) {
     return new Promise((resolve, reject) => {
         _generateLecturePrototypeBySchedule(schedule)
             .then((lecturePrototype) => {
-                console.log('_deleteLecturesBySchedule - lecturePrototype');
-                console.log(lecturePrototype);
-                console.log('_deleteLecturesBySchedule - schedule');
-                console.log(schedule);
-                console.log(moment().day(schedule.dayOfWeek).toISOString());
-                console.log(moment(lecturePrototype.startingDate.clone(), 'HH:mm:ss').utc().toISOString());
-                console.log(moment(lecturePrototype.startingDate.clone(), 'HH:mm:ss').utc().toISOString());
+                // console.log('_deleteLecturesBySchedule - lecturePrototype');
+                // console.log(lecturePrototype);
+                // console.log('_deleteLecturesBySchedule - schedule');
+                // console.log(schedule);
+                // console.log(moment().day(schedule.dayOfWeek).toISOString());
+                // console.log(moment(lecturePrototype.startingDate.clone(), 'HH:mm:ss').utc().toISOString());
+                // console.log(moment(lecturePrototype.startingDate.clone(), 'HH:mm:ss').utc().toISOString());
         
                 const sql = `DELETE FROM Lecture
                     WHERE courseId = ?
@@ -1593,17 +1593,17 @@ const _deleteLecturesBySchedule = function (schedule) {
                             reject(StandardErr.fromDao(err));
                             return;
                         }
-                        console.log(`_deleteLecturesBySchedule - rows: ${this.changes}`);
-                        console.log('query params');
-                        console.log([
-                            lecturePrototype.courseId,
-                            // moment(lecturePrototype.startingDate).day(),
-                            moment().day(schedule.dayOfWeek).toISOString(),
-                            moment(lecturePrototype.startingDate, 'HH:mm:ss').utc().toISOString(),
-                            moment(lecturePrototype.startingDate, 'HH:mm:ss').utc().toISOString(),
-                            lecturePrototype.duration,
-                            lecturePrototype.classId
-                        ]);
+                        // console.log(`_deleteLecturesBySchedule - rows: ${this.changes}`);
+                        // console.log('query params');
+                        // console.log([
+                        //     lecturePrototype.courseId,
+                        //     // moment(lecturePrototype.startingDate).day(),
+                        //     moment().day(schedule.dayOfWeek).toISOString(),
+                        //     moment(lecturePrototype.startingDate, 'HH:mm:ss').utc().toISOString(),
+                        //     moment(lecturePrototype.startingDate, 'HH:mm:ss').utc().toISOString(),
+                        //     lecturePrototype.duration,
+                        //     lecturePrototype.classId
+                        // ]);
                         resolve(this.changes);
                     }
                 );
@@ -1630,7 +1630,7 @@ const _generateLectureByScheduleAndPrototype = function (schedule, lectureProtot
                 const actualStartingDates = dates.map((date) => {
                     let newDate = date.clone().startOf("day").add(init_offset, "ms");
                     newDate.add(date.utcOffset() - newDate.utcOffset(), 'm');
-                    console.log(`starting date: ${date}\t${newDate}`);
+                    // console.log(`starting date: ${date}\t${newDate}`);
                     return newDate;
                 });
 
@@ -1643,7 +1643,7 @@ const _generateLectureByScheduleAndPrototype = function (schedule, lectureProtot
                 const actualBookingDeadlines = dates.map((date) => {
                     let newDate = date.clone().startOf("day").add(deadline_offset, "ms").subtract(day_diff, "days");
                     newDate.subtract(date.utcOffset() - newDate.utcOffset(), 'm');
-                    console.log(`booking deadling: ${date}\t${newDate}`);
+                    // console.log(`booking deadling: ${date}\t${newDate}`);
                     return newDate;
                 });
 
@@ -1796,8 +1796,8 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
                 lecturePrototype.delivery = Lecture.DeliveryType.PRESENCE;
 
                 // TODO: remove these lines
-                console.log("lecturePrototype:");
-                console.log(lecturePrototype);
+                // console.log("lecturePrototype:");
+                // console.log(lecturePrototype);
 
                 resolve(lecturePrototype);
             })
@@ -1821,6 +1821,8 @@ const _generateLecturesBySchedule = function (schedule, hint = DaoHint.NO_HINT, 
                     let nLectures = 0;
     
                     let promises = [];
+                    if(!oldSchedule)
+                        hint = DaoHint.NEW_VALUE;
                     if (hint != DaoHint.NEW_VALUE) promises.push(_deleteLecturesBySchedule(oldSchedule));
                     promises.push(_addLecturesByScheduleAndPrototype(schedule, lecturePrototype));
     
@@ -1892,9 +1894,10 @@ const updateSchedule = function (schedule) {
             const actualSchedule = Schedule.from(row);
             const oldSchedule = Schedule.from(row);
 
-            // console.log('updateSchedule - schedule, actualSchedule');
-            // console.log(schedule);
-            // console.log(actualSchedule);
+            console.log('updateSchedule - schedule, actualSchedule', oldSchedule);
+            console.log(schedule);
+            console.log(actualSchedule);
+            console.log(oldSchedule);
 
             // merge objects
             for (const prop in actualSchedule) {
