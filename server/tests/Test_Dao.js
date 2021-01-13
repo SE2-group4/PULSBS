@@ -75,13 +75,13 @@ const suite = function () {
             wrongClass = new Class(-1, 'Wrong description', -1);
 
             class1 = new Class(1, '1A', 10);
-            class2 = new Class(2, '2B', 10);
+            // class2 = new Class(2, '2B', 10); // unused
             class3 = new Class(3, '3C', 10);
 
             schedule1 = new Schedule(1, '1', 2020, 1, '1A', 10, 'Mon', '8:30', '10:00');
             schedule2 = new Schedule(2, '2', 2020, 1, '2B', 10, 'Mon', '8:30', '10:00');
             schedule5 = new Schedule(5, '5', 2020, 1, '2B', 10, 'Tue', '8:30', '10:00');
-            schedule8 = new Schedule(8, '8');
+            // schedule8 = new Schedule(8, '8'); // unused
 
             newSchedule = new Schedule(999, course1.code, '2020', '1', '9Z', '15', 'Thu', '17:30', '19:30');
             newLecture = new Lecture(999, 1, 1, moment().toDate(), 90*60*1000, moment().startOf('day').subtract(1, 'day'), Lecture.DeliveryType.PRESENCE);

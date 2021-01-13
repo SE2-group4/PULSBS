@@ -185,14 +185,14 @@ exports.login = login;
  */
 const addBooking = function (student, lecture) {
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO Booking(studentId, lectureId, status) VALUES (?, ?, ?)`;
+        let sql = `INSERT INTO Booking(studentId, lectureId, status) VALUES (?, ?, ?)`;
 
         db.run(sql, [student.studentId, lecture.lectureId, Booking.BookingType.BOOKED], function (err) {
             if (err) {
                 if (err.errno == 19) {
                     // already present
                     // err = StandardErr.new("Dao", StandardErr.errno.ALREADY_PRESENT, "The lecture was already booked");
-                    const sql = `UPDATE Booking SET status = ? WHERE studentId = ? AND lectureId = ?`;
+                    sql = `UPDATE Booking SET status = ? WHERE studentId = ? AND lectureId = ?`;
                     db.run(sql, [Booking.BookingType.BOOKED, student.studentId, lecture.lectureId], function (err) {
                         if (err) {
                             reject(StandardErr.fromDao(err));
@@ -1813,12 +1813,12 @@ exports._generateLecturePrototypeBySchedule = _generateLecturePrototypeBySchedul
  * @param {Schedule} oldSchedule - optional
  * @returns {Promise} promise of bool - true if everything has gone right, false otherwise
  */
-const _generateLecturesBySchedule = function (schedule, hint = DaoHint.NO_HINT, oldSchedule) {
+const _generateLecturesBySchedule = function (schedule, hint = DaoHint.NO_HINT, oldSchedule = undefined) {
     return new Promise((resolve, reject) => {
         getScheduleById(schedule)
             _generateLecturePrototypeBySchedule(schedule)
                 .then((lecturePrototype) => {
-                    let nLectures = 0;
+                    // let nLectures = 0;
     
                     let promises = [];
                     if(!oldSchedule)
@@ -2017,19 +2017,19 @@ const getUpdateSchedulePreview = function (schedule) {
     return new Promise((resolve, reject) => {
         getScheduleById(schedule) // get the schedule as-is from the DB
             .then(async (currentSchedule) => {
-                const currentClass = new Class();
-                currentClass.description = currentSchedule.roomId;
+                const actualClass = new Class();
+                actualClass.description = currentSchedule.roomId;
                 const class_ = new Class();
                 class_.description = schedule.roomId;
                 Promise.all([
                     // _generateCourseBySchedule(schedule),
                     getCourseByCode(currentSchedule.code),
-                    getClassByDescription(currentClass), // currentClass
+                    getClassByDescription(actualClass), // currentClass
                     _generateClassBySchedule(schedule),
-                    new Promise((resolve, reject) => {
+                    new Promise((innerResolve, innerReject) => {
                         getClassByDescription(class_) // newClass
-                            .then(resolve)
-                            .catch((err) => resolve(new Class()));
+                            .then(innerResolve)
+                            .catch((err) => innerResolve(new Class()));
                     })
                 ])
                     .then(async (values) => {
