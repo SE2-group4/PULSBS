@@ -99,8 +99,6 @@ class SupportSchedulePage extends React.Component {
         if (this.state.loading)
             return <Spinner animation="border" ></Spinner>;
         let filtered = this.state.schedules.filter((s) => this.state.filters.indexOf(courseName(s.code, this.state.courses) + "-" + s.code) !== -1);
-        console.log(filtered)
-        //console.log(filtered.length);
         return <>
             {this.state.selectedSchedule &&
                 <FormModal schedule={this.state.selectedSchedule} close={this.closeModal} courses={this.state.courses} rooms={this.state.rooms} submitData={this.submit} />}
@@ -137,7 +135,6 @@ function Filters(props) {
 function ScheduleTable(props) {
     let filtered = props.schedules;
     let nPages = Math.ceil(filtered.length / scheduleForPage);
-    console.log(nPages)
     let items = [];
     let tableEntries = [];
     if (filtered.length !== 0) {
