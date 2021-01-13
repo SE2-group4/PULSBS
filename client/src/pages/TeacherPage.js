@@ -225,7 +225,9 @@ class TeacherPage extends React.Component {
             <br />
             <br /></>;
 
-        let presentStudents_ = this.state.selectedLecture && takeAttendances ? this.state.presentStudents.sort((a, b) => a.studentId - b.studentId) : null;
+        let presentStudents_ = this.state.presentStudents;
+        if (this.state.selectedLecture && takeAttendances)
+            presentStudents_.sort((a, b) => a.studentId - b.studentId);
 
         return (
             <>
@@ -278,7 +280,7 @@ class TeacherPage extends React.Component {
                         <Col sm={6}>
                             {this.state.selectedLecture && takeAttendances &&
                                 <StudentPanel
-                                    students={presentStudents_}     //students
+                                    students={presentStudents_}                                                         //present students
                                     currentPage={this.state.currSPage} change={this.changePage}                         //pagination
                                     updateStudent={this.updateStudent} enable={false}                                   //student presence manag
                                     present={true} numStudents={this.state.students.length}
