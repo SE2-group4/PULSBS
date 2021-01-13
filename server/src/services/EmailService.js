@@ -24,7 +24,7 @@ const defaultTemplates = {
     },
     STUDENT_UPDATE_SCHEDULE: {
         subject: "Course {0} - COURSE SCHEDULE CHANGED",
-        message: "Dear student,\ndue to a course schedule change your lecture of {0} at {1} in class {2} has been moved at {3} in class {4}. Your booking has been remove, please book again.\n",
+        message: "Dear student,\ndue to a course schedule change your lecture of {0} at {1} in class {2} has been moved at {3} in class {4}. Your booking has been removed, please book again.\n",
     },
 };
 

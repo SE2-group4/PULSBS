@@ -113,7 +113,7 @@ class SupportPage extends React.Component {
                 await API.uploadList(this.props.user.userId, "enrollments", this.state.enrollmentsArrayFile);
             this.setState({ elems: null, success: true, loading: false }); //ok
         } catch (err) {
-            let errormsg = err.source + " : " + err.error;
+            let errormsg = err.error;
             this.setState({ elems: null, genError: errormsg, loading: false });
         }
     }
@@ -281,7 +281,6 @@ function GenericModal(props) {
         </Modal.Header>
         <Modal.Body>
             {props.success ? <>Operation successful!</> : <label data-testid="text-error">{props.error}</label>}
-            {props.error === "Upload : Server error" ? <><br />The database will be reset; please try again to load all files.</> : ""}
         </Modal.Body>
         <Modal.Footer>
             <Button name="close" data-testid="success-close" variant="secondary" onClick={props.success ? props.successClose : props.errorClose}>Close</Button>

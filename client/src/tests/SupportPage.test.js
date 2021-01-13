@@ -146,7 +146,7 @@ describe('Support Page suite', () => {
         await act(async () => {
             userEvent.click(screen.getByTestId('submit-button'));
         });
-        fetch.mockResponseOnce(JSON.stringify({ body: "not ok" }), { status: 400 });
+        fetch.mockResponseOnce(JSON.stringify({ message: "not ok" }), { status: 400 });
         await act(async () => {
             userEvent.click(screen.getByTestId('sum-yes'));
         });

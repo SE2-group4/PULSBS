@@ -446,9 +446,8 @@ async function getSchedulesBySupportId(id) {
                     })
                     .catch(() => { reject({ source: "SupportOfficer", error: "Application parse error" }) }); // something else
             } else {
-                // analyze the cause of error
                 response.json()
-                    .then((obj) => reject({ source: obj.statusCode, error: obj.message }))
+                    .then((obj) => reject({ source: "SupportOfficer", error: obj.message }))
                     .catch(() => reject({ source: "SupportOfficer", error: "Server error" }));
             }
         }).catch(() => { reject({ source: "SupportOfficer", error: "Server connection error" }) }); // connection errors
@@ -485,7 +484,6 @@ async function getRoomsBySupportId(id) {
                     })
                     .catch(() => { reject({ source: "SupportOfficer", error: "Application parse error" }) }); // something else
             } else {
-                // analyze the cause of error
                 response.json()
                     .then((obj) => reject({ source: "SupportOfficer", error: obj.message }))
                     .catch(() => reject({ source: "SupportOfficer", error: "Server error" }));
