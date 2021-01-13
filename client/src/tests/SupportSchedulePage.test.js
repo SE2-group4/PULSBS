@@ -50,16 +50,16 @@ describe("SupportSchedulePage suite", () => {
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : Application parse error")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (schedules API failure: server error)", async () => {
         fetch.mockResponses(
-            [JSON.stringify({ body: "not ok" }), { status: 400 }],
+            [JSON.stringify({ message: "not_ok" }), { status: 400 }],
         )
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : not_ok")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (schedules API failure: server parse error)", async () => {
         fetch.mockResponses(
@@ -68,14 +68,14 @@ describe("SupportSchedulePage suite", () => {
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : Server error")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (schedules API failure: connection error)", async () => {
         fetch.mockRejectOnce();
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : Server connection error")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (rooms API failure: application parse error)", async () => {
         fetch.mockResponses(
@@ -86,18 +86,18 @@ describe("SupportSchedulePage suite", () => {
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : Application parse error")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (rooms API failure: server error)", async () => {
         fetch.mockResponses(
             [JSON.stringify(schedules), { status: 200 }],
             [JSON.stringify(courses), { status: 200 }],
-            [JSON.stringify({ body: "not ok" }), { status: 400 }]
+            [JSON.stringify({ message: "not_ok" }), { status: 400 }]
         )
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : not_ok")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (rooms API failure: server parse error)", async () => {
         fetch.mockResponses(
@@ -108,7 +108,7 @@ describe("SupportSchedulePage suite", () => {
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : Server error")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (rooms API failure: connection error)", async () => {
         fetch.mockResponses(
@@ -118,7 +118,7 @@ describe("SupportSchedulePage suite", () => {
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : Server connection error")).toBeInTheDocument();
     })
     test("click on course select", async () => {
         await setupSupportSchedulePage();

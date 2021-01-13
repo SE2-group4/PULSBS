@@ -31,13 +31,9 @@ class SupportSchedulePage extends React.Component {
                 s.roomId = roomid.toString();
                 return s;
             })
-            //console.log(schedules_);
-            //console.log(rooms);
-            //console.log(courses);
             let filters = courses.map((c) => c.description + "-" + c.code);
             this.setState({ schedules: schedules_, courses: courses, rooms: rooms, filters: filters, loading: false });
         } catch (err) {
-            console.log(err);
             let errormsg = err.source + " : " + err.error;
             this.setState({ genError: errormsg, loading: false });
         }
@@ -317,8 +313,7 @@ function updateStartingTime(endingTime, startingTimes_) {
 function somethingChanged(oldSchedule, day, room, st, et) {
     if (oldSchedule.dayOfWeek !== day || oldSchedule.roomId !== room || oldSchedule.startingTime !== st || oldSchedule.endingTime !== et)
         return true;
-    else
-        return false;
+    return false;
 }
 
 export default SupportSchedulePage;
