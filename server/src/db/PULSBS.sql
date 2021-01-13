@@ -147,7 +147,7 @@ INSERT INTO Class(classId, description, capacity) VALUES(10, '1D', 3);
 -- lectureId%3 == 0 ? REMOTE : PRESENCE
 
 -- Future lectures
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(1, 1, 1, DATETIME('now', '+0 day', 'start of hour'), 1000*60*60*7, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
+INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(1, 1, 1, DATETIME('now', '+0 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90*7, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(2, 2, 2, DATETIME('now', '+1 day', 'start of day', '11 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(3, 3, 3, DATETIME('now', '+1 day', 'start of day', '14 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'REMOTE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(4, 4, 4, DATETIME('now', '+1 day', 'start of day', '17 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
