@@ -101,7 +101,7 @@ class SupportUpdatePage extends React.Component {
 
     render() {
         if (this.state.communicationError)
-            return <ErrorMsg msg="Ops, an error occured during server communication" />
+            return <ErrorMsg msg="Ops, an error occured during server communication" onClose={() => { }} />
 
         if (this.state.loadingPage)
             return (<Spinner animation="border" ></Spinner>)

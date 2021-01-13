@@ -24,15 +24,17 @@ const defaultTemplates = {
     },
     STUDENT_UPDATE_SCHEDULE: {
         subject: "Course {0} - COURSE SCHEDULE CHANGED",
-        message: "Dear student,\ndue to a course schedule change your lecture of {0} at {1} in class {2} has been moved at {3} in class {4}. Your booking has been remove, please book again.\n",
+        message: "Dear student,\ndue to a course schedule change your lecture of {0} at {1} in class {2} has been moved at {3} in class {4}. Your booking has been removed, please book again.\n",
     },
 };
 
 // create reusable transporter object using the default SMTP transport
 let transporter = nodemailer.createTransport({
     service: "gmail",
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    port: 465,
+    secure: true, // true for 465, false for other ports
+    requireTLS: true, // Compliant
+    secured: true, // Compliant
     auth: {
         user: "trasporter.se2group4@gmail.com", // user
         pass: "trasporter46!", // password

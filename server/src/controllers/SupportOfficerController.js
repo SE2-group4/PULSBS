@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
         cb(null, file.originalname);
     },
 });
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage, limits: { fileSize: 8000000 } });
 
 router.post("/:supportId/uploads/students", upload.single("file"), manageFileUpload);
 router.post("/:supportId/uploads/courses", upload.single("file"), manageFileUpload);
@@ -160,11 +160,16 @@ function supportOfficerGetSchedules(req, res) {
  * @param {Object} res
  */
 function supportOfficerUpdateSchedule(req, res) {
-    Officer.supportOfficerUpdateSchedule(req.params, req.query)
-        .then(function (response) {
-            utils.writeJson(res, response);
+    Officer.supportOfficerUpdateSchedule(req.params, req.body, req.query)
+        .then(function (retVal) {
+            console.log("supportOfficerUpdateSchedule");
+            // utils.writeJson(res, response);
+            res.status(204).end();
         })
-        .catch(function (response) {
-            utils.writeJson(res, response);
+        .catch(function (err) {
+            console.log("supportOfficerUpdateSchedule");
+            console.error(err);
+            // utils.writeJson(res, response);
+            res.status(err.statusCode).json(err).end();
         });
 }

@@ -420,20 +420,19 @@ const testSuiteSupportOfficer = () => {
 
         describe("supportOfficerUpdateSchedule", function () {
             beforeEach(async function clearDb() {
-                await prepare("testing.db", "testing.sql", false);
+                await prepare("testing.db", "testSchedule.sql", false);
             });
 
             it("existing schedule with correct new params should update the schedule", function (done) {
                 const schedule1 = new Schedule(1, "1", 2020, 1, "1A", 10, "Mon", "8:30", "10:00");
                 const updatedSchedule = schedule1;
                 const class2 = new Class(2, "2B", 10);
-                updatedSchedule.roomId = class2.classId;
+                updatedSchedule.roomId = class2.classDescription;
 
                 Service.supportOfficerUpdateSchedule({
                     managerId: 1,
-                    scheduleId: updatedSchedule.scheduleId,
-                    schedule: updatedSchedule,
-                })
+                    scheduleId: updatedSchedule.scheduleId
+                }, updatedSchedule)
                     .then((nLectures) => {
                         assert.ok(nLectures > 0, "No lecture updated"); // the exact number of lectures depends on the date you run tests
                         done();
@@ -459,9 +458,8 @@ const testSuiteSupportOfficer = () => {
 
                 Service.supportOfficerUpdateSchedule({
                     managerId: 1,
-                    scheduleId: wrongSchedule.scheduleId,
-                    schedule: wrongSchedule,
-                })
+                    scheduleId: wrongSchedule.scheduleId
+                }, wrongSchedule)
                     .then((nLectures) => done("This must fail!"))
                     .catch((err) => done()); // correct case
             });
@@ -475,8 +473,7 @@ const testSuiteSupportOfficer = () => {
                 Service.supportOfficerUpdateSchedule({
                     managerId: 1,
                     scheduleId: overlappedScheduleSameCourse.scheduleId,
-                    schedule: overlappedScheduleSameCourse,
-                })
+                }, overlappedScheduleSameCourse)
                     .then((nLectures) => done("This must fail!"))
                     .catch((err) => done()); // correct case
             });
@@ -492,8 +489,7 @@ const testSuiteSupportOfficer = () => {
                 Service.supportOfficerUpdateSchedule({
                     managerId: 1,
                     scheduleId: overlappedScheduleDifferentCourse.scheduleId,
-                    schedule: overlappedScheduleDifferentCourse,
-                })
+                }, overlappedScheduleDifferentCourse)
                     .then((nLectures) => done("This must fail!"))
                     .catch((err) => done()); // correct case
             });

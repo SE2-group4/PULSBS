@@ -147,7 +147,7 @@ INSERT INTO Class(classId, description, capacity) VALUES(10, '1D', 3);
 -- lectureId%3 == 0 ? REMOTE : PRESENCE
 
 -- Future lectures
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(1, 1, 1, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
+INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(1, 1, 1, DATETIME('now', '+0 day', '-10 minutes'), 1000*60*180, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(2, 2, 2, DATETIME('now', '+1 day', 'start of day', '11 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(3, 3, 3, DATETIME('now', '+1 day', 'start of day', '14 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'REMOTE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(4, 4, 4, DATETIME('now', '+1 day', 'start of day', '17 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
@@ -265,7 +265,7 @@ INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod)
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(2, DATETIME('now', '-1 month', 'start of day'), DATETIME('now', '+3 month', 'start of day'), 'SEMESTER', 1);
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(3, DATETIME('now', '+4 month', 'start of day'), DATETIME('now', '+8 month', 'start of day'), 'SEMESTER', 1);
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(4, DATETIME('now', '+7 day', 'start of day'), DATETIME('now', '14 day', 'start of day'), 'HOLIDAYS', 0);
-INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(5, DATETIME('now', '+30 dau', 'start of day'), DATETIME('now', '32 day', 'start of day'), 'HOLIDAYS', 0);
+INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(5, DATETIME('now', '+30 day', 'start of day'), DATETIME('now', '32 day', 'start of day'), 'HOLIDAYS', 0);
 
 -- << Triggers >>
 
@@ -279,6 +279,7 @@ CREATE TRIGGER check_time_overlapping_before_insert_schedule
                 FROM Schedule
                 WHERE
                     code = NEW.code
+                    AND scheduleId <> NEW.scheduleId
                     AND dayOfWeek = NEW.dayOfWeek
                     AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
                     AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
@@ -307,9 +308,10 @@ CREATE TRIGGER check_time_overlapping_before_update_schedule
             SELECT COUNT(*) <> 0 FROM Schedule
                 WHERE
                     code = NEW.code
+                    AND scheduleId <> NEW.scheduleId
                     AND dayOfWeek = NEW.dayOfWeek
-                    AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
-                    AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
+                    AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
 			THEN RAISE(ABORT, 'New schedule overlapped with an existing one with the same code')
 		END IF;
 		SELECT CASE WHEN (
@@ -320,8 +322,8 @@ CREATE TRIGGER check_time_overlapping_before_update_schedule
                     AND AAyear = NEW.AAyear
                     AND semester = NEW.semester
                     AND dayOfWeek = NEW.dayOfWeek
-                    AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
-                    AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
+                    AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
 			THEN RAISE(ABORT, 'New schedule overlapped with an existing one in the same class')
 		END IF;
 	END;

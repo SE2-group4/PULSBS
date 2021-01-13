@@ -23,7 +23,7 @@ const prepare = require('../src/db/preparedb.js');
 const API_KEY = '1714443a-b87e-4616-8c6f-19d1d6cf2eee';
 const NAMESPACE = 'tjw85';
 const MAIL_URL = `https://api.testmail.app/api/json?apikey=${API_KEY}&namespace=${NAMESPACE}&pretty=true`;
-const skipEmails = true; // ATTENTION: this flag will skip all email tests
+const skipEmails = false; // ATTENTION: this flag will skip all email tests
 
 const testmailClient = new GraphQLClient(
     // API endpoint:
@@ -163,7 +163,8 @@ const suite = function() {
                 this.timeout(1000 * 60); // extra timeout for this check
 
                 // range of the accepted receiving
-                const startDate = moment().subtract(1, 'minute');
+                const startDate = moment().subtract(5, 'minute');
+                console.log(`startDate: ${startDate.toISOString()}`);
                 service.studentUnbookLecture(student3.studentId, lecture6.courseId, lecture6.lectureId)
                     .then((availableSeats) => {
                         service.studentGetBookings(student2.studentId)
@@ -179,7 +180,8 @@ const suite = function() {
                                 retrieveEmails('student.storti')
                                     .then((response) => {
                                         // range of the accepted receiving
-                                        const endDate = moment().add(1, 'minute');
+                                        const endDate = moment().add(5, 'minute');
+                                        console.log(`endDate: ${endDate.toISOString()}`);
 
                                         let emails = response.inbox.emails;
                                         emails = emails.map((currEmail) => {
@@ -190,9 +192,9 @@ const suite = function() {
 
                                         for(let i of [ 0, 1 ]) { // take only the first 2 emails (previously sorted)
                                             const currEmail = emails[i];
+                                            console.log(`currEmail: ${currEmail.timestamp.toISOString()}`);
                                             let checks = true;
-                                            checks = checks && currEmail.subject.includes('TAKEN FROM THE WAITING LIST') ||
-                                                currEmail.subject.includes('LECTURE BOOKED');
+                                            checks = checks && currEmail.subject.includes('TAKEN FROM THE WAITING LIST') || currEmail.subject.includes('LECTURE BOOKED');
                                             assert.ok(checks, 'Wrong email action: \"' + currEmail.subject + '\"');
                                             checks = checks && currEmail.subject.includes(course6.description);
                                             assert.ok(checks, 'Wrong email course: \"' + currEmail.subject + '\"');

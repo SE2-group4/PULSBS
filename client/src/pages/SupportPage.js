@@ -35,13 +35,23 @@ class SupportPage extends React.Component {
     handleOnDrop = (data, name, filename) => {
         let type = filename.type;
         let match = filename.name.match(/.+(\.csv)$/);
-        if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel" || match) {
-            if (JSON.stringify(Object.getOwnPropertyNames(data[0].data)) !== JSON.stringify(fileProps.get(name)))
-                this.setState({ genError: filename.name + " is not in an expected format." });
-            else
-                this.setState({ [name]: data.length, [name + "File"]: filename });
-        } else
-            this.setState({ genError: filename.name + " is not a valid file (expected type: csv)." });
+        let valid = true;
+        for (let d of data)
+            if (d.errors.length)
+                valid = false;
+
+        if (!valid) {
+            this.setState({ genError: filename.name + " has an invalid row. Please check it again.", [name]: null, [name + "File"]: null });
+        }
+        else {
+            if (type === "text/csv" || type === ".csv" || type === "application/vnd.ms-excel" || match) {
+                if (JSON.stringify(Object.getOwnPropertyNames(data[0].data)) !== JSON.stringify(fileProps.get(name)))
+                    this.setState({ genError: filename.name + " is not in an expected format.", [name]: null, [name + "File"]: null });
+                else
+                    this.setState({ [name]: data.length, [name + "File"]: filename });
+            } else
+                this.setState({ genError: filename.name + " is not a valid file (expected type: csv).", [name]: null, [name + "File"]: null });
+        }
     }
 
     /**
@@ -89,58 +99,23 @@ class SupportPage extends React.Component {
      * Manages the API calls for each of the type of entry loaded
      */
     sendFiles = async () => {
-        let promises = [];
-        if (this.state.studentsArrayFile)
-            promises.push(API.uploadTEST(this.props.user.userId, "students", this.state.studentsArrayFile));
-        if (this.state.professorsArrayFile)
-            promises.push(API.uploadTEST(this.props.user.userId, "teachers", this.state.professorsArrayFile));
-        if (this.state.schedulesArrayFile)
-            promises.push(API.uploadTEST(this.props.user.userId, "schedules", this.state.schedulesArrayFile));
-        Promise.all(promises)
-            .then(() => {
-                this.uploadCoursesEnrollments(this.state.coursesArrayFile, this.state.enrollmentsArrayFile)
-                    .then(() => this.setState({ elems: null, success: true, loading: false })) //ok
-                    .catch((err) => {
-                        let errormsg = err.source + " : " + err.error;
-                        this.setState({ elems: null, genError: errormsg, loading: false });
-                        //API.resetDB().catch((error) => console.error(error));
-                    });
-            })
-            .catch((err) => {
-                let errormsg = err.source + " : " + err.error;
-                this.setState({ elems: null, genError: errormsg, loading: false });
-                //API.resetDB().catch((error) => console.error(error));
-            })
-
         this.setState({ show: false, loading: true });
-    }
-
-    uploadCoursesEnrollments = (courses, enrollments) => {
-        return new Promise((resolve, reject) => {
-            if (courses)
-                API.uploadTEST(this.props.user.userId, "courses", courses)
-                    .then(() => {
-                        if (enrollments)
-                            API.uploadTEST(this.props.user.userId, "enrollments", enrollments)
-                                .then(() => resolve()) //ok
-                                .catch((err) => {
-                                    reject(err);
-                                });
-                        else
-                            resolve(); //ok
-                    })
-                    .catch((err) => {
-                        reject(err);
-                    });
-            else if (!courses && enrollments)
-                API.uploadTEST(this.props.user.userId, "enrollments", enrollments)
-                    .then(() => resolve()) //ok
-                    .catch((err) => {
-                        reject(err);
-                    });
-            else
-                resolve(); //ok
-        });
+        try {
+            if (this.state.studentsArrayFile)
+                await API.uploadList(this.props.user.userId, "students", this.state.studentsArrayFile);
+            if (this.state.professorsArrayFile)
+                await API.uploadList(this.props.user.userId, "teachers", this.state.professorsArrayFile);
+            if (this.state.coursesArrayFile)
+                await API.uploadList(this.props.user.userId, "courses", this.state.coursesArrayFile);
+            if (this.state.schedulesArrayFile)
+                await API.uploadList(this.props.user.userId, "schedules", this.state.schedulesArrayFile);
+            if (this.state.enrollmentsArrayFile)
+                await API.uploadList(this.props.user.userId, "enrollments", this.state.enrollmentsArrayFile);
+            this.setState({ elems: null, success: true, loading: false }); //ok
+        } catch (err) {
+            let errormsg = err.error;
+            this.setState({ elems: null, genError: errormsg, loading: false });
+        }
     }
 
     /**
@@ -306,7 +281,6 @@ function GenericModal(props) {
         </Modal.Header>
         <Modal.Body>
             {props.success ? <>Operation successful!</> : <label data-testid="text-error">{props.error}</label>}
-            {props.error === "Upload : Server error" ? <><br />The database will be reset; please try again to load all files.</> : ""}
         </Modal.Body>
         <Modal.Footer>
             <Button name="close" data-testid="success-close" variant="secondary" onClick={props.success ? props.successClose : props.errorClose}>Close</Button>

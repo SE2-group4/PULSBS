@@ -6,7 +6,6 @@ import API from '../api/Api';
 import Chart from '../components/Chart';
 import BurgerSidebar from '../components/BurgerSidebar'
 import Badge from 'react-bootstrap/Badge'
-import Spinner from 'react-bootstrap/Spinner'
 import ErrorMsg from '../components/ErrorMsg';
 class TeacherStatsPage extends React.Component {
     constructor(props) {
@@ -51,7 +50,7 @@ class TeacherStatsPage extends React.Component {
 
     render() {
         if (this.state.fetchError) {
-            return <ErrorMsg msg="Ops,an error occured during server communication" />
+            return <ErrorMsg msg="Ops,an error occured during server communication" onClose={() => { }} />
         }
         return (<>
             <BurgerSidebar courses={this.state.courses} generateGraph={this.generateGraph} />

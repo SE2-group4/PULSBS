@@ -124,7 +124,8 @@ describe("SupportUpdatePage suite", () => {
             userEvent.click(screen.getByTestId("2-button"))
         });
 
-        expect(screen.getByTestId("2-button").innerHTML).toBe('Change to "Remote"     ')
+        let string = 'Change to "Remote"  '
+        expect(screen.getByTestId("2-button").innerHTML).toHaveLength(string.length)
     })
 
     test("Change page", async () => {

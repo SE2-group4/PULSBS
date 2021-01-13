@@ -17,7 +17,7 @@ const colors = require("colors");
  * @param {Boolean} flag
  * @returns {Promise} promise
  */
-function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = true) {
+function prepare(dbpath = "PULSBS.db", dbscript = "PULSBS.sql", flag = false) {
     return new Promise((resolve, reject) => {
         const cwd = __dirname;
         dbpath = path.join(cwd, dbpath);

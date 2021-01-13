@@ -10,6 +10,8 @@ import Pagination from 'react-bootstrap/Pagination';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { GoCheck } from 'react-icons/go';
+import Spinner from 'react-bootstrap/Spinner';
+import moment from 'moment'
 
 const Checkbox = ({ name, checked = false, onChange, type }) => (
     <Form.Check name={name} checked={checked} onChange={onChange} data-testid={type + "-" + name} />
@@ -181,7 +183,7 @@ function LecturePanelRow(props) {
     let deliveryText = props.lecture.delivery ? props.lecture.delivery.charAt(0) + props.lecture.delivery.substring(1).toLowerCase() : "";
     return <tr data-testid="lecture-row">
         <td>{props.lecture.lectureId}</td>
-        <td>{date.toLocaleDateString()}{" " + (date.toLocaleTimeString()).slice(0, 5)}</td>
+        <td>{date.toLocaleDateString()}{" " + (date.toLocaleTimeString()).slice(0, 5)} {moment().isBetween(moment(date), moment(date).add(props.lecture.duration, "milliseconds")) && <Spinner animation="grow" variant="success" size="sm"></Spinner>}</td>
         <td>{deliveryText}</td>
         <td>{props.lecture.delivery === 'REMOTE' &&
             <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Can't switch delivery to Presence.</Tooltip>}>

@@ -16,6 +16,7 @@ const utils = require("../utils/utils");
 const fs = require("fs");
 const check = require("../utils/checker");
 const csv = require("csvtojson");
+const moment = require("moment");
 
 const errno = ResponseError.errno;
 
@@ -37,6 +38,7 @@ const DB_TABLES = {
             "Id",
             { func: { name: getDefaultPassword, args: undefined } },
         ],
+        minFields: ["Id", "Name", "Surname", "OfficialEmail", "SSN", "Birthday", "City"],
     },
     TEACHERS: {
         name: "User",
@@ -50,11 +52,13 @@ const DB_TABLES = {
             "Number",
             { func: { name: getDefaultPassword, args: undefined } },
         ],
+        minFields: ["Number", "GivenName", "Surname", "OfficialEmail", "SSN"],
     },
     COURSES: {
         name: "Course",
         mapTo: ["description", "year", "code", "semester"],
         mapFrom: ["Course", "Year", "Code", "Semester"],
+        minFields: ["Code", "Year", "Semester", "Course", "Teacher"],
     },
     TEACHERCOURSE: {
         name: "TeacherCourse",
@@ -64,6 +68,7 @@ const DB_TABLES = {
             { func: { name: getCourseIdFromCode, args: ["courseCode"] } },
             { func: { name: getIsValid, args: undefined } },
         ],
+        minFields: ["Code", "Year", "Semester", "Course", "Teacher"],
     },
     ENROLLMENTS: {
         name: "Enrollment",
@@ -73,6 +78,7 @@ const DB_TABLES = {
             { func: { name: getCourseIdFromCode, args: ["Code"] } },
             { func: { name: getAAyear, args: undefined } },
         ],
+        minFields: ["Code", "Student"],
     },
     SCHEDULES: {
         name: "Schedule",
@@ -87,6 +93,7 @@ const DB_TABLES = {
             { func: { name: getStartingTime, args: ["Time"] } },
             { func: { name: getEndingTime, args: ["Time"] } },
         ],
+        minFields: ["Code", "Room", "Day", "Seats", "Time"],
     },
 };
 
@@ -260,7 +267,10 @@ async function updateCourseLecture(supportId, courseId, lectureId, switchTo) {
  **/
 async function manageFileUpload(req) {
     if (!req.file) throw genResponseError(errno.FILE_MISSING);
+
+    // convert the csv file into an array of objects
     const entities = await csv().fromFile(req.file.path);
+
     return await manageEntitiesUpload(entities, req.path, req.file.originalname);
 }
 
@@ -278,34 +288,34 @@ async function manageEntitiesUpload(entities, path, filename) {
         throw genResponseError(errno.ENTITY_TYPE_NOT_VALID, { type: path });
     }
 
-    //console.time("phase: mapping");
-    // map each entry of entities as a new object with the properties defined in DB_TABLES[<entityType>].mapTo
-    const sanitizedEntities = await sanitizeEntities(entities, entityType);
-    //console.timeEnd("phase: mapping");
-
-    //console.time("phase: query gen");
-    // create the queries
-    const sqlQueries = genSqlQueries("INSERT", entityType, sanitizedEntities);
-    //console.timeEnd("phase: query gen");
-
-    //console.time("phase: query run");
-    // run the queries
     try {
+        //console.time("phase: mapping");
+        // map each entry of entities as a new object with the properties defined in DB_TABLES[<entityType>].mapTo
+        const sanitizedEntities = await sanitizeEntities(entities, entityType);
+        //console.timeEnd("phase: mapping");
+
+        //console.time("phase: query gen");
+        // create the queries
+        const sqlQueries = genSqlQueries("INSERT", entityType, sanitizedEntities);
+        //console.timeEnd("phase: query gen");
+
+        //console.time("phase: query run");
+        // run the queries
         await runBatchQueries(sqlQueries);
+        //console.timeEnd("phase: query run");
+
+        // check if we need to do any more processing,
+        // i.e. when uploading the schedules we need to also generate the lectures
+        // i.e. when uploading the courses we need to also update the TeacherCourse table
+        if (needAdditionalSteps(entityType)) {
+            return await callNextStep(entityType, entities, sanitizedEntities);
+        }
+
+        return 204;
     } catch (err) {
         const message = { filename, reason: err.payload.message };
         throw genResponseError(errno.FILE_INCORRECT_FORMAT, message);
     }
-    //console.timeEnd("phase: query run");
-
-    // check if we need to do any more processing,
-    // i.e. when uploading the schedules we need to also generate the lectures
-    // i.e. when uploading the courses we need to also update the TeacherCourse table
-    if (needAdditionalSteps(entityType)) {
-        return await callNextStep(entityType, entities, sanitizedEntities);
-    }
-
-    return 204;
 }
 
 function needAdditionalSteps(currStep) {
@@ -320,7 +330,9 @@ function needAdditionalSteps(currStep) {
  * do more processing
  *
  * currStep {String} the previous step, i.e. the entity type
- * args {Array} of Object. args[0] is the uploaded entities, args[1] are the sanitized entities
+ * args {Array} of Object.
+ * - args[0] are the uploaded entities
+ * - args[1] are the sanitized entities
  *
  * returns {Integer} 204. A ResponseError on error
  **/
@@ -338,9 +350,7 @@ async function callNextStep(currStep, ...args) {
             });
 
             try {
-                console.log("calling _generateLecturesBySchedule");
-                console.log(schedules[0]);
-                await db._generateLecturesBySchedule(schedules[0], db.DaoHint.NEW_VALUE);
+                for (const schedule of schedules) await db._generateLecturesBySchedule(schedule, db.DaoHint.NEW_VALUE);
             } catch (err) {
                 console.log("sono catch di callNextStep");
                 console.log(err);
@@ -356,6 +366,26 @@ async function callNextStep(currStep, ...args) {
 }
 
 /**
+ * check if every obj in entities has the expected fields defined in the DB_TABLES[entityType]
+ * entities {Array} of Objects.
+ * entityType {String} look at ACCEPTED_ENTITIES
+ *
+ * returns {Boolean}
+ **/
+const hasExpFields = (entities, entityType) => {
+    const minExpFields = DB_TABLES[entityType].minFields;
+
+    for (const entity of entities) {
+        const hasAll = minExpFields.every((name) => entity.hasOwnProperty(name));
+        if (!hasAll) {
+            throw genResponseError(errno.ENTITY_MISSING_FIELDS, { fields: minExpFields });
+        }
+    }
+
+    return true;
+};
+
+/**
  * map each entry of entities as a new object with the properties defined in DB_TABLES[<entityType>].mapTo
  * entities {Array} of Objects. Es. [{}, {}] for the list of properties of a object look at .csv files at https://softeng.polito.it/courses/SE2/PULSeBS_Stories.html
  * entityType {String} look at ACCEPTED_ENTITIES
@@ -365,24 +395,60 @@ async function callNextStep(currStep, ...args) {
 async function sanitizeEntities(entities, entityType) {
     switch (entityType) {
         case "STUDENTS": {
+            hasExpFields(entities, entityType);
+
             return sanitizeUserEntities(entities, entityType);
         }
         case "TEACHERS": {
+            hasExpFields(entities, entityType);
+
             return sanitizeUserEntities(entities, entityType);
         }
         case "COURSES": {
+            hasExpFields(entities, entityType);
+
+            // check that every teacher is already in the db. Otherwise throw an error
+            await checkForTeachersPresence(entities);
+
             return sanitizeGenericEntities(entities, entityType);
         }
         case "ENROLLMENTS": {
+            hasExpFields(entities, entityType);
+
             return await sanitizeEnrollmentsEntities(entities, entityType);
         }
         case "SCHEDULES": {
+            hasExpFields(entities, entityType);
+
+            // check that every code is already in the db. Otherwise throw an error
+            await checkForCoursePresence(entities);
+
             return sanitizeGenericEntities(entities, entityType);
         }
         case "TEACHERCOURSE": {
+            hasExpFields(entities, entityType);
+
             return await sanitizeTeacherCourseEntities(entities, entityType);
         }
     }
+}
+
+/**
+ * Check that every teacher is already in the system. It looks for the "serialNumber".
+ * It throws an error in case the entity is not found.
+ */
+async function checkForTeachersPresence(entities) {
+    await updateAndSort("TEACHER", Teacher.getComparator("serialNumber"));
+    entities.forEach((entity) => getTeacherIdFromSerialNumber(entity.Teacher));
+}
+
+/**
+ * Check that every course is already in the system. It looks for the "code".
+ * It throws an error in case the entity is not found.
+ */
+async function checkForCoursePresence(entities) {
+    await updateAndSort("COURSE", Course.getComparator("code"));
+    entities.forEach((entity) => getCourseIdFromCode(entity.Code));
 }
 
 /**
@@ -439,7 +505,8 @@ function getSemester() {
 function getStartingTime(orario) {
     const regex = /[0-9]+/g;
     const match = orario.match(regex);
-    return `${match[0]}:${match[1]}:00`;
+    const dateString = `${match[0]}:${match[1]}:00`;
+    return moment(dateString, "hh:mm:ss").format("HH:mm:ss"); // 2 digits for the hour needed
 }
 
 /**
@@ -450,7 +517,8 @@ function getStartingTime(orario) {
 function getEndingTime(orario) {
     const regex = /[0-9]+/g;
     const match = orario.match(regex);
-    return `${match[2]}:${match[3]}:00`;
+    const dateString = `${match[2]}:${match[3]}:00`;
+    return moment(dateString, "hh:mm:ss").format("HH:mm:ss"); // 2 digits for the hour needed
 }
 
 /**
@@ -591,9 +659,7 @@ function logToFile(queries) {
 
 async function runBatchQueries(sqlQueries) {
     try {
-        console.time("batch");
         await db.execBatch(sqlQueries);
-        console.timeEnd("batch");
         logToFile(sqlQueries);
     } catch (err) {
         let typeError = errno.DB_GENERIC_ERROR;
@@ -703,15 +769,20 @@ const supportOfficerGetSchedules = async function supportOfficerGetSchedules({ m
 
 /**
  * update an existing schedule
- * @param {Object} param - supportId, scheduleId, schedule
+ * @param {Object} param - supportId, scheduleId
+ * @param {Object} body - schedule
  * @returns {Number} number of updated schedules
  */
-const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule({ managerId, scheduleId, schedule }) {
+const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule({ managerId, scheduleId }, schedule) {
     scheduleId = Number(scheduleId);
-    schedule.scheduleId = scheduleId;
+    console.log(schedule);
+    const paramSchedule = Schedule.from(schedule);
+    paramSchedule.scheduleId = scheduleId;
 
     // check if it exists
-    await db.getScheduleById(schedule);
+    const actualSchedule = await db.getScheduleById(paramSchedule);
+    console.log("actual schedule into DB");
+    console.log(actualSchedule);
 
     /*
     PREVIEW PROTOTYPE
@@ -735,20 +806,27 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
         ]
     }
     */
-    const preview = db.getUpdateSchedulePreview(schedule); // get a preview of data which will be modified
-    const retVal = await db.updateSchedule(schedule);
+    console.log("generating preview...".cyan);
+    const preview = await db.getUpdateSchedulePreview(paramSchedule); // get a preview of data which will be modified
+    console.log("preview okay".cyan);
 
     // get all booked students for each lecture which should be modified
     let promises = [];
-    for (const lectureRow in preview.lectures) {
+    for (const lectureRow of preview.lectures) {
+        // console.log(lectureRow);
         promises.push(db.getBookedStudentsByLecture(lectureRow.currentLecture));
     }
     const studentsPerLecture = await Promise.all(promises);
+
+    const retVal = await db.updateSchedule(paramSchedule);
+    console.log("schedule update okay".cyan);
+
     // parallel arrays: studentsPerLecture[i] refers to preview.lectures[i]
 
-    console.log("supportOfficerUpdateSchedule - preview");
-    console.log(preview);
+    // console.log("supportOfficerUpdateSchedule - preview");
+    // console.log(preview);
 
+    console.log("sending emails...".cyan);
     promises = [];
     for (let i = 0; i < preview.lectures.length; i++) {
         const lectureRow = preview.lectures[i];
@@ -756,15 +834,19 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
         const newLecture = lectureRow.newLecture;
         const students = studentsPerLecture[i];
 
-        for (const student in students) {
-            const defaultEmail = emailService.getDefaultEmail(Email.EmailType.STUDENT_UPDATE_SCHEDULE, [
+        for (const studentRow of students) {
+            const student = studentRow.student;
+            console.log("current student to inform of the schedule update:");
+            console.log(student);
+            console.log(student.email);
+            const defaultEmail = EmailService.getDefaultEmail(Email.EmailType.STUDENT_UPDATE_SCHEDULE, [
                 preview.course.description,
                 utils.formatDate(currentLecture.date),
                 preview.classes.currentClass.description,
                 utils.formatDate(newLecture.date),
                 preview.classes.newClass.description,
             ]);
-            promises.push(emailService.sendCustomMail(actualStudent.email, defaultEmail.subject, defaultEmail.message));
+            promises.push(EmailService.sendCustomMail(student.email, defaultEmail.subject, defaultEmail.message));
         }
     }
     await Promise.all(promises); // send all emails in a sync way

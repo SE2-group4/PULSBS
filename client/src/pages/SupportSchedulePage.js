@@ -18,7 +18,7 @@ const scheduleForPage = 10;
 class SupportSchedulePage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { schedules: null, courses: null, rooms: null, filters: null, genError: null, loading: true, currPage: 1, selectedSchedule: null }
+        this.state = { schedules: null, courses: null, rooms: null, filters: null, genError: null, putError: null, loading: true, currPage: 1, selectedSchedule: null }
     }
 
     async componentDidMount() {
@@ -26,9 +26,13 @@ class SupportSchedulePage extends React.Component {
             let schedules = await API.getSchedulesBySupportId(this.props.user.userId);
             let courses = await API.getCoursesBySupportId(this.props.user.userId);
             let rooms = await API.getRoomsBySupportId(this.props.user.userId);
-            let filters = courses.map((c) => c.description);
-            let rooms_ = rooms.map((r) => r.description);
-            this.setState({ schedules: schedules, courses: courses, rooms: rooms_, filters: filters, loading: false });
+            let schedules_ = schedules.map((s) => {
+                let roomid = s.roomId;
+                s.roomId = roomid.toString();
+                return s;
+            })
+            let filters = courses.map((c) => c.description + "-" + c.code);
+            this.setState({ schedules: schedules_, courses: courses, rooms: rooms, filters: filters, loading: false });
         } catch (err) {
             let errormsg = err.source + " : " + err.error;
             this.setState({ genError: errormsg, loading: false });
@@ -36,6 +40,9 @@ class SupportSchedulePage extends React.Component {
 
     }
 
+    closeError = () => {
+        this.setState({ putError: null });
+    }
     changePage = (number) => {
         if (number)
             this.setState({ currPage: number });
@@ -52,10 +59,10 @@ class SupportSchedulePage extends React.Component {
     changeFilters = (desc) => {
         let filters;
         if (desc === "All")
-            filters = this.state.courses.map((c) => c.description);
+            filters = this.state.courses.map((c) => c.description + "-" + c.code);
         else
-            filters = [desc,];
-        this.setState({ filters: filters });
+            filters = [desc];
+        this.setState({ filters: filters, currPage: 1 });
 
     }
 
@@ -66,7 +73,6 @@ class SupportSchedulePage extends React.Component {
         newSchedule.roomId = this.state.selectedSchedule.roomId === room ? null : room;
         newSchedule.startingTime = this.state.selectedSchedule.startingTime === startingTime ? null : startingTime;
         newSchedule.endingTime = this.state.selectedSchedule.endingTime === endingTime ? null : endingTime;
-
         API.changeScheduleData(this.props.user.userId, newSchedule)
             .then(() => {
                 //ok from server
@@ -81,26 +87,36 @@ class SupportSchedulePage extends React.Component {
             .catch((err) => {
                 //error
                 let errormsg = err.source + " : " + err.error;
-                this.setState({ genError: errormsg, selectedSchedule: null });
+                this.setState({ putError: errormsg, selectedSchedule: null });
             });
     }
 
     render() {
         if (this.state.genError)
-            return <ErrorMsg msg={this.state.genError} />;
+            return <Col sm={4}>
+                <ErrorMsg msg={this.state.genError} onClose={() => { }} />
+            </Col>;
         if (this.state.loading)
             return <Spinner animation="border" ></Spinner>;
+        let filtered = this.state.schedules.filter((s) => this.state.filters.indexOf(courseName(s.code, this.state.courses) + "-" + s.code) !== -1);
+        console.log(filtered)
+        //console.log(filtered.length);
         return <>
-            {this.state.selectedSchedule && <FormModal schedule={this.state.selectedSchedule} close={this.closeModal} courses={this.state.courses} rooms={this.state.rooms} submitData={this.submit} />}
+            {this.state.selectedSchedule &&
+                <FormModal schedule={this.state.selectedSchedule} close={this.closeModal} courses={this.state.courses} rooms={this.state.rooms} submitData={this.submit} />}
             <Container fluid>
                 <Row>
-                    <Col sm={10}>
-                        <Col sm={4}>
-                            <Filters courses={this.state.courses} change={this.changeFilters} />
-                        </Col>
-                        <br />
-                        <ScheduleTable schedules={this.state.schedules} current={this.state.currPage} edit={this.openModal} courses={this.state.courses} filters={this.state.filters} />
+                    <Col sm={6}>
+                        <Filters courses={this.state.courses} change={this.changeFilters} />
                     </Col>
+                    <Col sm={4}>
+                        {this.state.putError && <ErrorMsg msg={this.state.putError} onClose={this.closeError} />}
+                    </Col>
+                </Row>
+                <br />
+                <Row>
+                    <ScheduleTable schedules={filtered} current={this.state.currPage} edit={this.openModal} courses={this.state.courses} rooms={this.state.rooms}
+                        filters={this.state.filters} onClick={this.changePage} />
                 </Row>
             </Container>
         </>;
@@ -113,14 +129,15 @@ function Filters(props) {
             <strong>Select a course : </strong>
             <Form.Control as="select" data-testid="courseSelect" custom onChange={(ev) => { props.change(ev.target.value) }} >
                 <option key="All" value="All" data-testid="All" >All</option>
-                {props.courses.map((course) => { return (<option key={course.courseId} data-testid={"c" + course.courseId} value={course.description} >{course.description}</option>) })}
+                {props.courses.map((course) => { return (<option key={course.courseId} data-testid={"c" + course.courseId} value={course.description + "-" + course.code} >{course.description + " - " + course.code}</option>) })}
             </Form.Control>
         </Jumbotron>;
 }
 
 function ScheduleTable(props) {
-    let filtered = props.schedules.filter((s) => props.filters.indexOf(courseName(s.code, props.courses)) !== -1);
+    let filtered = props.schedules;
     let nPages = Math.ceil(filtered.length / scheduleForPage);
+    console.log(nPages)
     let items = [];
     let tableEntries = [];
     if (filtered.length !== 0) {
@@ -131,23 +148,22 @@ function ScheduleTable(props) {
                 </Pagination.Item>,
             );
         }
-
         for (let entry = (props.current - 1) * scheduleForPage; entry <= props.current * scheduleForPage - 1; entry++) {
             let schedule = filtered[entry];
             if (schedule)
-                tableEntries.push(<ScheduleRow key={schedule.scheduleId} schedule={schedule} edit={props.edit} courses={props.courses} />);
+                tableEntries.push(<ScheduleRow key={schedule.scheduleId} schedule={schedule} edit={props.edit} courses={props.courses} rooms={props.rooms} />);
         }
     }
-
     return <>
-        <Table striped hover>
+        <Table striped bordered hover>
             <thead style={{ whiteSpace: "nowrap" }}>
                 <tr>
                     <th>Schedule Id</th>
                     <th>Course</th>
+                    <th>Code</th>
                     <th>AAyear</th>
                     <th>Semester</th>
-                    <th>Room Id</th>
+                    <th>Room</th>
                     <th>Day</th>
                     <th>Starting Time</th>
                     <th>Ending Time</th>
@@ -158,7 +174,7 @@ function ScheduleTable(props) {
                 {tableEntries}
             </tbody>
         </Table>
-        {nPages > 1 && <Pagination onClick={(ev) => this.onClick(ev.target.text)}>{items}</Pagination>}
+        {nPages > 1 && <Pagination onClick={(ev) => props.onClick(ev.target.text)}>{items}</Pagination>}
         {filtered.length === 0 && <label>No schedules available.</label>}
     </>;
 }
@@ -167,6 +183,7 @@ function ScheduleRow(props) {
     return <tr data-testid="schedule-row">
         <td>{props.schedule.scheduleId}</td>
         <td>{courseName(props.schedule.code, props.courses)}</td>
+        <td>{props.schedule.code}</td>
         <td>{props.schedule.AAyear}</td>
         <td>{props.schedule.semester}</td>
         <td>{props.schedule.roomId}</td>
@@ -178,7 +195,7 @@ function ScheduleRow(props) {
 }
 
 const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const startingTimes = ["8:30", "10:00", "11:30", "13:00", "14:30", "16:00", "17:30"];
+const startingTimes = ["08:30", "10:00", "11:30", "13:00", "14:30", "16:00", "17:30"];
 const endingTimes = ["10:00", "11:30", "13:00", "14:30", "16:00", "17:30", "19:00"];
 
 class FormModal extends React.Component {
@@ -219,7 +236,7 @@ class FormModal extends React.Component {
                 <Modal.Title>Edit Schedule</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Table>
+                <Table bordered>
                     <thead style={{ whiteSpace: "nowrap" }}>
                         <tr>
                             <th>Course</th>
@@ -251,9 +268,9 @@ class FormModal extends React.Component {
                         </Form.Control>
                     </Col>
                     <Col sm={3}>
-                        <b>Room Id:</b>
+                        <b>Room:</b>
                         <Form.Control as="select" data-testid="roomSelect" custom onChange={(ev) => { this.changeRoom(ev.target.value) }} >
-                            {this.props.rooms.map((r) => <option key={r} data-testid={"room-option"} value={r} selected={r === this.state.room ? true : false}>{r}</option>)}
+                            {this.props.rooms.map((r) => <option key={r.classId} data-testid={"room-option"} value={r.description} selected={r.description === this.state.room ? true : false}>{r.description}</option>)}
                         </Form.Control>
                     </Col>
                     <Col sm={3}>
@@ -277,9 +294,9 @@ class FormModal extends React.Component {
     }
 }
 
-function courseName(id, courses) {
+function courseName(code, courses) {
     for (let course of courses)
-        if (course.courseId === id)
+        if (course.code === code)
             return course.description
 }
 
@@ -296,10 +313,9 @@ function updateStartingTime(endingTime, startingTimes_) {
 }
 
 function somethingChanged(oldSchedule, day, room, st, et) {
-    if (oldSchedule.dayOfWeek !== day || (oldSchedule.roomId).toString() !== room || oldSchedule.startingTime !== st || oldSchedule.endingTime !== et)
+    if (oldSchedule.dayOfWeek !== day || oldSchedule.roomId !== room || oldSchedule.startingTime !== st || oldSchedule.endingTime !== et)
         return true;
-    else
-        return false;
+    return false;
 }
 
 export default SupportSchedulePage;

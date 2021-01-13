@@ -47,21 +47,6 @@ INSERT INTO Class(classId, description, capacity) VALUES(1, '1A', 10);
 INSERT INTO Class(classId, description, capacity) VALUES(2, '2B', 10);
 INSERT INTO Class(classId, description, capacity) VALUES(3, '3C', 10);
 
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(1, 1, 1, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(2, 2, 2, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(3, 3, 3, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(4, 1, 3, DATETIME('now', '+2 day', 'start of day', '10 hours', '00 minutes'), 1000*60*90, DATETIME('now', '1 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(5, 6, 3, DATETIME('now', '-2 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', '-3 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(6, 6, 3, DATETIME('now', '+2 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', '+1 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
-
-INSERT INTO Booking(studentId, lectureId, status) VALUES(1, 1, 'BOOKED');
-INSERT INTO Booking(studentId, lectureId, status) VALUES(1, 4, 'BOOKED');
-INSERT INTO Booking(studentId, lectureId, status) VALUES(1, 5, 'PRESENT');
-INSERT INTO Booking(studentId, lectureId, status) VALUES(2, 2, 'BOOKED');
-INSERT INTO Booking(studentId, lectureId, status) VALUES(2, 5, 'PRESENT');
-INSERT INTO Booking(studentId, lectureId, status) VALUES(3, 3, 'BOOKED');
-INSERT INTO Booking(studentId, lectureId, status) VALUES(3, 6, 'BOOKED');
-
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(6, 'STUDENT', 'Fake', 'Student', 'fakeStudent.se2@gmail.com', 'anvzRPuDd1mvCXJBfn');
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(7, 'TEACHER', 'Fake', 'Teacher', 'fakeTeacher.se2@gmail.com', 'anvzRPuDd1mvCXJBfn');
 
@@ -75,12 +60,14 @@ INSERT INTO WaitingList(studentId, lectureId, date) VALUES(2, 6, DATETIME('now',
 INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(1, '1', '2020', '1', '1A', '10', 'Mon', DATETIME('08:30'), DATETIME('10:00'));
 INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(2, '2', '2020', '1', '2B', '10', 'Mon', DATETIME('08:30'), DATETIME('10:00'));
 INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(3, '3', '2020', '2', '3C', '10', 'Mon', DATETIME('08:30'), DATETIME('10:00'));
-INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(4, '4', '2020', '2', '9Z', '10', 'Tue', DATETIME('08:30'), DATETIME('10:00'));
-INSERT INTO Schedule(scheduleId, code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime) VALUES(5, '5', '2020', '1', '2B', '10', 'Tue', DATETIME('08:30'), DATETIME('10:00'));
 
 -- Lecture related to schedules
 -- weekday: 0 Sunday, 1 Monday, 2 Tuesday ...
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(8, 4, 2, DATETIME('now', 'weekday 1', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'weekday 1', 'start of day', '23 hours', '00 minutes'), 'PRESENCE');
+INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(1, 1, 1, DATETIME('now', 'weekday 1', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'weekday 0', 'start of day', '23 hours', '00 minutes'), 'PRESENCE');
+INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(2, 1, 1, DATETIME('now', 'weekday 1', 'start of day', '1 week', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'weekday 0', 'start of day', '1 week', '23 hours', '00 minutes'), 'PRESENCE');
+INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(3, 1, 1, DATETIME('now', 'weekday 1', 'start of day', '2 week', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'weekday 0', 'start of day', '1 week', '23 hours', '00 minutes'), 'PRESENCE');
+
+INSERT INTO Booking(studentId, lectureId, status) VALUES(1, 1, 'BOOKED');
 
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(1, DATETIME('now', '-1 month', 'start of day'), DATETIME('now', '+8 month', 'start of day'), 'ACADEMIC_YEAR', 1);
 INSERT INTO Calendar(calendarId, startingDate, endingDate, type, isAValidPeriod) VALUES(2, DATETIME('now', '-1 month', 'start of day'), DATETIME('now', '+3 month', 'start of day'), 'SEMESTER', 1);
@@ -128,8 +115,8 @@ CREATE TRIGGER check_time_overlapping_before_update_schedule
                     code = NEW.code
                     AND scheduleId <> NEW.scheduleId
                     AND dayOfWeek = NEW.dayOfWeek
-                    AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
-                    AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
+                    AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
 			THEN RAISE(ABORT, 'New schedule overlapped with an existing one with the same code')
 		END IF;
 		SELECT CASE WHEN (
@@ -140,8 +127,8 @@ CREATE TRIGGER check_time_overlapping_before_update_schedule
                     AND AAyear = NEW.AAyear
                     AND semester = NEW.semester
                     AND dayOfWeek = NEW.dayOfWeek
-                    AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
-                    AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
+                    AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
 			THEN RAISE(ABORT, 'New schedule overlapped with an existing one in the same class')
 		END IF;
 	END;

@@ -4,8 +4,6 @@ import SupportSchedulePage from "../pages/SupportSchedulePage";
 import User from '../entities/user';
 import fetchMock from "jest-fetch-mock";
 import userEvent from '@testing-library/user-event';
-import Lecture from '../entities/lecture';
-import Course from '../entities/course';
 import Schedule from '../entities/schedule';
 
 fetchMock.enableMocks();
@@ -17,15 +15,15 @@ beforeEach(() => {
 const officer = new User(1, "SUPPORT", "Pino", "Insegno", "officer@test.it", "mercanteinfiera");
 
 const schedules = [
-    new Schedule(1, 1, 1, 1, 'r1', 10, 'Mon', '8:30', '11:30'),
-    new Schedule(2, 2, 1, 1, 'r2', 10, 'Wed', '14:30', '16:00'),
+    new Schedule(1, "1", 1, 1, "r1", 10, 'Mon', '8:30', '11:30'),
+    new Schedule(2, "2", 1, 1, "r2", 10, 'Wed', '14:30', '16:00'),
 ];
 
-const rooms = [{ description: "r1" }, { description: "r2" }, { description: "r3" }];
+const rooms = [{ classId: 1, description: "r1" }, { classId: 2, description: "r2" }, { classId: 3, description: "r3" }];
 
 const courses = [
-    new Course(1, "Web Application 1", "2020"),
-    new Course(2, "Data Science", "2020"),
+    { courseId: 1, description: "Web Application 1", code: "1" },
+    { courseId: 2, description: "Data Science", code: "2" },
 ]
 
 async function setupSupportSchedulePage() {
@@ -52,16 +50,16 @@ describe("SupportSchedulePage suite", () => {
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : Application parse error")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (schedules API failure: server error)", async () => {
         fetch.mockResponses(
-            [JSON.stringify({ body: "not ok" }), { status: 400 }],
+            [JSON.stringify({ message: "not_ok" }), { status: 400 }],
         )
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : not_ok")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (schedules API failure: server parse error)", async () => {
         fetch.mockResponses(
@@ -70,14 +68,14 @@ describe("SupportSchedulePage suite", () => {
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : Server error")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (schedules API failure: connection error)", async () => {
         fetch.mockRejectOnce();
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : Server connection error")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (rooms API failure: application parse error)", async () => {
         fetch.mockResponses(
@@ -88,18 +86,18 @@ describe("SupportSchedulePage suite", () => {
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : Application parse error")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (rooms API failure: server error)", async () => {
         fetch.mockResponses(
             [JSON.stringify(schedules), { status: 200 }],
             [JSON.stringify(courses), { status: 200 }],
-            [JSON.stringify({ body: "not ok" }), { status: 400 }]
+            [JSON.stringify({ message: "not_ok" }), { status: 400 }]
         )
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : not_ok")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (rooms API failure: server parse error)", async () => {
         fetch.mockResponses(
@@ -110,7 +108,7 @@ describe("SupportSchedulePage suite", () => {
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : Server error")).toBeInTheDocument();
     })
     test("render SupportSchedulePage component (rooms API failure: connection error)", async () => {
         fetch.mockResponses(
@@ -120,15 +118,14 @@ describe("SupportSchedulePage suite", () => {
         await act(async () => {
             render(<SupportSchedulePage user={officer} />)
         })
-        //TO_DO expect
+        expect(screen.getByText("SupportOfficer : Server connection error")).toBeInTheDocument();
     })
-
     test("click on course select", async () => {
         await setupSupportSchedulePage();
         let items = screen.getAllByTestId("schedule-row");
         expect(items).toHaveLength(2);
         await act(async () => {
-            fireEvent.change(screen.getByTestId("courseSelect"), { target: { value: "Web Application 1" } })
+            fireEvent.change(screen.getByTestId("courseSelect"), { target: { value: "Web Application 1-1" } })
         });
         items = screen.getAllByTestId("schedule-row");
         expect(items).toHaveLength(1);
@@ -165,7 +162,7 @@ describe("SupportSchedulePage suite", () => {
             fireEvent.change(screen.getByTestId("daySelect"), { target: { value: "Fri" } })
         });
         await act(async () => {
-            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: "r3" } })
+            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: 'r3' } })
         });
         await act(async () => {
             fireEvent.change(screen.getByTestId("stSelect"), { target: { value: "16:00" } })
@@ -210,7 +207,7 @@ describe("SupportSchedulePage suite", () => {
             userEvent.click(screen.getByTestId('edit-2'));
         });
         await act(async () => {
-            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: "r3" } })
+            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: 'r3' } })
         });
         fetch.mockResponseOnce({}, { status: 400 });
         await act(async () => {
@@ -224,7 +221,7 @@ describe("SupportSchedulePage suite", () => {
             userEvent.click(screen.getByTestId('edit-2'));
         });
         await act(async () => {
-            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: "r1" } })
+            fireEvent.change(screen.getByTestId("roomSelect"), { target: { value: 'r1' } })
         });
         fetch.mockRejectOnce();
         await act(async () => {
@@ -232,5 +229,4 @@ describe("SupportSchedulePage suite", () => {
         });
         expect(screen.getByText("SupportOfficer : Server error")).toBeInTheDocument();
     })
-
 });

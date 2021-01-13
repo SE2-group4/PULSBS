@@ -205,7 +205,7 @@ function FormBox(props) {
             {
                 props.fetchError &&
                 <>
-                    <ErrorMsg msg="Error during server communication" />
+                    <ErrorMsg msg="Error during server communication" onClose={() => { }} />
                     <Button variant="warning" disabled>Generate Tracing Report</Button>
                 </>
 

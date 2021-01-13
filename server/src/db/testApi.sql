@@ -11,8 +11,8 @@ DELETE FROM Course;
 DELETE FROM User;
 DELETE FROM Calendar;
 
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(1, 'STUDENT', 'Aldo', 'Baglio', 'tjw85.student.baglio@inbox.testmail.app', 'aldo');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, serialNumber) VALUES(1, 'STUDENT', 'Aldo', 'Baglio', 'tjw85.student.baglio@inbox.testmail.app', 'aldo', "ssnBaglio", "snBaglio");
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, serialNumber) VALUES(2, 'STUDENT', 'Giovanni', 'Storti', 'tjw85.student.storti@inbox.testmail.app', 'giovanni', "ssnStorti", "snStorti");
 INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(3, 'STUDENT', 'Silvana', 'Fallisi', 'tjw85.student.fallisi@inbox.testmail.app', 'silvana');
 
 INSERT INTO Course(courseId, description, year, semester, code) VALUES(1, 'Software enginnering 2', 2020, 1, "PERS1");
@@ -21,8 +21,8 @@ INSERT INTO Course(courseId, description, year, semester, code) VALUES(3, 'Machi
 INSERT INTO Course(courseId, description, year, semester, code) VALUES(4, 'Web application', 2020, 1, "PERS4");
 -- INSERT INTO Course(courseId, description, year, semester, code) VALUES(5, 'ANONYMOUS', 2020, 1, "XY8221");
 
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'tjw85.teacher.poretti@inbox.testmail.app', 'giacomo');
-INSERT INTO User(userId, type, firstName, lastName, email, password) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'tjw85.teacher.massironi@inbox.testmail.app', 'marina');
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, serialNumber) VALUES(4, 'TEACHER', 'Giacomo', 'Poretti', 'tjw85.teacher.poretti@inbox.testmail.app', 'giacomo', "ssnPoretti", "snPoretti");
+INSERT INTO User(userId, type, firstName, lastName, email, password, ssn, serialNumber) VALUES(5, 'TEACHER', 'Marina', 'Massironi', 'tjw85.teacher.massironi@inbox.testmail.app', 'marina', "ssnMarina", "snMarina");
 
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 1, 1);
 INSERT INTO TeacherCourse(teacherId, courseId, isValid) VALUES(4, 2, 1);
@@ -44,7 +44,10 @@ INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookin
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(2, 1, 1, DATETIME('now', '+1 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(3, 1, 3, DATETIME('now', '+2 day', 'start of day', '8 hours', '30 minutes'), 1000*60*90, DATETIME('now', '1 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
 INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(4, 2, 2, DATETIME('now', '+3 day', 'start of day', '10 hours', '00 minutes'), 1000*60*90, DATETIME('now', '2 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
-INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(5, 3, 3, DATETIME('now', '+4 day', 'start of day', '11 hours', '30 minutes'), 1000*60*90, DATETIME('now', '3 day', 'start of day', '23 hours', '59 minutes'), 'PRESENCE');
+INSERT INTO Lecture(lectureId, courseId, classId, startingDate, duration, bookingDeadline, delivery) VALUES(5, 3, 3, DATETIME('now', '+4 day', 'start of day', '11 hours', '30 minutes'), 1000*60*90, DATETIME('now', '3 day', 'start of day', '23 hours', '59 minutes'), 'REMOTE');
+
+INSERT INTO Schedule(code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime, scheduleId) VALUES("PERS1", "2020", "1", "1A", "120", "Mon", "8:30:00", "11:30:00", 1);
+INSERT INTO Schedule(code, AAyear, semester, roomId, seats, dayOfWeek, startingTime, endingTime, scheduleId) VALUES("PERS2", "2020", "1", "2B", "120", "Mon", "11:30:00", "13:00:00", 2);
 
 INSERT INTO Booking(studentId, lectureId, status) VALUES(1, 1, "PRESENT");
 INSERT INTO Booking(studentId, lectureId, status) VALUES(2, 4, "BOOKED");
@@ -69,24 +72,23 @@ CREATE TRIGGER check_time_overlapping_before_insert_schedule
                 FROM Schedule
                 WHERE
                     code = NEW.code
+                    AND scheduleId <> NEW.scheduleId
                     AND dayOfWeek = NEW.dayOfWeek
                     AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
                     AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
-			THEN RAISE(ABORT, 'aaa New schedule overlapped with an existing one with the same code')
+			THEN RAISE(ABORT, 'New schedule overlapped with an existing one with the same code')
 		END IF;
-		SELECT CASE 
-            WHEN (
-                SELECT COUNT(*)
-                    FROM Schedule
-                    WHERE
-                        code <> NEW.code
-                        AND roomId = NEW.roomId
-                        AND AAyear = NEW.AAyear
-                        AND semester = NEW.semester
-                        AND dayOfWeek = NEW.dayOfWeek
-                        AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
-                        AND DATETIME(NEW.endingTime) > DATETIME(startingTime)
-                ) <> 0
+		SELECT CASE WHEN (
+            SELECT COUNT(*) <> 0
+                FROM Schedule
+                WHERE
+                    code <> NEW.code
+                    AND roomId = NEW.roomId
+                    AND AAyear = NEW.AAyear
+                    AND semester = NEW.semester
+                    AND dayOfWeek = NEW.dayOfWeek
+                    AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
 			THEN RAISE(ABORT, 'New schedule overlapped with an existing one in the same class')
 		END IF;
 	END;
@@ -99,10 +101,23 @@ CREATE TRIGGER check_time_overlapping_before_update_schedule
             SELECT COUNT(*) <> 0 FROM Schedule
                 WHERE
                     code = NEW.code
+                    AND scheduleId <> NEW.scheduleId
                     AND dayOfWeek = NEW.dayOfWeek
-                    AND DATETIME(NEW.startingTime) <= DATETIME(endingTime)
-                    AND DATETIME(NEW.endingTime) >= DATETIME(startingTime) )
-			THEN RAISE(ABORT, 'aaa New schedule overlapped with an existing one with the same code')
+                    AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
+			THEN RAISE(ABORT, 'New schedule overlapped with an existing one with the same code')
+		END IF;
+		SELECT CASE WHEN (
+            SELECT COUNT(*) <> 0 FROM Schedule
+                WHERE
+                    code <> NEW.code
+                    AND roomId = NEW.roomId
+                    AND AAyear = NEW.AAyear
+                    AND semester = NEW.semester
+                    AND dayOfWeek = NEW.dayOfWeek
+                    AND DATETIME(NEW.startingTime) < DATETIME(endingTime)
+                    AND DATETIME(NEW.endingTime) > DATETIME(startingTime) )
+			THEN RAISE(ABORT, 'New schedule overlapped with an existing one in the same class')
 		END IF;
 	END;
 
