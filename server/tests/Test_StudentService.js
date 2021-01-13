@@ -23,7 +23,7 @@ const prepare = require('../src/db/preparedb.js');
 const API_KEY = '1714443a-b87e-4616-8c6f-19d1d6cf2eee';
 const NAMESPACE = 'tjw85';
 const MAIL_URL = `https://api.testmail.app/api/json?apikey=${API_KEY}&namespace=${NAMESPACE}&pretty=true`;
-const skipEmails = true; // ATTENTION: this flag will skip all email tests
+const skipEmails = false; // ATTENTION: this flag will skip all email tests
 
 const testmailClient = new GraphQLClient(
     // API endpoint:
