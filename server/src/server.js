@@ -154,28 +154,3 @@ function printConf() {
         return process.exit(-1);
     }
 })();
-
-// OLD CODE
-/*
-// The following routes needs authentication
-app.use((req, res, next) => {
-    console.log('check if the cookie exists...');
-    // if (!req.cookies) res.status(401).json("login must be performed before this action");
-    if(!req.cookies) {
-        res.status(401).json(StandardErr.new('Login middleware', StandardErr.errno.NOT_ALLOWED, 'login must be performed before this action', 401));
-        return;
-    }
-    console.log('check if the cookie exists... - done');
-    console.log('veryfing the cookie...');
-    jwt.verify(req.cookies.token, { key: JWT_SECRET }, function(error, decoded) {
-        console.log('veryfing the cookie... - done');
-        // if (error) res.status(401).json('invalid login token');
-        if(error) {
-            res.status(401).json(StandardErr.new('Login middleware', StandardErr.errno.UNEXPECTED_VALUE, 'invalid login token', 401));
-            return;
-        }
-
-        next(); // else, proceed
-    });
-});
-*/
