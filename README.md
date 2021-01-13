@@ -46,11 +46,11 @@ From this point you could interact with the application visiting http://localhos
 - Install Docker (https://www.docker.com/get-started)
 - Import the DockerHub Image of the application writing in the terminal :
 ```
-docker pull se2group4/pulsbs:release1
+docker pull se2group4/pulsbs:release2
 ```
 - Run the application writing in the terminal : 
 ```
-docker run -p 3000:3000 se2group4/pulsbs:release1
+docker run -p 3000:3000 se2group4/pulsbs:release2
 ```
 - Visit http://localhost:3000 on your browser
 ## Usage
