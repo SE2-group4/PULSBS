@@ -69,6 +69,7 @@ class ResponseError {
         QUERY_PARAM_VALUE_NOT_ACCEPTED: 5,
         ENTITY_TYPE_NOT_VALID: 6,
         ENTITY_NOT_FOUND: 7,
+        ENTITY_MISSING_FIELDS: 9,
         FILE_INCORRECT_FORMAT: 60,
         FILE_MISSING: 61,
         TEACHER_COURSE_MISMATCH_AA: 30,
@@ -146,6 +147,9 @@ class ResponseError {
 
             case ResponseError.errno.ENTITY_NOT_FOUND:
                 return `Entity ${args.type} not found`;
+
+            case ResponseError.errno.ENTITY_MISSING_FIELDS:
+                return `Expected fields for every entity: (${args.fields.join(",")})`;
 
             case ResponseError.errno.FILE_INCORRECT_FORMAT:
                 return `filename: ${args.filename} reason: ${args.reason}`;

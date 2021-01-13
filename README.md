@@ -70,9 +70,19 @@ docker run -p 3000:3000 se2group4/pulsbs:release1
 ## Description
 
 ### Client
-
+#### How to
+* run tests
+```
+cd <root>/client
+npm test
+```
 ### Server
 #### How to
+* run the integration/unit tests
+```
+cd <root>/server
+npm run test
+```
 * run the API tests
 ```
 cd <root>/server

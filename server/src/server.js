@@ -41,7 +41,7 @@ app.get(`${BASE_ROUTE}/reset`, async (req, res) => {
     try {
         const dbPath = systemConf["dbPath"];
         const sqlPath = systemConf["--sql-path"];
-        await prepareDb(dbPath, sqlPath, true);
+        await prepareDb(dbPath, sqlPath, false);
         res.status(200).send("Success Reset");
     } catch (err) {
         res.status(400).send("Failed Reset");
