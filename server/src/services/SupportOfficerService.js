@@ -811,8 +811,6 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
     console.log("generating preview...".cyan);
     const preview = await db.getUpdateSchedulePreview(paramSchedule); // get a preview of data which will be modified
     console.log("preview okay".cyan);
-    const retVal = await db.updateSchedule(paramSchedule);
-    console.log("schedule update okay".cyan);
 
     // get all booked students for each lecture which should be modified
     let promises = [];
@@ -821,6 +819,9 @@ const supportOfficerUpdateSchedule = async function supportOfficerUpdateSchedule
         promises.push(db.getBookedStudentsByLecture(lectureRow.currentLecture));
     }
     const studentsPerLecture = await Promise.all(promises);
+
+    const retVal = await db.updateSchedule(paramSchedule);
+    console.log("schedule update okay".cyan);
 
     // parallel arrays: studentsPerLecture[i] refers to preview.lectures[i]
 
