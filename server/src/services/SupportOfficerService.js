@@ -385,6 +385,7 @@ async function sanitizeEntities(entities, entityType) {
             return await sanitizeEnrollmentsEntities(entities, entityType);
         }
         case "SCHEDULES": {
+            await checkForCoursePresence(entities);
             return sanitizeGenericEntities(entities, entityType);
         }
         case "TEACHERCOURSE": {
@@ -400,6 +401,15 @@ async function sanitizeEntities(entities, entityType) {
 async function checkForTeachersPresence(entities) {
     await updateAndSort("TEACHER", Teacher.getComparator("serialNumber"));
     entities.forEach((entity) => getTeacherIdFromSerialNumber(entity.Teacher));
+}
+
+/**
+ * Check that every course is already in the system. It looks for the "code".
+ * It throws an error in case the entity is not found.
+ */
+async function checkForCoursePresence(entities) {
+    await updateAndSort("COURSE", Course.getComparator("code"));
+    entities.forEach((entity) => getCourseIdFromCode(entity.Code));
 }
 
 /**
@@ -610,9 +620,7 @@ function logToFile(queries) {
 
 async function runBatchQueries(sqlQueries) {
     try {
-        console.time("batch");
         await db.execBatch(sqlQueries);
-        console.timeEnd("batch");
         logToFile(sqlQueries);
     } catch (err) {
         let typeError = errno.DB_GENERIC_ERROR;
