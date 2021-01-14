@@ -1747,12 +1747,13 @@ exports._generateCourseBySchedule = _generateCourseBySchedule;
  * @returns {Promise} promise of Lecture - lecture prototype
  */
 const _generateLecturePrototypeBySchedule = function (schedule) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         // first of all, get data which are in common for all lectures we are going to generate
         const class_ = new Class();
         class_.description = schedule.roomId;
+
+        await _generateClassBySchedule(schedule);
         Promise.all([
-            _generateClassBySchedule(schedule),
             getClassByDescription(class_),
             // _generateCourseBySchedule(schedule), // removed
             getCourseByCode(schedule.code),
@@ -1760,8 +1761,8 @@ const _generateLecturePrototypeBySchedule = function (schedule) {
             .then((values) => {
                 // console.log(`values:`);
                 // console.log(values);
-                const actualClass = values[1];
-                const actualCourse = values[2];
+                const actualClass = values[0];
+                const actualCourse = values[1];
 
                 // console.log(`actual schedule: ${schedule.scheduleId}`.cyan);
                 // console.log(`actual course: ${actualCourse.courseId}`.cyan);
