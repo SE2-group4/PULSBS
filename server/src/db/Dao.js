@@ -1815,41 +1815,41 @@ exports._generateLecturePrototypeBySchedule = _generateLecturePrototypeBySchedul
  */
 const _generateLecturesBySchedule = function (schedule, hint = DaoHint.NO_HINT, oldSchedule = undefined) {
     return new Promise((resolve, reject) => {
-        getScheduleById(schedule)
-            _generateLecturePrototypeBySchedule(schedule)
-                .then((lecturePrototype) => {
-                    // let nLectures = 0;
-    
-                    let promises = [];
-                    if(!oldSchedule)
-                        hint = DaoHint.NEW_VALUE;
-                    if (hint != DaoHint.NEW_VALUE) promises.push(_deleteLecturesBySchedule(oldSchedule));
-                    promises.push(_addLecturesByScheduleAndPrototype(schedule, lecturePrototype));
-    
-                    Promise.all(promises)
-                        .then((values) => {
-                            let nLectures = values[values.length - 1];
-                            resolve(nLectures);
-                            return;
-                        })
-                        .catch((err) => {
-                            // maybe the hint was wrong
-                            // it can retry a maximum of 1 times
-                            promises = [
-                                _deleteLecturesBySchedule(oldSchedule),
-                                _addLecturesByScheduleAndPrototype(schedule, lecturePrototype),
-                            ];
-                            Promise.all(promises)
-                                .then((values) => {
-                                    nLectures = values[1];
-                                    resolve(nLectures);
-                                })
-                                .catch((err) => {
-                                    reject(err);
-                                });
-                        });
-                })
-                .catch(reject);
+        // getScheduleById(schedule)
+        _generateLecturePrototypeBySchedule(schedule)
+            .then((lecturePrototype) => {
+                // let nLectures = 0;
+
+                let promises = [];
+                if(!oldSchedule)
+                    hint = DaoHint.NEW_VALUE;
+                if (hint != DaoHint.NEW_VALUE) promises.push(_deleteLecturesBySchedule(oldSchedule));
+                promises.push(_addLecturesByScheduleAndPrototype(schedule, lecturePrototype));
+
+                Promise.all(promises)
+                    .then((values) => {
+                        let nLectures = values[values.length - 1];
+                        resolve(nLectures);
+                        return;
+                    })
+                    .catch((err) => {
+                        // maybe the hint was wrong
+                        // it can retry a maximum of 1 times
+                        promises = [
+                            _deleteLecturesBySchedule(oldSchedule),
+                            _addLecturesByScheduleAndPrototype(schedule, lecturePrototype),
+                        ];
+                        Promise.all(promises)
+                            .then((values) => {
+                                nLectures = values[1];
+                                resolve(nLectures);
+                            })
+                            .catch((err) => {
+                                reject(err);
+                            });
+                    });
+            })
+            .catch(reject);
     });
 };
 exports._generateLecturesBySchedule = _generateLecturesBySchedule; // export needed for testing
