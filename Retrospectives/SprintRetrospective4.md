@@ -69,12 +69,17 @@ Only for tasks with an est. error greater than 35%
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
 
+  - complete all committed stories
+
 <!-- OLD THINGS
   - augment threshold for coverage (80%)
   - better discuss the design of the pages
 -->
 
 - Which ones you were not able to achieve? Why?
+
+  - reduce technical debt to 10 min: a lot of new code committed, so it required an high effort to keep the technical debt stable
+  - reduce code duplication to 4%: not done due to lack of time
 <!-- OLD THINGS
   - reduce code duplication: not done due to lack of time
 -->
