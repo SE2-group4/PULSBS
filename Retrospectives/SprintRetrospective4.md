@@ -63,6 +63,7 @@ Only for tasks with an est. error greater than 35%
 	  - The task was actually faster then expected, but we preferred to estimate it with a bit of margin. 
 
 - What lessons did you learn (both positive and negative) in this sprint?
+  - 
 <!-- OLD THINGS
   - POSITIVE
     - initial discussion about page design improves the quality of the development process
@@ -72,30 +73,22 @@ Only for tasks with an est. error greater than 35%
 -->
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
-
   - complete all committed stories
-
-<!-- OLD THINGS
-  - augment threshold for coverage (80%)
-  - better discuss the design of the pages
--->
 
 - Which ones you were not able to achieve? Why?
 
   - reduce technical debt to 10 min: a lot of new code committed, so it required an high effort to keep the technical debt stable
   - reduce code duplication to 4%: not done due to lack of time
-<!-- OLD THINGS
-  - reduce code duplication: not done due to lack of time
--->
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
-<!-- OLD THINGS
-  - complete all committed stories
+  - augment coverage to 95% 
+    * increase time budget for related task
   - reduce technical debt to 10 min
+    * increase time budget for related task
   - reduce code duplication to 4%
--->
-
+    * increase time budget for related task
+  - improve performance 
+    * create ad hoc tasks
+    
 - One thing you are proud of as a Team!!
-<!-- OLD THINGS
-  - we are keeping under control the complexity of the project as it is growing in size. Likewise the quality is not decreasing as the project is growing.
--->
+  We built a very strong bond among us and this allowed to develope a better application with less effort 
