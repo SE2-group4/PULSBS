@@ -57,6 +57,10 @@ Only for tasks with an est. error greater than 35%
 - What caused your errors in estimation (if any)?
   - Task xx (task description)
     - reason
+- Task 190	(PULSBS-18 Frontend TeacherPage : add new API)
+	- The task was actually faster then expected, but we preferred to estimate it with a bit of margin. 
+- Task 192	(PULSBS-18 Frontend TeacherPage : test new API)
+	- The task was actually faster then expected, but we preferred to estimate it with a bit of margin. 
 
 - What lessons did you learn (both positive and negative) in this sprint?
 <!-- OLD THINGS
