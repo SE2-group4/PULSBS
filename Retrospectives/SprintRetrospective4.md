@@ -1,4 +1,4 @@
-SPRINT RETROSPECTIVE 3 (TEAM 4)
+SPRINT RETROSPECTIVE 4 (TEAM 4)
 =====================================
 
 ## PROCESS MEASURES 
@@ -57,10 +57,16 @@ Only for tasks with an est. error greater than 35%
 - What caused your errors in estimation (if any)?
   - Task xx (task description)
     - reason
-  - Task 190	(PULSBS-18 Frontend TeacherPage : add new API)
+  - Task 184 (PULSBS-17 Backend Support Page : implement API service)
+	  - we added a new feature (cancellation) mid sprint
+  - Task 187 (PULSBS-17 Backend Support Page : test API service)
+      - understimated the time needed to complete the task 
+  - Task 190 (PULSBS-18 Frontend TeacherPage : add new API)
 	  - The task was actually faster then expected, but we preferred to estimate it with a bit of margin. 
-  - Task 192	(PULSBS-18 Frontend TeacherPage : test new API)
+  - Task 192 (PULSBS-18 Frontend TeacherPage : test new API)
 	  - The task was actually faster then expected, but we preferred to estimate it with a bit of margin. 
+  - Task 197 (PULSBS-18 Backend Teacher Page : test API service)
+      - had to rewrite old tests due to a different implementation of the service
 
 - What lessons did you learn (both positive and negative) in this sprint?
   - 
