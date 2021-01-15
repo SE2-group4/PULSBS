@@ -40,11 +40,11 @@ SPRINT RETROSPECTIVE 3 (TEAM 4)
   - Total hours estimated : 
   - Total hours spent : 
 - Code review
-  - Total hours estimated : 
+  - Total hours estimated :
   - Total hours spent : 
 - Technical Debt management:
-  - Total hours estimated : 
-  - Total hours spent : 
+  - Total hours estimated : 25m
+  - Total hours spent : 25m
   - Hours estimated for remediation by SonarQube : 
   - Hours spent on remediation : 
   - debt ratio (as reported by SonarQube under "Measures-Maintainability") : %
