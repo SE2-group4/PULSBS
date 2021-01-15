@@ -119,7 +119,8 @@ Only for tasks with an est. error greater than 35%
     - reason
   - Task 120 ("Backend Booking Manager : add new service and dao functions for cancellations and attendance")
     - understimated the time needed to complete the job
-  - Task 121 ("Backend Booking Manager : update database for supporting cancellations and attendance") `@Paolo`
+  - Task 121 ("Backend Booking Manager : update database for supporting cancellations and attendance"):
+    - more changes where needed to the database than the expected during the estimations
   - Task 126 ("Frontend Support Officer : create page")
     - understimated the management of uploading order of the files in order to follow database's restraints
   - Task 127 ("Frontend Support Officer : create API")
@@ -128,8 +129,10 @@ Only for tasks with an est. error greater than 35%
     - overstimated the time needed, the library found is intuitive and quick to use
   - Task 130 ("Backend Support Officer : create new service and new dao functions")
     - technical difficulties in mapping the input data with our internal representation
-  - Task 132 ("Backend Booking Manager : update DB entities (for supporting support officer)") `@Paolo`
-  - Task 142 ("Backend Student Page : update API") `@Paolo`
+  - Task 132 ("Backend Booking Manager : update DB entities (for supporting support officer)"):
+    - related to task 121
+  - Task 142 ("Backend Student Page : update API"):
+    - very small amount of time difference
   - Task 174 ("Refactor Teacher service code")
     - completed only partially due to lack of time
 
