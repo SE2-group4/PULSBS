@@ -142,14 +142,12 @@ Only for tasks with an est. error greater than 35%
      - we finished the time budget
      
 - What lessons did you learn (both positive and negative) in this sprint?
-  - 
-<!-- OLD THINGS
+  
   - POSITIVE
     - initial discussion about page design improves the quality of the development process
     - sometimes asking colleagues for help can save a lot of time
   - NEGATIVE
-    - understimate a task that you are doing alone for first time
--->
+    
 
 - Which improvement goals set in the previous retrospective were you able to achieve? 
   - complete all committed stories
