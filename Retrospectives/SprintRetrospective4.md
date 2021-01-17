@@ -118,17 +118,29 @@ Only for tasks with an est. error greater than 35%
 - What caused your errors in estimation (if any)?
   - Task xx (task description)
     - reason
+  - Task 176 (Code review)
+    - we finished the time budget
+  - Task 177 (Review API)
+    - The task was actually faster then expected, but we preferred to estimate it with a bit of margin. 
+  - Task 181 (Frontend Support Page : test new page)
+    - need to implement more test case of those expected 
   - Task 184 (PULSBS-17 Backend Support Page : implement API service)
-	  - we added a new feature (cancellation) mid sprint
+    - we added a new feature (cancellation) mid sprint
   - Task 187 (PULSBS-17 Backend Support Page : test API service)
       - understimated the time needed to complete the task 
   - Task 190 (PULSBS-18 Frontend TeacherPage : add new API)
-	  - The task was actually faster then expected, but we preferred to estimate it with a bit of margin. 
+     - The task was actually faster then expected, but we preferred to estimate it with a bit of margin. 
   - Task 192 (PULSBS-18 Frontend TeacherPage : test new API)
-	  - The task was actually faster then expected, but we preferred to estimate it with a bit of margin. 
+    - The task was actually faster then expected, but we preferred to estimate it with a bit of margin. 
   - Task 197 (PULSBS-18 Backend Teacher Page : test API service)
       - had to rewrite old tests due to a different implementation of the service
-
+   - Task 199 (Frontend Teacher Page :  update APIs)
+     - The task was actually faster then expected, but we preferred to estimate it with a bit of margin. 
+   - Task 201 (Frontend Booking Manager : adapt the page)
+     - There were issues in graph implementation not expected
+   - Task 225 (Update API documentation)
+     - we finished the time budget
+     
 - What lessons did you learn (both positive and negative) in this sprint?
   - 
 <!-- OLD THINGS
