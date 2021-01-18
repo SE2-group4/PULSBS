@@ -5,13 +5,13 @@ SPRINT RETROSPECTIVE 4 (TEAM 4)
 
 ### Macro statistics
 
-- Number of stories committed vs done :
-- Total points committed vs done :
-- Nr of hours planned vs spent (as a team) :
-- Unit Tests passing :
-- Code review completed :
-- Code present on VCS : x lines
-- End-to-End tests performed :
+- Number of stories committed vs done : 6 vs 6
+- Total points committed vs done : 44 vs 44
+- Nr of hours planned vs spent (as a team) : 60h vs 62h 30m
+- Unit Tests passing : 360/360
+- Code review completed : 3h 30m / 5h
+- Code present on VCS : 12981 lines
+- End-to-End tests performed : 
 
 ### Detailed statistics
 
