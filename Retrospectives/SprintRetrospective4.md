@@ -11,7 +11,7 @@ SPRINT RETROSPECTIVE 4 (TEAM 4)
 - Unit Tests passing : 360/360
 - Code review completed : 3h 30m / 5h
 - Code present on VCS : 12981 lines
-- End-to-End tests performed : 
+- End-to-End tests performed :  175/175
 
 ### Detailed statistics
 
