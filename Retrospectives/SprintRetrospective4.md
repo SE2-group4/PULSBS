@@ -136,8 +136,12 @@ Only for tasks with an est. error greater than 35%
      - The task was actually faster then expected, but we preferred to estimate it with a bit of margin. 
    - Task 201 (Frontend Booking Manager : adapt the page)
      - There were issues in graph implementation not expected
+   - Task 215 (Backend Support Page : implement dao functions)
+     - many techinical issues required a lot of time to resolve (some of them were related to Google services problems too, hard to detect)
    - Task 225 (Update API documentation)
      - we finished the time budget
+   - Task 220 (Backend Support Page : test send email)
+     - already done testing story #20
      
 - What lessons did you learn (both positive and negative) in this sprint?
   
