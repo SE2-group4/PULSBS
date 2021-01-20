@@ -116,8 +116,6 @@ SPRINT RETROSPECTIVE 4 (TEAM 4)
 Only for tasks with an est. error greater than 35% 
 
 - What caused your errors in estimation (if any)?
-  - Task xx (task description)
-    - reason
   - Task 176 (Code review)
     - we finished the time budget
   - Task 177 (Review API)
@@ -168,4 +166,4 @@ Only for tasks with an est. error greater than 35%
     * create ad hoc tasks
     
 - One thing you are proud of as a Team!!
-  We built a very strong bond among us and this allowed to develope a better application with less effort 
+  - We built a very strong bond among us and this allowed to develope a better application with less effort 
