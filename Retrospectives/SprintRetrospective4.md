@@ -116,6 +116,8 @@ SPRINT RETROSPECTIVE 4 (TEAM 4)
 Only for tasks with an est. error greater than 35% 
 
 - What caused your errors in estimation (if any)?
+  - Task 172 (Manage issue 3-1)
+    - we needed to redesing some parts of the page because of unexpected problem
   - Task 176 (Code review)
     - we finished the time budget
   - Task 177 (Review API)
